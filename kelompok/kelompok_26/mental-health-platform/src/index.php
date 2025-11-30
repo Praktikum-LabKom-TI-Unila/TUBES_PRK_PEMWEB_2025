@@ -179,7 +179,7 @@ function load_view($path) {
 
             <div class="testimonial-card bg-white p-6 rounded-xl soft-shadow">
                 <p class="italic text-gray-700">"Fitur anonymous bikin aku berani jujur tentang masalah keluarga."</p>
-                <div class="mt-4 font-semibold text-[#17252A]">— Mira, 21</div>
+                <div class="mt-4 font-semibold text-[#17252A]">— Anon, 21</div>
             </div>
 
             <div class="testimonial-card bg-white p-6 rounded-xl soft-shadow">
@@ -205,15 +205,63 @@ function load_view($path) {
     © <?=date('Y')?> Astral Psychologist
 </footer>
 
-
 <?php
-/* ROUTER PAGES */
-elseif ($p === 'login'): load_view("auth/login");
-elseif ($p === 'register'): load_view("auth/register");
-elseif ($p === 'survey'): load_view("survey/survey_form");
-elseif ($p === 'chat'): load_view("chat/chat_room");
-elseif ($p === 'match'): load_view("matching/match_result");
-endif;
+if (isset($_GET['p'])) {
+
+    switch ($_GET['p']) {
+
+        case 'user_dashboard':
+            include "src/views/dashboard/user_dashboard.php";
+            break;
+
+        case 'konselor_dashboard':
+            include "src/views/dashboard/konselor_dashboard.php";
+            break;
+
+        case 'admin_dashboard':
+            include "src/views/dashboard/admin_dashboard.php";
+            break;
+
+        case 'login':
+            load_view("auth/login");
+            break;
+
+        case 'register':
+            load_view("auth/register");
+            break;
+
+        case 'survey':
+            load_view("survey/survey_form");
+            break;
+
+        case 'chat':
+            load_view("chat/chat_room");
+            break;
+
+        case 'match':
+            load_view("matching/match_result");
+            break;
+
+        default:
+            load_view("404");
+            break;
+    }
+
+} else {
+
+    if ($p === 'login') {
+        load_view("auth/login");
+    } elseif ($p === 'register') {
+        load_view("auth/register");
+    } elseif ($p === 'survey') {
+        load_view("survey/survey_form");
+    } elseif ($p === 'chat') {
+        load_view("chat/chat_room");
+    } elseif ($p === 'match') {
+        load_view("matching/match_result");
+    }
+
+}
 ?>
 
 <!-- TESTIMONIAL AUTO-SCROLL -->
