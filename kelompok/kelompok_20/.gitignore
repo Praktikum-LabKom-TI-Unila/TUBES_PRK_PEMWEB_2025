@@ -1,0 +1,32 @@
+# myUnila Lost & Found - Git Ignore Rules
+
+# Folder Uploads (Jangan di-push ke Git)
+src/assets/uploads/
+*.jpg
+*.jpeg
+*.png
+*.gif
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Temporary Files
+*.tmp
+*.log
+*.cache
+
+# Environment & Config
+.env
+config/local.php
+
+# Database Backups
+*.sql.backup
+database/backup/
