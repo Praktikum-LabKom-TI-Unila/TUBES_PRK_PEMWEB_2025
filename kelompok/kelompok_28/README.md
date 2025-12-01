@@ -14,7 +14,7 @@ Aplikasi ini adalah sistem kasir (Point of Sales) dan manajemen stok barang berb
 | :--- | :--- | :--- | :--- |
 | 1 | **M. Hibban Ramadhan** | **2315061094** | Fullstack / Project Lead |
 | 2 | **Syahrul Ghufron Al Hamdan** | **2315061063** | Frontend |
-| 3 | **Reza Rohman** | - | Frontend |
+| 3 | **M. Reza Rohman** | **2315061004** | Frontend |
 | 4 | **Makka Muhammad Mustova** | **2315061100** | UI/Doc |
 
 ---
@@ -81,7 +81,7 @@ Tantangan PHP Native adalah kode yang berantakan (spaghetti code). Gunakan struk
 
 ## 🔀 Alur Fitur & Hak Akses (Role)
 
-Untuk memenuhi syarat User Management, kita bagi hak aksesnya:
+Untuk memenuhi syarat User Management, kita bagi hak aksesnya:  
 **1. Owner:**
     - Bisa akses semua halaman.
     - Fitur eksklusif: Melihat Laporan Penjualan (Grafik/Tabel total pendapatan) dan Manajemen User (Tambah/Hapus karyawan).
