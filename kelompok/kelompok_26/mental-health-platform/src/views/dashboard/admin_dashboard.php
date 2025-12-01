@@ -75,12 +75,6 @@ $admin = $_SESSION['user'];
 
       <!-- top shortcuts intentionally removed — navigation through left sidebar -->
 
-      <!-- debug panel (hidden until needed) -->
-      <div id="adminDebugWrap" class="mb-4" style="display:none">
-        <h4 class="text-xs text-gray-400 mb-2">Debug — raw server response</h4>
-        <pre id="adminDebug" class="p-3 bg-[#F8FAFC] border rounded text-xs text-[#0B2B3A] max-h-40 overflow-auto"></pre>
-      </div>
-
       <section id="adminContent">
 
         <!-- Monitoring (default) -->
@@ -264,7 +258,7 @@ $admin = $_SESSION['user'];
       const activeBtn = [...menuButtons].find(b => b.dataset.target === name);
       if(activeBtn) activeBtn.classList.add('bg-gray-100','font-semibold');
     }
-
+    
     menuButtons.forEach(b => b.addEventListener('click', e => showPane(b.dataset.target)));
     // expose to global so top shortcut buttons can call it
     window.showPane = showPane;
