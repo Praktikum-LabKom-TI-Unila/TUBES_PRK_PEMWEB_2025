@@ -4,10 +4,10 @@
 
 | No | Nama | NPM | Role |
 |----|------|-----|------|
-| 1  | [Nama Anggota 1] | [NPM 1] | Full Stack Developer |
-| 2  | [Nama Anggota 2] | [NPM 2] | Frontend Developer |
-| 3  | [Nama Anggota 3] | [NPM 3] | Backend Developer |
-| 4  | [Nama Anggota 4] | [NPM 4] | Database Administrator |
+| 1  | [Firman Farel Richardo] | [2315061099] | PM & Backend (Ketua) |
+| 2  | [Muhammad Robbani Narsam] | [2315061029] | -- |
+| 3  | [Ananda Fahmuzna Fauzi] | [2315061009] | -- |
+| 4  | [Mutiara Khairunnisa Zulkifli] | [2315061060] | -- |
 
 ---
 
