@@ -4,10 +4,10 @@
 
 | No | Nama | NPM | Role |
 |----|------|-----|------|
-| 1  | [Firman Farel Richardo] | [2315061099] | PM & Backend (Ketua) |
-| 2  | [Muhammad Robbani Narsam] | [2315061029] | -- |
-| 3  | [Ananda Fahmuzna Fauzi] | [2315061009] | -- |
-| 4  | [Mutiara Khairunnisa Zulkifli] | [2315061060] | -- |
+| 1  | Firman Farel Richardo | 2315061099 | PM & Backend (Ketua) |
+| 2  | Muhammad Robbani Narsam | 2315061029 | -- |
+| 3  | Ananda Fahmuzna Fauzi | 2315061009 | -- |
+| 4  | Mutiara Khairunnisa Zulkifli | 2315061060 | -- |
 
 ---
 
