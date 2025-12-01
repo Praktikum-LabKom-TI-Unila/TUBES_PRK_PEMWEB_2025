@@ -2,7 +2,6 @@
 session_start();
 include '../config/koneksi.php';
 
-// Ambil aksi dari URL (contoh: proses_auth.php?aksi=login)
 $aksi = $_GET['aksi'];
 
 // --- 1. PROSES REGISTER ---
@@ -10,7 +9,7 @@ if ($aksi == 'register') {
     $nama     = $_POST['nama_lengkap'];
     $toko     = $_POST['nama_toko'];
     $email    = $_POST['email'];
-    $password = $_POST['password']; // Di real project harusnya di-hash, tapi untuk tugas ini plain text ok
+    $password = $_POST['password']; 
     $alamat   = $_POST['alamat'];
 
     // Cek apakah email sudah terdaftar?
@@ -51,7 +50,7 @@ elseif ($aksi == 'login') {
             $_SESSION['status']   = 'login';
             $_SESSION['user_id']  = $data['id'];
             $_SESSION['nama']     = $data['nama_lengkap'];
-            $_SESSION['toko']     = $data['nama_toko']; // Biar bisa nampilin nama toko
+            $_SESSION['toko']     = $data['nama_toko'];
             $_SESSION['role']     = $data['role'];
 
             // Redirect ke Dashboard Produk
