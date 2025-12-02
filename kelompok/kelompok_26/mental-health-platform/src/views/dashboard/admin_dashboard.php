@@ -570,4 +570,4 @@ $admin = $_SESSION['user'];
   .modal-actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:12px }
 </style>
 
-/* tes */
+/* tes he*/
