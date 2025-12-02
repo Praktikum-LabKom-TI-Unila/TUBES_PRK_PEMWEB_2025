@@ -1,5 +1,5 @@
 <?php
-// Mulai session (Wajib di baris paling atas)
+// Mulai session
 session_start();
 
 // Panggil file koneksi database
@@ -8,7 +8,7 @@ require_once '../config/database.php';
 // Cek apakah form disubmit
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
-    // Ambil data dari form
+    // Ambil dan bersihkan data dari form
     $username = trim($_POST['username']);
     $password = trim($_POST['password']);
 
@@ -18,52 +18,81 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     }
 
-    // QUERY KE DATABASE MENGGUNAKAN PREPARED STATEMENT (Security: Anti SQL Injection)
-    $sql = "SELECT id, username, password, role, fullname FROM users WHERE username = ?";
+    // --- TAHAP 1: CEK TABEL OWNERS ---
+    $sql_owner = "SELECT id, username, password, fullname FROM owners WHERE username = ?";
     
-    if ($stmt = mysqli_prepare($conn, $sql)) {
-        // Bind parameter (s = string)
+    if ($stmt = mysqli_prepare($conn, $sql_owner)) {
         mysqli_stmt_bind_param($stmt, "s", $username);
-        
-        // Eksekusi query
         mysqli_stmt_execute($stmt);
-        
-        // Simpan hasil
         mysqli_stmt_store_result($stmt);
         
-        // Cek jika user ditemukan (jumlah baris > 0)
+        // Jika ditemukan di tabel owners
         if (mysqli_stmt_num_rows($stmt) == 1) {
-            // Bind hasil ke variabel
-            mysqli_stmt_bind_result($stmt, $id, $db_username, $db_password, $role, $fullname);
+            mysqli_stmt_bind_result($stmt, $id, $db_username, $db_password, $fullname);
             mysqli_stmt_fetch($stmt);
 
-            // VERIFIKASI PASSWORD
-            // Kita pakai password_verify() untuk mencocokkan input dengan Hash di DB
             if (password_verify($password, $db_password)) {
-                
-                // Jika password benar, set SESSION
+                // Set Session Owner
                 $_SESSION['loggedin'] = true;
-                $_SESSION['id'] = $id;
+                $_SESSION['user_id'] = $id;
                 $_SESSION['username'] = $db_username;
-                $_SESSION['role'] = $role;     // Penting untuk hak akses nanti
+                $_SESSION['role'] = 'owner'; // Role manual karena owner tidak punya kolom role
                 $_SESSION['fullname'] = $fullname;
+                
+                // Owner mungkin punya banyak toko, store_id biasanya dipilih nanti di dashboard
+                // atau ambil toko pertama jika single-store:
+                // $_SESSION['store_id'] = ... (opsional)
 
-                // Redirect ke Dashboard (Folder pages)
                 header("Location: ../pages/dashboard.php");
                 exit;
-
             } else {
-                // Password salah
+                // Password salah (untuk owner)
+                header("Location: login.php?error=invalid");
+                exit;
+            }
+        }
+        mysqli_stmt_close($stmt);
+    }
+
+    // --- TAHAP 2: JIKA BUKAN OWNER, CEK TABEL EMPLOYEES ---
+    $sql_employee = "SELECT id, store_id, username, password, role, fullname, is_active FROM employees WHERE username = ?";
+    
+    if ($stmt = mysqli_prepare($conn, $sql_employee)) {
+        mysqli_stmt_bind_param($stmt, "s", $username);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_store_result($stmt);
+        
+        // Jika ditemukan di tabel employees
+        if (mysqli_stmt_num_rows($stmt) == 1) {
+            mysqli_stmt_bind_result($stmt, $id, $store_id, $db_username, $db_password, $role, $fullname, $is_active);
+            mysqli_stmt_fetch($stmt);
+
+            // Cek apakah akun karyawan aktif
+            if ($is_active == 0) {
+                header("Location: login.php?error=suspended");
+                exit;
+            }
+
+            if (password_verify($password, $db_password)) {
+                // Set Session Employee
+                $_SESSION['loggedin'] = true;
+                $_SESSION['user_id'] = $id;
+                $_SESSION['store_id'] = $store_id; // Karyawan terikat toko tertentu
+                $_SESSION['username'] = $db_username;
+                $_SESSION['role'] = $role; // 'admin_gudang' atau 'kasir'
+                $_SESSION['fullname'] = $fullname;
+
+                header("Location: ../pages/dashboard.php");
+                exit;
+            } else {
                 header("Location: login.php?error=invalid");
                 exit;
             }
         } else {
-            // Username tidak ditemukan
+            // Username tidak ditemukan di Owner maupun Employee
             header("Location: login.php?error=invalid");
             exit;
         }
-
-        // Tutup statement
         mysqli_stmt_close($stmt);
     }
 }
