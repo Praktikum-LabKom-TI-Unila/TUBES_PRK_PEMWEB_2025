@@ -42,7 +42,7 @@ $isLoggedIn = isset($_SESSION['status']) && $_SESSION['status'] == 'login';
         </li>
 
         <li class="nav-item">
-            <a class="nav-link" href="<?php echo $base_url; ?>/produk/katalog.php">Katalog Produk</a>
+            <a class="nav-link" href="<?php echo $base_url; ?>/katalog.php">Katalog Produk</a>
         </li>
 
         <?php if ($isLoggedIn): ?>

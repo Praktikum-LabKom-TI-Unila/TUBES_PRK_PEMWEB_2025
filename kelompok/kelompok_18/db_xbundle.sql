@@ -1,10 +1,10 @@
 -- Active: 1744639830308@@localhost@3306@db_xbundle
--- DATABASE X-BUNDLE (FINAL UPDATE DENGAN FITUR CHAT & EXPIRY)
+-- DATABASE X-BUNDLE (FINAL VERSION 3.0 - WITH CATEGORIES)
 
 -- Pastikan kita pakai DB yang benar
 USE db_xbundle;
 
--- 1. Tabel Users (Ditambah deskripsi & no_hp)
+-- === 1. Tabel Users (Ditambah deskripsi & no_hp) ===
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nama_lengkap VARCHAR(100) NOT NULL,
@@ -19,20 +19,23 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. Tabel Products
+-- === 2. Tabel Products (Ditambah Kategori & Satuan) ===
 CREATE TABLE products (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     nama_produk VARCHAR(100) NOT NULL,
+    kategori ENUM('makanan', 'minuman', 'jasa', 'fashion', 'kerajinan', 'lainnya') DEFAULT 'lainnya',
     harga DECIMAL(10,2) NOT NULL,
     stok INT DEFAULT 0,
+    satuan VARCHAR(50) DEFAULT 'pcs',
     deskripsi TEXT,
     gambar VARCHAR(255) DEFAULT 'no-image.jpg',
+    status_produk ENUM('aktif', 'arsip') DEFAULT 'aktif',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- 3. Tabel Bundles (Transaksi Kolaborasi)
+-- === 3. Tabel Bundles (Transaksi Kolaborasi) ===
 CREATE TABLE bundles (
     id INT AUTO_INCREMENT PRIMARY KEY,
     pembuat_id INT NOT NULL,
@@ -49,7 +52,7 @@ CREATE TABLE bundles (
     FOREIGN KEY (produk_mitra_id) REFERENCES products(id)
 );
 
--- 4. Tabel Chats (BARU - Untuk Fitur Chat Room)
+-- === 4. Tabel Chats (Fitur Chat Room) ===
 CREATE TABLE chats (
     id INT AUTO_INCREMENT PRIMARY KEY,
     bundle_id INT NOT NULL, 
@@ -60,7 +63,7 @@ CREATE TABLE chats (
     FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- 5. Tabel Vouchers (Ditambah Expired Date & Kuota)
+-- === 5. Tabel Vouchers (Expired Date & Kuota) ===
 CREATE TABLE vouchers (
     id INT AUTO_INCREMENT PRIMARY KEY,
     bundle_id INT NOT NULL,
@@ -73,6 +76,14 @@ CREATE TABLE vouchers (
     FOREIGN KEY (bundle_id) REFERENCES bundles(id) ON DELETE CASCADE
 );
 
--- Insert Akun Admin 
+-- Insert Akun Admin Default
 INSERT INTO users (nama_lengkap, email, password, role, nama_toko) 
-VALUES ('Admin', 'admin@xbundle.com', 'admin123', 'admin', 'Kantor Pusat');
+VALUES ('Admin', 'admin@xbundle.com', 'admin123', 'admin', 'Kantor Pusat X-Bundle');
+
+-- Insert Akun User Dummy (Buat Contoh di Katalog)
+INSERT INTO users (nama_lengkap, email, password, role, nama_toko, deskripsi_toko, alamat_toko) 
+VALUES ('Bani', 'bani@kopi.com', '123', 'umkm', 'Kopi Senja', 'Menjual kopi robusta asli lampung', 'Jl. Pagar Alam No 1');
+
+-- Insert Produk Dummy (Biar Katalog Gak Kosong Pas Pertama Dibuka)
+INSERT INTO products (user_id, nama_produk, kategori, harga, stok, satuan, deskripsi, gambar)
+VALUES (2, 'Kopi Arabika 250gr', 'minuman', 25000, 50, 'bungkus', 'Kopi bubuk asli tanpa campuran', 'no-image.jpg');
