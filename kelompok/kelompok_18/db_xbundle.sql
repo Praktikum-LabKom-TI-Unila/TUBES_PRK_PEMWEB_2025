@@ -1,6 +1,9 @@
 -- Active: 1744639830308@@localhost@3306@db_xbundle
 -- DATABASE X-BUNDLE (FINAL UPDATE DENGAN FITUR CHAT & EXPIRY)
-use db_xbundle;
+
+-- Pastikan kita pakai DB yang benar
+USE db_xbundle;
+
 -- 1. Tabel Users (Ditambah deskripsi & no_hp)
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -57,13 +60,15 @@ CREATE TABLE chats (
     FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- 5. Tabel Vouchers (Ditambah Expired Date)
+-- 5. Tabel Vouchers (Ditambah Expired Date & Kuota)
 CREATE TABLE vouchers (
     id INT AUTO_INCREMENT PRIMARY KEY,
     bundle_id INT NOT NULL,
-    kode_unik VARCHAR(20) NOT NULL UNIQUE,
-    status ENUM('available', 'used', 'expired') DEFAULT 'available',
-    expired_at DATE NULL, 
+    kode_voucher VARCHAR(50) NOT NULL UNIQUE, 
+    potongan_harga DECIMAL(10,2) DEFAULT 0,   
+    kuota_maksimal INT DEFAULT 100,           
+    kuota_terpakai INT DEFAULT 0,            
+    expired_at DATE NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (bundle_id) REFERENCES bundles(id) ON DELETE CASCADE
 );
