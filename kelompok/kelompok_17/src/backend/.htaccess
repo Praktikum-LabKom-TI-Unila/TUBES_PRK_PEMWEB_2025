@@ -1,0 +1,18 @@
+# Protect backend files from direct access
+# Only allow access to /api folder
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Allow access to api folder
+    RewriteCond %{REQUEST_URI} !^/api/ [NC]
+    
+    # Block direct access to PHP files outside api
+    RewriteRule ^(?!api/).*\.php$ - [F,L]
+</IfModule>
+
+# Deny access to sensitive files
+<FilesMatch "\.(htaccess|htpasswd|ini|log|sh|sql)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
