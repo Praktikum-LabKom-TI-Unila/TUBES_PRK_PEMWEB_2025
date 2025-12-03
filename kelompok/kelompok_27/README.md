@@ -7,6 +7,6 @@
 4. Febby Yolanda Putri - 2315061003
 
 ## Deskripsi Singkat
-aplikasi Point of Sales (POS) berbasis web yang dirancang khusus untuk mengelola transaksi dan manajemen penitipan barang jual pada Koperasi Himpunan Mahasiswa.Sistem ini hadir untuk menyelesaikan masalah perhitungan bagi hasil manual yang rentan salah, pencatatan transaksi non-tunai yang tidak rapi, serta risiko integritas data akibat penghapusan barang secara permanen.
+Aplikasi Point of Sales (POS) berbasis web yang dirancang khusus untuk mengelola transaksi dan manajemen penitipan barang jual pada Koperasi Himpunan Mahasiswa.Sistem ini hadir untuk menyelesaikan masalah perhitungan bagi hasil manual yang rentan salah, pencatatan transaksi non-tunai yang tidak rapi, serta risiko integritas data akibat penghapusan barang secara permanen.
 
 ## Cara Menjalankan Aplikasi
