@@ -1,0 +1,173 @@
+/* assets/css/style_partner.css */
+
+:root {
+    --primary: #ED7D31;
+    --primary-dark: #D66A22;
+    --text-main: #4F4A45;
+    --bg-light: #F9F9F9;
+    --white: #ffffff;
+}
+
+body {
+    background-color: var(--bg-light) !important;
+    font-family: 'Segoe UI', sans-serif;
+    color: var(--text-main);
+}
+
+/* === HEADER & SEARCH === */
+.partner-header {
+    background: var(--white);
+    padding: 40px 0;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+}
+
+.search-form {
+    max-width: 700px;
+    margin: 20px auto 0;
+    display: flex;
+    gap: 10px;
+    background: #fff;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 8px; /* Sudut tumpul standar */
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    padding: 10px 15px;
+    outline: none;
+}
+
+.filter-select {
+    border: none;
+    background: #f8f9fa;
+    padding: 0 15px;
+    border-left: 1px solid #ddd;
+    color: #666;
+    outline: none;
+    cursor: pointer;
+}
+
+.btn-cari {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.btn-cari:hover {
+    background: var(--primary-dark);
+}
+
+/* === NAVIGASI MENU (INBOX & AKTIF) === */
+.menu-nav {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.btn-menu {
+    background: var(--white);
+    border: 1px solid #ddd;
+    padding: 10px 25px;
+    border-radius: 50px;
+    text-decoration: none;
+    color: var(--text-main);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s;
+}
+
+.btn-menu:hover, .btn-menu.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    box-shadow: 0 4px 10px rgba(237, 125, 49, 0.3);
+}
+
+/* === CARD PARTNER (Back to Basic) === */
+.card-partner {
+    background: var(--white);
+    border: 1px solid #eee;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: 0.3s;
+    height: 100%;
+}
+
+.card-partner:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    border-color: var(--primary);
+}
+
+.card-img-wrapper {
+    height: 180px;
+    width: 100%;
+    background: #eee;
+    overflow: hidden;
+    position: relative;
+}
+
+.card-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.card-category {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.card-body-custom {
+    padding: 15px;
+}
+
+.btn-collab {
+    width: 100%;
+    background: var(--white);
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    padding: 8px;
+    border-radius: 6px;
+    font-weight: 600;
+    margin-top: 10px;
+    transition: 0.3s;
+}
+
+.btn-collab:hover {
+    background: var(--primary);
+    color: white;
+}
+
+/* === REQUEST LIST === */
+.request-box {
+    background: var(--white);
+    border-radius: 10px;
+    border: 1px solid #eee;
+    padding: 20px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.request-box:hover {
+    border-color: var(--primary);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
