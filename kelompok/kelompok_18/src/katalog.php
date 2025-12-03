@@ -1,17 +1,16 @@
 <?php
-// Perhatikan path include-nya (Karena file ini ada di luar/root, jadi langsung panggil foldernya)
+// Perhatikan path include-nya
 include 'config/koneksi.php';
 include 'layouts/header.php';
 
 // --- LOGIC PENCARIAN ---
 $where = "";
 if (isset($_GET['cari'])) {
-    $keyword = mysqli_real_escape_string($koneksi, $_GET['cari']); // Sanitize input biar aman
+    $keyword = mysqli_real_escape_string($koneksi, $_GET['cari']);
     $where = "AND (products.nama_produk LIKE '%$keyword%' OR products.deskripsi LIKE '%$keyword%')";
 }
 
 // --- QUERY UTAMA ---
-// Mengambil data produk + nama toko pemiliknya
 $query = "SELECT products.*, users.nama_toko, users.nama_lengkap 
           FROM products 
           JOIN users ON products.user_id = users.id 
@@ -22,10 +21,10 @@ $result = mysqli_query($koneksi, $query);
 ?>
 
 <!-- === HEADER HERO SECTION === -->
-<div class="bg-light py-5 mb-4 border-bottom">
+<div class="py-5 mb-4 border-bottom" style="background-color: #F6F1EE;">
     <div class="container text-center">
-        <h1 class="fw-bold display-5" style="color: var(--dark-text);">Katalog Produk UMKM</h1>
-        <p class="lead text-muted mb-4">Jelajahi ratusan produk lokal dan temukan peluang kolaborasi.</p>
+        <h1 class="fw-bold display-5" style="color: #4F4A45;">Katalog Produk UMKM</h1>
+        <p class="lead mb-4" style="color: #6C5F5B;">Jelajahi ratusan produk lokal dan temukan peluang kolaborasi.</p>
         
         <!-- Form Pencarian -->
         <div class="row justify-content-center">
@@ -33,7 +32,8 @@ $result = mysqli_query($koneksi, $query);
                 <form action="" method="GET">
                     <div class="input-group input-group-lg shadow-sm">
                         <input type="text" name="cari" class="form-control border-0" placeholder="Cari kopi, keripik, jasa..." value="<?php echo isset($_GET['cari']) ? htmlspecialchars($_GET['cari']) : ''; ?>">
-                        <button class="btn btn-primary px-4" type="submit">
+                        <!-- TOMBOL CARI TERRACOTTA -->
+                        <button class="btn px-4 text-white" type="submit" style="background-color: #ED7D31;">
                             <i class="fa-solid fa-search"></i> Cari
                         </button>
                     </div>
@@ -46,11 +46,10 @@ $result = mysqli_query($koneksi, $query);
 <!-- === GRID PRODUK === -->
 <div class="container mb-5">
     
-    <!-- Info Hasil Pencarian -->
     <?php if(isset($_GET['cari'])): ?>
-        <div class="alert alert-info mb-4">
+        <div class="alert mb-4" style="background-color: #F6F1EE; color: #4F4A45; border-left: 4px solid #ED7D31;">
             Menampilkan hasil pencarian untuk: <strong>"<?php echo htmlspecialchars($_GET['cari']); ?>"</strong>
-            <a href="katalog.php" class="float-end text-decoration-none fw-bold">Reset</a>
+            <a href="katalog.php" class="float-end text-decoration-none fw-bold" style="color: #ED7D31;">Reset</a>
         </div>
     <?php endif; ?>
 
@@ -59,31 +58,35 @@ $result = mysqli_query($koneksi, $query);
         <?php if(mysqli_num_rows($result) > 0): ?>
             <?php while($row = mysqli_fetch_assoc($result)): ?>
                 
-                <!-- START CARD ITEM -->
                 <div class="col-md-3 col-sm-6">
-                    <div class="card h-100 shadow-sm border-0 product-card hover-effect">
+                    <div class="card h-100 shadow-sm border-0 product-card hover-effect" style="border-radius: 12px;">
                         
                         <!-- Gambar Produk -->
-                        <div style="height: 200px; overflow: hidden; background: #f8f9fa;" class="d-flex align-items-center justify-content-center position-relative">
+                        <div style="height: 200px; overflow: hidden; background: #f8f9fa; border-top-left-radius: 12px; border-top-right-radius: 12px;" class="d-flex align-items-center justify-content-center position-relative">
                             <?php if($row['gambar'] != 'no-image.jpg' && file_exists('assets/img/'.$row['gambar'])): ?>
                                 <img src="assets/img/<?php echo $row['gambar']; ?>" class="w-100 h-100" style="object-fit: cover;" alt="<?php echo $row['nama_produk']; ?>">
                             <?php else: ?>
                                 <div class="text-center text-muted">
-                                    <i class="fa-solid fa-image fa-3x mb-2"></i><br>
+                                    <i class="fa-solid fa-image fa-3x mb-2" style="color: #ccc;"></i><br>
                                     <small>No Image</small>
                                 </div>
                             <?php endif; ?>
                             
                             <!-- Badge Stok -->
-                            <span class="position-absolute top-0 end-0 badge bg-dark m-2 opacity-75">
+                            <span class="position-absolute top-0 end-0 badge m-2" style="background-color: rgba(79, 74, 69, 0.8);">
                                 Stok: <?php echo $row['stok']; ?>
                             </span>
                         </div>
 
                         <div class="card-body">
+                            <!-- Badge Kategori (Kuning/Emas soft) -->
+                            <span class="badge text-dark mb-2" style="background-color: #FAE3C6; color: #4F4A45 !important; font-weight: normal;">
+                                <?php echo isset($row['kategori']) ? strtoupper($row['kategori']) : 'UMUM'; ?>
+                            </span>
+
                             <!-- Nama Toko -->
-                            <small class="text-uppercase fw-bold text-muted d-block mb-1" style="font-size: 0.75rem;">
-                                <i class="fa-solid fa-store text-warning"></i> <?php echo htmlspecialchars($row['nama_toko']); ?>
+                            <small class="text-uppercase fw-bold d-block mb-1" style="font-size: 0.75rem; color: #6C5F5B;">
+                                <i class="fa-solid fa-store" style="color: #ED7D31;"></i> <?php echo htmlspecialchars($row['nama_toko']); ?>
                             </small>
                             
                             <!-- Nama Produk -->
@@ -91,12 +94,12 @@ $result = mysqli_query($koneksi, $query);
                                 <?php echo htmlspecialchars($row['nama_produk']); ?>
                             </h5>
                             
-                            <!-- Harga -->
-                            <p class="card-text text-primary fw-bold fs-5 mb-2">
+                            <!-- Harga (WARNA TERRACOTTA) -->
+                            <p class="card-text fw-bold fs-5 mb-2" style="color: #ED7D31;">
                                 Rp <?php echo number_format($row['harga'], 0, ',', '.'); ?>
+                                <span class="text-muted small fw-normal" style="font-size: 0.8rem;">/ <?php echo isset($row['satuan']) ? $row['satuan'] : 'pcs'; ?></span>
                             </p>
                             
-                            <!-- Deskripsi Singkat -->
                             <p class="card-text text-muted small text-truncate">
                                 <?php echo htmlspecialchars($row['deskripsi']); ?>
                             </p>
@@ -107,21 +110,20 @@ $result = mysqli_query($koneksi, $query);
                             <div class="d-grid gap-2">
                                 
                                 <?php if(!isset($_SESSION['status'])): ?>
-                                    <!-- LOGIKA 1: PENGUNJUNG UMUM (Gak Login) -->
-                                    <!-- Fitur Ambil Voucher Promo -->
-                                    <button type="button" class="btn btn-warning text-white fw-bold btn-sm" data-bs-toggle="modal" data-bs-target="#modalVoucher<?php echo $row['id']; ?>">
+                                    <!-- LOGIKA 1: TAMU (Tombol Kuning/Emas) -->
+                                    <button type="button" class="btn text-dark fw-bold btn-sm" style="background-color: #FFD580; border: none;" data-bs-toggle="modal" data-bs-target="#modalVoucher<?php echo $row['id']; ?>">
                                         <i class="fa-solid fa-ticket"></i> Cek Promo
                                     </button>
                                     
                                 <?php elseif($_SESSION['user_id'] == $row['user_id']): ?>
-                                    <!-- LOGIKA 2: PEMILIK TOKO SENDIRI -->
-                                    <a href="produk/index.php" class="btn btn-outline-secondary btn-sm">
+                                    <!-- LOGIKA 2: PEMILIK (Outline Coklat) -->
+                                    <a href="produk/index.php" class="btn btn-sm" style="border: 1px solid #6C5F5B; color: #6C5F5B;">
                                         <i class="fa-solid fa-gear"></i> Kelola Produk
                                     </a>
 
                                 <?php else: ?>
-                                    <!-- LOGIKA 3: UMKM LAIN (Member) -->
-                                    <a href="partner/detail.php?id=<?php echo $row['id']; ?>" class="btn btn-primary btn-sm">
+                                    <!-- LOGIKA 3: UMKM LAIN (Tombol Terracotta) -->
+                                    <a href="partner/detail.php?id=<?php echo $row['id']; ?>" class="btn btn-sm text-white" style="background-color: #ED7D31;">
                                         <i class="fa-solid fa-handshake"></i> Ajak Kolaborasi
                                     </a>
                                 <?php endif; ?>
@@ -130,25 +132,23 @@ $result = mysqli_query($koneksi, $query);
                         </div>
                     </div>
                 </div>
-                <!-- END CARD ITEM -->
 
-                <!-- MODAL VOUCHER (Untuk Pengunjung Umum) -->
+                <!-- MODAL VOUCHER (Desain Earth Tone) -->
                 <div class="modal fade" id="modalVoucher<?php echo $row['id']; ?>" tabindex="-1" aria-hidden="true">
                   <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content text-center p-4 border-0 shadow">
+                    <div class="modal-content text-center p-4 border-0 shadow" style="border-radius: 15px;">
                         <div class="mb-3">
-                            <i class="fa-solid fa-gift fa-3x text-warning"></i>
+                            <i class="fa-solid fa-gift fa-3x" style="color: #ED7D31;"></i>
                         </div>
-                        <h4 class="fw-bold text-dark">Promo Spesial!</h4>
+                        <h4 class="fw-bold" style="color: #4F4A45;">Promo Spesial!</h4>
                         <p class="text-muted">Gunakan kode voucher di bawah ini saat bertransaksi di toko <strong><?php echo $row['nama_toko']; ?></strong>.</p>
                         
-                        <!-- Placeholder Kode Voucher (Nanti Person 4 bikin dinamis ambil dari DB) -->
-                        <div class="bg-light p-3 rounded-3 border border-dashed mb-3 position-relative">
-                            <h2 class="mb-0 fw-bold text-primary ls-2">HEMAT50</h2>
+                        <div class="p-3 rounded-3 border border-dashed mb-3 position-relative" style="background-color: #F6F1EE; border-color: #ED7D31 !important;">
+                            <h2 class="mb-0 fw-bold ls-2" style="color: #ED7D31;">HEMAT50</h2>
                             <small class="text-muted fst-italic mt-2 d-block">*Contoh Kode Promo</small>
                         </div>
                         
-                        <button type="button" class="btn btn-outline-secondary w-100" data-bs-dismiss="modal">Tutup</button>
+                        <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal" style="background-color: #6C5F5B; border: none;">Tutup</button>
                     </div>
                   </div>
                 </div>
@@ -156,17 +156,15 @@ $result = mysqli_query($koneksi, $query);
             <?php endwhile; ?>
         <?php else: ?>
             
-            <!-- Tampilan Jika Produk Kosong -->
             <div class="col-12 text-center py-5">
-                <div class="opacity-50 mb-3">
+                <div class="opacity-50 mb-3" style="color: #6C5F5B;">
                     <i class="fa-regular fa-folder-open fa-5x"></i>
                 </div>
-                <h3 class="fw-bold text-muted">Belum ada produk ditemukan.</h3>
-                <p class="text-muted">Coba kata kunci lain atau jadilah yang pertama mengupload produk!</p>
+                <h3 class="fw-bold" style="color: #4F4A45;">Belum ada produk.</h3>
                 <?php if(isset($_SESSION['status'])): ?>
-                    <a href="produk/tambah.php" class="btn btn-primary mt-2">Upload Produk Sekarang</a>
+                    <a href="produk/tambah.php" class="btn text-white mt-2" style="background-color: #ED7D31;">Upload Produk Sekarang</a>
                 <?php else: ?>
-                    <a href="auth/login.php" class="btn btn-primary mt-2">Login untuk Upload</a>
+                    <a href="auth/login.php" class="btn text-white mt-2" style="background-color: #ED7D31;">Login untuk Upload</a>
                 <?php endif; ?>
             </div>
 
@@ -175,15 +173,9 @@ $result = mysqli_query($koneksi, $query);
     </div>
 </div>
 
-<!-- Tambahan CSS Khusus Halaman Ini -->
 <style>
-    .product-card {
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-    }
+    .product-card { transition: transform 0.2s, box-shadow 0.2s; }
+    .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(79, 74, 69, 0.15) !important; }
     .ls-2 { letter-spacing: 2px; }
 </style>
 
