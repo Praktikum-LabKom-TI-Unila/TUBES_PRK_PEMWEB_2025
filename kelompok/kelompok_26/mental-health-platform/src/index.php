@@ -20,20 +20,34 @@ function load_view($path) {
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-    body { font-family: 'Inter', sans-serif; background:#FBFCFD; }
+    body { 
+        font-family: 'Inter', sans-serif; 
+        background:#FBFCFD;
+        position: relative;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    /* GLOBAL SOFT BACKGROUND IMAGE */
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("../screenshots/SplashScreenBg.jpg");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        opacity: 0.18; /* gambar samar */
+        z-index: -2;  /* di belakang semua konten */
+        pointer-events: none;
+    }
 
     .soft-shadow { box-shadow:0 10px 30px rgba(0,0,0,0.08); }
 
     /* HERO IMAGE: full height + extends downward */
+    /* Tidak lagi dipakai sebagai <img>, tapi tetap disimpan jika butuh nanti */
     .brain-hero {
-        position: absolute;
-        right: 0;
-        top: 0;
-        height: 130%;
-        z-index: -1;
-        opacity: 0.28;
-        pointer-events: none;
-        mix-blend-mode: multiply;
+        display:none;
     }
 
     /* TESTIMONIAL SCROLL FIX */
@@ -86,10 +100,7 @@ function load_view($path) {
 <!-- HERO SECTION -->
 <section class="pt-28 pb-24 relative overflow-visible">
 
-    <!-- BRAIN IMAGE RIGHT SIDE (MEMANJANG KE BAWAH) -->
-    <img src="X:\System\laragon\www\TUBES_PRK_PEMWEB_2025\kelompok\kelompok_26\mental-health-platform\screenshots\SplashScreenBg.jpg"
-        class="brain-hero opacity-[0.27]"
-        style="width:580px; object-fit:cover;">
+    <!-- Background sekarang ditangani oleh body::before -->
 
     <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12">
 
