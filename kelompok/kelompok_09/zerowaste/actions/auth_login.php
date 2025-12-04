@@ -1,39 +1,38 @@
 <?php
 session_start();
-require "../config/database.php";
+require '../config/database.php';
 
-// Ambil input
-$username = $_POST['username'];
-$password = $_POST['password'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
 
-// Cek username
-$sql = "SELECT * FROM users WHERE username='$username' AND deleted_at IS NULL";
-$q = mysqli_query($conn, $sql);
-$user = mysqli_fetch_assoc($q);
+    // Query user berdasarkan email
+    $stmt = $conn->prepare("SELECT id, nama, email, password, role FROM users WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-// Validasi login
-if ($user && password_verify($password, $user['password'])) {
-
-    $_SESSION['user_id']   = $user['id'];
-    $_SESSION['nama']      = $user['nama_lengkap'];
-    $_SESSION['role']      = $user['role'];
-
-    // Catat Activity Log
-    mysqli_query($conn, "
-        INSERT INTO activity_logs(user_id, action, description, ip_address)
-        VALUES ({$user['id']}, 'LOGIN', 'User berhasil login', '{$_SERVER['REMOTE_ADDR']}')
-    ");
-
-    // Redirect berdasarkan role
-    if ($user['role'] == 'admin') {
-        header("Location: ../admin/dashboard.php");
-    } elseif ($user['role'] == 'donatur') {
-        header("Location: ../donatur/dashboard.php");
+    if ($result->num_rows === 1) {
+        $user = $result->fetch_assoc();
+        // Verifikasi password
+        if (password_verify($password, $user['password'])) {
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['nama'] = $user['nama'];
+            $_SESSION['role'] = $user['role'];
+            $_SESSION['success'] = "Login berhasil!";
+            header("Location: ../index.php");
+            exit;
+        } else {
+            $_SESSION['error'] = "Password salah!";
+            header("Location: ../login.php");
+            exit;
+        }
     } else {
-        header("Location: ../mahasiswa/dashboard.php");
+        $_SESSION['error'] = "Email tidak ditemukan!";
+        header("Location: ../login.php");
+        exit;
     }
-    exit;
-
 } else {
-    echo "<script>alert('Username atau Password salah'); window.location='../login.php';</script>";
+    header("Location: ../login.php");
+    exit;
 }
