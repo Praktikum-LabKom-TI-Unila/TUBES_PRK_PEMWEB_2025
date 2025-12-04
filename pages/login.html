@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistem Kelas Online Mini</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/forms.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Header -->
+            <div class="auth-header">
+                <div class="auth-logo">📚</div>
+                <h1 class="auth-title">Selamat Datang Kembali!</h1>
+                <p class="auth-subtitle">Masuk ke akun Anda untuk melanjutkan</p>
+            </div>
+
+            <!-- Alert (hidden by default) -->
+            <div id="alertContainer" style="padding: 0 2rem; padding-top: 2rem;"></div>
+
+            <!-- Body -->
+            <div class="auth-body">
+                <form id="loginForm" novalidate>
+                    <!-- Email -->
+                    <div class="form-group form-group-icon">
+                        <label for="email" class="form-label">Email</label>
+                        <span class="form-icon">📧</span>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            class="form-input" 
+                            placeholder="nama@email.com"
+                            required
+                        >
+                        <div class="form-error" id="emailError">Email tidak valid</div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-group form-group-icon">
+                        <label for="password" class="form-label">Password</label>
+                        <span class="form-icon">🔒</span>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            class="form-input" 
+                            placeholder="Masukkan password"
+                            required
+                        >
+                        <button type="button" class="form-toggle-password" id="togglePassword">
+                            👁️
+                        </button>
+                        <div class="form-error" id="passwordError">Password harus diisi</div>
+                    </div>
+
+                    <!-- Remember Me & Forgot Password -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <div class="form-check">
+                            <input type="checkbox" id="remember" name="remember" class="form-check-input">
+                            <label for="remember" class="form-check-label">Ingat Saya</label>
+                        </div>
+                        <a href="#" class="form-link" style="font-size: 0.875rem;">Lupa Password?</a>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
+                        Masuk
+                    </button>
+                </form>
+            </div>
+
+            <!-- Footer -->
+            <div class="auth-footer">
+                <p style="margin-bottom: 1rem; color: var(--gray);">
+                    Belum punya akun? 
+                    <a href="register.html" class="form-link">Daftar Sekarang</a>
+                </p>
+                <a href="../pages/index.html" class="form-link">
+                    ← Kembali ke Beranda
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p>Memproses login...</p>
+    </div>
+
+    <script src="../assets/js/validation.js"></script>
+    <script>
+        // Login Form Handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const togglePassword = document.getElementById('togglePassword');
+            const loginBtn = document.getElementById('loginBtn');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const alertContainer = document.getElementById('alertContainer');
+
+            // Toggle Password Visibility
+            togglePassword.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                this.textContent = type === 'password' ? '👁️' : '🙈';
+            });
+
+            // Real-time validation
+            emailInput.addEventListener('blur', function() {
+                validateEmail(this.value, 'emailError');
+            });
+
+            passwordInput.addEventListener('blur', function() {
+                validateRequired(this.value, 'passwordError', 'Password harus diisi');
+            });
+
+            // Form Submit
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Clear previous alerts
+                alertContainer.innerHTML = '';
+
+                const email = emailInput.value.trim();
+                const password = passwordInput.value.trim();
+
+                // Validate
+                const isEmailValid = validateEmail(email, 'emailError');
+                const isPasswordValid = validateRequired(password, 'passwordError', 'Password harus diisi');
+
+                if (!isEmailValid || !isPasswordValid) {
+                    showAlert('error', 'Mohon perbaiki error pada form');
+                    return;
+                }
+
+                // Show loading
+                loadingOverlay.classList.add('show');
+                loginBtn.disabled = true;
+
+                // Simulate API call (replace with actual backend call)
+                setTimeout(() => {
+                    // Hide loading
+                    loadingOverlay.classList.remove('show');
+                    loginBtn.disabled = false;
+
+                    // For demo: Check dummy credentials
+                    if (email === 'dosen@email.com' && password === 'password123') {
+                        showAlert('success', 'Login berhasil! Mengalihkan...');
+                        setTimeout(() => {
+                            window.location.href = '../pages/dosen/dashboard-dosen.php';
+                        }, 1500);
+                    } else if (email === 'mahasiswa@email.com' && password === 'password123') {
+                        showAlert('success', 'Login berhasil! Mengalihkan...');
+                        setTimeout(() => {
+                            window.location.href = 'dashboard-mahasiswa.html';
+                        }, 1500);
+                    } else {
+                        showAlert('error', 'Email atau password salah!');
+                    }
+
+                    // INTEGRATION NOTE for Juan:
+                    // Replace above with actual backend call like:
+                    /*
+                    fetch('../backend/auth/login.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ email, password })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showAlert('success', 'Login berhasil!');
+                            setTimeout(() => {
+                                if (data.role === 'dosen') {
+                                    window.location.href = '../pages/dosen/dashboard-dosen.php';
+                                } else {
+                                    window.location.href = 'dashboard-mahasiswa.html';
+                                }
+                            }, 1500);
+                        } else {
+                            showAlert('error', data.message || 'Login gagal!');
+                        }
+                    })
+                    .catch(error => {
+                        showAlert('error', 'Terjadi kesalahan. Silakan coba lagi.');
+                        console.error('Error:', error);
+                    });
+                    */
+                }, 1500);
+            });
+
+            // Show Alert Function
+            function showAlert(type, message) {
+                const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+                alertContainer.innerHTML = `
+                    <div class="alert ${alertClass}">
+                        ${type === 'success' ? '✓' : '✕'} ${message}
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
