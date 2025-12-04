@@ -2,31 +2,35 @@
 
 class App
 {
-  protected $controller = 'HomeController';
+  protected $controller = 'PosController';
   protected $method = 'index';
   protected $params = [];
 
-  public function __construct()
-  {
-    $url = $this->parseUrl();
+  // File: src/app/core/App.php
 
-    if (isset($url[4]) && file_exists(BASE_PATH . '/src/app/controllers/' . ucfirst($url[4]) . 'Controller.php')) {
-      $this->controller = ucfirst($url[4]) . 'Controller';
-      unset($url[4]);
-    }
+public function __construct()
+{
+  $url = $this->parseUrl();
 
-    require BASE_PATH . '/src/app/controllers/' . $this->controller . '.php';
-    $this->controller = new $this->controller;
-
-    if (isset($url[5]) && method_exists($this->controller, $url[5])) {
-      $this->method = $url[5];
-      unset($url[5]);
-    }
-
-    $this->params = $url ? array_values($url) : [];
-
-    call_user_func_array([$this->controller, $this->method], $this->params);
+  // UBAH DARI $url[4] MENJADI $url[0]
+  if (isset($url[0]) && file_exists(BASE_PATH . '/src/app/controllers/' . ucfirst($url[0]) . 'Controller.php')) {
+    $this->controller = ucfirst($url[0]) . 'Controller';
+    unset($url[0]); // UBAH INI JUGA JADI 0
   }
+
+  require BASE_PATH . '/src/app/controllers/' . $this->controller . '.php';
+  $this->controller = new $this->controller;
+
+  // UBAH DARI $url[5] MENJADI $url[1]
+  if (isset($url[1]) && method_exists($this->controller, $url[1])) {
+    $this->method = $url[1]; // UBAH INI JUGA JADI 1
+    unset($url[1]); // UBAH INI JUGA JADI 1
+  }
+
+  $this->params = $url ? array_values($url) : [];
+
+  call_user_func_array([$this->controller, $this->method], $this->params);
+}
 
   private function parseUrl()
   {
@@ -37,6 +41,6 @@ class App
       );
     }
 
-    return ['home'];
+    return ['pos'];
   }
 }
