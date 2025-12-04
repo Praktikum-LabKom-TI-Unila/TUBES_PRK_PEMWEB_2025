@@ -74,6 +74,7 @@ Fitur Utama:
 ## Akun Demo
 
 | Role    | Email             | Password  |
+|---------|-------------------|-----------|
 | seller  | seller@gmail.com  | seller123 |
 | admin   | admin@gmail.com   | admin123  |
 
