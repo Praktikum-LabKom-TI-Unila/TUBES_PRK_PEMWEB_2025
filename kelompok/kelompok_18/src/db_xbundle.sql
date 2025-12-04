@@ -1,7 +1,16 @@
 -- Active: 1744639830308@@localhost@3306@db_xbundle
--- DATABASE X-BUNDLE (VERSION 4.1 - NEGOTIATION READY)
+-- DATABASE X-BUNDLE
 
 USE db_xbundle;
+
+-- === BERSIHKAN TABEL LAMA ===
+DROP TABLE IF EXISTS vouchers;
+DROP TABLE IF EXISTS chats;
+DROP TABLE IF EXISTS bundles;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS users;
+
+-- === BUAT TABEL BARU ===
 
 -- 1. USERS
 CREATE TABLE users (
@@ -35,7 +44,7 @@ CREATE TABLE products (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- 3. BUNDLES (UPDATED: Produk Boleh NULL)
+-- 3. BUNDLES (UPDATED: Tambah Status Cancelled)
 CREATE TABLE bundles (
     id INT AUTO_INCREMENT PRIMARY KEY,
     pembuat_id INT NOT NULL,
@@ -44,7 +53,7 @@ CREATE TABLE bundles (
     produk_mitra_id INT,
     nama_bundle VARCHAR(150),
     harga_bundle DECIMAL(10,2),
-    status ENUM('pending', 'active', 'rejected', 'finished') DEFAULT 'pending',
+    status ENUM('pending', 'active', 'rejected', 'cancelled', 'finished') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (pembuat_id) REFERENCES users(id),
     FOREIGN KEY (mitra_id) REFERENCES users(id),
@@ -82,7 +91,7 @@ INSERT INTO users (nama_lengkap, email, password, role, nama_toko, kategori_bisn
 VALUES ('Admin', 'admin@xbundle.com', 'admin123', 'admin', 'X-Bundle HQ', 'Teknologi');
 
 INSERT INTO users (nama_lengkap, email, password, role, nama_toko, kategori_bisnis, alamat_toko) 
-VALUES ('Bani Barista', 'bani@kopi.com', '123456', 'umkm', 'Kopi Senja', 'Kuliner (FnB)', 'Jl. Melati No 1');
+VALUES ('Bani Barista', 'bani@kopi.com', '123456', 'umkm', 'Kopi Pagi', 'Kuliner (FnB)', 'Jl. Melati No 1');
 
 INSERT INTO products (user_id, nama_produk, kategori, satuan, harga, stok, deskripsi)
 VALUES (2, 'Es Kopi Susu Gula Aren', 'minuman', 'cup', 18000, 50, 'Kopi susu kekinian.');
