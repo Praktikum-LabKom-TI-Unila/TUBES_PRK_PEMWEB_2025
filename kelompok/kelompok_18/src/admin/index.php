@@ -1,106 +1,137 @@
 <?php
-include 'config/koneksi.php';
-include 'layouts/header.php';
+// Gunakan __DIR__ agar path include selalu benar dan aman
+include __DIR__ . '/../config/koneksi.php';
+include __DIR__ . '/../layouts/navbar_admin.php';
+
+// --- LOGIC STATISTIK ---
+// 1. Hitung Total Mitra UMKM
+$query_user = mysqli_query($koneksi, "SELECT * FROM users WHERE role='umkm'");
+$total_user = mysqli_num_rows($query_user);
+
+// 2. Hitung Total Produk
+$query_produk = mysqli_query($koneksi, "SELECT * FROM products");
+$total_produk = mysqli_num_rows($query_produk);
+
+// 3. Hitung Kolaborasi Aktif
+$query_bundle = mysqli_query($koneksi, "SELECT * FROM bundles WHERE status='active'");
+$total_bundle = mysqli_num_rows($query_bundle);
 ?>
 
-<link rel="stylesheet" href="<?php echo $base_url; ?>/assets/css/style_admin.css">
-
-<!-- === HERO SECTION === -->
-<section class="hero-section">
-    <div class="container">
-        <div class="row align-items-center">
-            
-            <!-- Teks Kiri -->
-            <div class="col-md-6 order-2 order-md-1 reveal">
-                <span class="hero-badge">
-                    <i class="fa-solid fa-rocket me-2"></i>Solusi Digital UMKM
-                </span>
-                
-                <h1 class="display-4 hero-title mb-4">
-                    Tingkatkan Bisnis,<br> 
-                    <span class="text-highlight">Kolaborasi Tanpa Batas.</span>
-                </h1>
-                
-                <p class="hero-desc">
-                    Platform X-Bundle membantu UMKM menemukan mitra strategis, membuat paket bundling eksklusif, dan menjangkau pasar yang lebih luas bersama-sama.
-                </p>
-                
-                <div class="d-flex gap-3">
-                    <?php if(!isset($_SESSION['status'])): ?>
-                        <a href="auth/register.php" class="btn text-white px-4 py-2 fw-bold shadow" style="background-color: #ED7D31; border-radius: 50px;">
-                            Mulai Sekarang <i class="fa-solid fa-arrow-right ms-2"></i>
-                        </a>
-                    <?php else: ?>
-                        <a href="produk/index.php" class="btn text-white px-4 py-2 fw-bold shadow" style="background-color: #ED7D31; border-radius: 50px;">
-                            Ke Dashboard <i class="fa-solid fa-gauge ms-2"></i>
-                        </a>
-                    <?php endif; ?>
-                    
-                    <a href="#fitur" class="btn btn-outline-secondary px-4 py-2 fw-bold" style="border-radius: 50px; border-color: #6C5F5B; color: #6C5F5B;">
-                        Pelajari Dulu
-                    </a>
-                </div>
-            </div>
-            
-            <!-- Gambar Kanan (Ilustrasi) -->
-            <div class="col-md-6 order-1 order-md-2 text-center mb-5 mb-md-0 reveal">
-                <!-- Gambar Ilustrasi (Pastikan konek internet untuk load gambar ini) -->
-                <img src="https://cdni.iconscout.com/illustration/premium/thumb/business-partnership-2975816-2476892.png" 
-                     alt="Ilustrasi Kolaborasi UMKM" 
-                     class="img-fluid floating-animate">
-            </div>
-
+<div class="container mt-4 mb-5">
+    
+    <!-- Header Dashboard -->
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+            <h2 class="fw-bold text-brown">Dashboard Admin</h2>
+            <p class="text-muted">Selamat datang, Administrator! Berikut ringkasan performa X-Bundle.</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <span class="badge bg-secondary p-2 shadow-sm">
+                <i class="fa-regular fa-calendar me-1"></i> <?php echo date('l, d F Y'); ?>
+            </span>
         </div>
     </div>
-</section>
 
-<!-- === FITUR SECTION === -->
-<section id="fitur" class="feature-section">
-    <div class="container">
+    <!-- KARTU STATISTIK -->
+    <div class="row g-4">
         
-        <div class="text-center mb-5 reveal">
-            <h6 class="text-uppercase fw-bold" style="color: #ED7D31;">Kenapa X-Bundle?</h6>
-            <h2 class="section-title">Fitur Andalan Kami</h2>
+        <!-- Card 1: Total Mitra (Warna Terracotta) -->
+        <div class="col-md-4">
+            <div class="card card-stat bg-terracotta p-4 h-100 text-white">
+                <div class="position-relative z-1">
+                    <h5 class="text-white-50 text-uppercase fw-bold" style="font-size: 0.9rem;">Total Mitra UMKM</h5>
+                    <h1 class="fw-bold display-4 mb-0"><?php echo $total_user; ?></h1>
+                    <small>Toko terdaftar</small>
+                </div>
+                <i class="fa-solid fa-store icon-bg"></i>
+            </div>
         </div>
 
-        <div class="row g-4">
-            <!-- Card 1: Cari Partner -->
-            <div class="col-md-4 reveal">
-                <div class="card h-100 feature-card text-center">
-                    <div class="feature-icon-wrapper">
-                        <i class="fa-solid fa-handshake fa-2x" style="color: #ED7D31;"></i>
-                    </div>
-                    <h4 class="fw-bold" style="color: #4F4A45;">Cari Partner</h4>
-                    <p class="text-muted">Temukan UMKM lain yang memiliki visi sama untuk berkolaborasi dengan produk Anda.</p>
+        <!-- Card 2: Total Produk (Warna Coklat Tua) -->
+        <div class="col-md-4">
+            <div class="card card-stat bg-brown p-4 h-100 text-white">
+                <div class="position-relative z-1">
+                    <h5 class="text-white-50 text-uppercase fw-bold" style="font-size: 0.9rem;">Produk Terdaftar</h5>
+                    <h1 class="fw-bold display-4 mb-0"><?php echo $total_produk; ?></h1>
+                    <small>Item siap kolaborasi</small>
                 </div>
+                <i class="fa-solid fa-box-open icon-bg"></i>
             </div>
+        </div>
 
-            <!-- Card 2: Bundle Produk -->
-            <div class="col-md-4 reveal">
-                <div class="card h-100 feature-card text-center">
-                    <div class="feature-icon-wrapper">
-                        <i class="fa-solid fa-box-open fa-2x" style="color: #ED7D31;"></i>
-                    </div>
-                    <h4 class="fw-bold" style="color: #4F4A45;">Bundle Produk</h4>
-                    <p class="text-muted">Gabungkan dua produk dari toko berbeda menjadi satu paket hemat yang menarik pembeli.</p>
+        <!-- Card 3: Kolaborasi Aktif (Warna Sage/Hijau Abu) -->
+        <div class="col-md-4">
+            <div class="card card-stat bg-sage p-4 h-100 text-white">
+                <div class="position-relative z-1">
+                    <h5 class="text-white-50 text-uppercase fw-bold" style="font-size: 0.9rem;">Kolaborasi Aktif</h5>
+                    <h1 class="fw-bold display-4 mb-0"><?php echo $total_bundle; ?></h1>
+                    <small>Bundle sedang berjalan</small>
                 </div>
-            </div>
-
-            <!-- Card 3: Laporan & Voucher -->
-            <div class="col-md-4 reveal">
-                <div class="card h-100 feature-card text-center">
-                    <div class="feature-icon-wrapper">
-                        <i class="fa-solid fa-chart-line fa-2x" style="color: #ED7D31;"></i>
-                    </div>
-                    <h4 class="fw-bold" style="color: #4F4A45;">Laporan & Voucher</h4>
-                    <p class="text-muted">Pantau penggunaan kode voucher publik dan hasil penjualan dari kolaborasi Anda.</p>
-                </div>
+                <i class="fa-solid fa-handshake icon-bg"></i>
             </div>
         </div>
 
     </div>
-</section>
 
-<script src="<?php echo $base_url; ?>/assets/js/script_landing.js"></script>
+    <!-- Panel Pintasan (Quick Actions) -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h5 class="fw-bold text-brown mb-3"><i class="fa-solid fa-bolt me-2"></i> Aksi Cepat</h5>
+        </div>
+        
+        <div class="col-md-6 mb-3">
+            <a href="users.php" class="card text-decoration-none h-100 border-0 shadow-sm hover-up">
+                <div class="card-body d-flex align-items-center p-4">
+                    <div class="bg-light rounded-circle p-3 me-3 text-terracotta">
+                        <i class="fa-solid fa-users-gear fa-2x"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold text-dark mb-1">Kelola User</h5>
+                        <p class="text-muted mb-0 small">Lihat daftar mitra atau hapus akun bermasalah.</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-right ms-auto text-muted"></i>
+                </div>
+            </a>
+        </div>
 
-<?php include 'layouts/footer.php'; ?>
+        <div class="col-md-6 mb-3">
+            <a href="laporan.php" class="card text-decoration-none h-100 border-0 shadow-sm hover-up">
+                <div class="card-body d-flex align-items-center p-4">
+                    <div class="bg-light rounded-circle p-3 me-3 text-brown">
+                        <i class="fa-solid fa-file-pdf fa-2x"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold text-dark mb-1">Cetak Laporan</h5>
+                        <p class="text-muted mb-0 small">Rekapitulasi penggunaan voucher sistem global.</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-right ms-auto text-muted"></i>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Info Sistem -->
+    <div class="alert alert-light border mt-4 shadow-sm">
+        <div class="d-flex">
+            <div class="me-3 text-info">
+                <i class="fa-solid fa-circle-info fa-2x"></i>
+            </div>
+            <div>
+                <h6 class="fw-bold text-dark">Status Sistem</h6>
+                <p class="mb-0 text-muted small">
+                    Database terhubung. Semua fitur berjalan normal. <br>
+                    <strong>Versi Aplikasi:</strong> v4.2 (Earth Tone Edition)
+                </p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- CSS Tambahan Khusus Halaman Ini (Efek Hover) -->
+<style>
+    .hover-up { transition: transform 0.2s; }
+    .hover-up:hover { transform: translateY(-5px); border-left: 5px solid #ED7D31 !important; }
+</style>
+
+<?php include __DIR__ . '/../layouts/footer.php'; ?>
