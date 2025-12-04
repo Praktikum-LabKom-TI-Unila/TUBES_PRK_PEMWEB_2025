@@ -52,14 +52,6 @@
           class="input-modern w-full px-4 py-3 rounded-xl text-white placeholder-gray-200 outline-none">
       </div>
 
-      <div class="flex items-center justify-between text-sm">
-        <label class="flex items-center gap-2 text-gray-300 cursor-pointer">
-          <input type="checkbox" class="w-4 h-4 rounded border-gray-400 text-blue-500 focus:ring-blue-500">
-          <span>Ingat saya</span>
-        </label>
-        <a href="#" class="text-blue-300 hover:text-blue-200 transition">Lupa password?</a>
-      </div>
-
       <button class="btn-primary w-full py-3 rounded-xl text-white font-semibold flex items-center justify-center gap-2 mt-6">
         <i data-lucide="log-in" class="w-5 h-5"></i>
         Masuk

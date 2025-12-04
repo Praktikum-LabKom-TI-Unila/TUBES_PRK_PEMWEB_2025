@@ -8,6 +8,11 @@ class AuthController extends Controller
   {
     $this->user = $this->model('User');
     session_start();
+
+    if (isAuthenticated()) {
+      header("Location: " . BASE_URL . "/pos");
+      exit;
+    }
   }
 
   public function register()
