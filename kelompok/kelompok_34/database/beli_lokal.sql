@@ -68,3 +68,30 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+-- Kamu butuh ini agar fitur transaksimu jalan
+CREATE TABLE IF NOT EXISTS `products` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `price` decimal(10,2) NOT NULL,
+  `stock` int(11) NOT NULL,
+  `image` varchar(255) DEFAULT 'default.jpg',
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE IF NOT EXISTS `transactions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) UNSIGNED NOT NULL,
+  `total_amount` decimal(10,2) NOT NULL,
+  `created_at` timestamp DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE IF NOT EXISTS `transaction_details` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `transaction_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `qty` int(11) NOT NULL,
+  `subtotal` decimal(10,2) NOT NULL,
+  PRIMARY KEY (`id`)
+);
