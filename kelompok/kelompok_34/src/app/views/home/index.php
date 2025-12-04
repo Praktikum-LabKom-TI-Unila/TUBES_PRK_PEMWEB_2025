@@ -12,12 +12,12 @@
 
       <h1 class="text-5xl font-bold mb-4">
         <span class="bg-gradient-to-r from-blue-200 via-blue-300 to-blue-200 bg-clip-text text-transparent">
-          Selamat datang di BeliLokal
+          Selamat datang di <?= APP_NAME ?>
         </span>
       </h1>
 
       <p class="text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
-        Platform marketplace terpercaya untuk produk lokal Indonesia 🇮🇩
+        Point of Sale terpercaya untuk produk lokal Indonesia 🇮🇩
       </p>
 
       <?php if (!empty($_SESSION['user'])): ?>
@@ -33,32 +33,6 @@
               </p>
             </div>
           </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-          <button class="glass-effect p-6 rounded-2xl hover:scale-105 transition-transform group">
-            <div class="bg-gradient-to-br from-blue-400 to-blue-500 p-3 rounded-xl inline-block mb-3 group-hover:rotate-12 transition-transform">
-              <i data-lucide="shopping-cart" class="w-6 h-6"></i>
-            </div>
-            <h3 class="font-semibold text-lg">Belanja</h3>
-            <p class="text-sm text-gray-300 mt-1">Jelajahi produk lokal</p>
-          </button>
-
-          <button class="glass-effect p-6 rounded-2xl hover:scale-105 transition-transform group">
-            <div class="bg-gradient-to-br from-green-400 to-teal-500 p-3 rounded-xl inline-block mb-3 group-hover:rotate-12 transition-transform">
-              <i data-lucide="package" class="w-6 h-6"></i>
-            </div>
-            <h3 class="font-semibold text-lg">Pesanan</h3>
-            <p class="text-sm text-gray-300 mt-1">Lacak pesanan Anda</p>
-          </button>
-
-          <button class="glass-effect p-6 rounded-2xl hover:scale-105 transition-transform group">
-            <div class="bg-gradient-to-br from-blue-400 to-blue-600 p-3 rounded-xl inline-block mb-3 group-hover:rotate-12 transition-transform">
-              <i data-lucide="heart" class="w-6 h-6"></i>
-            </div>
-            <h3 class="font-semibold text-lg">Favorit</h3>
-            <p class="text-sm text-gray-300 mt-1">Produk yang disimpan</p>
-          </button>
         </div>
 
       <?php else: ?>

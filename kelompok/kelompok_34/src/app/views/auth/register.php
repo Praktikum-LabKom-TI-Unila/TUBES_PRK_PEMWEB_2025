@@ -7,7 +7,7 @@
       <h2 class="text-3xl font-bold bg-gradient-to-r from-blue-300 to-blue-400 bg-clip-text text-transparent">
         Buat Akun Baru
       </h2>
-      <p class="text-gray-300 text-sm mt-2">Bergabunglah dengan BeliLokal sekarang</p>
+      <p class="text-gray-100 text-sm mt-2">Bergabunglah dengan <?= APP_NAME ?> sekarang</p>
     </div>
 
     <?php if (!empty($error)): ?>

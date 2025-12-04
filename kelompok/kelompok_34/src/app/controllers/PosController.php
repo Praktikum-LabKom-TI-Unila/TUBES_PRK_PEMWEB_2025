@@ -2,23 +2,23 @@
 
 class PosController extends Controller
 {
-  public function __construct()
-  {
-    // Cek login dulu (menggunakan helper yang sudah ada)
-    requireAuth(); 
-  }
+    public function __construct()
+    {
+        // Cek login dulu (menggunakan helper yang sudah ada)
+        requireAuth();
+    }
 
-  public function index()
-  {
-    $data['title'] = 'Kasir - BeliLokal';
-    // Ambil data produk lewat Model
-    $data['products'] = $this->model('Product')->getAll();
-    
-    // Tampilkan View
-    $this->view('pos/index', $data);
-  }
+    public function index()
+    {
+        $data['title'] = 'Kasir - ' . APP_NAME;
+        // Ambil data produk lewat Model
+        $data['products'] = $this->model('Product')->getAll();
 
-  // ... function index() yang lama biarkan saja ...
+        // Tampilkan View
+        $this->view('pos/index', $data);
+    }
+
+    // ... function index() yang lama biarkan saja ...
 
     public function checkout()
     {
@@ -26,7 +26,7 @@ class PosController extends Controller
         $json = file_get_contents('php://input');
         $data = json_decode($json, true);
 
-        if(empty($data['cart'])) {
+        if (empty($data['cart'])) {
             echo json_encode(['status' => 'error', 'message' => 'Keranjang kosong']);
             exit;
         }
@@ -55,12 +55,11 @@ class PosController extends Controller
     public function struk($id)
     {
         // 1. Ambil Data Transaksi berdasarkan ID
-        $data['transaksi'] = $this->model('Transaction')->getTransactionById($id);
-        $data['items'] = $this->model('Transaction')->getTransactionItems($id);
+        $data['transaksi'] = $this->model('Transaction')->getTransactionById(($id));
+        $data['items'] = $this->model('Transaction')->getTransactionItems(($id));
         $data['kasir'] = $_SESSION['user']['name']; // Nama kasir dari session
 
         // 2. Tampilkan View khusus Struk (Tanpa Header/Footer biar rapi pas diprint)
         require_once BASE_PATH . '/src/app/views/pos/struk.php';
     }
 }
-

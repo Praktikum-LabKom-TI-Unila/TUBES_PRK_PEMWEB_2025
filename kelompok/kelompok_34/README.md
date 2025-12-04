@@ -1,4 +1,4 @@
-# BeliLokal (Marketplace Lokal)
+# LokaPOS: Sistem Point of Sale untuk Penjualan UMKM
 
 ## Daftar Anggota
 | No | Nama                                   | NPM         |
@@ -12,21 +12,20 @@
 ---
 
 ## Judul Proyek  
-**BeliLokal**
+**LokaPOS: Sistem Point of Sale untuk Penjualan UMKM**
 
 ---
 
 ## Ringkasan Proyek  
-BeliLokal adalah aplikasi berbasis website yang digunakan untuk membantu UMKM dalam memasarkan produk mereka secara digital di daerah tertentu.  
-Fitur utama:
-- Registrasi & Login Pengguna (Pembeli dan Penjual)
-- Pengelolaan Produk oleh Penjual
-- Keranjang Belanja oleh Pembeli
-- Checkout dan Riwayat Transaksi
-- Pencarian Produk & Kategori
-- Dashboard sederhana untuk melihat aktivitas penjualan
-
-Tujuan dibuatnya aplikasi ini adalah mendukung transformasi digital UMKM dan memperluas jangkauan pemasaran produk mereka.
+LokaPOS adalah aplikasi Point of Sale yang berfokus pada kebutuhan penjual UMKM dalam mengelola produk dan transaksi penjualan secara lebih cepat, akurat, dan modern. Sistem ini juga memberikan pengalaman belanja digital sederhana bagi pembeli.
+Fitur Utama:
+- Login & Registrasi
+- Kelola Produk (Tambah, Edit, Hapus)
+- Transaksi Penjualan (Kasir)
+- Keranjang Belanja & Checkout
+- Riwayat Transaksi
+- Pencarian Produk
+- Dashboard Penjualan
 
 ---
 
@@ -49,8 +48,8 @@ Tujuan dibuatnya aplikasi ini adalah mendukung transformasi digital UMKM dan mem
    
 3. Import database:
    * Buka **phpMyAdmin**
-   * Buat database: `beli_lokal`
-   * Import file `beli_lokal.sql` yang berada di folder `database/`
+   * Buat database: `lokapos`
+   * Import file `lokapos.sql` yang berada di folder `database/`
 
 4. Konfigurasi koneksi database di file:
    ```
@@ -62,7 +61,7 @@ Tujuan dibuatnya aplikasi ini adalah mendukung transformasi digital UMKM dan mem
    $host = "localhost";
    $user = "root";
    $pass = "";
-   $dbname = "beli_lokal";
+   $dbname = "lokapos";
    ```
 
 5. Jalankan aplikasi melalui browser:
@@ -74,10 +73,7 @@ Tujuan dibuatnya aplikasi ini adalah mendukung transformasi digital UMKM dan mem
 
 ## Akun Demo
 
-| Role    | Email          | Password  |
-| ------- | -------------- | --------- |
-| -----   | -----          | --------  |
-| ------- | ------         | --------- |
-| Pembeli | buyer          | buyer123  |
+| Role    | Email             | Password  |
+| seller  | seller@gmail.com  | seller123 |
 
 ---

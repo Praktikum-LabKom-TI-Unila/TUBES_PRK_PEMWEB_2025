@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `beli_lokal`
+-- Database: `lokapos`
 --
 
 -- --------------------------------------------------------
@@ -32,16 +32,9 @@ CREATE TABLE `users` (
   `name` varchar(100) NOT NULL,
   `email` varchar(150) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `role` enum('buyer','seller','admin') DEFAULT 'buyer',
+  `role` enum('seller','admin') DEFAULT 'seller',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data untuk tabel `users`
---
-
-INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `created_at`) VALUES
-(1, 'buyer', 'buyer@gmail.com', '$2y$10$eI17jaj.d3Y8ztEYrUjykeSOdqQbHTjGU54PuXsSwtg.0RpVpf5Ka', 'buyer', '2025-12-01 20:08:03');
 
 --
 -- Indexes for dumped tables

@@ -32,7 +32,9 @@ class AuthController extends Controller
       ]);
 
       if ($result) {
-        return header("Location: " . BASE_URL . "/auth/login");
+        $_SESSION['success'] = "Registrasi berhasil! Silakan login.";
+        header("Location: " . BASE_URL . "/auth/login");
+        exit;
       } else {
         $error = "Gagal registrasi!";
         return $this->view('auth/register', compact('error'));
@@ -58,7 +60,7 @@ class AuthController extends Controller
           'role' => $user['role']
         ];
 
-        return header("Location: " . BASE_URL . "/home");
+        return header("Location: " . BASE_URL . "/pos");
       }
 
       $error = "Email / Password salah!";
@@ -72,6 +74,9 @@ class AuthController extends Controller
   {
     session_start();
     session_destroy();
+
+    session_start();
+    $_SESSION['success'] = "Logout berhasil!";
     header("Location: " . BASE_URL . "/auth/login");
     exit;
   }

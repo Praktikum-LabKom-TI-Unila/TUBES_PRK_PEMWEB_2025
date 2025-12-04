@@ -7,7 +7,7 @@ class Database
   public function __construct()
   {
     $host = '127.0.0.1';
-    $name = 'beli_lokal';
+    $name = 'lokapos';
     $user = 'root';
     $pass = '';
     $charset = 'utf8mb4';

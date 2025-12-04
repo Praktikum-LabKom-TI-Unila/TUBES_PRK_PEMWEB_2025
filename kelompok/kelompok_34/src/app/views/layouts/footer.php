@@ -12,12 +12,12 @@
             <div class="bg-gradient-to-br from-blue-400 to-blue-600 p-2 rounded-xl">
               <i data-lucide="shopping-bag" class="w-5 h-5"></i>
             </div>
-            <span class="font-bold text-lg bg-gradient-to-r from-blue-200 to-blue-300 bg-clip-text text-transparent">
-              BeliLokal
+            <span class="font-bold text-lg bg-gradient-to-r from-blue-100 to-blue-200 bg-clip-text text-transparent">
+              <?= APP_NAME ?>
             </span>
           </div>
           <p class="text-sm text-gray-100">
-            Platform marketplace terpercaya untuk produk lokal Indonesia
+            Point of Sale terpercaya untuk produk lokal Indonesia
           </p>
         </div>
 
@@ -72,7 +72,7 @@
 
       <!-- Copyright -->
       <div class="text-center text-sm text-gray-100">
-        <p>&copy; <?= date("Y") ?> BeliLokal. Semua hak dilindungi.</p>
+        <p>&copy; <?= date("Y") ?> <?= APP_NAME ?>. Semua hak dilindungi.</p>
         <p class="mt-1">Dibuat dengan <i data-lucide="heart" class="w-4 h-4 inline text-red-400"></i> di Indonesia</p>
       </div>
 
