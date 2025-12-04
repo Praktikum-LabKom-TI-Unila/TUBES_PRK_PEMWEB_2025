@@ -1,5 +1,13 @@
+<?php
+global $conn;
+if (!$conn) { echo "<div class='alert alert-danger'>Koneksi database gagal!</div>"; exit; }
+
+$query = "SELECT * FROM tutor ORDER BY id DESC";
+$result = mysqli_query($conn, $query);
+?>
+
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Data Tutor</h1>
+    <h1 class="h2">Data Tutor (Pengajar)</h1>
     <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalTutor">
         <i class="fas fa-plus"></i> Tambah Tutor
     </button>
@@ -10,10 +18,11 @@
         <div class="row g-2">
             <div class="col-md-3">
                 <select id="filterKategori" class="form-select border-0 bg-light" onchange="filterTable()">
-                    <option value="">Semua Kategori</option>
+                    <option value="">Semua Keahlian</option>
                     <option value="Matematika">Matematika</option>
                     <option value="Bahasa Inggris">Bahasa Inggris</option>
                     <option value="Koding">Koding</option>
+                    <option value="Fisika">Fisika</option>
                 </select>
             </div>
             <div class="col-md-3">
@@ -25,7 +34,7 @@
             </div>
             <div class="col-md-6">
                 <div class="input-group">
-                    <input type="text" id="searchInput" class="form-control border-0 bg-light" placeholder="Cari nama tutor..." onkeyup="filterTable()">
+                    <input type="text" id="searchInput" class="form-control border-0 bg-light" placeholder="Cari nama atau kampus..." onkeyup="filterTable()">
                     <button class="btn btn-light text-secondary"><i class="fas fa-search"></i></button>
                 </div>
             </div>
@@ -41,50 +50,64 @@
                     <tr>
                         <th class="ps-4">Tutor</th>
                         <th>Keahlian</th>
-                        <th>Bergabung</th>
+                        <th>Kampus / Pendidikan</th>
                         <th>Status</th>
                         <th class="text-end pe-4">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
+                    
+                    <?php 
+                    if (mysqli_num_rows($result) > 0) {
+                        while($row = mysqli_fetch_assoc($result)) {
+                            // Warna Badge Keahlian (Variasi)
+                            $catColor = 'primary';
+                            if($row['keahlian'] == 'Bahasa Inggris') $catColor = 'danger';
+                            if($row['keahlian'] == 'Koding') $catColor = 'dark';
+                            if($row['keahlian'] == 'Biologi') $catColor = 'success';
+
+                            // Warna Status
+                            $statColor = 'success';
+                            if($row['status'] == 'Cuti') $statColor = 'warning text-dark';
+                            if($row['status'] == 'Non-Aktif') $statColor = 'secondary';
+                    ?>
+
                     <tr>
                         <td class="ps-4">
                             <div class="d-flex align-items-center">
-                                <img src="https://ui-avatars.com/api/?name=Budi+Santoso&background=random" class="rounded-circle me-3" width="40">
+                                <img src="https://ui-avatars.com/api/?name=<?= urlencode($row['nama_lengkap']) ?>&background=random" class="rounded-circle me-3" width="40">
                                 <div>
-                                    <div class="fw-bold name-col">Budi Santoso</div>
-                                    <div class="small text-muted">budi@scholar.com</div>
+                                    <div class="fw-bold name-col"><?= htmlspecialchars($row['nama_lengkap']) ?></div>
+                                    <div class="small text-muted"><?= htmlspecialchars($row['email']) ?></div>
                                 </div>
                             </div>
                         </td>
-                        <td><span class="badge bg-primary bg-opacity-10 text-primary category-col">Matematika</span></td>
-                        <td>12 Jan 2025</td>
-                        <td><span class="badge bg-success status-col">Aktif</span></td>
+                        <td><span class="badge bg-<?= $catColor ?> bg-opacity-10 text-<?= $catColor == 'dark' ? 'dark' : $catColor ?> category-col"><?= $row['keahlian'] ?></span></td>
+                        <td><?= htmlspecialchars($row['pendidikan']) ?></td>
+                        <td><span class="badge bg-<?= $statColor ?> status-col"><?= $row['status'] ?></span></td>
                         <td class="text-end pe-4">
-                            <button class="btn btn-sm btn-light text-info" onclick="showDetailTutor('Budi Santoso', 'budi@scholar.com', 'Matematika', 'Aktif', 'S1 Pendidikan Matematika UNPAD')"><i class="fas fa-eye"></i></button>
-                            <button class="btn btn-sm btn-light text-primary" onclick="editTutor('Budi Santoso', 'Matematika', 'Aktif')"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-light text-danger" onclick="confirmAction('Hapus tutor ini?').then((res)=>{if(res.isConfirmed) showToast('Data dihapus')})"><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-sm btn-light text-info" 
+                                onclick="showDetailTutor(
+                                    '<?= addslashes($row['nama_lengkap']) ?>', 
+                                    '<?= $row['email'] ?>', 
+                                    '<?= $row['keahlian'] ?>', 
+                                    '<?= $row['status'] ?>', 
+                                    '<?= addslashes($row['pendidikan']) ?>'
+                                )">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-light text-primary" onclick="editTutor('<?= addslashes($row['nama_lengkap']) ?>', '<?= $row['keahlian'] ?>', '<?= $row['status'] ?>')"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-light text-danger" onclick="confirmAction('Hapus tutor ini?')"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
-                    <tr>
-                        <td class="ps-4">
-                            <div class="d-flex align-items-center">
-                                <img src="https://ui-avatars.com/api/?name=Jessica+M&background=random" class="rounded-circle me-3" width="40">
-                                <div>
-                                    <div class="fw-bold name-col">Jessica Mila</div>
-                                    <div class="small text-muted">jessica@scholar.com</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td><span class="badge bg-danger bg-opacity-10 text-danger category-col">Bahasa Inggris</span></td>
-                        <td>05 Feb 2025</td>
-                        <td><span class="badge bg-secondary status-col">Cuti</span></td>
-                        <td class="text-end pe-4">
-                            <button class="btn btn-sm btn-light text-info" onclick="showDetailTutor('Jessica Mila', 'jessica@scholar.com', 'Bahasa Inggris', 'Cuti', 'Sastra Inggris UI')"><i class="fas fa-eye"></i></button>
-                            <button class="btn btn-sm btn-light text-primary" onclick="editTutor('Jessica Mila', 'Bahasa Inggris', 'Cuti')"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-light text-danger" onclick="confirmAction('Hapus tutor ini?').then((res)=>{if(res.isConfirmed) showToast('Data dihapus')})"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
+
+                    <?php 
+                        } 
+                    } else {
+                        echo "<tr><td colspan='5' class='text-center py-4'>Belum ada data tutor.</td></tr>";
+                    }
+                    ?>
+
                 </tbody>
             </table>
         </div>
@@ -105,11 +128,13 @@
                         <input type="text" class="form-control" id="inputNama" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Kategori Keahlian</label>
+                        <label class="form-label">Keahlian</label>
                         <select class="form-select" id="inputKategori">
                             <option value="Matematika">Matematika</option>
                             <option value="Bahasa Inggris">Bahasa Inggris</option>
                             <option value="Koding">Koding</option>
+                            <option value="Fisika">Fisika</option>
+                            <option value="Biologi">Biologi</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -154,7 +179,7 @@
                     </li>
                     <li class="list-group-item d-flex justify-content-between">
                         <span class="text-muted">File CV</span>
-                        <a href="#" class="text-decoration-none">Download PDF</a>
+                        <a href="#" class="text-decoration-none" onclick="event.preventDefault(); Swal.fire('Info', 'Ini simulasi download CV', 'info')">Download PDF</a>
                     </li>
                 </ul>
             </div>
@@ -166,14 +191,15 @@
 </div>
 
 <script>
+
     function showDetailTutor(nama, email, kategori, status, edukasi) {
         document.getElementById('detailNama').innerText = nama;
         document.getElementById('detailEmail').innerText = email;
         document.getElementById('detailKategori').innerText = kategori;
         document.getElementById('detailEdu').innerText = edukasi;
         document.getElementById('detailStatus').innerText = status;
-    
-        document.getElementById('detailImg').src = "https://ui-avatars.com/api/?name=" + nama + "&background=random&size=128";
+        
+        document.getElementById('detailImg').src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(nama) + "&background=random&size=128";
 
         var myModal = new bootstrap.Modal(document.getElementById('modalDetailTutor'));
         myModal.show();
@@ -188,16 +214,24 @@
         let tr = table.getElementsByTagName("tr");
 
         for (let i = 1; i < tr.length; i++) {
-            let tdName = tr[i].querySelector(".name-col").textContent.toLowerCase();
-            let tdCat = tr[i].querySelector(".category-col").textContent.toLowerCase();
-            let tdStat = tr[i].querySelector(".status-col").textContent.toLowerCase();
+            let nameEl = tr[i].querySelector(".name-col");
+            let catEl = tr[i].querySelector(".category-col");
+            let statEl = tr[i].querySelector(".status-col");
 
-            if (tdName.includes(inputSearch) && 
-                (inputKategori === "" || tdCat.includes(inputKategori)) &&
-                (inputStatus === "" || tdStat.includes(inputStatus))) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
+            if(nameEl && catEl && statEl) {
+                let tdName = nameEl.textContent.toLowerCase();
+                let tdCat = catEl.textContent.toLowerCase();
+                let tdStat = statEl.textContent.toLowerCase();
+
+                let tdKampus = tr[i].cells[2].textContent.toLowerCase(); 
+
+                if ((tdName.includes(inputSearch) || tdKampus.includes(inputSearch)) && 
+                    (inputKategori === "" || tdCat.includes(inputKategori)) &&
+                    (inputStatus === "" || tdStat.includes(inputStatus))) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
             }
         }
     }

@@ -1,3 +1,15 @@
+<?php
+global $conn; 
+
+if (!$conn) {
+    echo "<div class='alert alert-danger'>Koneksi database gagal!</div>";
+    exit;
+}
+
+$query = "SELECT * FROM siswa ORDER BY id DESC";
+$result = mysqli_query($conn, $query);
+?>
+
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">Data Siswa (Murid)</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
@@ -38,44 +50,58 @@
                 </tr>
             </thead>
             <tbody>
+                
+                <?php 
+                if (mysqli_num_rows($result) > 0) {
+                    while($row = mysqli_fetch_assoc($result)) {
+                        $badgeColor = 'primary'; 
+                        if($row['jenjang'] == 'SD') $badgeColor = 'info text-dark';
+                        if($row['jenjang'] == 'SMP') $badgeColor = 'warning text-dark';
+
+                        $statusColor = 'success';
+                        if($row['status'] == 'Cuti') $statusColor = 'warning text-dark';
+                        if($row['status'] == 'Non-Aktif') $statusColor = 'secondary';
+                ?>
+                
                 <tr>
                     <td class="ps-4">
                         <div class="d-flex align-items-center">
-                            <img src="https://ui-avatars.com/api/?name=Andi+P&background=random" class="rounded-circle me-3" width="35">
+                            <img src="https://ui-avatars.com/api/?name=<?= urlencode($row['nama_lengkap']) ?>&background=random" class="rounded-circle me-3" width="35">
                             <div>
-                                <div class="fw-bold nama-col">Andi Pratama</div>
-                                <small class="text-muted">andi@gmail.com</small>
+                                <div class="fw-bold nama-col"><?= htmlspecialchars($row['nama_lengkap']) ?></div>
+                                <small class="text-muted"><?= htmlspecialchars($row['email']) ?></small>
                             </div>
                         </div>
                     </td>
-                    <td><span class="badge bg-primary jenjang-col">SMA</span></td>
-                    <td>SMAN 1 Jakarta</td>
-                    <td>12 IPA</td>
-                    <td><span class="badge bg-success">Aktif</span></td>
+                    <td><span class="badge bg-<?= $badgeColor ?> jenjang-col"><?= $row['jenjang'] ?></span></td>
+                    <td><?= htmlspecialchars($row['sekolah']) ?></td>
+                    <td><?= htmlspecialchars($row['kelas']) ?></td>
+                    <td><span class="badge bg-<?= $statusColor ?>"><?= $row['status'] ?></span></td>
                     <td class="text-end pe-4">
-                        <button class="btn btn-sm btn-light text-info" onclick="showDetailSiswa('Andi Pratama', 'SMA', 'SMAN 1 Jakarta', '12 IPA', 'Matematika, Fisika')"><i class="fas fa-eye"></i></button>
-                        <button class="btn btn-sm btn-light text-danger"><i class="fas fa-trash"></i></button>
+                        <button class="btn btn-sm btn-light text-info" 
+                                onclick="showDetailSiswa(
+                                    '<?= addslashes($row['nama_lengkap']) ?>', 
+                                    '<?= $row['jenjang'] ?>', 
+                                    '<?= addslashes($row['sekolah']) ?>', 
+                                    '<?= addslashes($row['kelas']) ?>', 
+                                    '<?= addslashes($row['minat']) ?>'
+                                )">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        
+                        <button class="btn btn-sm btn-light text-danger" onclick="confirmAction('Hapus siswa ini?')">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </td>
                 </tr>
-                <tr>
-                    <td class="ps-4">
-                        <div class="d-flex align-items-center">
-                            <img src="https://ui-avatars.com/api/?name=Rara+A&background=random" class="rounded-circle me-3" width="35">
-                            <div>
-                                <div class="fw-bold nama-col">Rara Anindita</div>
-                                <small class="text-muted">rara@yahoo.com</small>
-                            </div>
-                        </div>
-                    </td>
-                    <td><span class="badge bg-info text-dark jenjang-col">SD</span></td>
-                    <td>SD Tunas Bangsa</td>
-                    <td>Kelas 4</td>
-                    <td><span class="badge bg-success">Aktif</span></td>
-                    <td class="text-end pe-4">
-                        <button class="btn btn-sm btn-light text-info" onclick="showDetailSiswa('Rara Anindita', 'SD', 'SD Tunas Bangsa', 'Kelas 4', 'Calistung, B. Inggris')"><i class="fas fa-eye"></i></button>
-                        <button class="btn btn-sm btn-light text-danger"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
+
+                <?php 
+                    } 
+                } else {
+                    echo "<tr><td colspan='6' class='text-center py-4'>Belum ada data siswa di database.</td></tr>";
+                }
+                ?>
+
             </tbody>
         </table>
     </div>
@@ -114,7 +140,7 @@
         document.getElementById('d_sekolah').innerText = sekolah;
         document.getElementById('d_kelas').innerText = kelas;
         document.getElementById('d_minat').innerText = minat;
-        document.getElementById('d_img').src = "https://ui-avatars.com/api/?name=" + nama + "&background=random";
+        document.getElementById('d_img').src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(nama) + "&background=random";
         new bootstrap.Modal(document.getElementById('modalDetailSiswa')).show();
     }
 
@@ -124,13 +150,18 @@
         let rows = document.querySelectorAll('#tableSiswa tbody tr');
 
         rows.forEach(row => {
-            let nama = row.querySelector('.nama-col').textContent.toLowerCase();
-            let jg = row.querySelector('.jenjang-col').textContent;
-            
-            let matchName = nama.includes(keyword);
-            let matchJenjang = jenjang === "" || jg === jenjang;
-            
-            row.style.display = (matchName && matchJenjang) ? "" : "none";
+            let namaEl = row.querySelector('.nama-col');
+            let jgEl = row.querySelector('.jenjang-col');
+
+            if (namaEl && jgEl) {
+                let nama = namaEl.textContent.toLowerCase();
+                let jg = jgEl.textContent;
+                
+                let matchName = nama.includes(keyword);
+                let matchJenjang = jenjang === "" || jg === jenjang;
+                
+                row.style.display = (matchName && matchJenjang) ? "" : "none";
+            }
         });
     }
 </script>
