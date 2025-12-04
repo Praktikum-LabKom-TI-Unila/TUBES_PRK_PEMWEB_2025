@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once '../../config/database.php';
+require_once('../../../config/database.php');
 
 if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
     header("Location: ../auth/login.php");
@@ -9,11 +9,9 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
 
 require_once '../../layouts/header.php';
 
-// Query untuk Tutor Pending (Butuh Verifikasi)
 $query_pending = "SELECT * FROM users WHERE role = 'tutor' AND status = 'pending' ORDER BY created_at DESC";
 $result_pending = mysqli_query($conn, $query_pending);
 
-// Query untuk Tutor Aktif
 $query_active = "SELECT * FROM users WHERE role = 'tutor' AND status = 'active' ORDER BY name ASC";
 $result_active = mysqli_query($conn, $query_active);
 ?>
