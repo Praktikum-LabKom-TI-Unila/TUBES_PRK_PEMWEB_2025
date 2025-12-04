@@ -22,7 +22,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-    $query = "INSERT INTO users (name, email, password, role) VALUES ('$name', '$email', '$hashed_password', '$role')";
+    $status = ($role == 'tutor') ? 'pending' : 'active';
+
+    $query = "INSERT INTO users (name, email, password, role, status) VALUES ('$name', '$email', '$hashed_password', '$role', '$status')";
 
     if (mysqli_query($conn, $query)) {
         header("Location: ../../frontend/pages/auth/login.php?success=registered");
