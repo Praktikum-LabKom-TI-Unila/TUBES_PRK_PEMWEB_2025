@@ -33,6 +33,9 @@ $res_out = mysqli_query($koneksi, $query_out);
         <a href="index.php" class="btn-menu">Jelajahi Mitra</a>
         <a href="request.php" class="btn-menu active">Inbox Request</a>
         <a href="my_bundles.php" class="btn-menu">Kolaborasi Aktif</a>
+        <a href="history.php" class="btn-menu">
+            <i class="fa fa-history"></i> Riwayat
+        </a>
     </div>
 
     <ul class="nav nav-tabs mb-4 justify-content-center border-0">

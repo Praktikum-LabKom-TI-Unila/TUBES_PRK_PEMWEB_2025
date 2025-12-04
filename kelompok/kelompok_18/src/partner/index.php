@@ -62,6 +62,9 @@ $result = mysqli_query($koneksi, $query);
         <a href="my_bundles.php" class="btn-menu">
             <i class="fa fa-handshake"></i> Kolaborasi Aktif
         </a>
+        <a href="history.php" class="btn-menu">
+            <i class="fa fa-history"></i> Riwayat
+        </a>
     </div>
 
     <div class="row g-4">
