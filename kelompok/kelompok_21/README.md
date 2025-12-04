@@ -46,7 +46,7 @@ Struktur repositori ini mengikuti aturan tugas akhir laboratorium:
 ```text
 kelompok_21/
 ├── database/               # File SQL (scholarbridge.sql) & ERD
-├── screenshots/            # Bukti tampilan aplikasi
+├── images/            # Bukti tampilan aplikasi
 ├── src/                    # Source code utama
 │   ├── config/             # Koneksi database
 │   ├── backend/            # Logika PHP (Auth, Admin, Tutor, Learner)
