@@ -5,22 +5,25 @@ include '../layouts/header.php';
 $my_id = $_SESSION['id'] ?? $_SESSION['user_id'] ?? null;
 if (!$my_id) echo "<script>window.location='../auth/login.php';</script>";
 
-// Logic Filter
+// Default Query
 $where = "WHERE role='umkm' AND id != '$my_id'";
 
-// 1. Cari Nama
+// 1. Cari Nama Toko (Search)
 if (isset($_GET['q']) && !empty($_GET['q'])) {
     $q = mysqli_real_escape_string($koneksi, $_GET['q']);
     $where .= " AND (nama_toko LIKE '%$q%' OR nama_lengkap LIKE '%$q%')";
 }
-// 2. Filter Kategori (Dropdown)
+
+// 2. Filter Kategori (Dropdown) -- PERBAIKAN DI SINI
 if (isset($_GET['kategori']) && !empty($_GET['kategori'])) {
     $kat = mysqli_real_escape_string($koneksi, $_GET['kategori']);
-    $where .= " AND kategori_bisnis = '$kat'";
+    // Gunakan LIKE agar lebih fleksibel (misal: 'Kuliner (FnB)' akan kena jika dicari 'FnB')
+    $where .= " AND kategori_bisnis LIKE '%$kat%'"; 
 }
 
 $query = "SELECT * FROM users $where ORDER BY id DESC";
 $result = mysqli_query($koneksi, $query);
+?>
 ?>
 
 <link rel="stylesheet" href="../assets/css/style_partner.css">

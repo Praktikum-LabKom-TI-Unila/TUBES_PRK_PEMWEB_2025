@@ -10,17 +10,13 @@ if (!$my_id) {
 }
 
 // ==========================================
-// LOGIKA TOMBOL KEMBALI (SMART BACK BUTTON)
+// LOGIKA TOMBOL KEMBALI
 // ==========================================
-// Simpan URL asal ke session agar tidak hilang saat reload/kirim pesan
 if (!isset($_SESSION['chat_back_url'])) {
-    $_SESSION['chat_back_url'] = 'my_bundles.php'; // Default fallback
+    $_SESSION['chat_back_url'] = 'my_bundles.php'; 
 }
-
-// Deteksi jika user baru masuk dari halaman lain (bukan reload dari chat_room atau proses_partner)
 if (isset($_SERVER['HTTP_REFERER'])) {
     $ref = $_SERVER['HTTP_REFERER'];
-    // Cek apakah referer BUKAN dari chat_room sendiri atau proses_partner
     if (strpos($ref, 'chat_room.php') === false && strpos($ref, 'proses_partner.php') === false) {
         if (strpos($ref, 'index.php') !== false) {
             $_SESSION['chat_back_url'] = 'index.php';
@@ -34,15 +30,12 @@ if (isset($_SERVER['HTTP_REFERER'])) {
     }
 }
 $back_url = $_SESSION['chat_back_url'];
-// ==========================================
-
 
 // 2. Inisialisasi Data
 $partner_id = null;
 $bundle_id  = null;
 $bundle_data = null;
 
-// Ambil Bundle ID / Partner ID dari URL
 if (isset($_GET['bundle_id'])) {
     $bid = mysqli_real_escape_string($koneksi, $_GET['bundle_id']);
     $q_cek = mysqli_query($koneksi, "SELECT * FROM bundles WHERE id='$bid'");
@@ -53,22 +46,18 @@ if (isset($_GET['bundle_id'])) {
     }
 } elseif (isset($_GET['partner_id'])) {
     $partner_id = mysqli_real_escape_string($koneksi, $_GET['partner_id']);
-    // Cek bundle terakhir untuk melanjutkan chat
     $q_last = mysqli_query($koneksi, "SELECT * FROM bundles WHERE (pembuat_id='$my_id' AND mitra_id='$partner_id') OR (pembuat_id='$partner_id' AND mitra_id='$my_id') ORDER BY created_at DESC LIMIT 1");
     $bundle_data = mysqli_fetch_assoc($q_last);
     if ($bundle_data) $bundle_id = $bundle_data['id'];
 }
 
-// Validasi Partner
 if (!$partner_id) {
     echo "<script>window.location='index.php';</script>";
     exit;
 }
 
-// Ambil Profil Partner
 $partner = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT * FROM users WHERE id='$partner_id'"));
 
-// Ambil Chat
 $chats = [];
 if ($bundle_id) {
     $q_chat = mysqli_query($koneksi, "SELECT * FROM chats WHERE bundle_id='$bundle_id' ORDER BY created_at ASC");
@@ -90,9 +79,7 @@ if ($bundle_id) {
                 </div>
                 <div>
                     <h6 class="mb-0 fw-bold"><?= htmlspecialchars($partner['nama_toko'] ?? '') ?></h6>
-                    <div class="partner-status">
-                        <span>Online</span>
-                    </div>
+                    <div class="partner-status"><span>Online</span></div>
                 </div>
             </div>
             
@@ -116,23 +103,42 @@ if ($bundle_id) {
                         $isMe = ($c['sender_id'] == $my_id);
                         $time = date('H:i', strtotime($c['created_at']));
                         $pesan_raw = $c['message'] ?? ''; 
+                        $attachment = $c['attachment'] ?? null;
+                        $type = $c['attachment_type'] ?? null;
                         
-                        $isSystem = strpos($pesan_raw, 'Halo, saya mengajukan') !== false || strpos($pesan_raw, '[SISTEM]') !== false;
+                        $isSystem = strpos($pesan_raw, '[SISTEM]') !== false;
                     ?>
 
                     <?php if($isSystem): ?>
                         <div class="system-message">
-                            <span class="system-badge">
-                                <?= htmlspecialchars($pesan_raw) ?>
-                            </span>
+                            <span class="system-badge"><?= htmlspecialchars($pesan_raw) ?></span>
                         </div>
                     <?php else: ?>
                         <div class="message-wrapper <?= $isMe ? 'me' : 'them' ?>">
                             <div class="message-bubble">
-                                <?= nl2br(htmlspecialchars($pesan_raw)) ?>
+                                
+                                <?php if($attachment): ?>
+                                    <div class="mb-2">
+                                        <?php if($type == 'image'): ?>
+                                            <a href="../assets/uploads/chat/<?= $attachment ?>" target="_blank">
+                                                <img src="../assets/uploads/chat/<?= $attachment ?>" class="img-fluid rounded" style="max-height: 200px; max-width: 100%;">
+                                            </a>
+                                        <?php else: ?>
+                                            <a href="../assets/uploads/chat/<?= $attachment ?>" target="_blank" class="btn btn-sm btn-light border w-100 text-start d-flex align-items-center gap-2">
+                                                <i class="fa fa-file-alt text-danger fa-lg"></i>
+                                                <span class="text-truncate" style="max-width: 150px;"><?= $attachment ?></span>
+                                                <i class="fa fa-download ms-auto text-secondary"></i>
+                                            </a>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endif; ?>
+
+                                <?php if(!empty($pesan_raw)): ?>
+                                    <?= nl2br(htmlspecialchars($pesan_raw)) ?>
+                                <?php endif; ?>
+
                                 <span class="msg-time">
-                                    <?= $time ?> 
-                                    <?= $isMe ? '<i class="fa fa-check-double ms-1"></i>' : '' ?>
+                                    <?= $time ?> <?= $isMe ? '<i class="fa fa-check-double ms-1"></i>' : '' ?>
                                 </span>
                             </div>
                         </div>
@@ -142,30 +148,44 @@ if ($bundle_id) {
             <?php else: ?>
                 <div class="d-flex flex-column align-items-center justify-content-center h-100 opacity-50">
                     <i class="fa fa-comments fa-4x text-muted mb-3"></i>
-                    <p class="text-muted">Belum ada percakapan dengan <strong><?= htmlspecialchars($partner['nama_toko'] ?? '') ?></strong></p>
+                    <p class="text-muted">Belum ada percakapan.</p>
                 </div>
             <?php endif; ?>
         </div>
 
         <div class="chat-input-area">
-            <form action="proses_partner.php" method="POST" class="d-flex w-100 align-items-center gap-2 mb-0">
+            <form action="proses_partner.php" method="POST" enctype="multipart/form-data" class="d-flex w-100 align-items-center gap-2 mb-0" id="chatForm">
                 <input type="hidden" name="action" value="send_message">
                 <input type="hidden" name="bundle_id" value="<?= $bundle_id ?>">
 
                 <?php if($bundle_id): ?>
-                    <button type="button" class="btn btn-light rounded-circle text-muted border" style="width: 45px; height: 45px;">
+                    <input type="file" name="attachment" id="fileInput" style="display: none;" onchange="previewFile()">
+                    
+                    <button type="button" class="btn btn-light rounded-circle text-muted border position-relative" style="width: 45px; height: 45px;" onclick="document.getElementById('fileInput').click()">
                         <i class="fa fa-paperclip"></i>
+                        <span id="fileIndicator" class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle" style="display: none;"></span>
                     </button>
-                    <input type="text" name="message" class="input-msg" placeholder="Ketik pesan..." required autocomplete="off">
+
+                    <input type="text" name="message" class="input-msg" placeholder="Ketik pesan..." autocomplete="off">
+                    
                     <button type="submit" class="btn-send">
                         <i class="fa fa-paper-plane"></i>
                     </button>
                 <?php else: ?>
-                    <input type="text" class="input-msg bg-light" placeholder="Buat bundle dulu untuk mulai chat..." disabled>
+                    <input type="text" class="input-msg bg-light" placeholder="Buat bundle dulu..." disabled>
                     <button type="button" class="btn-send bg-secondary" disabled><i class="fa fa-lock"></i></button>
                 <?php endif; ?>
             </form>
         </div>
+        
+        <div id="filePreviewArea" class="px-4 pb-2 small text-primary fw-bold bg-white border-top" style="display: none;">
+            <div class="d-flex align-items-center py-1">
+                <i class="fa fa-file-arrow-up me-2"></i> 
+                <span id="fileNameDisplay" class="me-auto text-truncate"></span> 
+                <i class="fa fa-times text-danger cursor-pointer" onclick="cancelFile()" style="cursor: pointer;"></i>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -202,6 +222,25 @@ if ($bundle_id) {
     // Auto Scroll ke bawah
     const chatBox = document.getElementById("chatBox");
     if(chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+
+    // Logic Preview File
+    function previewFile() {
+        const fileInput = document.getElementById('fileInput');
+        const fileName = fileInput.files[0] ? fileInput.files[0].name : '';
+        
+        if (fileName) {
+            document.getElementById('fileIndicator').style.display = 'block';
+            document.getElementById('filePreviewArea').style.display = 'block';
+            document.getElementById('fileNameDisplay').innerText = fileName;
+        }
+    }
+
+    // Logic Batal Kirim File
+    function cancelFile() {
+        document.getElementById('fileInput').value = ""; // Reset input file
+        document.getElementById('fileIndicator').style.display = 'none';
+        document.getElementById('filePreviewArea').style.display = 'none';
+    }
 </script>
 
 <?php include '../layouts/footer.php'; ?>
