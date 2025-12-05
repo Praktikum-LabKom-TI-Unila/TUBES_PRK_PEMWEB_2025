@@ -7,16 +7,17 @@ class AuthController extends Controller
   public function __construct()
   {
     $this->user = $this->model('User');
+  }
+
+  public function register()
+  {
     session_start();
 
     if (isAuthenticated()) {
       header("Location: " . BASE_URL . "/pos");
       exit;
     }
-  }
 
-  public function register()
-  {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $name = trim($_POST['name']);
       $email = trim($_POST['email']);
@@ -51,6 +52,13 @@ class AuthController extends Controller
 
   public function login()
   {
+    session_start();
+
+    if (isAuthenticated()) {
+      header("Location: " . BASE_URL . "/pos");
+      exit;
+    }
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $email = trim($_POST['email']);
       $password = trim($_POST['password']);
