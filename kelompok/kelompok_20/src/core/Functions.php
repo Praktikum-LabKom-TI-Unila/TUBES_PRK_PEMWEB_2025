@@ -82,3 +82,94 @@ function formatDate(string $date): string
     
     return "{$day} {$month} {$year}";
 }
+
+function uploadImage(array $file, string $targetDir): string|false
+{
+    if ($file['error'] !== UPLOAD_ERR_OK || empty($file['tmp_name'])) {
+        return false;
+    }
+
+    $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+    $maxSize = 2 * 1024 * 1024;
+
+    $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+
+    if (!in_array($extension, $allowedExtensions, true)) {
+        return false;
+    }
+
+    if ($file['size'] > $maxSize) {
+        return false;
+    }
+
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mimeType = finfo_file($finfo, $file['tmp_name']);
+    finfo_close($finfo);
+
+    $allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!in_array($mimeType, $allowedMimes, true)) {
+        return false;
+    }
+
+    if (!is_dir($targetDir)) {
+        mkdir($targetDir, 0755, true);
+    }
+
+    $newFilename = uniqid('img_', true) . '.' . $extension;
+    $targetPath = rtrim($targetDir, '/') . '/' . $newFilename;
+
+    if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
+        return false;
+    }
+
+    return $newFilename;
+}
+
+function deleteImage(string $filename, string $targetDir): bool
+{
+    if (empty($filename) || $filename === 'default.jpg') {
+        return false;
+    }
+
+    $filePath = rtrim($targetDir, '/') . '/' . $filename;
+
+    if (file_exists($filePath)) {
+        return unlink($filePath);
+    }
+
+    return false;
+}
+
+function timeAgo(string $datetime): string
+{
+    $now = new DateTime();
+    $past = new DateTime($datetime);
+    $diff = $now->diff($past);
+
+    if ($diff->y > 0) {
+        return $diff->y . ' tahun lalu';
+    }
+    if ($diff->m > 0) {
+        return $diff->m . ' bulan lalu';
+    }
+    if ($diff->d > 0) {
+        return $diff->d . ' hari lalu';
+    }
+    if ($diff->h > 0) {
+        return $diff->h . ' jam lalu';
+    }
+    if ($diff->i > 0) {
+        return $diff->i . ' menit lalu';
+    }
+
+    return 'Baru saja';
+}
+
+function truncate(string $text, int $length = 100): string
+{
+    if (strlen($text) <= $length) {
+        return $text;
+    }
+
+    return substr($text, 0, $length) . '...';
+}
