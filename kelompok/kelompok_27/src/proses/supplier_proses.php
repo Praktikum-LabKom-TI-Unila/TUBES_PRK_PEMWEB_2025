@@ -13,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             tambahSupplier($koneksi, $nama_supplier, $no_hp, $kategori);
             break;
         case 'ubah':
+            ubahSupplier($koneksi, $id_supplier, $nama_supplier, $no_hp, $kategori);
             break;
         default:
             header("Location: ../admin/master_supplier.php?status=error&pesan=Aksi tidak dikenal");
@@ -38,7 +39,20 @@ function tambahSupplier($koneksi, $nama_supplier, $no_hp, $kategori) {
     exit();
 }
 
-function ubahSupplier($koneksi, $id, $nama, $hp, $kat) { }
+function ubahSupplier($koneksi, $id_supplier, $nama_supplier, $no_hp, $kategori) {
+    $stmt = $koneksi->prepare("UPDATE suppliers SET nama_supplier = ?, no_hp = ?, kategori = ? WHERE id_supplier = ?");
+
+    $stmt->bind_param("sssi", $nama_supplier, $no_hp, $kategori, $id_supplier);
+
+    if ($stmt->execute()) {
+        header("Location: ../admin/master_supplier.php?status=sukses&pesan=Supplier berhasil diubah!");
+    } else {
+        header("Location: ../admin/master_supplier.php?status=error&pesan=Gagal mengubah Supplier: " . $stmt->error);
+    }
+    $stmt->close();
+    exit();
+}
+
 function arsipSupplier($koneksi, $id) { }
 
 ?>
