@@ -16,6 +16,13 @@ $user_id = $user['user_id'] ?? $user['id'] ?? null;
 
 $userModel = new User($conn);
 
+// Refresh user data from database to get latest profile picture
+$freshUser = $userModel->getUserById($user_id);
+if ($freshUser) {
+    $user = array_merge($user, $freshUser);
+    $_SESSION['user'] = $user;
+}
+
 // Get flash messages
 $success_msg = $_SESSION['success'] ?? null;
 $error_msg = $_SESSION['error'] ?? null;
@@ -106,7 +113,7 @@ if ($tableCheckResult && $tableCheckResult->num_rows > 0) {
             <!-- PROFILE CARD -->
             <div class="bg-white rounded-2xl soft-shadow p-6">
                 <div class="flex items-center gap-4">
-                    <img src="<?= isset($user['profile_picture']) && $user['profile_picture'] ? "./uploads/users/".htmlspecialchars($user['profile_picture']) : 'https://via.placeholder.com/80x80?text=User' ?>"
+                    <img src="<?= isset($user['profile_picture']) && $user['profile_picture'] ? "./uploads/profile/".htmlspecialchars($user['profile_picture']) : 'https://via.placeholder.com/80x80?text=User' ?>"
                          alt="avatar" class="w-20 h-20 object-cover rounded-xl shadow-sm">
                     <div>
                         <div class="text-lg font-semibold text-[#17252A]"><?= htmlspecialchars($user['name'] ?? $user['email']) ?></div>

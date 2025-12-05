@@ -15,6 +15,13 @@ $user_id = $user['user_id'] ?? $user['id'] ?? null;
 
 $userModel = new User($conn);
 
+// Refresh user data from database to get latest profile picture
+$freshUser = $userModel->getUserById($user_id);
+if ($freshUser) {
+    $user = array_merge($user, $freshUser);
+    $_SESSION['user'] = $user;
+}
+
 // Get flash messages
 $success_msg = $_SESSION['success'] ?? null;
 $error_msg = $_SESSION['error'] ?? null;
