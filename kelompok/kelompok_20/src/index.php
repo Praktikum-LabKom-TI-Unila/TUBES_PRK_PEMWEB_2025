@@ -50,6 +50,69 @@ try {
                 };
             }
             break;
+
+        case 'comments':
+            require_once __DIR__ . '/controllers/CommentController.php';
+            $controller = new CommentController();
+
+            if ($isPostRequest) {
+                match ($action) {
+                    'store'  => $controller->store(),
+                    'delete' => $controller->delete(),
+                    default  => redirect('index.php?page=items')
+                };
+            } else {
+                match ($action) {
+                    'delete' => $controller->delete(),
+                    default  => redirect('index.php?page=items')
+                };
+            }
+            break;
+
+        case 'claims':
+            require_once __DIR__ . '/controllers/ClaimController.php';
+            $controller = new ClaimController();
+
+            if ($isPostRequest) {
+                match ($action) {
+                    'store'  => $controller->store(),
+                    'verify' => $controller->verify(),
+                    'reject' => $controller->reject(),
+                    'cancel' => $controller->cancel(),
+                    default  => redirect('index.php?page=items')
+                };
+            } else {
+                match ($action) {
+                    'my'     => $controller->myClaims(),
+                    'verify' => $controller->verify(),
+                    'reject' => $controller->reject(),
+                    'cancel' => $controller->cancel(),
+                    default  => redirect('index.php?page=items')
+                };
+            }
+            break;
+
+        case 'notifications':
+            require_once __DIR__ . '/controllers/NotificationController.php';
+            $controller = new NotificationController();
+
+            if ($isPostRequest) {
+                match ($action) {
+                    'mark-read'     => $controller->markRead(),
+                    'mark-all-read' => $controller->markAllRead(),
+                    default         => redirect('index.php?page=notifications')
+                };
+            } else {
+                match ($action) {
+                    'index', ''     => $controller->index(),
+                    'mark-read'     => $controller->markRead(),
+                    'mark-all-read' => $controller->markAllRead(),
+                    'unread'        => $controller->getUnread(),
+                    'count'         => $controller->getUnreadCount(),
+                    default         => $controller->index()
+                };
+            }
+            break;
             
         case 'auth':
             if ($isPostRequest) {
