@@ -42,8 +42,12 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     
     <style>
         @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
+            0%, 100% { 
+                transform: translateY(0px); 
+            }
+            50% { 
+                transform: translateY(-12px); /* Logo naik 15px */
+            }
         }
         
         @keyframes fadeInUp {
@@ -56,7 +60,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
             to { opacity: 1; transform: translateX(0); }
         }
         
-        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-float { animation: float 5s ease-in-out infinite; }
         .animate-fadeInUp { animation: fadeInUp 0.8s ease-out forwards; }
         .animate-slideInLeft { animation: slideInLeft 0.8s ease-out forwards; }
         
