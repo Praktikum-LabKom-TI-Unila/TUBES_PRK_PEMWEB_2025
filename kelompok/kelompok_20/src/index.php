@@ -45,6 +45,7 @@ try {
                     'edit'       => $controller->edit(),
                     'delete'     => $controller->delete(),
                     'my'         => $controller->myItems(),
+                    'matches'    => $controller->matches(),
                     default      => $controller->index()
                 };
             }
