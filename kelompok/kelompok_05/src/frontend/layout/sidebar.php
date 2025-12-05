@@ -2,29 +2,85 @@
 $role = $_SESSION['role'] ?? 'guest'; 
 ?>
 
-<div class="sidebar p-3" style="width: 250px;">
-    <h4 class="text-center mb-4"><i class="fas fa-landmark"></i> SigerHub</h4>
+<div class="sidebar p-3 d-flex flex-column" style="width: 260px; min-height: 100vh;">
     
-    <a href="../backend/dashboard_warga.php"><i class="fas fa-home me-2"></i> Dashboard</a>
-
-    <?php if ($role == 'warga'): ?>
-        <small class="text-muted ms-3 mt-3 d-block">LAYANAN WARGA</small>
-        <a href="../backend/pengaduan_form.php"><i class="fas fa-bullhorn me-2"></i> Lapor Jalan/Sampah</a>
-        <a href="../backend/pengaduan_riwayat.php"><i class="fas fa-history me-2"></i> Riwayat Laporan</a>
-        
-        <a href="../backend/umkm_daftar.php"><i class="fas fa-store me-2"></i> Daftar UMKM</a>
-        <a href="../backend/umkm_status.php"><i class="fas fa-file-contract me-2"></i> Status Izin</a>
+    <div class="text-center mt-3 mb-5">
+        <h4 class="fw-bold text-white tracking-wide">
+            <i class="fas fa-map-marker-alt text-warning me-2"></i>Lampung<span class="text-warning">Smart</span>
+        </h4>
+    </div>
     
-    <?php elseif ($role == 'admin'): ?>
-        <small class="text-muted ms-3 mt-3 d-block">PANEL ADMIN</small>
-        <a href="../backend/admin_pengaduan.php"><i class="fas fa-check-double me-2"></i> Validasi Laporan</a>
-        
-        <a href="../backend/admin_umkm.php"><i class="fas fa-user-check me-2"></i> Validasi UMKM</a>
-        <a href="../backend/kelola_user.php"><i class="fas fa-users me-2"></i> Kelola User</a>
-    <?php endif; ?>
+    <ul class="nav flex-column gap-2">
+        <li class="nav-item">
+            <a href="../backend/dashboard_warga.php" class="nav-link d-flex align-items-center <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard_warga.php' ? 'active' : ''; ?>">
+                <i class="fas fa-home me-3"></i> Dashboard
+            </a>
+        </li>
 
-    <hr>
-    <a href="../backend/logout.php" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
+        <?php if ($role == 'warga'): ?>
+            <li class="nav-header text-uppercase text-white-50 fs-7 fw-bold mt-3 mb-2 px-3" style="font-size: 0.75rem;">Layanan Warga</li>
+            
+            <li class="nav-item">
+                <a href="../backend/pengaduan_form.php" class="nav-link d-flex align-items-center">
+                    <i class="fas fa-bullhorn me-3"></i> Lapor Jalan/Sampah
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="../backend/pengaduan_riwayat.php" class="nav-link d-flex align-items-center">
+                    <i class="fas fa-history me-3"></i> Riwayat Laporan
+                </a>
+            </li>
+            
+            <li class="nav-header text-uppercase text-white-50 fs-7 fw-bold mt-3 mb-2 px-3" style="font-size: 0.75rem;">UMKM</li>
+            
+            <li class="nav-item">
+                <a href="../backend/umkm_daftar.php" class="nav-link d-flex align-items-center">
+                    <i class="fas fa-store me-3"></i> Daftar UMKM
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="../backend/umkm_status.php" class="nav-link d-flex align-items-center">
+                    <i class="fas fa-file-contract me-3"></i> Status Izin
+                </a>
+            </li>
+        
+        <?php elseif ($role == 'admin'): ?>
+            <li class="nav-header text-uppercase text-white-50 fs-7 fw-bold mt-3 mb-2 px-3" style="font-size: 0.75rem;">Panel Admin</li>
+            
+            <li class="nav-item">
+                <a href="../backend/admin_pengaduan.php" class="nav-link d-flex align-items-center">
+                    <i class="fas fa-check-double me-3"></i> Validasi Laporan
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="../backend/admin_umkm.php" class="nav-link d-flex align-items-center">
+                    <i class="fas fa-user-check me-3"></i> Validasi UMKM
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="../backend/kelola_user.php" class="nav-link d-flex align-items-center">
+                    <i class="fas fa-users me-3"></i> Kelola User
+                </a>
+            </li>
+        <?php endif; ?>
+    </ul>
+
+    <div class="mt-auto mb-4">
+        <hr class="border-secondary opacity-50">
+        <a href="../backend/logout.php" class="nav-link text-danger d-flex align-items-center fw-bold" onclick="return confirm('Yakin mau keluar?')">
+            <i class="fas fa-sign-out-alt me-3"></i> Logout
+        </a>
+    </div>
 </div>
 
-<div class="flex-grow-1 p-4">
+<div class="flex-grow-1" style="background-color: #f8f9fa;">
+    <nav class="navbar navbar-expand-lg bg-white shadow-sm d-md-none p-3 mb-3">
+        <div class="container-fluid">
+            <span class="navbar-brand fw-bold text-primary">LampungSmart</span>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mobileMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
+    
+    <div class="p-4">
