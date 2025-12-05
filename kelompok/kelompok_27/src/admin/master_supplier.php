@@ -76,6 +76,48 @@ include('../layout/footer.php');
         </div>
     </section>
     </div>
+<div class="modal fade" id="modalTambahUbah" tabindex="-1" role="dialog" aria-labelledby="modalTambahUbahLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTambahUbahLabel">Tambah Supplier</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="../proses/supplier_proses.php" method="POST">
+                <div class="modal-body">
+                    <input type="hidden" name="id_supplier" id="id_supplier">
+                    
+                    <input type="hidden" name="action" id="action" value="tambah"> 
+
+                    <div class="form-group">
+                        <label for="nama_supplier">Nama Supplier</label>
+                        <input type="text" class="form-control" id="nama_supplier" name="nama_supplier" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="no_hp">No HP</label>
+                        <input type="text" class="form-control" id="no_hp" name="no_hp">
+                    </div>
+                    <div class="form-group">
+                        <label for="kategori">Kategori</label>
+                        <select class="form-control" id="kategori" name="kategori" required>
+                            <option value="internal">Internal (Titipan Internal)</option>
+                            <option value="eksternal">Eksternal (Titipan Luar)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                    <button type="submit" class="btn btn-primary" id="btnSubmitModal">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<?php
+include('../layout/footer.php'); 
+?>
 <?php
 include('../layout/footer.php'); 
 ?>
