@@ -95,3 +95,40 @@ CREATE TABLE notifications (
     
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+INSERT INTO categories (id, name) VALUES
+(1, 'Elektronik'),
+(2, 'Dokumen'),
+(3, 'Pakaian'),
+(4, 'Aksesoris'),
+(5, 'Kunci'),
+(6, 'Tas & Dompet'),
+(7, 'Buku & Alat Tulis'),
+(8, 'Kendaraan'),
+(9, 'Lainnya');
+
+
+INSERT INTO locations (id, name) VALUES
+(1, 'Gedung Rektorat'),
+(2, 'Gedung Serba Guna (GSG)'),
+(3, 'Perpustakaan Pusat'),
+(4, 'Kantin Terpadu'),
+(5, 'Gedung A - FMIPA'),
+(6, 'Gedung B - Fakultas Teknik'),
+(7, 'Gedung C - FISIP'),
+(8, 'Gedung D - Fakultas Hukum'),
+(9, 'Gedung E - Fakultas Ekonomi'),
+(10, 'Gedung F - FKIP'),
+(11, 'Gedung G - Fakultas Pertanian'),
+(12, 'Gedung H - Fakultas Kedokteran'),
+(13, 'Masjid Al-Wasi''i'),
+(14, 'Lapangan Olahraga'),
+(15, 'Parkiran Motor Pusat'),
+(16, 'Parkiran Mobil Pusat'),
+(17, 'UPT Bahasa'),
+(18, 'Poliklinik Unila'),
+(19, 'Asrama Mahasiswa'),
+(20, 'Lainnya');
+
+INSERT INTO users (id, name, npm, email, password, phone, role, is_active) VALUES
+(1, 'Administrator', '0000000000', 'admin@unila.ac.id', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '081234567890', 'admin', 1);
