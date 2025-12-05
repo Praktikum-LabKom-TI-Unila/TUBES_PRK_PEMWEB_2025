@@ -83,7 +83,7 @@ function formatDate(string $date): string
     return "{$day} {$month} {$year}";
 }
 
-function uploadImage(array $file, string $targetDir): string|false
+function uploadImage(array $file, string $targetDir, string $category = 'IMG', int $userId = 0): string|false
 {
     if ($file['error'] !== UPLOAD_ERR_OK || empty($file['tmp_name'])) {
         return false;
@@ -115,7 +115,12 @@ function uploadImage(array $file, string $targetDir): string|false
         mkdir($targetDir, 0755, true);
     }
 
-    $newFilename = uniqid('img_', true) . '.' . $extension;
+    $categoryClean = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $category));
+    $userIdFormatted = sprintf('U%03d', $userId);
+    $timestamp = date('Ymd_His');
+    $randomStr = strtoupper(substr(bin2hex(random_bytes(2)), 0, 4));
+    
+    $newFilename = sprintf('%s_%s_%s_%s.%s', $categoryClean, $userIdFormatted, $timestamp, $randomStr, $extension);
     $targetPath = rtrim($targetDir, '/') . '/' . $newFilename;
 
     if (!move_uploaded_file($file['tmp_name'], $targetPath)) {

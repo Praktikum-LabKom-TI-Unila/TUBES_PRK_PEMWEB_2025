@@ -107,7 +107,16 @@ final class ItemController
 
         $imagePath = null;
         if (!empty($_FILES['image']['name'])) {
-            $uploadResult = uploadImage($_FILES['image'], $this->uploadDir);
+            $categories = $this->itemModel->getCategories();
+            $categoryName = 'ITEM';
+            foreach ($categories as $cat) {
+                if ((int)$cat['id'] === $categoryId) {
+                    $categoryName = $cat['name'];
+                    break;
+                }
+            }
+            
+            $uploadResult = uploadImage($_FILES['image'], $this->uploadDir, $categoryName, $_SESSION['user_id']);
             if ($uploadResult === false) {
                 flash('message', 'Gagal upload gambar. Pastikan format JPG/PNG/WEBP dan ukuran maksimal 2MB.', 'error');
                 redirect('index.php?page=items&action=create');
@@ -236,7 +245,16 @@ final class ItemController
         $imagePath = $item['image_path'];
 
         if (!empty($_FILES['image']['name'])) {
-            $uploadResult = uploadImage($_FILES['image'], $this->uploadDir);
+            $categories = $this->itemModel->getCategories();
+            $categoryName = 'ITEM';
+            foreach ($categories as $cat) {
+                if ((int)$cat['id'] === $categoryId) {
+                    $categoryName = $cat['name'];
+                    break;
+                }
+            }
+            
+            $uploadResult = uploadImage($_FILES['image'], $this->uploadDir, $categoryName, $_SESSION['user_id']);
             if ($uploadResult === false) {
                 flash('message', 'Gagal upload gambar baru.', 'error');
                 redirect('index.php?page=items&action=edit&id=' . $id);
