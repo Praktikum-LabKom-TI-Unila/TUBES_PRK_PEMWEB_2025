@@ -1,6 +1,6 @@
 -- Buat database
 CREATE DATABASE warkops_db;
-USE warkops;
+USE warkops_db;
 
 -- ----------------------------------------
 -- 1. USERS (admin & kasir)
