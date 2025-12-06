@@ -1,54 +1,37 @@
+// 1. Fungsi Konfirmasi Hapus User
+function confirmDelete(id, nama) {
+    // Tampilkan popup konfirmasi yang lebih informatif
+    if (confirm(`⚠️ PERINGATAN PENTING!\n\nApakah Anda yakin ingin menghapus Toko "${nama}"?\n\nPERHATIAN: Tindakan ini akan menghapus permanen:\n- Akun User\n- Semua Produk Toko ini\n- Semua Riwayat Bundle/Kolaborasi Toko ini\n\nLanjutkan menghapus?`)) {
+        // Jika user klik OK, arahkan ke file proses dengan parameter hapus user
+        window.location.href = `proses_admin.php?aksi=hapus_user&id=${id}`;
+    }
+}
+
+// 2. Fungsi Konfirmasi Hapus Voucher (BARU)
+function confirmDeleteVoucher(id, kode) {
+    // Tampilkan popup konfirmasi sederhana untuk voucher
+    if (confirm(`Yakin ingin menghapus data voucher "${kode}" dari laporan?\nData yang dihapus tidak dapat dikembalikan.`)) {
+        // Jika user klik OK, arahkan ke file proses dengan parameter hapus voucher
+        window.location.href = `proses_admin.php?aksi=hapus_voucher&id=${id}`;
+    }
+}
+
+// 3. Fungsi Print Laporan
+// Fungsi ini memanggil dialog print bawaan browser
+function printLaporan() {
+    window.print();
+}
+
+// 4. Auto Hide Alert (Notifikasi hilang sendiri setelah 3 detik)
+// Berguna agar tampilan admin tetap bersih setelah ada pesan sukses/gagal
 document.addEventListener("DOMContentLoaded", function() {
-    
-    // 1. Efek Smooth Scroll untuk tombol "Pelajari Dulu"
-    const scrollBtn = document.querySelector('a[href="#fitur"]');
-    if (scrollBtn) {
-        scrollBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href');
-            const targetSection = document.querySelector(targetId);
-            if (targetSection) {
-                targetSection.scrollIntoView({
-                    behavior: 'smooth'
-                });
-            }
-        });
-    }
-
-    // 2. Simple Scroll Reveal Animation
-    // Fungsi untuk mengecek apakah elemen masuk layar
-    function revealOnScroll() {
-        var reveals = document.querySelectorAll(".reveal");
-
-        for (var i = 0; i < reveals.length; i++) {
-            var windowHeight = window.innerHeight;
-            var elementTop = reveals[i].getBoundingClientRect().top;
-            var elementVisible = 150;
-
-            if (elementTop < windowHeight - elementVisible) {
-                reveals[i].classList.add("active");
-            }
-        }
-    }
-
-    // Tambahkan class CSS untuk animasi ini secara dinamis (biar gak ngotorin file CSS utama)
-    const style = document.createElement('style');
-    style.innerHTML = `
-        .reveal {
-            position: relative;
-            transform: translateY(50px);
-            opacity: 0;
-            transition: 1s all ease;
-        }
-        .reveal.active {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    `;
-    document.head.appendChild(style);
-
-    // Jalankan fungsi saat discroll
-    window.addEventListener("scroll", revealOnScroll);
-    // Jalankan sekali saat load biar yang paling atas langsung muncul
-    revealOnScroll();
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            // Tambahkan class fade agar transparan pelan-pelan (jika menggunakan Bootstrap)
+            alert.classList.add('fade');
+            // Hapus elemen dari DOM setelah animasi fade selesai (500ms)
+            setTimeout(() => alert.remove(), 500); 
+        }, 3000); // Tunggu 3 detik sebelum mulai menghilang
+    });
 });
