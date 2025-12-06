@@ -1,5 +1,5 @@
 <?php
-// Sidebar reusable untuk Admin Panel
+// Sidebar Admin Panel
 ?>
 
 <style>
@@ -103,7 +103,7 @@
         <!-- Pengaturan -->
         <p class="menu-title">Pengaturan</p>
 
-        <a href="profile.php"
+        <a href="profil.php"
             class="nav-item <?= ($active === 'profil') ? 'nav-active' : '' ?>">
             <span class="w-6 h-6 rounded-md bg-gray-100 text-gray-600 flex items-center justify-center">Pr</span>
             Profil
