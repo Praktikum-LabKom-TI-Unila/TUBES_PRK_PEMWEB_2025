@@ -14,13 +14,18 @@ class Session
             ini_set('session.use_strict_mode', 1);
             ini_set('session.use_only_cookies', 1);
             ini_set('session.cookie_httponly', 1);
-            
+            ini_set('session.cookie_path', '/');
+            ini_set('session.cookie_domain', '');
+            ini_set('session.cookie_samesite', 'Lax');
+
             session_name(SESSION_NAME);
-            
+
+            // Set cookie params sebelum session_start()
             session_set_cookie_params([
-                'lifetime' => SESSION_LIFETIME,
+                'lifetime' => defined('SESSION_LIFETIME') ? SESSION_LIFETIME : 86400,
                 'path' => '/',
-                'secure' => isset($_SERVER['HTTPS']),
+                'domain' => '',
+                'secure' => false, // Set true jika menggunakan HTTPS
                 'httponly' => true,
                 'samesite' => 'Lax'
             ]);
@@ -64,7 +69,7 @@ class Session
     public static function destroy(): void
     {
         self::start();
-        
+
         $_SESSION = [];
 
         if (ini_get("session.use_cookies")) {
@@ -84,6 +89,12 @@ class Session
         self::$started = false;
     }
 
+    public static function regenerate(): void
+    {
+        self::start();
+        session_regenerate_id(true);
+    }
+
     public static function isLoggedIn(): bool
     {
         return self::has('user_id') && self::get('user_id') !== null;
@@ -91,8 +102,17 @@ class Session
 
     public static function getUserId(): ?int
     {
-        $userId = self::get('user_id');
-        return $userId !== null ? (int) $userId : null;
+        return self::get('user_id');
+    }
+
+    public static function getUsername(): ?string
+    {
+        return self::get('username');
+    }
+
+    public static function getEmail(): ?string
+    {
+        return self::get('email');
     }
 
     public static function getRole(): ?string
@@ -105,18 +125,19 @@ class Session
         return self::getRole() === ROLE_ADMIN;
     }
 
-    public static function setFlash(string $type, string $message): void
+    public static function isAnggota(): bool
     {
-        self::set('_flash', [
-            'type' => $type,
-            'message' => $message
-        ]);
+        return self::getRole() === ROLE_ANGGOTA;
     }
 
-    public static function getFlash(): ?array
+    public static function flash(string $key, $value = null)
     {
-        $flash = self::get('_flash');
-        self::remove('_flash');
-        return $flash;
+        if ($value === null) {
+            $flashValue = self::get('_flash_' . $key);
+            self::remove('_flash_' . $key);
+            return $flashValue;
+        }
+
+        self::set('_flash_' . $key, $value);
     }
 }
