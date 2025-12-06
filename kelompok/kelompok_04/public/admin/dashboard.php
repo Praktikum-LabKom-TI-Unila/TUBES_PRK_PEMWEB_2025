@@ -30,16 +30,11 @@ function getCount($conn, $sql) {
     return 0;
 }
 
-
 $totalDokter        = getCount($conn, "SELECT COUNT(*) AS c FROM dokter");
 $totalPoli          = getCount($conn, "SELECT COUNT(*) AS c FROM poli");
 $totalPasien        = getCount($conn, "SELECT COUNT(*) AS c FROM pasien");
 $kunjunganHariIni   = getCount($conn, "SELECT COUNT(*) AS c FROM rekam_medis WHERE tanggal_kunjungan = CURDATE()");
 $totalPengumuman    = getCount($conn, "SELECT COUNT(*) AS c FROM pengumuman");
-
-
-$totalArtikel       = 0;
-
 
 $sqlAktivitas = "
     SELECT 
@@ -99,76 +94,12 @@ function waktuRelatif($datetime) {
 <body class="bg-gray-100 font-sans">
 
 <div class="min-h-screen flex">
-    <!-- SIDEBAR -->
-    <aside class="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col">
-        <div class="px-6 py-6 border-b border-gray-100">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center">
-                    <span class="text-[#45BC7D] font-bold text-lg">P</span>
-                </div>
-                <div>
-                    <p class="text-xs text-gray-400">Puskesmas</p>
-                    <p class="text-sm font-semibold text-gray-800">Panel Admin</p>
-                </div>
-            </div>
-        </div>
-
-        <nav class="flex-1 px-3 py-4 space-y-1 text-sm">
-            <a href="dashboard.php" class="flex items-center gap-3 px-3 py-3 rounded-xl bg-green-50 text-[#45BC7D] font-medium">
-                <span class="w-5 h-5 rounded-md bg-[#45BC7D] text-white flex items-center justify-center text-xs">D</span>
-                <span>Dashboard</span>
-            </a>
-
-            <p class="px-3 pt-4 pb-1 text-[11px] font-semibold text-gray-400 uppercase tracking-wide">Master Data</p>
-
-            <a href="dokter.php" class="flex items-center gap-3 px-3 py-2 rounded-xl text-gray-600 hover:bg-gray-50">
-                <span class="w-5 h-5 rounded-md bg-gray-100 flex items-center justify-center text-[10px]">Dr</span>
-                <span>Data Dokter</span>
-            </a>
-            <a href="poli.php" class="flex items-center gap-3 px-3 py-2 rounded-xl text-gray-600 hover:bg-gray-50">
-                <span class="w-5 h-5 rounded-md bg-gray-100 flex items-center justify-center text-[10px]">Po</span>
-                <span>Data Poli</span>
-            </a>
-            <a href="jadwal_praktik.php" class="flex items-center gap-3 px-3 py-2 rounded-xl text-gray-600 hover:bg-gray-50">
-                <span class="w-5 h-5 rounded-md bg-gray-100 flex items-center justify-center text-[10px]">Jd</span>
-                <span>Jadwal Praktik</span>
-            </a>
-            <a href="pasien.php" class="flex items-center gap-3 px-3 py-2 rounded-xl text-gray-600 hover:bg-gray-50">
-                <span class="w-5 h-5 rounded-md bg-gray-100 flex items-center justify-center text-[10px]">Ps</span>
-                <span>Data Pasien</span>
-            </a>
-
-            <p class="px-3 pt-4 pb-1 text-[11px] font-semibold text-gray-400 uppercase tracking-wide">Informasi</p>
-
-            <a href="pengumuman.php" class="flex items-center gap-3 px-3 py-2 rounded-xl text-gray-600 hover:bg-gray-50">
-                <span class="w-5 h-5 rounded-md bg-gray-100 flex items-center justify-center text-[10px]">Pg</span>
-                <span>Pengumuman</span>
-            </a>
-            <a href="artikel.php" class="flex items-center gap-3 px-3 py-2 rounded-xl text-gray-400 hover:bg-gray-50">
-                <span class="w-5 h-5 rounded-md bg-gray-100 flex items-center justify-center text-[10px]">Ar</span>
-                <span>Artikel Kesehatan</span>
-            </a>
-
-            <p class="px-3 pt-4 pb-1 text-[11px] font-semibold text-gray-400 uppercase tracking-wide">Pengaturan</p>
-
-            <a href="settings.php" class="flex items-center gap-3 px-3 py-2 rounded-xl text-gray-600 hover:bg-gray-50">
-                <span class="w-5 h-5 rounded-md bg-gray-100 flex items-center justify-center text-[10px]">St</span>
-                <span>Pengaturan</span>
-            </a>
-            <a href="profile.php" class="flex items-center gap-3 px-3 py-2 rounded-xl text-gray-600 hover:bg-gray-50">
-                <span class="w-5 h-5 rounded-md bg-gray-100 flex items-center justify-center text-[10px]">Pr</span>
-                <span>Profil</span>
-            </a>
-        </nav>
-
-        <div class="px-4 py-4 border-t border-gray-100">
-            <form action="../logout.php" method="post">
-                <button type="submit" class="w-full text-left px-3 py-2 rounded-xl text-red-600 hover:bg-red-50 text-sm">
-                    Logout
-                </button>
-            </form>
-        </div>
-    </aside>
+    <!-- SIDEBAR (include reusable file) -->
+    <?php
+        // Tandai menu aktif untuk sidebar
+        $active = 'dashboard';
+        include __DIR__ . '/sidebar.php';
+    ?>
 
     <!-- MAIN AREA -->
     <div class="flex-1 flex flex-col">
@@ -179,9 +110,9 @@ function waktuRelatif($datetime) {
             </div>
         </header>
 
-        <main class="flex-1 px-4 md:px-8 py-6 max-w-7xl mx-auto">
+       <main class="flex-1 flex flex-col px-4 md:px-6 py-6 w-full">
             <!-- STAT CARDS -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6 w-full">
                 <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
                     <div class="w-12 h-12 bg-blue-50 text-blue-700 rounded-xl flex items-center justify-center mb-3 text-sm font-semibold">
                         Dr
@@ -215,15 +146,6 @@ function waktuRelatif($datetime) {
                 </div>
 
                 <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-                    <div class="w-12 h-12 bg-cyan-50 text-cyan-600 rounded-xl flex items-center justify-center mb-3 text-sm font-semibold">
-                        Ar
-                    </div>
-                    <div class="text-2xl text-gray-800 mb-1"><?php echo $totalArtikel; ?></div>
-                    <p class="text-xs text-gray-600">Artikel</p>
-                    <p class="text-[10px] text-gray-400 mt-1">(belum terhubung, belum ada tabel artikel)</p>
-                </div>
-
-                <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
                     <div class="w-12 h-12 bg-pink-50 text-pink-600 rounded-xl flex items-center justify-center mb-3 text-sm font-semibold">
                         Pg
                     </div>
@@ -252,7 +174,6 @@ function waktuRelatif($datetime) {
                                                     elseif ($act['tipe'] === 'pengumuman') echo 'bg-orange-100 text-orange-600';
                                                     else                                  echo 'bg-blue-100 text-blue-600';
                                                 ?>">
-                                                <!-- icon sederhana berupa huruf -->
                                                 <span class="text-xs font-semibold uppercase">
                                                     <?php echo strtoupper(substr($act['tipe'],0,2)); ?>
                                                 </span>
@@ -303,7 +224,6 @@ function waktuRelatif($datetime) {
         </main>
     </div>
 </div>
-
 
 <script>
 
