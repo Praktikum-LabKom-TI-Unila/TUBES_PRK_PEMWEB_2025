@@ -14,7 +14,7 @@ include 'includes/header.php';
                         <i class="bi bi-box-arrow-in-right text-white text-3xl"></i>
                     </div>
                     <h1 class="text-4xl font-bold text-slate-900 mb-3">Masuk</h1>
-                    <p class="text-slate-600">Gunakan akun Anda untuk melanjutkan</p>
+                    <p class="text-slate-600">Gunaka akun Anda untuk melanjutkan</p>
                 </div>
 
                 <!-- Alert -->
