@@ -155,11 +155,25 @@ if (isset($_GET['draft_id'])) {
                         <?php 
                         $parts->data_seek(0); // Reset pointer
                         while ($part = $parts->fetch_assoc()): 
-                            // Gunakan gambar default lokal atau data URL
-                            $imageUrl = !empty($part['image_url']) ? $part['image_url'] : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="200"%3E%3Crect fill="%23ddd" width="300" height="200"/%3E%3Ctext fill="%23999" font-family="sans-serif" font-size="20" dy="10.5" font-weight="bold" x="50%25" y="50%25" text-anchor="middle"%3ENo Image%3C/text%3E%3C/svg%3E';
                         ?>
                             <div class="card-item bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:border-green-500 flex flex-col" data-type="sparepart" data-nama="<?php echo strtolower($part['nama']); ?>">
-                                <img src="<?php echo htmlspecialchars($imageUrl); ?>" alt="<?php echo htmlspecialchars($part['nama']); ?>" class="item-image flex-shrink-0" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22200%22%3E%3Crect fill=%22%23ddd%22 width=%22300%22 height=%22200%22/%3E%3Ctext fill=%22%23999%22 font-family=%22sans-serif%22 font-size=%2220%22 dy=%2210.5%22 font-weight=%22bold%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22%3ENo Image%3C/text%3E%3C/svg%3E'">
+                                <?php if (!empty($part['image_url'])): ?>
+                                    <!-- Tampilkan gambar jika ada -->
+                                    <img src="<?php echo htmlspecialchars($part['image_url']); ?>" 
+                                         alt="<?php echo htmlspecialchars($part['nama']); ?>" 
+                                         class="item-image flex-shrink-0" 
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    <!-- Fallback icon jika gambar error -->
+                                    <div class="bg-gradient-to-br from-green-500 to-green-600 h-32 items-center justify-center flex-shrink-0" style="display: none;">
+                                        <i class="fas fa-box text-6xl text-white opacity-50"></i>
+                                    </div>
+                                <?php else: ?>
+                                    <!-- Tampilkan icon jika tidak ada gambar -->
+                                    <div class="bg-gradient-to-br from-green-500 to-green-600 h-32 flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-box text-6xl text-white opacity-50"></i>
+                                    </div>
+                                <?php endif; ?>
+                                
                                 <div class="p-4 flex flex-col flex-grow">
                                     <h3 class="font-bold text-gray-800 mb-1 h-12 line-clamp-2"><?php echo htmlspecialchars($part['nama']); ?></h3>
                                     <p class="text-xs text-gray-500 mb-2 h-5">SKU: <?php echo htmlspecialchars($part['sku']); ?></p>
