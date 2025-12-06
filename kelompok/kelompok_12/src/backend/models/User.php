@@ -92,6 +92,18 @@ final class User
         return $record ?: null;
     }
 
+    public function findByEmail(string $email): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT id, username, email, password, full_name, phone, role_id, is_active FROM users WHERE email = :email'
+        );
+
+        $stmt->execute(['email' => $email]);
+        $record = $stmt->fetch();
+
+        return $record ?: null;
+    }
+
     public function delete(int $id): bool
     {
         $stmt = $this->pdo->prepare('DELETE FROM users WHERE id = :id');
