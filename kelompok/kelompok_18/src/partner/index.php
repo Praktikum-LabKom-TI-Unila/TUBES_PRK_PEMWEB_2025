@@ -5,22 +5,25 @@ include '../layouts/header.php';
 $my_id = $_SESSION['id'] ?? $_SESSION['user_id'] ?? null;
 if (!$my_id) echo "<script>window.location='../auth/login.php';</script>";
 
-// Logic Filter
+// Default Query
 $where = "WHERE role='umkm' AND id != '$my_id'";
 
-// 1. Cari Nama
+// 1. Cari Nama Toko (Search)
 if (isset($_GET['q']) && !empty($_GET['q'])) {
     $q = mysqli_real_escape_string($koneksi, $_GET['q']);
     $where .= " AND (nama_toko LIKE '%$q%' OR nama_lengkap LIKE '%$q%')";
 }
-// 2. Filter Kategori (Dropdown)
+
+// 2. Filter Kategori (Dropdown) -- PERBAIKAN DI SINI
 if (isset($_GET['kategori']) && !empty($_GET['kategori'])) {
     $kat = mysqli_real_escape_string($koneksi, $_GET['kategori']);
-    $where .= " AND kategori_bisnis = '$kat'";
+    // Gunakan LIKE agar lebih fleksibel (misal: 'Kuliner (FnB)' akan kena jika dicari 'FnB')
+    $where .= " AND kategori_bisnis LIKE '%$kat%'"; 
 }
 
 $query = "SELECT * FROM users $where ORDER BY id DESC";
 $result = mysqli_query($koneksi, $query);
+?>
 ?>
 
 <link rel="stylesheet" href="../assets/css/style_partner.css">
@@ -62,6 +65,9 @@ $result = mysqli_query($koneksi, $query);
         <a href="my_bundles.php" class="btn-menu">
             <i class="fa fa-handshake"></i> Kolaborasi Aktif
         </a>
+        <a href="history.php" class="btn-menu">
+            <i class="fa fa-history"></i> Riwayat
+        </a>
     </div>
 
     <div class="row g-4">
@@ -84,9 +90,14 @@ $result = mysqli_query($koneksi, $query);
                             <?= !empty($row['deskripsi_toko']) ? $row['deskripsi_toko'] : 'Tidak ada deskripsi.' ?>
                         </p>
 
-                        <button class="btn-collab" data-bs-toggle="modal" data-bs-target="#modalAjak<?= $row['id'] ?>">
-                            Ajak Kolaborasi
-                        </button>
+                        <div class="d-grid gap-2">
+                            <button class="btn-collab" data-bs-toggle="modal" data-bs-target="#modalAjak<?= $row['id'] ?>">
+                                Ajak Kolaborasi
+                            </button>
+                            <a href="chat_room.php?partner_id=<?= $row['id'] ?>" class="btn btn-outline-primary btn-sm rounded-pill fw-bold py-2">
+                                <i class="fa fa-comments me-1"></i> Ajak Diskusi
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

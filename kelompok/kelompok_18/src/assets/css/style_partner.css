@@ -1,11 +1,19 @@
 /* assets/css/style_partner.css */
 
 :root {
+    /* Warna Utama Aplikasi (Orange) */
     --primary: #ED7D31;
     --primary-dark: #D66A22;
     --text-main: #4F4A45;
     --bg-light: #F9F9F9;
     --white: #ffffff;
+
+    /* Warna Tambahan Khusus Halaman Bundle (Earth Tone) */
+    --earth-primary: #8D6E63;    /* Cokelat Kopi */
+    --earth-secondary: #D7CCC8;  /* Krem Lembut */
+    --earth-accent: #6D4C41;     /* Cokelat Tua */
+    --earth-success: #81C784;    /* Hijau Sage */
+    --shadow-soft: 0 5px 15px rgba(0,0,0,0.05);
 }
 
 body {
@@ -31,7 +39,7 @@ body {
     background: #fff;
     padding: 5px;
     border: 1px solid #ddd;
-    border-radius: 8px; /* Sudut tumpul standar */
+    border-radius: 8px;
 }
 
 .search-input {
@@ -94,7 +102,7 @@ body {
     box-shadow: 0 4px 10px rgba(237, 125, 49, 0.3);
 }
 
-/* === CARD PARTNER (Back to Basic) === */
+/* === CARD PARTNER (Back to Basic - Untuk Halaman Pencarian) === */
 .card-partner {
     background: var(--white);
     border: 1px solid #eee;
@@ -172,60 +180,285 @@ body {
     box-shadow: 0 5px 15px rgba(0,0,0,0.05);
 }
 
-/* ... (Code sebelumnya tetap ada) ... */
+/* =========================================
+   === MY BUNDLES STYLES (New Layout) ===
+   ========================================= */
 
-/* === CHAT ROOM STYLES === */
-.chat-container {
-    max-width: 900px;
-    margin: 0 auto;
-    background: #fff;
-    border-radius: 15px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    height: 75vh; /* Tinggi fix agar scrollable */
-    border: 1px solid #eee;
+/* Container Title untuk My Bundles */
+.page-header h2 {
+    color: var(--earth-accent);
+    font-weight: 700;
 }
 
-.chat-header {
-    background: #fff;
-    padding: 15px 20px;
-    border-bottom: 1px solid #eee;
+/* Card Bundle Styles */
+.bundle-card {
+    background: var(--white);
+    border: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    position: relative;
+    border-bottom: 4px solid transparent;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.bundle-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-soft);
+    border-bottom: 4px solid var(--earth-primary);
+}
+
+.bundle-img-wrapper {
+    height: 180px;
+    background-color: var(--earth-secondary);
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    z-index: 10;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.bundle-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s;
+}
+
+.bundle-card:hover .bundle-img-wrapper img {
+    transform: scale(1.1);
+}
+
+/* Badge Status Overlay */
+.status-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 2;
+}
+
+.status-active { background-color: #E8F5E9; color: #2E7D32; }
+.status-pending { background-color: #FFF3E0; color: #EF6C00; }
+.status-ended { background-color: #ECEFF1; color: #546E7A; }
+
+/* Content Styles */
+.bundle-body {
+    padding: 20px;
 }
 
 .partner-info {
     display: flex;
     align-items: center;
-    gap: 12px;
+    margin-bottom: 15px;
 }
 
-.partner-avatar-chat {
-    width: 45px;
-    height: 45px;
+.partner-avatar {
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid var(--primary);
+    border: 2px solid var(--earth-secondary);
+    margin-right: 10px;
 }
 
-.chat-area {
-    flex: 1;
-    background: #F5F7FA;
-    padding: 20px;
-    overflow-y: auto;
+.partner-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #555;
+    margin: 0;
+}
+
+.bundle-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--earth-accent);
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.3;
+}
+
+.bundle-stats {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
+    background-color: #FAFAFA;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 0.85rem;
+    border: 1px solid #f0f0f0;
+}
+
+.stat-item {
+    text-align: center;
+    color: #777;
+}
+
+.stat-item strong {
+    display: block;
+    color: var(--earth-primary);
+    font-size: 1rem;
+}
+
+/* Action Buttons Group */
+.btn-action-group {
+    display: flex;
     gap: 10px;
 }
 
-/* Bubble Chat */
+/* Button Khusus Earth Tone */
+.btn-earth-primary {
+    background-color: var(--earth-primary);
+    color: white;
+    border: none;
+    flex: 1;
+    border-radius: 8px;
+    padding: 8px;
+    transition: background 0.2s;
+    text-decoration: none;
+    text-align: center;
+}
+
+.btn-earth-primary:hover {
+    background-color: var(--earth-accent);
+    color: white;
+}
+
+.btn-earth-outline {
+    border: 1px solid var(--earth-primary);
+    color: var(--earth-primary);
+    background: transparent;
+    width: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.btn-earth-outline:hover {
+    background-color: var(--earth-secondary);
+    color: var(--earth-accent);
+}
+/* =========================================
+   === CHAT ROOM STYLES (FULL WIDTH FIXED) ===
+   ========================================= */
+
+.chat-container {
+    width: 100%;       /* Lebar penuh */
+    max-width: none;   /* Hapus batasan lebar 900px */
+    margin: 0;         /* Hapus margin auto (tengah) */
+    background: #fff;
+    border-radius: 0;  /* Hapus sudut melengkung agar menyatu dengan layar */
+    box-shadow: none;  /* Hapus bayangan agar terlihat flat/menyatu */
+    display: flex;
+    flex-direction: column;
+    /* Tinggi layar dikurangi tinggi Navbar (sesuaikan angka 80px jika navbarmu lebih tinggi) */
+    height: calc(100vh - 80px); 
+    border: none;      /* Hapus border luar */
+}
+
+/* --- Chat Header --- */
+.chat-header {
+    background: #fff;
+    padding: 15px 40px; /* Padding kiri-kanan lebih lega */
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;     /* Header tidak boleh menyusut */
+    z-index: 10;
+}
+
+.partner-status {
+    font-size: 0.75rem;
+    color: #4CAF50;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.partner-status::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: #4CAF50;
+    border-radius: 50%;
+}
+
+/* --- Chat Area (Body) --- */
+.chat-area {
+    flex: 1;
+    background-color: #F2F4F8; 
+    background-image: radial-gradient(#e0e4eb 1px, transparent 1px);
+    background-size: 20px 20px;
+    padding: 20px 50px; /* Padding isi chat lebih lebar agar tidak mepet pinggir */
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    scroll-behavior: smooth;
+}
+
+/* Responsif: Di HP paddingnya dikecilkan lagi */
+@media (max-width: 768px) {
+    .chat-header {
+        padding: 15px 20px;
+    }
+    .chat-area {
+        padding: 15px;
+    }
+    .chat-container {
+        height: calc(100vh - 60px); /* Sesuaikan tinggi untuk HP */
+    }
+}
+
+/* Custom Scrollbar */
+.chat-area::-webkit-scrollbar {
+    width: 6px;
+}
+.chat-area::-webkit-scrollbar-track {
+    background: transparent;
+}
+.chat-area::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 10px;
+}
+
+/* --- System Message --- */
+.system-message {
+    display: flex;
+    justify-content: center;
+    margin: 15px 0;
+    width: 100%;
+}
+
+.system-badge {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #666;
+    padding: 5px 15px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+/* --- Message Bubbles --- */
 .message-wrapper {
     display: flex;
     width: 100%;
+    margin-bottom: 5px;
 }
 
 .message-wrapper.me {
@@ -233,77 +466,158 @@ body {
 }
 
 .message-bubble {
-    max-width: 70%;
-    padding: 10px 15px;
-    border-radius: 15px;
+    /* Batasi lebar bubble maksimal 60% agar enak dibaca di layar lebar */
+    max-width: 60%; 
+    padding: 12px 20px;
     font-size: 0.95rem;
     position: relative;
-    line-height: 1.4;
+    line-height: 1.5;
     word-wrap: break-word;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
-/* Chat Sendiri (Kanan - Orange) */
+/* Di HP bubble boleh lebih lebar */
+@media (max-width: 768px) {
+    .message-bubble {
+        max-width: 85%;
+    }
+}
+
+/* Chat Sendiri (Kanan) */
 .message-wrapper.me .message-bubble {
-    background: var(--primary);
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
     color: white;
-    border-bottom-right-radius: 2px;
+    border-radius: 18px 18px 2px 18px;
 }
 
-/* Chat Lawan (Kiri - Putih) */
+/* Chat Lawan (Kiri) */
 .message-wrapper.them .message-bubble {
     background: white;
     color: var(--text-main);
-    border: 1px solid #eee;
-    border-bottom-left-radius: 2px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+    border: 1px solid #fff;
+    border-radius: 18px 18px 18px 2px;
 }
 
 .msg-time {
-    font-size: 0.65rem;
-    margin-top: 5px;
-    display: block;
-    opacity: 0.7;
-    text-align: right;
+    font-size: 0.7rem;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    opacity: 0.8;
 }
 
-/* Input Area */
+/* --- Chat Input Area --- */
 .chat-input-area {
     background: #fff;
-    padding: 15px;
+    padding: 15px 40px; /* Samakan padding dengan header */
     border-top: 1px solid #eee;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
+@media (max-width: 768px) {
+    .chat-input-area {
+        padding: 15px 20px;
+    }
+}
+
+.chat-input-area .btn-light {
+    transition: all 0.2s;
+    border-color: #eee !important;
+}
+.chat-input-area .btn-light:hover {
+    background-color: #f0f0f0;
+    color: var(--primary) !important;
+}
+
+/* Input Box */
 .input-msg {
     flex: 1;
-    border: 1px solid #ddd;
+    background: #f8f9fa;
+    border: 1px solid transparent;
     border-radius: 25px;
-    padding: 10px 20px;
+    padding: 12px 20px;
     outline: none;
-    transition: 0.3s;
+    transition: all 0.3s;
+    font-size: 0.95rem;
 }
 
 .input-msg:focus {
+    background: #fff;
     border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(237, 125, 49, 0.1);
 }
 
+/* Tombol Kirim */
 .btn-send {
     background: var(--primary);
     color: white;
     border: none;
-    width: 45px;
-    height: 45px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: 0.3s;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     cursor: pointer;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 10px rgba(237, 125, 49, 0.3);
 }
 
-.btn-send:hover {
+.btn-send:hover:not(:disabled) {
     background: var(--primary-dark);
-    transform: scale(1.05);
+    transform: scale(1.1);
 }
+
+.btn-send:disabled {
+    background: #ccc;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+/* --- Empty State & CTA --- */
+.empty-state-wrapper {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    background-color: var(--white);
+    border: 1px dashed #ddd; 
+    transition: all 0.3s;
+}
+
+.empty-state-wrapper:hover {
+    border-color: var(--primary);
+    box-shadow: var(--shadow-soft);
+}
+
+.empty-state-wrapper img {
+    max-height: 250px;
+    margin-bottom: 20px;
+    opacity: 0.9;
+}
+
+.collaboration-cta {
+    background-color: #FFF3E0; 
+    border-left: 4px solid var(--primary);
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin: 15px 0;
+    color: var(--text-main);
+}
+
+.collaboration-cta i {
+    color: var(--primary);
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.collaboration-cta h6 {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--primary-dark);
+}
+
