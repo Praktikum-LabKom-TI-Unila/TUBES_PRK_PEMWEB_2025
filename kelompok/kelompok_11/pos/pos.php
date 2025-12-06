@@ -25,20 +25,26 @@ $reservation_data = null;
 
 if (isset($_GET['draft_id'])) {
     $draft_id = intval($_GET['draft_id']);
+    
+    // FIX: Query yang benar dengan FROM clause
     $stmt = $conn->prepare("SELECT t.*, r.kode as reservation_kode, r.nama_pelanggan as res_pelanggan, r.telepon as res_telepon 
                              FROM transactions t 
                              LEFT JOIN reservations r ON t.reservation_id = r.id 
                              WHERE t.id = ? AND t.status = 'draft'");
     $stmt->bind_param("i", $draft_id);
     $stmt->execute();
-    $draft_transaction = $stmt->get_result()->fetch_assoc();
-    
+    $result = $stmt->get_result();
+    $draft_transaction = $result->fetch_assoc();
+    // echo "<pre>DEBUG Draft Transaction:"; print_r($draft_transaction); echo "</pre>";
     if ($draft_transaction) {
         // Ambil items dari draft
         $stmt_items = $conn->prepare("SELECT * FROM transaction_items WHERE transaction_id = ?");
         $stmt_items->bind_param("i", $draft_id);
         $stmt_items->execute();
         $draft_items = $stmt_items->get_result()->fetch_all(MYSQLI_ASSOC);
+        // echo "<pre>DEBUG Draft Items:"; print_r($draft_items); echo "</pre>";
+    } else {
+        // echo "<div style='background: red; color: white; padding: 10px; margin: 10px;'>Draft ID $draft_id tidak ditemukan atau status bukan 'draft'</div>";
     }
 }
 ?>
