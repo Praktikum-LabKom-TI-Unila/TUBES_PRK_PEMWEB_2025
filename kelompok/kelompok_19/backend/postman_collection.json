@@ -31,27 +31,27 @@
               "urlencoded": [
                 {
                   "key": "name",
-                  "value": "John Doe",
+                  "value": "New Student",
                   "type": "text"
                 },
                 {
                   "key": "nim",
-                  "value": "2011521001",
+                  "value": "2011521003",
                   "type": "text"
                 },
                 {
                   "key": "email",
-                  "value": "john@student.unila.ac.id",
+                  "value": "newstudent@student.unila.ac.id",
                   "type": "text"
                 },
                 {
                   "key": "password",
-                  "value": "password123",
+                  "value": "password",
                   "type": "text"
                 },
                 {
                   "key": "confirm_password",
-                  "value": "password123",
+                  "value": "password",
                   "type": "text"
                 }
               ]
@@ -79,8 +79,9 @@
               "urlencoded": [
                 {
                   "key": "email",
-                  "value": "admin@sipemau.ac.id",
-                  "type": "text"
+                  "value": "john@student.unila.ac.id",
+                  "type": "text",
+                  "description": "Mahasiswa with 2 complaints"
                 },
                 {
                   "key": "password",
