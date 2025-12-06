@@ -16,16 +16,20 @@ Proyek ini bertujuan membantu pengelola usaha fotokopi kecil-menengah dalam meng
 - **Manajemen Layanan:** pendataan paket fotokopi, print, jilid, dan layanan tambahan sesuai kebutuhan cabang.
 - **Pencatatan Operasional:** input bahan/material, pengeluaran harian, jadwal shift operator, serta status mesin.
 - **Keuangan & Pelaporan:** rekap pemasukan harian/bulanan, pengeluaran, margin, serta laporan yang siap diunduh.
-- **Hak Akses Pengguna:** akun operator, kasir, dan admin dengan batasan akses berbeda.
+- **Hak Akses Pengguna:** akun owner, operator, dan kasir dengan batasan akses berbeda.
 
 ## Struktur Direktori
 
 ```
 kelompok_12/
-├── src/            # Sumber kode aplikasi PHP
-├── database/       # Skrip SQL siap impor
-├── erd/            # Diagram ERD (PNG/PDF)
-└── screenshots/    # Tangkapan layar antarmuka
+├── src/
+│   ├── backend/    # REST API PHP (router, controller, model, dokumentasi API)
+│   ├── frontend/   # Aset/UI klien (akan diisi saat pengembangan antarmuka)
+│   └── resources/  # Artefak pendukung (ERD, SQL, screenshot)
+│       ├── database/
+│       ├── erd/
+│       └── screenshots/
+└── README.md
 ```
 
 ## Prasyarat
@@ -43,7 +47,7 @@ kelompok_12/
    ```
 2. **Import struktur database.**
    ```bash
-   mysql -u root -p npc < src/database/database.sql
+   mysql -u root -p npc < src/resources/database/database.sql
    ```
 3. **Atur koneksi database** (opsional bila tidak memakai kredensial bawaan).
    - Default berada pada `127.0.0.1:3306`, DB `npc`, user `root`, tanpa sandi.
@@ -55,16 +59,22 @@ kelompok_12/
      export DB_USERNAME=root
      export DB_PASSWORD=your_password
      ```
-4. **Jalankan server PHP built-in.**
+4. **Seed akun default (owner/staff/member).**
    ```bash
-   cd src
+   cd src/backend
+   php seed_users.php
+   ```
+5. **Jalankan server PHP built-in (pada folder backend).**
+   ```bash
+   cd src/backend
    php -S localhost:8000 -t .
    ```
-5. **Akses aplikasi** lewat `http://localhost:8000` dan login sesuai data awal pada database.
+6. **Akses API** lewat `http://localhost:8000` dan login menggunakan akun default (mis. `owner_default` / `owner123`) atau akun lain yang Anda buat.
 
 ## Catatan Pengembangan
 
-- ERD dan dokumentasi lain tersedia pada folder `erd/` serta `screenshots/`.
+- ERD, screenshot, dan skrip SQL tersedia dalam `src/resources/`.
+- Dokumentasi API backend (termasuk login & registrasi) disimpan terpisah di `src/backend/api-docs/openapi.yaml`.
 - Gunakan branch/commit terpisah untuk fitur baru supaya integrasi ke CI laboratorium berjalan lancar.
 
 ---
