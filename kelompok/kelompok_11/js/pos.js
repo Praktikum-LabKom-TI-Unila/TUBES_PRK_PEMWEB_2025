@@ -128,6 +128,8 @@ function renderCart() {
                     : ''
                 }
             </div>
+                <p class="text-lg font-bold text-gray-800">Rp ${formatRupiah(item.subtotal)}</p>
+
             <div class="flex items-center gap-2">
                 <button onclick="updateQty(${index}, -1)" 
                         class="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 text-white font-bold transition flex items-center justify-center">
@@ -140,7 +142,6 @@ function renderCart() {
                 </button>
             </div>
             <div class="text-right">
-                <p class="text-lg font-bold text-gray-800">Rp ${formatRupiah(item.subtotal)}</p>
                 <button onclick="hapusItem(${index})" 
                         class="text-red-600 hover:text-red-700 text-sm mt-1">
                     <i class="fas fa-trash"></i> Hapus
