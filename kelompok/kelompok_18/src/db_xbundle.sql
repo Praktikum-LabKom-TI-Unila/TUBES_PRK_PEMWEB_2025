@@ -73,7 +73,6 @@ CREATE TABLE chats (
     FOREIGN KEY (bundle_id) REFERENCES bundles(id) ON DELETE CASCADE,
     FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE
 );
-);
 
 -- 5. VOUCHERS
 CREATE TABLE vouchers (
