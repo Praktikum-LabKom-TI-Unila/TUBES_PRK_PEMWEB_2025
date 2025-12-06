@@ -4,6 +4,13 @@ info:
   version: 1.0.0
   description: |
     API untuk manajemen pengguna dan role.
+tags:
+  - name: Auth
+    description: Registrasi, login, logout.
+  - name: Users
+    description: Manajemen akun pengguna & role.
+  - name: Inventory
+    description: Kategori produk, stok bahan, dan batch pembelian.
 servers:
   - url: http://localhost:8000/api/v1
     description: Local dev server
@@ -57,9 +64,97 @@ components:
         created_at:
           type: string
           format: date-time
+    ProductCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+        name:
+          type: string
+        category_id:
+          type: integer
+        category_name:
+          type: string
+        category_code:
+          type: string
+        unit:
+          type: string
+        current_stock:
+          type: number
+          format: float
+        min_stock:
+          type: integer
+        current_price:
+          type: number
+          format: float
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    ProductBatch:
+      type: object
+      properties:
+        id:
+          type: integer
+        product_id:
+          type: integer
+        product_name:
+          type: string
+        product_code:
+          type: string
+        batch_code:
+          type: string
+        purchase_date:
+          type: string
+          format: date
+        purchase_price:
+          type: number
+          format: float
+        quantity:
+          type: number
+          format: float
+        quantity_used:
+          type: number
+          format: float
+        quantity_remaining:
+          type: number
+          format: float
+        selling_price:
+          type: number
+          format: float
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
 paths:
   /auth/register:
     post:
+      tags:
+        - Auth
       summary: Registrasi member
       description: Membuat akun baru dengan role default `member` serta mengembalikan sesi aktif.
       requestBody:
@@ -97,6 +192,8 @@ paths:
                 type: string
   /auth/login:
     post:
+      tags:
+        - Auth
       summary: Login user
       description: Menghasilkan sesi login dan cookie `PHPSESSID`.
       requestBody:
@@ -119,6 +216,8 @@ paths:
           description: Login success
   /auth/logout:
     post:
+      tags:
+        - Auth
       summary: Logout user
       security:
         - SessionCookie: []
@@ -127,6 +226,8 @@ paths:
           description: Logout success
   /user-roles:
     get:
+      tags:
+        - Users
       summary: List roles
       security:
         - SessionCookie: []
@@ -143,6 +244,8 @@ paths:
                     items:
                       $ref: '#/components/schemas/UserRole'
     post:
+      tags:
+        - Users
       summary: Create role
       security:
         - SessionCookie: []
@@ -157,6 +260,8 @@ paths:
           description: Created
   /user-roles/{id}:
     get:
+      tags:
+        - Users
       summary: Get role detail
       security:
         - SessionCookie: []
@@ -176,7 +281,9 @@ paths:
                 properties:
                   data:
                     $ref: '#/components/schemas/UserRole'
-    put:
+    patch:
+      tags:
+        - Users
       summary: Update role
       security:
         - SessionCookie: []
@@ -196,6 +303,8 @@ paths:
         '200':
           description: Updated
     delete:
+      tags:
+        - Users
       summary: Delete role
       security:
         - SessionCookie: []
@@ -210,6 +319,8 @@ paths:
           description: Deleted
   /users:
     get:
+      tags:
+        - Users
       summary: List users
       security:
         - SessionCookie: []
@@ -226,6 +337,8 @@ paths:
                     items:
                       $ref: '#/components/schemas/User'
     post:
+      tags:
+        - Users
       summary: Create user
       security:
         - SessionCookie: []
@@ -264,6 +377,8 @@ paths:
           description: Created
   /users/{id}:
     get:
+      tags:
+        - Users
       summary: Get user detail
       security:
         - SessionCookie: []
@@ -276,7 +391,9 @@ paths:
       responses:
         '200':
           description: User detail
-    put:
+    patch:
+      tags:
+        - Users
       summary: Update user
       security:
         - SessionCookie: []
@@ -314,6 +431,8 @@ paths:
         '200':
           description: Updated
     delete:
+      tags:
+        - Users
       summary: Delete user
       security:
         - SessionCookie: []
@@ -326,3 +445,402 @@ paths:
       responses:
         '200':
           description: Deleted
+  /inventory/categories:
+    get:
+      tags:
+        - Inventory
+      summary: Daftar kategori produk
+      description: Hanya dapat diakses oleh role `owner` dan `staff`.
+      security:
+        - SessionCookie: []
+      responses:
+        '200':
+          description: List kategori
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProductCategory'
+    post:
+      tags:
+        - Inventory
+      summary: Tambah kategori produk
+      description: Hanya `owner`/`staff`.
+      security:
+        - SessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+                - name
+              properties:
+                code:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+                  nullable: true
+                is_active:
+                  type: boolean
+      responses:
+        '201':
+          description: Dibuat
+  /inventory/categories/{id}:
+    get:
+      tags:
+        - Inventory
+      summary: Detail kategori
+      security:
+        - SessionCookie: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detail kategori
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ProductCategory'
+    patch:
+      tags:
+        - Inventory
+      summary: Ubah kategori
+      security:
+        - SessionCookie: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+                  nullable: true
+                is_active:
+                  type: boolean
+      responses:
+        '200':
+          description: Terbarui
+    delete:
+      tags:
+        - Inventory
+      summary: Hapus kategori
+      security:
+        - SessionCookie: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Terhapus
+  /inventory/products:
+    get:
+      tags:
+        - Inventory
+      summary: Daftar produk/inventori
+      description: Butuh role owner/staff.
+      security:
+        - SessionCookie: []
+      responses:
+        '200':
+          description: List produk
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+    post:
+      tags:
+        - Inventory
+      summary: Tambah produk
+      security:
+        - SessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+                - name
+                - category_id
+                - unit
+                - current_price
+              properties:
+                code:
+                  type: string
+                name:
+                  type: string
+                category_id:
+                  type: integer
+                unit:
+                  type: string
+                current_price:
+                  type: number
+                  format: float
+                current_stock:
+                  type: number
+                  format: float
+                min_stock:
+                  type: integer
+                is_active:
+                  type: boolean
+      responses:
+        '201':
+          description: Produk dibuat
+  /inventory/products/{id}:
+    get:
+      tags:
+        - Inventory
+      summary: Detail produk
+      security:
+        - SessionCookie: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detail produk
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Product'
+    patch:
+      tags:
+        - Inventory
+      summary: Ubah produk
+      security:
+        - SessionCookie: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                name:
+                  type: string
+                category_id:
+                  type: integer
+                unit:
+                  type: string
+                current_price:
+                  type: number
+                current_stock:
+                  type: number
+                min_stock:
+                  type: integer
+                is_active:
+                  type: boolean
+      responses:
+        '200':
+          description: Produk diperbarui
+    delete:
+      tags:
+        - Inventory
+      summary: Hapus produk
+      security:
+        - SessionCookie: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Produk dihapus
+  /inventory/product-batches:
+    get:
+      tags:
+        - Inventory
+      summary: Daftar batch pembelian
+      description: Hanya owner/staff.
+      security:
+        - SessionCookie: []
+      responses:
+        '200':
+          description: List batch
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProductBatch'
+    post:
+      tags:
+        - Inventory
+      summary: Tambah batch produk
+      security:
+        - SessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - product_id
+                - batch_code
+                - purchase_date
+                - purchase_price
+                - quantity
+                - selling_price
+              properties:
+                product_id:
+                  type: integer
+                batch_code:
+                  type: string
+                purchase_date:
+                  type: string
+                  format: date
+                purchase_price:
+                  type: number
+                  format: float
+                quantity:
+                  type: number
+                  format: float
+                quantity_used:
+                  type: number
+                  format: float
+                quantity_remaining:
+                  type: number
+                  format: float
+                selling_price:
+                  type: number
+                  format: float
+                is_active:
+                  type: boolean
+      responses:
+        '201':
+          description: Batch dibuat
+  /inventory/product-batches/{id}:
+    get:
+      tags:
+        - Inventory
+      summary: Detail batch
+      security:
+        - SessionCookie: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detail batch
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ProductBatch'
+    patch:
+      tags:
+        - Inventory
+      summary: Ubah batch
+      security:
+        - SessionCookie: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_id:
+                  type: integer
+                batch_code:
+                  type: string
+                purchase_date:
+                  type: string
+                purchase_price:
+                  type: number
+                quantity:
+                  type: number
+                quantity_used:
+                  type: number
+                quantity_remaining:
+                  type: number
+                selling_price:
+                  type: number
+                is_active:
+                  type: boolean
+      responses:
+        '200':
+          description: Batch diperbarui
+    delete:
+      tags:
+        - Inventory
+      summary: Hapus batch
+      security:
+        - SessionCookie: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Batch dihapus

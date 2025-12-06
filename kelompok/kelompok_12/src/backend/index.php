@@ -25,6 +25,9 @@ spl_autoload_register(function (string $class): void {
 
 use Bootstrap\RoleBootstrapper;
 use Controllers\AuthController;
+use Controllers\ProductBatchController;
+use Controllers\ProductCategoryController;
+use Controllers\ProductController;
 use Controllers\UserController;
 use Controllers\UserRoleController;
 use Core\HttpException;
@@ -32,6 +35,7 @@ use Core\Request;
 use Core\Response;
 use Core\Router;
 use Middleware\AuthMiddleware;
+use Middleware\RoleMiddleware;
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -44,6 +48,10 @@ $authMiddleware = new AuthMiddleware();
 $userRoleController = new UserRoleController();
 $userController = new UserController();
 $authController = new AuthController();
+$productCategoryController = new ProductCategoryController();
+$productController = new ProductController();
+$productBatchController = new ProductBatchController();
+$ownerOrStaff = new RoleMiddleware(['owner', 'staff']);
 
 RoleBootstrapper::ensureDefaults();
 
@@ -54,14 +62,33 @@ $router->add('POST', '/api/v1/auth/logout', [$authController, 'logout'], [$authM
 $router->add('GET', '/api/v1/user-roles', [$userRoleController, 'index'], [$authMiddleware]);
 $router->add('GET', '/api/v1/user-roles/{id}', [$userRoleController, 'show'], [$authMiddleware]);
 $router->add('POST', '/api/v1/user-roles', [$userRoleController, 'store'], [$authMiddleware]);
-$router->add('PUT', '/api/v1/user-roles/{id}', [$userRoleController, 'update'], [$authMiddleware]);
+$router->add('PATCH', '/api/v1/user-roles/{id}', [$userRoleController, 'update'], [$authMiddleware]);
 $router->add('DELETE', '/api/v1/user-roles/{id}', [$userRoleController, 'destroy'], [$authMiddleware]);
 
 $router->add('GET', '/api/v1/users', [$userController, 'index'], [$authMiddleware]);
 $router->add('GET', '/api/v1/users/{id}', [$userController, 'show'], [$authMiddleware]);
 $router->add('POST', '/api/v1/users', [$userController, 'store'], [$authMiddleware]);
-$router->add('PUT', '/api/v1/users/{id}', [$userController, 'update'], [$authMiddleware]);
+$router->add('PATCH', '/api/v1/users/{id}', [$userController, 'update'], [$authMiddleware]);
 $router->add('DELETE', '/api/v1/users/{id}', [$userController, 'destroy'], [$authMiddleware]);
+
+$inventoryGuards = [$authMiddleware, $ownerOrStaff];
+$router->add('GET', '/api/v1/inventory/categories', [$productCategoryController, 'index'], $inventoryGuards);
+$router->add('GET', '/api/v1/inventory/categories/{id}', [$productCategoryController, 'show'], $inventoryGuards);
+$router->add('POST', '/api/v1/inventory/categories', [$productCategoryController, 'store'], $inventoryGuards);
+$router->add('PATCH', '/api/v1/inventory/categories/{id}', [$productCategoryController, 'update'], $inventoryGuards);
+$router->add('DELETE', '/api/v1/inventory/categories/{id}', [$productCategoryController, 'destroy'], $inventoryGuards);
+
+$router->add('GET', '/api/v1/inventory/products', [$productController, 'index'], $inventoryGuards);
+$router->add('GET', '/api/v1/inventory/products/{id}', [$productController, 'show'], $inventoryGuards);
+$router->add('POST', '/api/v1/inventory/products', [$productController, 'store'], $inventoryGuards);
+$router->add('PATCH', '/api/v1/inventory/products/{id}', [$productController, 'update'], $inventoryGuards);
+$router->add('DELETE', '/api/v1/inventory/products/{id}', [$productController, 'destroy'], $inventoryGuards);
+
+$router->add('GET', '/api/v1/inventory/product-batches', [$productBatchController, 'index'], $inventoryGuards);
+$router->add('GET', '/api/v1/inventory/product-batches/{id}', [$productBatchController, 'show'], $inventoryGuards);
+$router->add('POST', '/api/v1/inventory/product-batches', [$productBatchController, 'store'], $inventoryGuards);
+$router->add('PATCH', '/api/v1/inventory/product-batches/{id}', [$productBatchController, 'update'], $inventoryGuards);
+$router->add('DELETE', '/api/v1/inventory/product-batches/{id}', [$productBatchController, 'destroy'], $inventoryGuards);
 
 try {
     $router->dispatch($request);
