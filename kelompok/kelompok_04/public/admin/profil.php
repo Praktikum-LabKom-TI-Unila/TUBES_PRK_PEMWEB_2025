@@ -4,13 +4,11 @@
 session_start();
 require_once __DIR__ . '/../../src/config/database.php';
 
-// Wajib login & role admin
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../login.php');
     exit;
 }
 
-// Helper flash message
 function set_flash($type, $message) {
     $_SESSION['flash'][$type] = $message;
 }
@@ -50,7 +48,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'updat
     exit;
 }
 
-// Ambil data user admin
 $sqlUser = "SELECT username, email, role FROM users WHERE id_user = ?";
 $stmtUser = $conn->prepare($sqlUser);
 $stmtUser->bind_param('i', $idUser);
@@ -185,7 +182,6 @@ $roleAdmin   = ucfirst($user['role'] ?? 'admin');
     </div>
 </div>
 
-<!-- MODAL EDIT PROFIL -->
 <div id="editModal"
      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-6 hidden">
     <div class="bg-white rounded-2xl w-full max-w-lg shadow-xl">
@@ -252,7 +248,6 @@ $roleAdmin   = ucfirst($user['role'] ?? 'admin');
     </div>
 </div>
 
-<!-- MODAL KONFIRMASI LOGOUT -->
 <div id="logoutModal"
      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-6 hidden">
     <div class="bg-white rounded-2xl w-full max-w-md shadow-xl">
@@ -287,7 +282,6 @@ $roleAdmin   = ucfirst($user['role'] ?? 'admin');
 </div>
 
 <script>
-// Modal Edit
 function openEditModal() {
     document.getElementById('editModal').classList.remove('hidden');
 }
@@ -295,7 +289,6 @@ function closeEditModal() {
     document.getElementById('editModal').classList.add('hidden');
 }
 
-// Modal Logout
 function openLogoutModal() {
     document.getElementById('logoutModal').classList.remove('hidden');
 }

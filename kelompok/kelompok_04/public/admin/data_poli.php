@@ -1,5 +1,5 @@
 <?php
-// public/admin/poli.php
+// public/admin/datapoli.php
 
 session_start();
 require_once __DIR__ . '/../../src/config/database.php';
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->close();
         }
 
-        header('Location: poli.php');
+        header('Location: data_poli.php');
         exit;
     }
 
@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->close();
         }
 
-        header('Location: poli.php');
+        header('Location: data_poli.php');
         exit;
     }
 
@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        header('Location: poli.php');
+        header('Location: data_poli.php');
         exit;
     }
 }
