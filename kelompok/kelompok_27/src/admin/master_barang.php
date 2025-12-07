@@ -47,8 +47,8 @@ $pesan = $_GET['pesan'] ?? '';
     .wrapper-flex { display: flex; min-height: 100vh; width: 100%; }
     .content-wrapper { background: #f4f6f9; flex: 1; padding: 30px; min-height: 100vh; }
     .card { border: none; border-radius: 15px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08); background: white; overflow: hidden; margin-bottom: 20px; }
-    .card-header { background: linear-gradient(135deg, #1B3C53 0%, #2F5C83 100%); border: none; padding: 20px 25px; }
-    .card-title { font-weight: 700; color: white; font-size: 1.1rem; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
+    .card-header {  border: none; padding: 20px 25px; }
+    .card-title { font-weight: 700; color: #1B3C53; font-size: 1.1rem; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
     .table thead th { background: linear-gradient(90deg, #1B3C53, #2F5C83); color: white; border: none; font-weight: 500; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; padding: 15px; }
     .table tbody td { vertical-align: middle; padding: 15px; color: #444; border-bottom: 1px solid #f2f2f2; font-size: 0.95rem; font-weight: 500; }
     .table tbody tr:hover { background-color: #f1f7fd; transition: all 0.2s ease; }
@@ -64,7 +64,7 @@ $pesan = $_GET['pesan'] ?? '';
     .modal-content { border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
     .modal-header { background: linear-gradient(45deg, #1B3C53, #2F5C83); border-radius: 20px 20px 0 0; padding: 25px 30px; }
     .modal-title { font-weight: 800; color: white !important; font-size: 1.25rem; }
-    .close { color: white !important; opacity: 1; font-size: 1.5rem; text-shadow: none; }
+    .close { color: black !important; opacity: 1; font-size: 1.5rem; text-shadow: none; }
     .form-label { font-weight: 700; color: #2c3e50; margin-bottom: 8px; display: block; font-size: 0.95rem; text-transform: none; }
     .form-control { border-radius: 10px !important; padding: 14px 15px !important; background-color: #f8f9fa; border: 1px solid #e0e0e0 !important; font-size: 1rem; color: #333; font-weight: 500; height: auto; }
     .form-control:focus { border-color: #1B3C53; box-shadow: 0 0 0 3px rgba(27, 60, 83, 0.1); background-color: #fff; }
@@ -103,7 +103,7 @@ $pesan = $_GET['pesan'] ?? '';
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center">
-                        <i class="fas fa-boxes mr-2 text-white"></i>
+                        <i class="fas fa-boxes me-2" style="color: #1B3C53;"></i>
                         <h3 class="card-title">Daftar Barang Aktif</h3>
                     </div>
                     <button type="button" class="btn btn-primary" 
