@@ -1,9 +1,3 @@
-# 🗓️ RENCANA PENGEMBANGAN BACKEND - INVENTORY MANAGER
-
-**Project:** Inventory Manager - Kelompok 25  
-**Last Updated:** December 7, 2025  
-**Branch:** integrasi  
-**Status:** In Progress (2/11 completed)
 
 ---
 
@@ -23,9 +17,6 @@
 | 10 | ⬜ User Management | TODO | P2 | 3h | - | ⭐⭐⭐ |
 | 11 | ⬜ Role & Permission | TODO | P2 | 3h | - | ⭐⭐⭐ |
 
-**Total Estimasi:** 35 jam  
-**Completed:** 5 jam (14%)  
-**Remaining:** 30 jam (86%)
 
 ---
 
