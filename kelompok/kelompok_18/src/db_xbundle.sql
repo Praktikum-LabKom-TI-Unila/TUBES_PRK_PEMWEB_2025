@@ -1,23 +1,21 @@
 -- Active: 1744639830308@@localhost@3306@db_xbundle
--- DATABASE X-BUNDLE
+-- =============================================
+-- DATABASE X-BUNDLE (FINAL STRUCTURE)
+-- =============================================
 
-USE db_xbundle;
-
--- === BERSIHKAN TABEL LAMA ===
+-- 1. HAPUS TABEL LAMA (URUTAN PENTING KARENA RELASI)
 DROP TABLE IF EXISTS vouchers;
 DROP TABLE IF EXISTS chats;
 DROP TABLE IF EXISTS bundles;
 DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS users;
 
--- === BUAT TABEL BARU ===
-
--- 1. USERS
+-- 2. BUAT TABEL USERS
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nama_lengkap VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL, -- Disimpan dalam bentuk Hash
     nama_toko VARCHAR(100),
     kategori_bisnis VARCHAR(50) DEFAULT 'Lainnya',
     alamat_toko TEXT,
@@ -26,9 +24,9 @@ CREATE TABLE users (
     foto_profil VARCHAR(255) DEFAULT 'default.jpg',
     role ENUM('admin', 'umkm') DEFAULT 'umkm',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+) ENGINE=InnoDB;
 
--- 2. PRODUCTS
+-- 3. BUAT TABEL PRODUCTS
 CREATE TABLE products (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -41,40 +39,52 @@ CREATE TABLE products (
     gambar VARCHAR(255) DEFAULT 'no-image.jpg',
     status_produk ENUM('aktif', 'arsip') DEFAULT 'aktif',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
+    -- Relasi: Jika User dihapus, Produk ikut terhapus
+    CONSTRAINT fk_products_user 
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
 
--- 3. BUNDLES (UPDATED: Tambah Status Cancelled)
+-- 4. BUAT TABEL BUNDLES
 CREATE TABLE bundles (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    pembuat_id INT NOT NULL,
-    mitra_id INT NOT NULL,
-    produk_pembuat_id INT, 
-    produk_mitra_id INT,
+    pembuat_id INT NOT NULL, -- User yang mengajak
+    mitra_id INT NOT NULL,   -- User yang diajak
+    produk_pembuat_id INT NULL, 
+    produk_mitra_id INT NULL,
     nama_bundle VARCHAR(150),
-    harga_bundle DECIMAL(10,2),
+    harga_bundle DECIMAL(10,2) DEFAULT 0,
     status ENUM('pending', 'active', 'rejected', 'cancelled', 'finished') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (pembuat_id) REFERENCES users(id),
-    FOREIGN KEY (mitra_id) REFERENCES users(id),
-    FOREIGN KEY (produk_pembuat_id) REFERENCES products(id),
-    FOREIGN KEY (produk_mitra_id) REFERENCES products(id)
-);
+    -- Relasi: Jika User dihapus, Bundle ikut terhapus
+    CONSTRAINT fk_bundles_pembuat 
+        FOREIGN KEY (pembuat_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_bundles_mitra 
+        FOREIGN KEY (mitra_id) REFERENCES users(id) ON DELETE CASCADE,
+    -- Relasi: Jika Produk dihapus, set NULL di bundle (biar history bundle tetap ada tapi produk kosong)
+    CONSTRAINT fk_bundles_prod1 
+        FOREIGN KEY (produk_pembuat_id) REFERENCES products(id) ON DELETE SET NULL,
+    CONSTRAINT fk_bundles_prod2 
+        FOREIGN KEY (produk_mitra_id) REFERENCES products(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
 
--- 4. Tabel Chats (UPDATED: Support File Upload)
+-- 5. BUAT TABEL CHATS
 CREATE TABLE chats (
     id INT AUTO_INCREMENT PRIMARY KEY,
     bundle_id INT NOT NULL, 
     sender_id INT NOT NULL, 
     message TEXT NOT NULL,
-    attachment VARCHAR(255) NULL DEFAULT NULL, -- Nama file (misal: struk.jpg)
+    attachment VARCHAR(255) NULL DEFAULT NULL,
     attachment_type ENUM('image', 'file') NULL DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (bundle_id) REFERENCES bundles(id) ON DELETE CASCADE,
-    FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE
-);
+    -- Relasi: Jika Bundle dihapus, Chat hilang
+    CONSTRAINT fk_chats_bundle 
+        FOREIGN KEY (bundle_id) REFERENCES bundles(id) ON DELETE CASCADE,
+    -- Relasi: Jika User dihapus, Chat dia hilang
+    CONSTRAINT fk_chats_sender 
+        FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
 
--- 5. VOUCHERS
+-- 6. BUAT TABEL VOUCHERS
 CREATE TABLE vouchers (
     id INT AUTO_INCREMENT PRIMARY KEY,
     bundle_id INT NOT NULL,
@@ -85,64 +95,23 @@ CREATE TABLE vouchers (
     expired_at DATE NULL,
     status ENUM('available', 'used', 'expired') DEFAULT 'available',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (bundle_id) REFERENCES bundles(id) ON DELETE CASCADE
-);
+    -- Relasi: Jika Bundle dihapus, Voucher hilang
+    CONSTRAINT fk_vouchers_bundle 
+        FOREIGN KEY (bundle_id) REFERENCES bundles(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
 
--- DATA DUMMY
-INSERT INTO users (nama_lengkap, email, password, role, nama_toko, kategori_bisnis) 
-VALUES ('Admin', 'admin@xbundle.com', 'admin123', 'admin', 'X-Bundle HQ', 'Teknologi');
+-- =============================================
+-- DATA DUMMY (UNTUK TEST)
+-- =============================================
 
-INSERT INTO users (nama_lengkap, email, password, role, nama_toko, kategori_bisnis, alamat_toko) 
-VALUES ('Bani Barista', 'bani@kopi.com', '123456', 'umkm', 'Kopi Pagi', 'Kuliner (FnB)', 'Jl. Melati No 1');
+-- Password default: '123456' (Hash bcrypt)
+-- Hash: $2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi
 
-INSERT INTO products (user_id, nama_produk, kategori, satuan, harga, stok, deskripsi)
-VALUES (2, 'Es Kopi Susu Gula Aren', 'minuman', 'cup', 18000, 50, 'Kopi susu kekinian.');
+INSERT INTO users (nama_lengkap, email, password, role, nama_toko, kategori_bisnis) VALUES 
+('Super Admin', 'admin@xbundle.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'X-Bundle HQ', 'Teknologi'),
+('Budi Kopi', 'budi@kopi.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'umkm', 'Kopi Senja', 'Kuliner (FnB)'),
+('Siti Roti', 'siti@roti.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'umkm', 'Roti Bunda', 'Kuliner (FnB)');
 
--- Tambahkan kolom untuk menyimpan ID produk dari masing-masing pihak
-ALTER TABLE bundles 
-ADD COLUMN produk_pembuat_id INT NULL AFTER mitra_id,
-ADD COLUMN produk_mitra_id INT NULL AFTER produk_pembuat_id,
-ADD COLUMN harga_bundle DECIMAL(10,2) DEFAULT 0 AFTER nama_bundle;
-
--- (Opsional) Relasi agar jika produk dihapus, bundle tidak error (tapi set NULL)
--- Pastikan tabel products engine-nya InnoDB
--- ALTER TABLE bundles ADD FOREIGN KEY (produk_pembuat_id) REFERENCES products(id) ON DELETE SET NULL;
--- ALTER TABLE bundles ADD FOREIGN KEY (produk_mitra_id) REFERENCES products(id) ON DELETE SET NULL;
-
-
-
-
-
--- Matikan pengecekan FK sebentar biar bisa reset data dengan aman
-SET FOREIGN_KEY_CHECKS = 0;
-
--- 1. BERSIHKAN DATA LAMA (Opsional, biar ID mulai dari awal lagi)
-TRUNCATE TABLE vouchers;
-TRUNCATE TABLE chats;
-TRUNCATE TABLE bundles;
-TRUNCATE TABLE products;
-TRUNCATE TABLE users;
-
--- Nyalakan lagi pengecekan FK
-SET FOREIGN_KEY_CHECKS = 1;
-
--- 2. INSERT USER (Pemilik Toko)
--- Kita buat 2 User: Budi (ID 1) dan Siti (ID 2)
-INSERT INTO users (id, nama_lengkap, email, password, role, nama_toko, kategori_bisnis, alamat_toko) VALUES 
-(1, 'Budi Santoso', 'budi@kopi.com', '123456', 'umkm', 'Kopi Senja', 'Kuliner (FnB)', 'Jl. Melati No 1'),
-(2, 'Siti Aminah', 'siti@roti.com', '123456', 'umkm', 'Roti Bunda', 'Kuliner (FnB)', 'Jl. Mawar No 2');
-
--- 3. INSERT PRODUK (Barang Dagangan)
--- Produk ID 1 milik Budi (User 1)
--- Produk ID 2 milik Siti (User 2)
-INSERT INTO products (id, user_id, nama_produk, kategori, satuan, harga, stok, deskripsi, gambar) VALUES 
-(1, 1, 'Es Kopi Susu', 'minuman', 'cup', 18000, 50, 'Kopi susu gula aren kekinian', 'no-image.jpg'),
-(2, 2, 'Roti Bakar Coklat', 'makanan', 'porsi', 15000, 30, 'Roti bakar tebal topping melimpah', 'no-image.jpg');
-
--- 4. INSERT BUNDLE (Kolaborasi)
-INSERT INTO bundles (id, pembuat_id, mitra_id, produk_pembuat_id, produk_mitra_id, nama_bundle, harga_bundle, status) VALUES 
-(1, 1, 2, 1, 2, 'Paket Sarapan Pagi', 30000, 'active'); 
-
--- 5. INSERT VOUCHER 
-INSERT INTO vouchers (bundle_id, kode_voucher, potongan_harga, kuota_maksimal, kuota_terpakai, expired_at, status) VALUES
-(1, 'HEMATPAGI', 5000, 100, 0, '2025-12-31', 'available');
+INSERT INTO products (user_id, nama_produk, kategori, satuan, harga, stok, deskripsi) VALUES 
+(2, 'Es Kopi Susu', 'minuman', 'cup', 18000, 50, 'Kopi susu gula aren kekinian.'),
+(3, 'Roti Bakar Coklat', 'makanan', 'porsi', 15000, 30, 'Roti bakar tebal topping melimpah.');

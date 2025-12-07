@@ -87,18 +87,28 @@ if ($action == 'send_message') {
         }
     }
 
-    // --- INSERT KE DATABASE ---
+    // --- INSERT KE DATABASE (FIXED) ---
     // Pastikan minimal ada pesan ATAU file (jangan kosong dua-duanya)
     if (!empty($bundle_id) && (!empty($message) || !empty($attachment))) {
         
-        // Query Insert
+        // PERBAIKAN DI SINI:
+        // Jika variabel kosong (null), kita set string "NULL" (tanpa kutip) untuk SQL
+        // Jika ada isinya, kita bungkus dengan kutip satu '$variable'
+        
+        $sql_attachment = ($attachment) ? "'$attachment'" : "NULL";
+        $sql_type       = ($attachment_type) ? "'$attachment_type'" : "NULL";
+
+        // Perhatikan variabel $sql_attachment dan $sql_type TIDAK dibungkus kutip lagi di dalam string query
+        // karena logic di atas sudah menangani kutipnya.
+        
         $q_chat = "INSERT INTO chats (bundle_id, sender_id, message, attachment, attachment_type, created_at) 
-                   VALUES ('$bundle_id', '$my_id', '$message', '$attachment', '$attachment_type', NOW())";
+                   VALUES ('$bundle_id', '$my_id', '$message', $sql_attachment, $sql_type, NOW())";
         
         if (mysqli_query($koneksi, $q_chat)) {
             header("Location: chat_room.php?bundle_id=$bundle_id");
             exit;
         } else {
+            // Tampilkan error jika query gagal
             echo "Error Database: " . mysqli_error($koneksi);
         }
     } else {
