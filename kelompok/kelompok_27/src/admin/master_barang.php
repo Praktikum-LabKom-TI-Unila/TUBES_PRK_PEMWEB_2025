@@ -59,7 +59,7 @@ $pesan = $_GET['pesan'] ?? '';
     .badge { padding: 8px 12px; border-radius: 30px; font-weight: 600; font-size: 0.75rem; }
     .badge-info { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
     .badge-warning { background: #fff8e1; color: #f57f17; border: 1px solid #ffecb3; }
-    .badge-secondary { background: #e9ecef; color: #343a40; border: 1px solid #dee2e6; } /* Badge Koperasi */
+    .badge-secondary { background: #e9ecef; color: #343a40; border: 1px solid #dee2e6; } 
     .modal-content { border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
     .modal-header { background: linear-gradient(45deg, #1B3C53, #2F5C83); border-radius: 20px 20px 0 0; padding: 25px 30px; }
     .modal-title { font-weight: 800; color: white !important; font-size: 1.25rem; }
@@ -113,6 +113,65 @@ $pesan = $_GET['pesan'] ?? '';
                     </button>
                 </div>
                 <div class="card-body">
+                    <button type="button" class="btn btn-primary mb-3" 
+        data-toggle="modal" data-target="#modalTambahUbah"
+        data-bs-toggle="modal" data-bs-target="#modalTambahUbah"
+        onclick="resetModal()">
+    <i class="fas fa-plus-circle mr-1"></i> Tambah Barang
+</button>
+
+<table id="example1" class="table table-hover">
+    <thead>
+        <tr>
+            <th width="5%" class="text-center">#</th>
+            <th>Nama Barang</th>
+            <th>Harga Jual</th>
+            <th>Stok</th>
+            <th>Supplier/Vendor</th>
+            <th width="15%" class="text-center">Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php $no = 1; ?>
+        <?php foreach ($barangs as $barang): ?>
+        <tr>
+            <td class="text-center font-weight-bold" style="color: #1B3C53;"><?= $no++; ?></td>
+            <td style="font-weight: 600; color: #2c3e50;"><?= htmlspecialchars($barang['nama_barang']); ?></td>
+            <td>Rp <?= number_format($barang['harga_jual'], 0, ',', '.'); ?></td>
+            <td><?= htmlspecialchars($barang['stok']); ?></td>
+            <td>
+                <?php 
+                    // Logika membedakan Barang Koperasi (NULL) vs Titipan
+                    if ($barang['id_supplier'] === NULL) {
+                        echo '<span class="badge badge-secondary"><i class="fas fa-building mr-1"></i> Koperasi (Internal)</span>';
+                    } else {
+                        echo '<span class="badge badge-warning"><i class="fas fa-truck-moving mr-1"></i> ' . htmlspecialchars($barang['nama_supplier']) . '</span>';
+                    }
+                ?>
+            </td>
+            <td class="text-center">
+                <button class="btn btn-warning btn-sm btnUbah mr-1" 
+                        data-id="<?= $barang['id_barang']; ?>" 
+                        data-nama="<?= htmlspecialchars($barang['nama_barang']); ?>" 
+                        data-jual="<?= $barang['harga_jual']; ?>" 
+                        data-stok="<?= htmlspecialchars($barang['stok']); ?>" 
+                        data-supplier="<?= $barang['id_supplier']; ?>" 
+                        data-toggle="modal" data-target="#modalTambahUbah"
+                        data-bs-toggle="modal" data-bs-target="#modalTambahUbah"
+                        title="Edit Data">
+                    <i class="fas fa-pen"></i>
+                </button>
+                <a href="../proses/barang_proses.php?action=arsip&id=<?= $barang['id_barang']; ?>" 
+                   class="btn btn-danger btn-sm" 
+                   onclick="return confirm('Anda yakin ingin mengarsipkan Barang ini?')"
+                   title="Arsipkan">
+                    <i class="fas fa-trash-alt"></i>
+                </a>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
                     </div>
             </div>
         </section>
@@ -121,16 +180,5 @@ $pesan = $_GET['pesan'] ?? '';
 
 <?php include('../layout/footer.php'); ?>
 <script>
-// Fungsi Reset Modal Barang (akan dilengkapi di Step C)
-function resetModal() {
-    document.getElementById('modalTambahUbahLabel').innerHTML = '<i class="fas fa-box mr-2"></i> Tambah Barang Baru';
-    document.getElementById('action').value = 'tambah';
-    $('#id_barang').val('');
-    $('#nama_barang').val('');
-    $('#harga_jual').val('');
-    $('#stok').val('');
-    $('#id_supplier').val('0'); 
-    document.getElementById('btnSubmitModal').innerHTML = '<i class="fas fa-save mr-2"></i> Simpan Data';
-}
-// Logika JS lainnya akan ditambahkan di Step C
+// Logic JS akan ditambahkan di Step III.3
 </script>
