@@ -1,9 +1,7 @@
 <?php
-// PASTIKAN PATH INI BENAR!
 include('../config/koneksi.php');
 include('../layout/header.php');
 
-// LOGIKA READ BARANG DENGAN JOIN SUPPLIER (Untuk Tabel Utama)
 $query = "
     SELECT 
         b.*, 
@@ -13,7 +11,6 @@ $query = "
     WHERE b.is_active = '1'
     ORDER BY b.id_barang DESC
 ";
-// NOTE: Menggunakan $conn sesuai konfirmasi konfigurasi Anda
 $result = mysqli_query($conn, $query); 
 
 $barangs = [];
@@ -23,7 +20,6 @@ if ($result) {
     }
 }
 
-// LOGIKA FETCH SUPPLIER LIST (UNTUK DROPDOWN MODAL)
 $query_suppliers = "SELECT id_supplier, nama_supplier FROM suppliers WHERE is_active = '1' ORDER BY nama_supplier ASC";
 $result_suppliers = mysqli_query($conn, $query_suppliers);
 $suppliers_list = [];
@@ -34,7 +30,6 @@ if ($result_suppliers) {
 }
 
 
-// Notifikasi Status
 $status = $_GET['status'] ?? '';
 $pesan = $_GET['pesan'] ?? '';
 ?>
@@ -42,7 +37,6 @@ $pesan = $_GET['pesan'] ?? '';
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-    /* --- CSS SAMA PERSIS DENGAN MASTER SUPPLIER --- */
     body { font-family: 'Poppins', sans-serif; background-color: #f0f2f5; }
     .wrapper-flex { display: flex; min-height: 100vh; width: 100%; }
     .content-wrapper { background: #f4f6f9; flex: 1; padding: 30px; min-height: 100vh; }
@@ -68,6 +62,9 @@ $pesan = $_GET['pesan'] ?? '';
     .form-label { font-weight: 700; color: #2c3e50; margin-bottom: 8px; display: block; font-size: 0.95rem; text-transform: none; }
     .form-control { border-radius: 10px !important; padding: 14px 15px !important; background-color: #f8f9fa; border: 1px solid #e0e0e0 !important; font-size: 1rem; color: #333; font-weight: 500; height: auto; }
     .form-control:focus { border-color: #1B3C53; box-shadow: 0 0 0 3px rgba(27, 60, 83, 0.1); background-color: #fff; }
+    .alert {position: relative; padding-right: 45px !important;}
+    .alert .close {position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none;border: none;font-size: 20px;opacity: 0.7;}
+
 </style>
 
 <div class="wrapper-flex">
@@ -88,15 +85,48 @@ $pesan = $_GET['pesan'] ?? '';
         </section>
 
         <?php if ($status && $pesan): ?>
-            <div id="status-alert" class="alert alert-<?= $status == 'sukses' ? 'success' : 'danger'; ?> alert-dismissible fade show shadow-sm mb-4 mx-3" role="alert" style="border-radius: 10px; border-left: 5px solid <?= $status == 'sukses' ? '#2ecc71' : '#e74c3c'; ?>;">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-<?= $status == 'sukses' ? 'check-circle' : 'exclamation-circle'; ?> mr-2" style="font-size: 1.2rem;"></i>
-                    <strong><?= htmlspecialchars($pesan); ?></strong>
-                </div>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close" data-bs-dismiss="alert">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
+            <script>
+            document.addEventListener('DOMContentLoaded', function(){
+                var serverMsg = <?= json_encode($pesan); ?>;
+                var serverStatus = <?= json_encode($status); ?>;
+
+                var alertDiv = document.createElement('div');
+                alertDiv.className = 'alert ' + (serverStatus === 'sukses' ? 'alert-success' : 'alert-danger') + ' alert-dismissible fade show';
+                alertDiv.setAttribute('role','alert');
+                alertDiv.style.borderRadius = '10px';
+                alertDiv.style.margin = '0 0 20px 0';
+                alertDiv.style.boxShadow = '0 6px 16px rgba(0,0,0,0.04)';
+
+                var strong = document.createElement('strong');
+                strong.innerText = serverStatus === 'sukses' ? 'Sukses: ' : 'Gagal: ';
+                var text = document.createTextNode(' ' + serverMsg);
+                alertDiv.appendChild(strong);
+                alertDiv.appendChild(text);
+
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'close';
+                btn.setAttribute('data-dismiss','alert');
+                btn.setAttribute('aria-label','Close');
+                btn.innerHTML = '<span aria-hidden="true">&times;</span>';
+                btn.onclick = function(){
+                    if (alertDiv.parentNode) alertDiv.parentNode.removeChild(alertDiv);
+                };
+                alertDiv.appendChild(btn);
+
+                var contentHeader = document.querySelector('.content-header');
+                if (contentHeader && contentHeader.parentNode) {
+                    contentHeader.parentNode.insertBefore(alertDiv, contentHeader.nextSibling);
+                } else {
+                    var contentWrapper = document.querySelector('.content-wrapper');
+                    if (contentWrapper) contentWrapper.insertBefore(alertDiv, contentWrapper.firstChild);
+                }
+
+                setTimeout(function(){
+                    if (alertDiv.parentNode) alertDiv.parentNode.removeChild(alertDiv);
+                }, 3500);
+            });
+            </script>
         <?php endif; ?>
         
         <section class="content">
@@ -106,10 +136,7 @@ $pesan = $_GET['pesan'] ?? '';
                         <i class="fas fa-boxes me-2" style="color: #1B3C53;"></i>
                         <h3 class="card-title">Daftar Barang Aktif</h3>
                     </div>
-                    <button type="button" class="btn btn-primary" 
-                            data-toggle="modal" data-target="#modalTambahUbah"
-                            data-bs-toggle="modal" data-bs-target="#modalTambahUbah"
-                            onclick="resetModal()">
+                    <button type="button" class="btn btn-primary" onclick="resetModal(); showModal();">
                         <i class="fas fa-plus-circle mr-1"></i> Tambah Barang
                     </button>
                 </div>
@@ -143,20 +170,20 @@ $pesan = $_GET['pesan'] ?? '';
                                     ?>
                                 </td>
                                 <td class="text-center">
-                                    <button class="btn btn-warning btn-sm btnUbah mr-1" 
-                                            data-id="<?= $barang['id_barang']; ?>" 
-                                            data-nama="<?= htmlspecialchars($barang['nama_barang']); ?>" 
-                                            data-jual="<?= $barang['harga_jual']; ?>" 
-                                            data-stok="<?= htmlspecialchars($barang['stok']); ?>" 
-                                            data-supplier="<?= $barang['id_supplier']; ?>" 
-                                            data-toggle="modal" data-target="#modalTambahUbah"
-                                            data-bs-toggle="modal" data-bs-target="#modalTambahUbah"
-                                            title="Edit Data">
+                                            <button class="btn btn-warning btn-sm btnUbah mr-1" 
+                                                type="button"
+                                                data-id="<?= $barang['id_barang']; ?>" 
+                                                data-nama="<?= htmlspecialchars($barang['nama_barang'], ENT_QUOTES); ?>" 
+                                                data-jual="<?= $barang['harga_jual']; ?>" 
+                                                data-stok="<?= htmlspecialchars($barang['stok']); ?>" 
+                                                data-supplier="<?= $barang['id_supplier']; ?>" 
+                                                title="Edit Data"
+                                                onclick="handleEditClick(this)">
                                         <i class="fas fa-pen"></i>
                                     </button>
                                     <a href="../proses/barang_proses.php?action=arsip&id=<?= $barang['id_barang']; ?>" 
                                        class="btn btn-danger btn-sm" 
-                                       onclick="return confirm('Anda yakin ingin mengarsipkan Barang ini?')"
+                                       onclick="return confirm('Anda yakin ingin menghapus Barang ini?')"
                                        title="Arsipkan">
                                         <i class="fas fa-trash-alt"></i>
                                     </a>
@@ -182,10 +209,11 @@ $pesan = $_GET['pesan'] ?? '';
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="../proses/barang_proses.php" method="POST">
+            <form id="formBarang" action="../proses/barang_proses.php" method="POST">
                 <div class="modal-body p-4">
                     <input type="hidden" name="id_barang" id="id_barang">
                     <input type="hidden" name="action" id="action" value="tambah"> 
+                    <input type="hidden" name="ajax" value="1">
 
                     <div class="form-group mb-4">
                         <label for="nama_barang" class="form-label">Nama Barang <span class="text-danger">*</span></label>
@@ -240,31 +268,149 @@ include('../layout/footer.php');
 ?>
 
 <script>
-// Fungsi Reset Modal
 function resetModal() {
-    document.getElementById('modalTambahUbahLabel').innerHTML = '<i class="fas fa-box mr-2"></i> Tambah Barang Baru';
-    document.getElementById('action').value = 'tambah';
-    $('#id_barang').val('');
-    $('#nama_barang').val('');
-    $('#harga_jual').val('');
-    $('#stok').val('');
-    $('#id_supplier').val('0'); 
-    document.getElementById('btnSubmitModal').innerHTML = '<i class="fas fa-save mr-2"></i> Simpan Data';
+    var titleEl = document.getElementById('modalTambahUbahLabel');
+    if (titleEl) titleEl.innerHTML = '<i class="fas fa-box mr-2"></i> Tambah Barang Baru';
+
+    var actionEl = document.getElementById('action');
+    if (actionEl) actionEl.value = 'tambah';
+
+    var idEl = document.getElementById('id_barang'); if (idEl) idEl.value = '';
+    var namaEl = document.getElementById('nama_barang'); if (namaEl) namaEl.value = '';
+    var jualEl = document.getElementById('harga_jual'); if (jualEl) jualEl.value = '';
+    var stokEl = document.getElementById('stok'); if (stokEl) stokEl.value = '';
+    var supplierEl = document.getElementById('id_supplier'); if (supplierEl) supplierEl.value = '0';
+
+    var btnEl = document.getElementById('btnSubmitModal');
+    if (btnEl) btnEl.innerHTML = '<i class="fas fa-save mr-2"></i> Simpan Data';
+
+    try { showModal(); } catch(e) { }
+}
+
+function showModal() {
+    var modalEl = document.getElementById('modalTambahUbah');
+    if (!modalEl) return;
+
+    var existing = document.querySelectorAll('.modal-backdrop');
+    existing.forEach(function(node){ node.parentNode.removeChild(node); });
+
+    if (typeof window.jQuery !== 'undefined' && typeof window.jQuery.fn.modal === 'function') {
+        window.jQuery('#modalTambahUbah').modal('show');
+        return;
+    }
+
+    if (typeof window.bootstrap !== 'undefined' && typeof window.bootstrap.Modal === 'function') {
+        var bsModal = new window.bootstrap.Modal(modalEl);
+        bsModal.show();
+        return;
+    }
+
+    modalEl.style.display = 'block';
+    modalEl.classList.add('show');
+    var backdrop = document.createElement('div');
+    backdrop.className = 'modal-backdrop show';
+    document.body.appendChild(backdrop);
+}
+
+function closeModal() {
+    var modalEl = document.getElementById('modalTambahUbah');
+    if (!modalEl) return;
+
+    if (typeof window.jQuery !== 'undefined' && typeof window.jQuery.fn.modal === 'function') {
+        window.jQuery('#modalTambahUbah').modal('hide');
+        return;
+    }
+
+    if (typeof window.bootstrap !== 'undefined' && typeof window.bootstrap.Modal === 'function') {
+        var bs = window.bootstrap.Modal.getInstance(modalEl);
+        if (bs) bs.hide();
+        return;
+    }
+
+    modalEl.classList.remove('show');
+    modalEl.style.display = 'none';
+    var existing = document.querySelectorAll('.modal-backdrop');
+    existing.forEach(function(node){ node.parentNode.removeChild(node); });
+}
+
+function handleEditClick(el) {
+    try {
+        var id = el.getAttribute('data-id');
+        var nama = el.getAttribute('data-nama');
+        var jual = el.getAttribute('data-jual');
+        var stok = el.getAttribute('data-stok');
+        var supplier = el.getAttribute('data-supplier');
+
+        console.log('handleEditClick - id:', id, 'nama:', nama);
+
+        var title = document.getElementById('modalTambahUbahLabel');
+        if (title) title.innerHTML = '<i class="fas fa-edit mr-2"></i> Edit Data Barang';
+
+        var actionInput = document.getElementById('action');
+        if (actionInput) actionInput.value = 'ubah';
+
+        var idInput = document.getElementById('id_barang');
+        if (idInput) idInput.value = id || '';
+
+        var namaInput = document.getElementById('nama_barang');
+        if (namaInput) namaInput.value = nama || '';
+
+        var jualInput = document.getElementById('harga_jual');
+        if (jualInput) jualInput.value = jual || '';
+
+        var stokInput = document.getElementById('stok');
+        if (stokInput) stokInput.value = stok || '';
+
+        var supplierInput = document.getElementById('id_supplier');
+        if (supplierInput) supplierInput.value = supplier || '0';
+
+        var btn = document.getElementById('btnSubmitModal');
+        if (btn) btn.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Perbarui Data';
+
+        if (typeof window.jQuery !== 'undefined' && typeof window.jQuery.fn.modal === 'function') {
+            window.jQuery('#modalTambahUbah').modal('show');
+            return;
+        }
+
+        if (typeof window.bootstrap !== 'undefined' && typeof window.bootstrap.Modal === 'function') {
+            var modalEl = document.getElementById('modalTambahUbah');
+            if (modalEl) {
+                var bsModal = new window.bootstrap.Modal(modalEl);
+                bsModal.show();
+                return;
+            }
+        }
+
+        var modal = document.getElementById('modalTambahUbah');
+        if (modal) {
+            modal.style.display = 'block';
+            modal.classList.add('show');
+            var backdrop = document.createElement('div');
+            backdrop.className = 'modal-backdrop show';
+            document.body.appendChild(backdrop);
+        }
+
+    } catch (err) {
+        console.error('handleEditClick error', err);
+    }
 }
 
 $(document).ready(function() {
-    // Tombol Tambah (Menggunakan fungsi reset)
     $('.btn-primary[data-target="#modalTambahUbah"]').on('click', function() {
         resetModal();
     });
     
-    // Tombol Ubah (Mengisi data lama)
-    $('.btnUbah').on('click', function() {
-        var id = $(this).data('id');
-        var nama = $(this).data('nama');
-        var jual = $(this).data('jual');
-        var stok = $(this).data('stok');
-        var supplier = $(this).data('supplier');
+    $(document).on('click', '.btnUbah', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $btn = $(this);
+        var id = $btn.data('id');
+        var nama = $btn.data('nama');
+        var jual = $btn.data('jual');
+        var stok = $btn.data('stok');
+        var supplier = $btn.data('supplier');
+
+        console.log('Edit clicked - id:', id, 'nama:', nama); 
 
         document.getElementById('modalTambahUbahLabel').innerHTML = '<i class="fas fa-edit mr-2"></i> Edit Data Barang';
         $('#action').val('ubah');
@@ -272,11 +418,14 @@ $(document).ready(function() {
         $('#nama_barang').val(nama);
         $('#harga_jual').val(jual);
         $('#stok').val(stok);
-        $('#id_supplier').val(supplier || '0'); // Jika NULL, set ke 0 (Koperasi)
+        $('#id_supplier').val(supplier || '0'); 
         document.getElementById('btnSubmitModal').innerHTML = '<i class="fas fa-check-circle mr-2"></i> Perbarui Data';
+
+        if (typeof $.fn.modal === 'function') {
+            $('#modalTambahUbah').modal('show');
+        }
     });
     
-    // Init DataTable
     if ($("#example1").length) {
         $("#example1").DataTable({
           "responsive": true, 
@@ -289,11 +438,18 @@ $(document).ready(function() {
         }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     }
     
-    // Membuat Alert hilang otomatis (dari Step 4 sebelumnya)
     if ($('#status-alert').length) {
         $('#status-alert').delay(4000).fadeOut('slow', function() {
             $(this).remove();
         });
     }
+
+    $('#formBarang').on('submit', function(e) {
+        try {
+            console.log('Form submit - action=', $('#action').val());
+        } catch(err) {
+            console.warn('Unable to read action input', err);
+        }
+    });
 });
 </script>
