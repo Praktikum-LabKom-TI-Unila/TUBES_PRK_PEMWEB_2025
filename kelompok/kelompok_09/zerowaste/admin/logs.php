@@ -8,77 +8,16 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 require_once '../config/database.php';
 require_once '../config/functions.php';
 
-// Handle Delete Actions
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-    
-    if ($action === 'delete_log') {
-        $log_id = (int)$_POST['log_id'];
-        $stmt = mysqli_prepare($conn, "DELETE FROM activity_logs WHERE id = ?");
-        mysqli_stmt_bind_param($stmt, "i", $log_id);
-        
-        if (mysqli_stmt_execute($stmt)) {
-            $_SESSION['success'] = 'Log berhasil dihapus!';
-        } else {
-            $_SESSION['error'] = 'Gagal menghapus log!';
-        }
-        mysqli_stmt_close($stmt);
-        
-        header('Location: logs.php');
-        exit();
-    }
-    
-    if ($action === 'delete_all') {
-        // Delete all logs
-        $result = mysqli_query($conn, "DELETE FROM activity_logs");
-        
-        if ($result) {
-            logActivity($conn, $_SESSION['user_id'], 'DELETE_ALL_LOGS', "Admin menghapus semua activity logs");
-            $_SESSION['success'] = 'Semua log berhasil dihapus!';
-        } else {
-            $_SESSION['error'] = 'Gagal menghapus semua log!';
-        }
-        
-        header('Location: logs.php');
-        exit();
-    }
-    
-    if ($action === 'delete_filtered') {
-        // Delete logs older than selected period
-        $period = $_POST['period'] ?? '30';
-        
-        if ($period === 'all') {
-            $result = mysqli_query($conn, "DELETE FROM activity_logs");
-        } else {
-            $days = (int)$period;
-            $stmt = mysqli_prepare($conn, "DELETE FROM activity_logs WHERE created_at < DATE_SUB(NOW(), INTERVAL ? DAY)");
-            mysqli_stmt_bind_param($stmt, "i", $days);
-            $result = mysqli_stmt_execute($stmt);
-            mysqli_stmt_close($stmt);
-        }
-        
-        if ($result) {
-            logActivity($conn, $_SESSION['user_id'], 'DELETE_OLD_LOGS', "Admin menghapus log lebih dari $period hari");
-            $_SESSION['success'] = 'Log lama berhasil dihapus!';
-        } else {
-            $_SESSION['error'] = 'Gagal menghapus log!';
-        }
-        
-        header('Location: logs.php');
-        exit();
-    }
-}
 
-// Pagination
 $limit = 20;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $limit;
 
-// Filter
+
 $filter_action = isset($_GET['action']) ? trim($_GET['action']) : '';
 $filter_user = isset($_GET['user']) ? (int)$_GET['user'] : 0;
 
-// Build Query
+
 $where = [];
 $params = [];
 $types = '';
@@ -97,7 +36,6 @@ if ($filter_user > 0) {
 
 $where_sql = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
 
-// Get Total Count
 $count_query = "SELECT COUNT(*) as total FROM activity_logs al $where_sql";
 if (!empty($params)) {
     $stmt = mysqli_prepare($conn, $count_query);
@@ -110,7 +48,7 @@ if (!empty($params)) {
 $total_logs = mysqli_fetch_assoc($count_result)['total'];
 $total_pages = ceil($total_logs / $limit);
 
-// Get Logs with JOIN
+
 $logs_query = "SELECT al.*, u.username, u.nama_lengkap, u.role 
     FROM activity_logs al 
     JOIN users u ON al.user_id = u.id 
@@ -127,10 +65,10 @@ mysqli_stmt_bind_param($stmt, $types, ...$params);
 mysqli_stmt_execute($stmt);
 $logs = mysqli_stmt_get_result($stmt);
 
-// Get unique actions for filter
+
 $actions_result = mysqli_query($conn, "SELECT DISTINCT action FROM activity_logs ORDER BY action");
 
-// Get users for filter
+
 $users_result = mysqli_query($conn, "SELECT id, nama_lengkap FROM users WHERE deleted_at IS NULL ORDER BY nama_lengkap");
 
 include '../includes/header.php';
@@ -143,7 +81,6 @@ include '../includes/navbar_dashboard.php';
     <div class="flex flex-col w-full md:ml-64">
         <main class="flex-grow p-6">
             
-            <!-- Page Header -->
             <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
                 <div class="flex items-center justify-between">
                     <div>
@@ -153,16 +90,9 @@ include '../includes/navbar_dashboard.php';
                         </h1>
                         <p class="text-gray-600">Riwayat aktivitas sistem ZeroWaste</p>
                     </div>
-                    <button 
-                        onclick="document.getElementById('deleteModal').classList.remove('hidden')" 
-                        class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition font-semibold"
-                    >
-                        <i class="fas fa-trash-alt mr-2"></i>Hapus Log
-                    </button>
-                </div>
+                    </div>
             </div>
 
-            <!-- Alert Messages -->
             <?php if (isset($_SESSION['success'])): ?>
                 <div class="mb-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg">
                     <div class="flex items-center">
@@ -183,7 +113,6 @@ include '../includes/navbar_dashboard.php';
                 <?php unset($_SESSION['error']); ?>
             <?php endif; ?>
 
-            <!-- Filters -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
                 <h3 class="text-md font-semibold text-gray-700 mb-4">
                     <i class="fas fa-filter mr-2"></i>Filter Logs
@@ -224,18 +153,18 @@ include '../includes/navbar_dashboard.php';
                         >
                             <i class="fas fa-search mr-2"></i>Filter
                         </button>
+                        
                         <a 
                             href="logs.php" 
-                            class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition font-semibold"
+                            class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition font-semibold flex items-center"
                             title="Reset Filter"
                         >
-                            <i class="fas fa-redo"></i>
+                            <i class="fas fa-redo mr-2"></i>Reset
                         </a>
                     </div>
                 </form>
             </div>
 
-            <!-- Logs Table -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
                 <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
                     <h2 class="text-lg font-semibold text-gray-800">
@@ -267,10 +196,7 @@ include '../includes/navbar_dashboard.php';
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-36">
                                     <i class="fas fa-network-wired mr-1"></i>IP
                                 </th>
-                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
-                                    <i class="fas fa-cog"></i>
-                                </th>
-                            </tr>
+                                </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             <?php if (mysqli_num_rows($logs) > 0): ?>
@@ -309,24 +235,11 @@ include '../includes/navbar_dashboard.php';
                                             <?= htmlspecialchars($log['ip_address']) ?>
                                         </code>
                                     </td>
-                                    <td class="px-4 py-3 text-center">
-                                        <form method="POST" class="inline" onsubmit="return confirm('Yakin hapus log ini?')">
-                                            <input type="hidden" name="action" value="delete_log">
-                                            <input type="hidden" name="log_id" value="<?= $log['id'] ?>">
-                                            <button 
-                                                type="submit" 
-                                                class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 p-2 rounded transition"
-                                                title="Hapus Log"
-                                            >
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
+                                    </tr>
                                 <?php endwhile; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="7" class="px-6 py-12 text-center">
+                                    <td colspan="6" class="px-6 py-12 text-center">
                                         <i class="fas fa-inbox text-gray-300 text-5xl mb-4 block"></i>
                                         <p class="text-gray-500">Tidak ada log ditemukan</p>
                                     </td>
@@ -336,7 +249,6 @@ include '../includes/navbar_dashboard.php';
                     </table>
                 </div>
 
-                <!-- Pagination -->
                 <?php if ($total_pages > 1): ?>
                 <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
                     <div class="text-sm text-gray-700">
@@ -371,61 +283,6 @@ include '../includes/navbar_dashboard.php';
     </div>
 </div>
 
-<!-- Delete Modal -->
-<div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-800">
-                <i class="fas fa-trash-alt mr-2 text-red-600"></i>Hapus Activity Logs
-            </h3>
-            <button onclick="document.getElementById('deleteModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-        </div>
-        
-        <p class="text-gray-600 mb-6">Pilih log yang ingin dihapus:</p>
-        
-        <!-- Delete by Period -->
-        <form method="POST" onsubmit="return confirm('Yakin ingin menghapus log sesuai periode yang dipilih?')">
-            <input type="hidden" name="action" value="delete_filtered">
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Hapus Log Berdasarkan Periode</label>
-                <select name="period" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
-                    <option value="7">Lebih dari 7 hari</option>
-                    <option value="30">Lebih dari 30 hari</option>
-                    <option value="60">Lebih dari 60 hari</option>
-                    <option value="90">Lebih dari 90 hari</option>
-                </select>
-            </div>
-            <button 
-                type="submit" 
-                class="w-full bg-orange-600 text-white py-2 rounded-lg hover:bg-orange-700 transition font-semibold mb-3"
-            >
-                <i class="fas fa-calendar-times mr-2"></i>Hapus Log Lama
-            </button>
-        </form>
-        
-        <!-- Delete All -->
-        <form method="POST" onsubmit="return confirm('PERINGATAN! Yakin ingin menghapus SEMUA log? Tindakan ini tidak bisa dibatalkan!')">
-            <input type="hidden" name="action" value="delete_all">
-            <button 
-                type="submit" 
-                class="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition font-semibold"
-            >
-                <i class="fas fa-exclamation-triangle mr-2"></i>Hapus Semua Log
-            </button>
-        </form>
-        
-        <button 
-            type="button" 
-            onclick="document.getElementById('deleteModal').classList.add('hidden')" 
-            class="w-full mt-3 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400 transition font-semibold"
-        >
-            <i class="fas fa-times mr-2"></i>Batal
-        </button>
-    </div>
-</div>
-
 <style>
 .line-clamp-2 {
     display: -webkit-box;
@@ -444,11 +301,5 @@ include '../includes/navbar_dashboard.php';
             sidebar.classList.toggle('-translate-x-full');
         });
     }
-
-    // Close modal when clicking outside
-    document.getElementById('deleteModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            this.classList.add('hidden');
-        }
-    });
+    
 </script>

@@ -8,14 +8,14 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 require_once '../config/database.php';
 require_once '../config/functions.php';
 
-// Get Statistics
+
 $stats = [];
 $result = mysqli_query($conn, "SELECT role, COUNT(*) as total FROM users WHERE deleted_at IS NULL GROUP BY role");
 while ($row = mysqli_fetch_assoc($result)) {
     $stats[$row['role']] = $row['total'];
 }
 
-// Total Food Items
+
 $result = mysqli_query($conn, "SELECT 
     COUNT(*) as total_food,
     SUM(CASE WHEN status = 'tersedia' THEN 1 ELSE 0 END) as available,
@@ -23,14 +23,14 @@ $result = mysqli_query($conn, "SELECT
 FROM food_stocks WHERE deleted_at IS NULL");
 $food_stats = mysqli_fetch_assoc($result);
 
-// Total Claims by Status
+
 $result = mysqli_query($conn, "SELECT status, COUNT(*) as total FROM claims WHERE deleted_at IS NULL GROUP BY status");
 $claim_stats = [];
 while ($row = mysqli_fetch_assoc($result)) {
     $claim_stats[$row['status']] = $row['total'];
 }
 
-// Recent Activities
+
 $recent_logs = mysqli_query($conn, "SELECT al.*, u.nama_lengkap, u.username 
     FROM activity_logs al 
     JOIN users u ON al.user_id = u.id 
@@ -47,7 +47,7 @@ include '../includes/navbar_dashboard.php';
     <div class="flex flex-col w-full md:ml-64">
         <main class="flex-grow p-6">
             
-            <!-- Page Header -->
+            
             <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
                 <h1 class="text-2xl font-bold mb-2">
                     <i class="fas fa-tachometer-alt mr-2 text-green-600"></i>
@@ -56,9 +56,9 @@ include '../includes/navbar_dashboard.php';
                 <p class="text-gray-600">Selamat datang, <?= htmlspecialchars($_SESSION['nama_lengkap']) ?></p>
             </div>
 
-            <!-- Statistics Cards -->
+          
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                <!-- Total Mahasiswa -->
+              
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition">
                     <div class="flex items-center justify-between">
                         <div>
@@ -73,7 +73,7 @@ include '../includes/navbar_dashboard.php';
                     </div>
                 </div>
 
-                <!-- Total Donatur -->
+                
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition">
                     <div class="flex items-center justify-between">
                         <div>
@@ -88,7 +88,7 @@ include '../includes/navbar_dashboard.php';
                     </div>
                 </div>
 
-                <!-- Makanan Tersedia -->
+                
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition">
                     <div class="flex items-center justify-between">
                         <div>
@@ -103,7 +103,7 @@ include '../includes/navbar_dashboard.php';
                     </div>
                 </div>
 
-                <!-- Total Klaim -->
+               
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition">
                     <div class="flex items-center justify-between">
                         <div>
@@ -119,9 +119,9 @@ include '../includes/navbar_dashboard.php';
                 </div>
             </div>
 
-            <!-- Status Klaim & Recent Activity -->
+            
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Status Klaim -->
+                
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                     <h3 class="text-lg font-semibold text-gray-700 mb-4">
                         <i class="fas fa-chart-pie mr-2"></i>Status Klaim
@@ -154,7 +154,7 @@ include '../includes/navbar_dashboard.php';
                     </div>
                 </div>
 
-                <!-- Recent Activity -->
+                
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 lg:col-span-2">
                     <h3 class="text-lg font-semibold text-gray-700 mb-4">
                         <i class="fas fa-history mr-2"></i>Aktivitas Terbaru

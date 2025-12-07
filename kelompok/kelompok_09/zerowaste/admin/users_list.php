@@ -8,21 +8,21 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 require_once '../config/database.php';
 require_once '../config/functions.php';
 
-// Handle Actions
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action']) && isset($_POST['user_id'])) {
         $user_id = (int)$_POST['user_id'];
         $action = $_POST['action'];
         
-        // Prevent admin from deleting themselves
+        
         if ($user_id == $_SESSION['user_id']) {
             $_SESSION['error'] = 'Anda tidak dapat menonaktifkan akun sendiri!';
-            header('Location: manage_users.php');
+            header('Location: users_list.php');
             exit();
         }
         
         if ($action === 'soft_delete') {
-            // SOFT DELETE (UPDATE deleted_at, BUKAN DELETE FROM)
+            
             $stmt = mysqli_prepare($conn, "UPDATE users SET deleted_at = NOW(), is_active = 0 WHERE id = ?");
             mysqli_stmt_bind_param($stmt, "i", $user_id);
             
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mysqli_stmt_close($stmt);
         } 
         elseif ($action === 'toggle_active') {
-            // Toggle Active Status
+           
             $stmt = mysqli_prepare($conn, "UPDATE users SET is_active = NOT is_active WHERE id = ?");
             mysqli_stmt_bind_param($stmt, "i", $user_id);
             
@@ -44,12 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mysqli_stmt_close($stmt);
         }
         
-        header('Location: manage_users.php');
+        header('Location: users_list.php');
         exit();
     }
 }
 
-// Get Users List (TIDAK TERMASUK YANG SUDAH SOFT DELETE)
+
 $users = mysqli_query($conn, "SELECT * FROM users WHERE deleted_at IS NULL ORDER BY created_at DESC");
 
 include '../includes/header.php';
@@ -62,7 +62,7 @@ include '../includes/navbar_dashboard.php';
        <div class="flex flex-col w-full md:ml-64">
         <main class="flex-grow p-6">
             
-            <!-- Page Header -->
+            
             <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
                 <h1 class="text-2xl font-bold mb-2">
                     <i class="fas fa-users-cog mr-2 text-green-600"></i>
@@ -71,7 +71,7 @@ include '../includes/navbar_dashboard.php';
                 <p class="text-gray-600">Manajemen user sistem ZeroWaste</p>
             </div>
 
-            <!-- Alert Messages -->
+            
             <?php if (isset($_SESSION['success'])): ?>
                 <div class="mb-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg">
                     <div class="flex items-center">
@@ -92,7 +92,7 @@ include '../includes/navbar_dashboard.php';
                 <?php unset($_SESSION['error']); ?>
             <?php endif; ?>
 
-            <!-- Users Table -->
+           
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
                     <h2 class="text-lg font-semibold text-gray-800">
@@ -168,32 +168,24 @@ include '../includes/navbar_dashboard.php';
                                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                     <?php if ($user['id'] != $_SESSION['user_id']): ?>
                                         <div class="flex items-center justify-center space-x-2">
-                                            <!-- Toggle Status Button -->
-                                            <form method="POST" class="inline-block" onsubmit="return confirm('Yakin ingin mengubah status user ini?')">
-                                                <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
-                                                <input type="hidden" name="action" value="toggle_active">
-                                                <button 
-                                                    type="submit" 
-                                                    class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 p-2 rounded transition"
-                                                    title="Toggle Status"
-                                                >
-                                                    <i class="fas fa-toggle-on"></i>
-                                                </button>
-                                            </form>
-                                            
-                                            <!-- Delete Button -->
-                                            <form method="POST" class="inline-block" onsubmit="return confirm('Yakin ingin menghapus user ini? (Soft Delete)')">
-                                                <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
-                                                <input type="hidden" name="action" value="soft_delete">
-                                                <button 
-                                                    type="submit" 
-                                                    class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 p-2 rounded transition"
-                                                    title="Hapus User"
-                                                >
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </div>
+    
+                                <form method="POST" class="inline-block" onsubmit="return confirm('Ubah status user?')">
+                                    <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
+                                    <input type="hidden" name="action" value="toggle_active">
+                                    <button type="submit" class="text-blue-600 hover:bg-blue-50 px-3 py-1 rounded border border-blue-200 text-xs font-bold transition flex items-center gap-1">
+                                        <i class="fas fa-toggle-on"></i> Status
+                                    </button>
+                                </form>
+                                
+                                <form method="POST" class="inline-block" onsubmit="return confirm('Hapus user ini?')">
+                                    <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
+                                    <input type="hidden" name="action" value="soft_delete">
+                                    <button type="submit" class="text-red-600 hover:bg-red-50 px-3 py-1 rounded border border-red-200 text-xs font-bold transition flex items-center gap-1">
+                                        <i class="fas fa-trash"></i> Hapus
+                                    </button>
+                                </form>
+
+                            </div>
                                     <?php else: ?>
                                         <span class="text-gray-400 text-xs italic">(Anda)</span>
                                     <?php endif; ?>

@@ -8,12 +8,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 require_once '../config/database.php';
 require_once '../config/functions.php';
 
-// Handle Actions
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     
     if ($action === 'add') {
-        $nama_kategori = trim($_POST['nama_kategori']); // KOLOM: nama_kategori (BUKAN 'name')
+        $nama_kategori = trim($_POST['nama_kategori']); 
         
         if (!empty($nama_kategori)) {
             $stmt = mysqli_prepare($conn, "INSERT INTO categories (nama_kategori) VALUES (?)");
@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     elseif ($action === 'delete') {
         $id = (int)$_POST['id'];
         
-        // SOFT DELETE (UPDATE deleted_at, BUKAN DELETE FROM)
+        
         $stmt = mysqli_prepare($conn, "UPDATE categories SET deleted_at = NOW() WHERE id = ?");
         mysqli_stmt_bind_param($stmt, "i", $id);
         
@@ -55,11 +55,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         mysqli_stmt_close($stmt);
     }
     
-    header('Location: manage_categories.php');
+    header('Location: categories.php');
     exit();
 }
 
-// Get Categories (TIDAK TERMASUK YANG SUDAH SOFT DELETE)
+
 $categories = mysqli_query($conn, "SELECT * FROM categories WHERE deleted_at IS NULL ORDER BY nama_kategori ASC");
 
 include '../includes/header.php';
@@ -72,7 +72,7 @@ include '../includes/navbar_dashboard.php';
       <div class="flex flex-col w-full md:ml-64">
         <main class="flex-grow p-6">
             
-            <!-- Page Header -->
+            
             <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
                 <h1 class="text-2xl font-bold mb-2">
                     <i class="fas fa-tags mr-2 text-green-600"></i>
@@ -81,7 +81,7 @@ include '../includes/navbar_dashboard.php';
                 <p class="text-gray-600">Manajemen kategori makanan</p>
             </div>
 
-            <!-- Alert Messages -->
+            
             <?php if (isset($_SESSION['success'])): ?>
                 <div class="mb-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg">
                     <div class="flex items-center">
@@ -93,7 +93,7 @@ include '../includes/navbar_dashboard.php';
             <?php endif; ?>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Add Category Form -->
+                
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                     <h2 class="text-lg font-semibold text-gray-800 mb-4">
                         <i class="fas fa-plus-circle mr-2 text-green-600"></i>Tambah Kategori
@@ -121,7 +121,7 @@ include '../includes/navbar_dashboard.php';
                     </form>
                 </div>
 
-                <!-- Categories List -->
+                
                 <div class="lg:col-span-2 bg-white rounded-lg shadow-sm border border-gray-200">
                     <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
                         <h2 class="text-lg font-semibold text-gray-800">
@@ -139,26 +139,22 @@ include '../includes/navbar_dashboard.php';
                                         </div>
                                         <span class="text-gray-800 font-medium"><?= htmlspecialchars($cat['nama_kategori']) ?></span>
                                     </div>
-                                    <div class="flex space-x-2">
-                                        <!-- Edit Button -->
+                                   <div class="flex space-x-2">
                                         <button 
                                             onclick="editCategory(<?= $cat['id'] ?>, '<?= htmlspecialchars($cat['nama_kategori'], ENT_QUOTES) ?>')"
-                                            class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 p-2 rounded transition"
-                                            title="Edit"
+                                            class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded transition text-sm font-semibold"
                                         >
-                                            <i class="fas fa-edit"></i>
+                                            Edit
                                         </button>
                                         
-                                        <!-- Delete Button -->
                                         <form method="POST" class="inline" onsubmit="return confirm('Yakin hapus kategori ini?')">
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="id" value="<?= $cat['id'] ?>">
                                             <button 
                                                 type="submit" 
-                                                class="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 p-2 rounded transition"
-                                                title="Hapus"
+                                                class="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1 rounded transition text-sm font-semibold"
                                             >
-                                                <i class="fas fa-trash"></i>
+                                                Hapus
                                             </button>
                                         </form>
                                     </div>
@@ -180,7 +176,7 @@ include '../includes/navbar_dashboard.php';
     </div>
 </div>
 
-<!-- Edit Modal -->
+
 <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
         <div class="flex items-center justify-between mb-4">
@@ -243,7 +239,7 @@ include '../includes/navbar_dashboard.php';
         document.getElementById('editModal').classList.add('hidden');
     }
 
-    // Close modal when clicking outside
+    
     document.getElementById('editModal').addEventListener('click', function(e) {
         if (e.target === this) {
             closeEditModal();
