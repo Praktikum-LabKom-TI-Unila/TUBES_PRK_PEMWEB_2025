@@ -1,8 +1,10 @@
 <?php
-require_once __DIR__ . '/../config/session.php';
+require_once __DIR__ . '/../auth/cek_login.php';
+
+require_login();
 
 // Router dashboard berdasarkan role
-$user = getUser();
+$user = get_user_data();
 $role = strtolower($user['role'] ?? '');
 
 // Redirect ke dashboard sesuai role
