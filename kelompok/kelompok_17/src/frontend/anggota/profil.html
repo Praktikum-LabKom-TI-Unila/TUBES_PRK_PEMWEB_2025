@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Anggota — SIMORA</title>
+    <link rel="stylesheet" href="../css/anggota_app.css">
+</head>
+<body>
+
+<div class="container fade-in" style="padding-top:40px;">
+
+    <!-- Header -->
+    <div class="card card-header" style="margin-bottom:22px;">
+        <div>
+            <div class="card-title">Profil Anggota</div>
+            <div class="card-sub">Informasi akun dan status keanggotaan</div>
+        </div>
+    </div>
+
+    <div class="profile">
+
+        <!-- LEFT: FOTO + BASIC -->
+        <div class="card profile-card">
+            <div class="profile-photo" id="profile-avatar">
+                NA
+            </div>
+            <div class="profile-name" id="profile-name">Nama Anggota</div>
+            <div class="profile-role" id="profile-role">Tipe Keanggotaan</div>
+
+            <button class="btn btn-primary mt-16" id="btn-edit-profil">
+                Edit Profil
+            </button>
+        </div>
+
+        <!-- RIGHT: DETAIL INFO -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Detail Informasi</div>
+            </div>
+
+            <div class="profile-details" id="detail-box">
+
+                <div class="kv">
+                    <div class="k">Email</div>
+                    <div class="v" id="detail-email">-</div>
+                </div>
+
+                <div class="kv">
+                    <div class="k">Nomor HP</div>
+                    <div class="v" id="detail-phone">-</div>
+                </div>
+
+                <div class="kv">
+                    <div class="k">Alamat</div>
+                    <div class="v" id="detail-address">-</div>
+                </div>
+
+                <div class="kv">
+                    <div class="k">Tanggal Bergabung</div>
+                    <div class="v" id="detail-join">-</div>
+                </div>
+
+                <div class="kv">
+                    <div class="k">Status</div>
+                    <div class="v" id="detail-status">-</div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- MODAL EDIT PROFIL -->
+<div class="modal-backdrop" id="modal-backdrop"></div>
+
+<div class="modal" id="modal-edit">
+    <div class="modal-header">
+        <div class="card-title">Edit Profil</div>
+        <button class="icon-btn btn-ghost" id="close-modal">✕</button>
+    </div>
+
+    <div class="modal-body">
+        <div class="form-group">
+            <label class="label">Nama Lengkap</label>
+            <input type="text" class="input" id="edit-name">
+        </div>
+
+        <div class="form-group">
+            <label class="label">Email</label>
+            <input type="email" class="input" id="edit-email">
+        </div>
+
+        <div class="form-group">
+            <label class="label">Nomor HP</label>
+            <input type="text" class="input" id="edit-phone">
+        </div>
+
+        <div class="form-group">
+            <label class="label">Alamat</label>
+            <textarea class="input" id="edit-address"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="label">Status Keanggotaan</label>
+            <select class="input" id="edit-status">
+                <option value="Aktif">Aktif</option>
+                <option value="Tidak Aktif">Tidak Aktif</option>
+            </select>
+        </div>
+
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-ghost" id="cancel-edit">Batal</button>
+        <button class="btn btn-primary" id="save-edit">Simpan Perubahan</button>
+    </div>
+</div>
+
+
+<script src="../js/profil.js"></script>
+
+</body>
+</html>
