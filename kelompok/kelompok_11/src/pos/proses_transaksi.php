@@ -144,21 +144,21 @@ try {
         
         // 3. Update stok jika sparepart
         if ($item['tipe'] === 'part') {
-            // Kurangi stok
-            $stmt_stok = $conn->prepare("UPDATE parts SET stok = stok - ? WHERE id = ?");
-            $stmt_stok->bind_param("ii", $qty, $part_id);
-            $stmt_stok->execute();
-            
-            // Cek apakah stok mencukupi
+            // Cek stok DULU
             $stmt_cek = $conn->prepare("SELECT stok FROM parts WHERE id = ?");
             $stmt_cek->bind_param("i", $part_id);
             $stmt_cek->execute();
             $result_stok = $stmt_cek->get_result();
             $row_stok = $result_stok->fetch_assoc();
-            
-            if ($row_stok['stok'] < 0) {
+
+            if ($row_stok['stok'] < $qty) {
                 throw new Exception("Stok tidak mencukupi untuk item: " . $nama_item);
             }
+
+            // BARU update stok
+            $stmt_stok = $conn->prepare("UPDATE parts SET stok = stok - ? WHERE id = ?");
+            $stmt_stok->bind_param("ii", $qty, $part_id);
+            $stmt_stok->execute();
             
             // Insert ke stock_movements
             $tipe_movement = 'keluar';
@@ -181,8 +181,8 @@ try {
     
     // 4. Insert pembayaran
     $stmt_payment = $conn->prepare("INSERT INTO transaction_payments 
-                                     (transaction_id, metode, jumlah, dibayar_pada, created_by, created_at) 
-                                     VALUES (?, ?, ?, NOW(), ?, NOW())");
+                                     (transaction_id, metode, jumlah, rincian, dibayar_pada, created_by, created_at) 
+                                     VALUES (?, ?, ?, NULL, NOW(), ?, NOW())");
     $stmt_payment->bind_param("isdi", 
         $transaction_id, 
         $metode_pembayaran, 
