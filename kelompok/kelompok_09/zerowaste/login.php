@@ -1,89 +1,127 @@
 <?php 
 session_start();
-include 'includes/header.php';
-include 'config/database.php';
 
+// Jika sudah login, redirect ke dashboard sesuai role
 if (isset($_SESSION['user_id'])) {
-    header("Location: dashboard.php");
-    exit;
+    switch ($_SESSION['role']) {
+        case 'admin':
+            header('Location: admin/dashboard.php');
+            break;
+        case 'donatur':
+            header('Location: donatur/dashboard.php');
+            break;
+        case 'mahasiswa':
+            header('Location: mahasiswa/dashboard.php');
+            break;
+        default:
+            header('Location: index.php');
+    }
+    exit();
 }
 ?>
-
-<section class="min-h-screen flex items-center bg-gradient-to-br from-green-50 via-white to-slate-100 pt-32 pb-20">
-    <div class="container mx-auto px-4">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-
-            <!-- ✅ KIRI: TEKS PROMOSI -->
-            <div class="hidden lg:block">
-                <span class="inline-flex items-center py-1.5 px-3 rounded-full bg-green-100 text-primary text-sm font-bold mb-6 gap-2">
-                    <i class="bi bi-lock-fill"></i> Login ZeroWaste
-                </span>
-
-                <h1 class="text-4xl md:text-5xl font-extrabold text-dark mb-6 leading-tight">
-                    Berbagi Makanan,<br>
-                    <span class="text-primary">Kurangi Limbah.</span>
-                </h1>
-
-                <p class="text-lg text-slate-600 mb-8 max-w-lg">
-                    Masuk ke akun ZeroWaste untuk mulai berbagi makanan berlebih dengan sesama mahasiswa secara gratis, transparan, dan berdampak nyata.
-                </p>
-
-                <a href="index.php" class="inline-flex items-center gap-2 text-primary font-semibold hover:underline">
-                    <i class="bi bi-arrow-left"></i> Kembali ke Beranda
-                </a>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - ZeroWaste</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-green-50 to-blue-50 min-h-screen">
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full">
+            <!-- Logo & Header -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-green-600 rounded-full mb-4">
+                    <i class="fas fa-leaf text-white text-2xl"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-900">Selamat Datang</h2>
+                <p class="mt-2 text-gray-600">Masuk ke akun ZeroWaste Anda</p>
             </div>
 
-            <!-- ✅ KANAN: FORM LOGIN -->
-            <div class="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 lg:p-10 w-full max-w-md mx-auto">
-
-                <div class="text-center mb-8">
-                    <div class="w-12 h-12 bg-green-100 text-primary rounded-2xl flex items-center justify-center mx-auto mb-4 text-xl">
-                        <i class="bi bi-person-fill"></i>
+            <!-- Alert Messages -->
+            <?php if (isset($_SESSION['error'])): ?>
+                <div class="mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        <p><?= $_SESSION['error'] ?></p>
                     </div>
-                    <h2 class="text-2xl font-extrabold text-dark">Masuk Akun</h2>
-                    <p class="text-slate-600 mt-2">Silakan login untuk melanjutkan</p>
                 </div>
+                <?php unset($_SESSION['error']); ?>
+            <?php endif; ?>
 
-                <!-- ✅ FORM LOGIN -->
-                <form action="login_process.php" method="POST" class="space-y-5">
+            <?php if (isset($_SESSION['success'])): ?>
+                <div class="mb-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        <p><?= $_SESSION['success'] ?></p>
+                    </div>
+                </div>
+                <?php unset($_SESSION['success']); ?>
+            <?php endif; ?>
 
+            <!-- Login Form -->
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <form action="actions/auth_login.php" method="POST" class="space-y-6">
+                    <!-- Username -->
                     <div>
-                        <label class="block text-sm font-semibold mb-2">Email</label>
-                        <input type="email" name="email" required
-                            class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-primary focus:outline-none"
-                            placeholder="example@email.com">
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-user mr-1"></i> Username
+                        </label>
+                        <input 
+                            type="text" 
+                            id="username" 
+                            name="username" 
+                            required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                            placeholder="Masukkan username"
+                        >
                     </div>
 
                     <!-- Password -->
                     <div>
-                        <label class="block text-sm font-semibold mb-2">Password</label>
-                        <input type="password" name="password" required
-                            class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-primary focus:outline-none"
-                            placeholder="********">
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-lock mr-1"></i> Password
+                        </label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                            placeholder="Masukkan password"
+                        >
                     </div>
 
-                    <button type="submit"
-                        class="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-xl transition-all shadow-lg hover:-translate-y-1">
+                    <!-- Submit Button -->
+                    <button 
+                        type="submit"
+                        class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition duration-200 flex items-center justify-center"
+                    >
+                        <i class="fas fa-sign-in-alt mr-2"></i>
                         Masuk
                     </button>
                 </form>
 
-                <p class="text-center text-slate-600 text-sm mt-6">
-                    Belum punya akun?
-                    <a href="register.php" class="text-primary font-bold hover:underline">Daftar Sekarang</a>
-                </p>
+                <!-- Register Link -->
+                <div class="mt-6 text-center">
+                    <p class="text-gray-600">
+                        Belum punya akun? 
+                        <a href="register.php" class="text-green-600 font-semibold hover:text-green-700">
+                            Daftar Sekarang
+                        </a>
+                    </p>
+                </div>
 
+                <!-- Back to Home -->
+                <div class="mt-4 text-center">
+                    <a href="index.php" class="text-gray-500 hover:text-gray-700 text-sm">
+                        <i class="fas fa-arrow-left mr-1"></i> Kembali ke Beranda
+                    </a>
+                </div>
             </div>
-
-        </div>
-        
-        <!-- Back to Home -->
-        <div class="text-center mt-8">
-            <a href="index.php" class="text-slate-600 hover:text-primary font-medium flex items-center justify-center gap-2 transition-all">
-                <i class="bi bi-arrow-left"></i> Kembali ke Beranda
-            </a>
         </div>
     </div>
-</section>
-
-<?php include 'includes/footer.php'; ?>
+</body>
+</html>

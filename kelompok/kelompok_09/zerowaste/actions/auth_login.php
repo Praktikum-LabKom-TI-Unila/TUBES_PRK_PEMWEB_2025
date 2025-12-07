@@ -1,40 +1,75 @@
 <?php
 session_start();
-require "../config/database.php";
+require_once '../config/database.php';
+require_once '../config/functions.php';
 
-// Ambil input
-$username = $_POST['username'];
-$password = $_POST['password'];
-
-// Cek username
-$sql = "SELECT * FROM users WHERE username='$username' AND deleted_at IS NULL";
-$q = mysqli_query($conn, $sql);
-$user = mysqli_fetch_assoc($q);
-
-// Validasi login
-if ($user && password_verify($password, $user['password'])) {
-
-    $_SESSION['user_id']   = $user['id'];
-    $_SESSION['nama']      = $user['nama_lengkap'];
-    $_SESSION['role']      = $user['role'];
-
-    // Catat Activity Log
-    mysqli_query($conn, "
-        INSERT INTO activity_logs(user_id, action, description, ip_address)
-        VALUES ({$user['id']}, 'LOGIN', 'User berhasil login', '{$_SERVER['REMOTE_ADDR']}')
-    ");
-
-    // Redirect berdasarkan role
-    if ($user['role'] == 'admin') {
-        header("Location: ../admin/dashboard.php");
-    } elseif ($user['role'] == 'donatur') {
-        header("Location: ../donatur/dashboard.php");
-    } else {
-        header("Location: ../mahasiswa/dashboard.php");
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = trim($_POST['username']);
+    $password = $_POST['password'];
+    
+    // Validasi input kosong
+    if (empty($username) || empty($password)) {
+        $_SESSION['error'] = 'Username dan password harus diisi!';
+        header('Location: ../login.php');
+        exit();
     }
-    exit;
-
+    
+    // Query dengan prepared statement (MENCEGAH SQL INJECTION)
+    $stmt = mysqli_prepare($conn, "SELECT id, username, password, nama_lengkap, role, is_active, deleted_at 
+                                    FROM users 
+                                    WHERE username = ? AND deleted_at IS NULL");
+    mysqli_stmt_bind_param($stmt, "s", $username);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    
+    if ($row = mysqli_fetch_assoc($result)) {
+        // Cek apakah user aktif (BUKAN BANNED)
+        if ($row['is_active'] == 0) {
+            $_SESSION['error'] = 'Akun Anda telah dinonaktifkan. Hubungi admin.';
+            header('Location: ../login.php');
+            exit();
+        }
+        
+        // Verifikasi password
+        if (password_verify($password, $row['password'])) {
+            // Set session (SESUAI KOLOM DB)
+            $_SESSION['user_id'] = $row['id'];
+            $_SESSION['username'] = $row['username'];
+            $_SESSION['nama_lengkap'] = $row['nama_lengkap']; // BUKAN 'nama'
+            $_SESSION['role'] = $row['role'];
+            
+            // Log activity
+            logActivity($conn, $row['id'], 'LOGIN', 'User berhasil login');
+            
+            // Redirect berdasarkan role
+            switch ($row['role']) {
+                case 'admin':
+                    header('Location: ../admin/dashboard.php');
+                    break;
+                case 'donatur':
+                    header('Location: ../donatur/dashboard.php');
+                    break;
+                case 'mahasiswa':
+                    header('Location: ../mahasiswa/dashboard.php');
+                    break;
+                default:
+                    header('Location: ../index.php');
+            }
+            exit();
+        } else {
+            $_SESSION['error'] = 'Username atau password salah!';
+            header('Location: ../login.php');
+            exit();
+        }
+    } else {
+        $_SESSION['error'] = 'Username atau password salah!';
+        header('Location: ../login.php');
+        exit();
+    }
+    
+    mysqli_stmt_close($stmt);
 } else {
-    echo "<script>alert('Username atau Password salah'); window.location='../login.php';</script>";
+    header('Location: ../login.php');
+    exit();
 }
 ?>
