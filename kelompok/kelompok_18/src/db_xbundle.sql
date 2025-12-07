@@ -98,7 +98,16 @@ VALUES ('Bani Barista', 'bani@kopi.com', '123456', 'umkm', 'Kopi Pagi', 'Kuliner
 INSERT INTO products (user_id, nama_produk, kategori, satuan, harga, stok, deskripsi)
 VALUES (2, 'Es Kopi Susu Gula Aren', 'minuman', 'cup', 18000, 50, 'Kopi susu kekinian.');
 
+-- Tambahkan kolom untuk menyimpan ID produk dari masing-masing pihak
+ALTER TABLE bundles 
+ADD COLUMN produk_pembuat_id INT NULL AFTER mitra_id,
+ADD COLUMN produk_mitra_id INT NULL AFTER produk_pembuat_id,
+ADD COLUMN harga_bundle DECIMAL(10,2) DEFAULT 0 AFTER nama_bundle;
 
+-- (Opsional) Relasi agar jika produk dihapus, bundle tidak error (tapi set NULL)
+-- Pastikan tabel products engine-nya InnoDB
+-- ALTER TABLE bundles ADD FOREIGN KEY (produk_pembuat_id) REFERENCES products(id) ON DELETE SET NULL;
+-- ALTER TABLE bundles ADD FOREIGN KEY (produk_mitra_id) REFERENCES products(id) ON DELETE SET NULL;
 
 
 
@@ -131,11 +140,9 @@ INSERT INTO products (id, user_id, nama_produk, kategori, satuan, harga, stok, d
 (2, 2, 'Roti Bakar Coklat', 'makanan', 'porsi', 15000, 30, 'Roti bakar tebal topping melimpah', 'no-image.jpg');
 
 -- 4. INSERT BUNDLE (Kolaborasi)
--- Bundle ID 1: Gabungan User 1 & User 2 (Produk 1 + Produk 2)
--- Status harus 'active' agar muncul di dropdown voucher
 INSERT INTO bundles (id, pembuat_id, mitra_id, produk_pembuat_id, produk_mitra_id, nama_bundle, harga_bundle, status) VALUES 
 (1, 1, 2, 1, 2, 'Paket Sarapan Pagi', 30000, 'active'); 
 
--- 5. INSERT VOUCHER (Diskon untuk Bundle tadi)
+-- 5. INSERT VOUCHER 
 INSERT INTO vouchers (bundle_id, kode_voucher, potongan_harga, kuota_maksimal, kuota_terpakai, expired_at, status) VALUES
 (1, 'HEMATPAGI', 5000, 100, 0, '2025-12-31', 'available');
