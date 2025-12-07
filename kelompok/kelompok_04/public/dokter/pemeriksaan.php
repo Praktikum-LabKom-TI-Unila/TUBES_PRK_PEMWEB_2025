@@ -12,7 +12,6 @@ $user_id = $_SESSION['user_id'];
 $id_antrian = $_GET['id'] ?? 0;
 $message = "";
 
-// Ambil data dokter yang login
 $query_info = "SELECT dokter.*, users.email FROM dokter JOIN users ON dokter.id_user = users.id_user WHERE dokter.id_user = ?";
 $stmt = $conn->prepare($query_info);
 $stmt->bind_param("i", $user_id);
@@ -23,14 +22,12 @@ if (!$dokter) {
     $dokter = ['nama_dokter' => 'dr. User', 'kode_dokter' => '-', 'spesialis' => 'Umum', 'no_hp' => '-', 'email' => '-'];
 }
 
-// Update status antrian menjadi 'diperiksa' jika masih menunggu
 if ($id_antrian > 0) {
     $stmt_update = $conn->prepare("UPDATE antrian SET status='diperiksa' WHERE id_antrian=? AND status='menunggu'");
     $stmt_update->bind_param("i", $id_antrian);
     $stmt_update->execute();
 }
 
-// Ambil data pasien berdasarkan id_antrian
 $pasien = null;
 if ($id_antrian > 0) {
     $stmt_pasien = $conn->prepare("SELECT a.*, p.*, po.nama_poli 
@@ -45,7 +42,6 @@ if ($id_antrian > 0) {
     $pasien = $stmt_pasien->get_result()->fetch_assoc();
 }
 
-// Proses simpan pemeriksaan
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
@@ -104,7 +100,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Hitung umur pasien
 $umur = 0;
 if ($pasien && isset($pasien['tanggal_lahir'])) {
     $umur = date_diff(date_create($pasien['tanggal_lahir']), date_create('today'))->y;
@@ -133,7 +128,6 @@ if ($pasien && isset($pasien['tanggal_lahir'])) {
 </head>
 <body class="flex h-screen overflow-hidden">
 
-    <!-- Sidebar -->
     <aside class="w-72 bg-white border-r border-gray-100 flex flex-col z-20 flex-shrink-0">
         <div class="p-8 flex items-center gap-4">
             <div class="w-10 h-10 bg-[#45BC7D] rounded-xl flex items-center justify-center text-white text-xl shadow-lg">
@@ -174,10 +168,8 @@ if ($pasien && isset($pasien['tanggal_lahir'])) {
         </div>
     </aside>
 
-    <!-- Main Content -->
     <main class="flex-1 flex flex-col h-screen overflow-hidden">
         
-        <!-- Header -->
         <header class="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 flex-shrink-0">
             <h2 class="text-xl font-bold text-gray-800">Pemeriksaan Pasien</h2>
             <div class="flex items-center gap-4">
@@ -191,13 +183,11 @@ if ($pasien && isset($pasien['tanggal_lahir'])) {
             </div>
         </header>
 
-        <!-- Content Area -->
         <div class="flex-1 overflow-y-auto p-8">
             <div class="max-w-5xl mx-auto">
                 
                 <?php if ($pasien): ?>
                 
-                <!-- Patient Info Card -->
                 <div class="bg-[#45BC7D] rounded-2xl p-6 text-white mb-6 shadow-lg">
                     <div class="flex justify-between items-start">
                         <div class="flex gap-4 items-center">
@@ -222,12 +212,10 @@ if ($pasien && isset($pasien['tanggal_lahir'])) {
                     </div>
                 </div>
 
-                <!-- Form Pemeriksaan -->
                 <form method="POST" id="formPemeriksaan">
                     <input type="hidden" name="action" value="simpan_pemeriksaan">
                     <input type="hidden" name="id_antrian" value="<?= $id_antrian ?>">
 
-                    <!-- Tanda Vital -->
                     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
                         <h3 class="font-bold text-gray-800 text-lg mb-4">Tanda Vital</h3>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -254,7 +242,6 @@ if ($pasien && isset($pasien['tanggal_lahir'])) {
                         </div>
                     </div>
 
-                    <!-- Data Pemeriksaan -->
                     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
                         <h3 class="font-bold text-gray-800 text-lg mb-4">Data Pemeriksaan</h3>
                         <div class="space-y-5">
@@ -291,7 +278,6 @@ if ($pasien && isset($pasien['tanggal_lahir'])) {
                             </div>
                         </div>
 
-                        <!-- Checkbox Rujukan -->
                         <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
                             <label class="flex items-center gap-3 cursor-pointer">
                                 <input type="checkbox" class="w-5 h-5 text-[#45BC7D] rounded focus:ring-2 focus:ring-[#45BC7D]">
@@ -303,7 +289,6 @@ if ($pasien && isset($pasien['tanggal_lahir'])) {
                         </div>
                     </div>
 
-                    <!-- Action Buttons -->
                     <div class="flex gap-4">
                         <button type="submit" 
                                 class="flex-1 btn-secondary py-4 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
@@ -326,7 +311,6 @@ if ($pasien && isset($pasien['tanggal_lahir'])) {
 
                 <?php else: ?>
                 
-                <!-- No Patient Data -->
                 <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-12 text-center">
                     <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i class="fas fa-user-injured text-gray-400 text-3xl"></i>
