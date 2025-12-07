@@ -1,0 +1,136 @@
+<?php
+// PASTIKAN PATH INI BENAR!
+include('../config/koneksi.php');
+include('../layout/header.php');
+
+// LOGIKA READ BARANG DENGAN JOIN SUPPLIER (Untuk Tabel Utama)
+$query = "
+    SELECT 
+        b.*, 
+        s.nama_supplier 
+    FROM barang b
+    LEFT JOIN suppliers s ON b.id_supplier = s.id_supplier
+    WHERE b.is_active = '1'
+    ORDER BY b.id_barang DESC
+";
+$result = mysqli_query($conn, $query); 
+
+$barangs = [];
+if ($result) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        $barangs[] = $row;
+    }
+}
+
+// LOGIKA FETCH SUPPLIER LIST (UNTUK DROPDOWN MODAL)
+$query_suppliers = "SELECT id_supplier, nama_supplier FROM suppliers WHERE is_active = '1' ORDER BY nama_supplier ASC";
+$result_suppliers = mysqli_query($conn, $query_suppliers);
+$suppliers_list = [];
+if ($result_suppliers) {
+    while ($row = mysqli_fetch_assoc($result_suppliers)) {
+        $suppliers_list[] = $row;
+    }
+}
+
+
+// Notifikasi Status
+$status = $_GET['status'] ?? '';
+$pesan = $_GET['pesan'] ?? '';
+?>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+    /* --- CSS SAMA PERSIS DENGAN MASTER SUPPLIER --- */
+    body { font-family: 'Poppins', sans-serif; background-color: #f0f2f5; }
+    .wrapper-flex { display: flex; min-height: 100vh; width: 100%; }
+    .content-wrapper { background: #f4f6f9; flex: 1; padding: 30px; min-height: 100vh; }
+    .card { border: none; border-radius: 15px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08); background: white; overflow: hidden; margin-bottom: 20px; }
+    .card-header { background: linear-gradient(135deg, #1B3C53 0%, #2F5C83 100%); border: none; padding: 20px 25px; }
+    .card-title { font-weight: 700; color: white; font-size: 1.1rem; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
+    .table thead th { background: linear-gradient(90deg, #1B3C53, #2F5C83); color: white; border: none; font-weight: 500; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; padding: 15px; }
+    .table tbody td { vertical-align: middle; padding: 15px; color: #444; border-bottom: 1px solid #f2f2f2; font-size: 0.95rem; font-weight: 500; }
+    .table tbody tr:hover { background-color: #f1f7fd; transition: all 0.2s ease; }
+    .btn { border-radius: 50px; padding: 8px 20px; font-weight: 600; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s; }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary { background: linear-gradient(45deg, #1B3C53, #4a90e2); border: none; }
+    .btn-warning { background: linear-gradient(45deg, #f1c40f, #f39c12); border: none; color: white !important; }
+    .btn-danger { background: linear-gradient(45deg, #e74c3c, #c0392b); border: none; }
+    .badge { padding: 8px 12px; border-radius: 30px; font-weight: 600; font-size: 0.75rem; }
+    .badge-info { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
+    .badge-warning { background: #fff8e1; color: #f57f17; border: 1px solid #ffecb3; }
+    .badge-secondary { background: #e9ecef; color: #343a40; border: 1px solid #dee2e6; } /* Badge Koperasi */
+    .modal-content { border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+    .modal-header { background: linear-gradient(45deg, #1B3C53, #2F5C83); border-radius: 20px 20px 0 0; padding: 25px 30px; }
+    .modal-title { font-weight: 800; color: white !important; font-size: 1.25rem; }
+    .close { color: white !important; opacity: 1; font-size: 1.5rem; text-shadow: none; }
+    .form-label { font-weight: 700; color: #2c3e50; margin-bottom: 8px; display: block; font-size: 0.95rem; text-transform: none; }
+    .form-control { border-radius: 10px !important; padding: 14px 15px !important; background-color: #f8f9fa; border: 1px solid #e0e0e0 !important; font-size: 1rem; color: #333; font-weight: 500; height: auto; }
+    .form-control:focus { border-color: #1B3C53; box-shadow: 0 0 0 3px rgba(27, 60, 83, 0.1); background-color: #fff; }
+</style>
+
+<div class="wrapper-flex">
+    <?php include('../layout/sidebar.php'); ?>
+    
+    <div class="content-wrapper">
+        <section class="content-header mb-4">
+            <div class="container-fluid">
+                <div class="row align-items-center">
+                    <div class="col-sm-12">
+                        <h1 style="color: #1B3C53; font-weight: 800; font-size: 2rem; letter-spacing: -1px;">
+                            <i class="fas fa-box-open mr-2"></i> Master Data Barang Titipan
+                        </h1>
+                        <p class="text-muted m-0" style="font-size: 1rem;">Kelola inventori, harga, dan supplier untuk setiap barang</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <?php if ($status && $pesan): ?>
+            <div id="status-alert" class="alert alert-<?= $status == 'sukses' ? 'success' : 'danger'; ?> alert-dismissible fade show shadow-sm mb-4 mx-3" role="alert" style="border-radius: 10px; border-left: 5px solid <?= $status == 'sukses' ? '#2ecc71' : '#e74c3c'; ?>;">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-<?= $status == 'sukses' ? 'check-circle' : 'exclamation-circle'; ?> mr-2" style="font-size: 1.2rem;"></i>
+                    <strong><?= htmlspecialchars($pesan); ?></strong>
+                </div>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close" data-bs-dismiss="alert">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        <?php endif; ?>
+        
+        <section class="content">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-boxes mr-2 text-white"></i>
+                        <h3 class="card-title">Daftar Barang Aktif</h3>
+                    </div>
+                    <button type="button" class="btn btn-primary" 
+                            data-toggle="modal" data-target="#modalTambahUbah"
+                            data-bs-toggle="modal" data-bs-target="#modalTambahUbah"
+                            onclick="resetModal()">
+                        <i class="fas fa-plus-circle mr-1"></i> Tambah Barang
+                    </button>
+                </div>
+                <div class="card-body">
+                    </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<?php include('../layout/footer.php'); ?>
+<script>
+// Fungsi Reset Modal Barang (akan dilengkapi di Step C)
+function resetModal() {
+    document.getElementById('modalTambahUbahLabel').innerHTML = '<i class="fas fa-box mr-2"></i> Tambah Barang Baru';
+    document.getElementById('action').value = 'tambah';
+    $('#id_barang').val('');
+    $('#nama_barang').val('');
+    $('#harga_jual').val('');
+    $('#stok').val('');
+    $('#id_supplier').val('0'); 
+    document.getElementById('btnSubmitModal').innerHTML = '<i class="fas fa-save mr-2"></i> Simpan Data';
+}
+// Logika JS lainnya akan ditambahkan di Step C
+</script>
