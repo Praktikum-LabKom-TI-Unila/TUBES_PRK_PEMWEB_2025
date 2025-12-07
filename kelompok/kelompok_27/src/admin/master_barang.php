@@ -13,6 +13,7 @@ $query = "
     WHERE b.is_active = '1'
     ORDER BY b.id_barang DESC
 ";
+// NOTE: Menggunakan $conn sesuai konfirmasi konfigurasi Anda
 $result = mysqli_query($conn, $query); 
 
 $barangs = [];
@@ -113,72 +114,186 @@ $pesan = $_GET['pesan'] ?? '';
                     </button>
                 </div>
                 <div class="card-body">
-                    <button type="button" class="btn btn-primary mb-3" 
-        data-toggle="modal" data-target="#modalTambahUbah"
-        data-bs-toggle="modal" data-bs-target="#modalTambahUbah"
-        onclick="resetModal()">
-    <i class="fas fa-plus-circle mr-1"></i> Tambah Barang
-</button>
-
-<table id="example1" class="table table-hover">
-    <thead>
-        <tr>
-            <th width="5%" class="text-center">#</th>
-            <th>Nama Barang</th>
-            <th>Harga Jual</th>
-            <th>Stok</th>
-            <th>Supplier/Vendor</th>
-            <th width="15%" class="text-center">Aksi</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php $no = 1; ?>
-        <?php foreach ($barangs as $barang): ?>
-        <tr>
-            <td class="text-center font-weight-bold" style="color: #1B3C53;"><?= $no++; ?></td>
-            <td style="font-weight: 600; color: #2c3e50;"><?= htmlspecialchars($barang['nama_barang']); ?></td>
-            <td>Rp <?= number_format($barang['harga_jual'], 0, ',', '.'); ?></td>
-            <td><?= htmlspecialchars($barang['stok']); ?></td>
-            <td>
-                <?php 
-                    // Logika membedakan Barang Koperasi (NULL) vs Titipan
-                    if ($barang['id_supplier'] === NULL) {
-                        echo '<span class="badge badge-secondary"><i class="fas fa-building mr-1"></i> Koperasi (Internal)</span>';
-                    } else {
-                        echo '<span class="badge badge-warning"><i class="fas fa-truck-moving mr-1"></i> ' . htmlspecialchars($barang['nama_supplier']) . '</span>';
-                    }
-                ?>
-            </td>
-            <td class="text-center">
-                <button class="btn btn-warning btn-sm btnUbah mr-1" 
-                        data-id="<?= $barang['id_barang']; ?>" 
-                        data-nama="<?= htmlspecialchars($barang['nama_barang']); ?>" 
-                        data-jual="<?= $barang['harga_jual']; ?>" 
-                        data-stok="<?= htmlspecialchars($barang['stok']); ?>" 
-                        data-supplier="<?= $barang['id_supplier']; ?>" 
-                        data-toggle="modal" data-target="#modalTambahUbah"
-                        data-bs-toggle="modal" data-bs-target="#modalTambahUbah"
-                        title="Edit Data">
-                    <i class="fas fa-pen"></i>
-                </button>
-                <a href="../proses/barang_proses.php?action=arsip&id=<?= $barang['id_barang']; ?>" 
-                   class="btn btn-danger btn-sm" 
-                   onclick="return confirm('Anda yakin ingin mengarsipkan Barang ini?')"
-                   title="Arsipkan">
-                    <i class="fas fa-trash-alt"></i>
-                </a>
-            </td>
-        </tr>
-        <?php endforeach; ?>
-    </tbody>
-</table>
-                    </div>
+                    <table id="example1" class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th width="5%" class="text-center">#</th>
+                                <th>Nama Barang</th>
+                                <th>Harga Jual</th>
+                                <th>Stok</th>
+                                <th>Supplier/Vendor</th>
+                                <th width="15%" class="text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php $no = 1; ?>
+                            <?php foreach ($barangs as $barang): ?>
+                            <tr>
+                                <td class="text-center font-weight-bold" style="color: #1B3C53;"><?= $no++; ?></td>
+                                <td style="font-weight: 600; color: #2c3e50;"><?= htmlspecialchars($barang['nama_barang']); ?></td>
+                                <td>Rp <?= number_format($barang['harga_jual'], 0, ',', '.'); ?></td>
+                                <td><?= htmlspecialchars($barang['stok']); ?></td>
+                                <td>
+                                    <?php 
+                                        if ($barang['id_supplier'] === NULL) {
+                                            echo '<span class="badge badge-secondary"><i class="fas fa-building mr-1"></i> Koperasi (Internal)</span>';
+                                        } else {
+                                            echo '<span class="badge badge-warning"><i class="fas fa-truck-moving mr-1"></i> ' . htmlspecialchars($barang['nama_supplier']) . '</span>';
+                                        }
+                                    ?>
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-warning btn-sm btnUbah mr-1" 
+                                            data-id="<?= $barang['id_barang']; ?>" 
+                                            data-nama="<?= htmlspecialchars($barang['nama_barang']); ?>" 
+                                            data-jual="<?= $barang['harga_jual']; ?>" 
+                                            data-stok="<?= htmlspecialchars($barang['stok']); ?>" 
+                                            data-supplier="<?= $barang['id_supplier']; ?>" 
+                                            data-toggle="modal" data-target="#modalTambahUbah"
+                                            data-bs-toggle="modal" data-bs-target="#modalTambahUbah"
+                                            title="Edit Data">
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                    <a href="../proses/barang_proses.php?action=arsip&id=<?= $barang['id_barang']; ?>" 
+                                       class="btn btn-danger btn-sm" 
+                                       onclick="return confirm('Anda yakin ingin mengarsipkan Barang ini?')"
+                                       title="Arsipkan">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
     </div>
 </div>
 
-<?php include('../layout/footer.php'); ?>
+<div class="modal fade" id="modalTambahUbah" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTambahUbahLabel" style="color: white; font-weight: 800; font-size: 1.25rem;">
+                    <i class="fas fa-box mr-2"></i> Tambah Barang Baru
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close" style="color: white; opacity: 1;">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="../proses/barang_proses.php" method="POST">
+                <div class="modal-body p-4">
+                    <input type="hidden" name="id_barang" id="id_barang">
+                    <input type="hidden" name="action" id="action" value="tambah"> 
+
+                    <div class="form-group mb-4">
+                        <label for="nama_barang" class="form-label">Nama Barang <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="nama_barang" name="nama_barang" 
+                            placeholder="Nama produk (contoh: Keripik Balado)" required autocomplete="off" style="border-radius: 10px;">
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="harga_jual" class="form-label">Harga Jual (Rp) <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="harga_jual" name="harga_jual" 
+                            placeholder="Contoh: 15000" required autocomplete="off" min="0" style="border-radius: 10px;">
+                    </div>
+                    
+                    <div class="form-group mb-4">
+                        <label for="stok" class="form-label">Stok Awal <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="stok" name="stok" 
+                            placeholder="Jumlah stok..." required autocomplete="off" min="1" style="border-radius: 10px;">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="id_supplier" class="form-label">Supplier / Penitip <span class="text-danger">*</span></label>
+                        <select class="form-control" id="id_supplier" name="id_supplier" required style="border-radius: 10px;">
+                            <option value="0" selected>-- Barang Koperasi (Internal) --</option>
+                            <?php foreach ($suppliers_list as $s): ?>
+                                <option value="<?= $s['id_supplier']; ?>"><?= htmlspecialchars($s['nama_supplier']); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <small class="text-muted mt-2 d-block px-1">Pilih "Barang Koperasi" jika barang bukan titipan vendor.</small>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light" style="border-radius: 0 0 20px 20px; padding: 20px 30px;">
+                    <div class="row w-100 m-0">
+                        <div class="col-6 pl-0">
+                            <button type="button" class="btn btn-secondary text-dark" style="background: #e9ecef; border:none; color: #000; font-weight: 600; border-radius: 10px;" data-dismiss="modal" data-bs-dismiss="modal">
+                                <i class="fas fa-times-circle mr-2"></i> Batal
+                            </button>
+                        </div>
+                        <div class="col-6 pr-0">
+                            <button type="submit" class="btn btn-primary btn-block font-weight-bold shadow-sm" id="btnSubmitModal" style="border-radius: 10px;">
+                                <i class="fas fa-save mr-2"></i> Simpan Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<?php
+include('../layout/footer.php'); 
+?>
+
 <script>
-// Logic JS akan ditambahkan di Step III.3
+// Fungsi Reset Modal
+function resetModal() {
+    document.getElementById('modalTambahUbahLabel').innerHTML = '<i class="fas fa-box mr-2"></i> Tambah Barang Baru';
+    document.getElementById('action').value = 'tambah';
+    $('#id_barang').val('');
+    $('#nama_barang').val('');
+    $('#harga_jual').val('');
+    $('#stok').val('');
+    $('#id_supplier').val('0'); 
+    document.getElementById('btnSubmitModal').innerHTML = '<i class="fas fa-save mr-2"></i> Simpan Data';
+}
+
+$(document).ready(function() {
+    // Tombol Tambah (Menggunakan fungsi reset)
+    $('.btn-primary[data-target="#modalTambahUbah"]').on('click', function() {
+        resetModal();
+    });
+    
+    // Tombol Ubah (Mengisi data lama)
+    $('.btnUbah').on('click', function() {
+        var id = $(this).data('id');
+        var nama = $(this).data('nama');
+        var jual = $(this).data('jual');
+        var stok = $(this).data('stok');
+        var supplier = $(this).data('supplier');
+
+        document.getElementById('modalTambahUbahLabel').innerHTML = '<i class="fas fa-edit mr-2"></i> Edit Data Barang';
+        $('#action').val('ubah');
+        $('#id_barang').val(id);
+        $('#nama_barang').val(nama);
+        $('#harga_jual').val(jual);
+        $('#stok').val(stok);
+        $('#id_supplier').val(supplier || '0'); // Jika NULL, set ke 0 (Koperasi)
+        document.getElementById('btnSubmitModal').innerHTML = '<i class="fas fa-check-circle mr-2"></i> Perbarui Data';
+    });
+    
+    // Init DataTable
+    if ($("#example1").length) {
+        $("#example1").DataTable({
+          "responsive": true, 
+          "lengthChange": false, 
+          "autoWidth": false,
+          "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+          "language": {
+              "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Indonesian.json"
+          }
+        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    }
+    
+    // Membuat Alert hilang otomatis (dari Step 4 sebelumnya)
+    if ($('#status-alert').length) {
+        $('#status-alert').delay(4000).fadeOut('slow', function() {
+            $(this).remove();
+        });
+    }
+});
 </script>
