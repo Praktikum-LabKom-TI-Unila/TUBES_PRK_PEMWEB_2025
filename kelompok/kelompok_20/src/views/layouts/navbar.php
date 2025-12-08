@@ -21,6 +21,22 @@
                 </a>
                 
                 <?php if (isLoggedIn()): ?>
+                    <?php
+                    require_once __DIR__ . '/../../models/Notification.php';
+                    $notifModel = new Notification();
+                    $unread_count = $notifModel->countUnread((int)$_SESSION['user']['id']);
+                    ?>
+                    <a href="<?= base_url('index.php?page=notifications') ?>" class="relative p-2 ml-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary-600 dark:hover:text-primary-400 transition-all">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                        <?php if ($unread_count > 0): ?>
+                            <span class="absolute top-1 right-1 w-5 h-5 bg-gradient-to-r from-rose-500 to-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg shadow-rose-500/50 animate-pulse">
+                                <?= $unread_count > 9 ? '9+' : $unread_count ?>
+                            </span>
+                        <?php endif; ?>
+                    </a>
+                    
                     <div class="relative group ml-2">
                         <button class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
                             <div class="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
@@ -86,6 +102,14 @@
                 <a href="<?= base_url('index.php?page=items&type=found') ?>" class="px-4 py-2.5 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition font-medium">Barang Temuan</a>
                 
                 <?php if (isLoggedIn()): ?>
+                    <a href="<?= base_url('index.php?page=notifications') ?>" class="px-4 py-2.5 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition font-medium flex items-center justify-between">
+                        <span>Notifikasi</span>
+                        <?php if (isset($unread_count) && $unread_count > 0): ?>
+                            <span class="ml-2 px-2 py-0.5 bg-rose-500 text-white text-xs font-bold rounded-full">
+                                <?= $unread_count > 9 ? '9+' : $unread_count ?>
+                            </span>
+                        <?php endif; ?>
+                    </a>
                     <hr class="my-2 border-slate-200 dark:border-slate-700">
                     <a href="<?= base_url('index.php?page=profile') ?>" class="px-4 py-2.5 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition font-medium">Profil</a>
                     <a href="<?= base_url('index.php?page=auth&action=logout') ?>" class="px-4 py-2.5 rounded-xl text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition font-medium">Logout</a>

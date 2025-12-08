@@ -24,7 +24,7 @@ final class NotificationController
         }
 
         $notifications = $this->notificationModel->getAllByUserId($_SESSION['user_id'], 50);
-        $unreadCount = $this->notificationModel->countUnread($_SESSION['user_id']);
+        $unread_count = $this->notificationModel->countUnread($_SESSION['user_id']);
 
         $pageTitle = 'Notifikasi - myUnila Lost & Found';
 
