@@ -78,9 +78,13 @@ if ($tableCheckResult && $tableCheckResult->num_rows > 0) {
 
 // average rating given? (if there is a table user_ratings) — optional, skip if not exist
 ?>
-<div class="min-h-screen px-6 py-20 bg-gradient-to-br from-[#F2FBFA] to-[#FEFFFF]">
+<div class="min-h-screen px-6 py-20" style="background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 25%, var(--bg-primary) 50%, var(--bg-secondary) 75%, var(--bg-primary) 100%); position: relative; overflow: hidden;">
+    
+    <!-- Decorative Background Elements -->
+    <div style="position: fixed; top: -50%; right: -10%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(58, 175, 169, 0.1) 0%, transparent 70%); border-radius: 50%; z-index: 0; pointer-events: none;"></div>
+    <div style="position: fixed; bottom: -30%; left: -5%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(23, 37, 42, 0.05) 0%, transparent 70%); border-radius: 50%; z-index: 0; pointer-events: none;"></div>
 
-    <div class="max-w-6xl mx-auto">
+    <div class="max-w-6xl mx-auto relative z-10 transition-colors duration-300">
         
         <!-- Success/Error Messages -->
         <?php if ($success_msg): ?>
@@ -98,38 +102,39 @@ if ($tableCheckResult && $tableCheckResult->num_rows > 0) {
         <!-- Header -->
         <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8">
             <div>
-                <h1 class="text-3xl font-bold text-[#17252A]">Dashboard</h1>
-                <p class="text-gray-600 mt-1">Halo, <strong><?= htmlspecialchars($user['name'] ?? $user['email']) ?></strong>. Ini ringkasan akunmu.</p>
+                <h1 class="text-3xl font-bold" style="color: var(--text-primary);">Dashboard</h1>
+                <p style="color: var(--text-secondary);" class="mt-1">Halo, <strong><?= htmlspecialchars($user['name'] ?? $user['email']) ?></strong>. Ini ringkasan akunmu.</p>
             </div>
 
             <div class="flex items-center gap-4">
                 <a href="index.php?p=survey" class="px-4 py-2 border border-[#3AAFA9] text-[#3AAFA9] rounded-lg">Perbarui Survey</a>
                 <a href="index.php?p=match" class="px-4 py-2 bg-[#3AAFA9] text-white rounded-lg">Cari Konselor</a>
+                <button id="darkModeToggle" onclick="toggleDarkMode()" style="background-color: var(--bg-tertiary); color: var(--text-primary);" class="px-4 py-2 rounded-lg font-semibold transition border border-[#3AAFA9]" title="Toggle Dark Mode">🌙</button>
             </div>
         </div>
 
         <div class="grid md:grid-cols-3 gap-8 mb-10">
 
             <!-- PROFILE CARD -->
-            <div class="bg-white rounded-2xl soft-shadow p-6">
+            <div class="card-gradient rounded-2xl soft-shadow p-6 card-animate">
                 <div class="flex items-center gap-4">
-                    <img src="<?= isset($user['profile_picture']) && $user['profile_picture'] ? "./uploads/profile/".htmlspecialchars($user['profile_picture']) : 'https://via.placeholder.com/80x80?text=User' ?>"
+                    <img src="<?= isset($user['profile_picture']) && $user['profile_picture'] ? "../uploads/profile/".htmlspecialchars($user['profile_picture']) : 'https://via.placeholder.com/80x80?text=User' ?>"
                          alt="avatar" class="w-20 h-20 object-cover rounded-xl shadow-sm">
                     <div>
-                        <div class="text-lg font-semibold text-[#17252A]"><?= htmlspecialchars($user['name'] ?? $user['email']) ?></div>
-                        <div class="text-sm text-gray-500 mt-1"><?= htmlspecialchars($user['email']) ?></div>
-                        <div class="text-xs text-gray-400 mt-2">Member sejak <?= date('M Y', strtotime($user['created_at'] ?? date('Y-m-d'))) ?></div>
+                        <div class="text-lg font-semibold" style="color: var(--text-primary);"><?= htmlspecialchars($user['name'] ?? $user['email']) ?></div>
+                        <div class="text-sm" style="color: var(--text-secondary);"><?= htmlspecialchars($user['email']) ?></div>
+                        <div class="text-xs" style="color: var(--text-secondary);">Member sejak <?= date('M Y', strtotime($user['created_at'] ?? date('Y-m-d'))) ?></div>
                     </div>
                 </div>
 
                 <div class="mt-6 grid grid-cols-2 gap-4">
-                    <div class="p-4 bg-[#F7FBFB] rounded-lg text-center">
-                        <div class="text-2xl font-bold text-[#17252A]"><?= intval($total_sessions) ?></div>
-                        <div class="text-xs text-gray-500">Total sesi</div>
+                    <div class="p-4 bg-gradient-to-br from-[#3AAFA9]/10 to-[#DEF2F1]/20 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-[#3AAFA9]"><?= intval($total_sessions) ?></div>
+                        <div class="text-xs" style="color: var(--text-secondary);">Total sesi</div>
                     </div>
-                    <div class="p-4 bg-[#F7FBFB] rounded-lg text-center">
-                        <div class="text-2xl font-bold text-[#17252A]"><?= $payment ? htmlspecialchars($payment['plan'] ?? $payment['status']) : 'Trial' ?></div>
-                        <div class="text-xs text-gray-500">Status akun</div>
+                    <div class="p-4 bg-gradient-to-br from-[#17252A]/5 to-[#17252A]/10 rounded-lg text-center">
+                        <div class="text-2xl font-bold" style="color: var(--text-primary);"><?= $payment ? htmlspecialchars($payment['plan'] ?? $payment['status']) : 'Trial' ?></div>
+                        <div class="text-xs" style="color: var(--text-secondary);">Status akun</div>
                     </div>
                 </div>
 
@@ -139,7 +144,7 @@ if ($tableCheckResult && $tableCheckResult->num_rows > 0) {
             </div>
 
             <!-- USAGE & SURVEY SUMMARY -->
-            <div class="bg-white rounded-2xl soft-shadow p-6">
+            <div class="card-gradient rounded-2xl soft-shadow p-6 card-animate" style="animation-delay: 0.1s;">
                 <h3 class="font-semibold text-[#17252A] mb-3">Ringkasan Survey</h3>
 
                 <?php if ($survey): ?>
@@ -190,7 +195,7 @@ if ($tableCheckResult && $tableCheckResult->num_rows > 0) {
             </div>
 
             <!-- SUBSCRIPTION / ACTIONS -->
-            <div class="bg-white rounded-2xl soft-shadow p-6">
+            <div class="card-gradient rounded-2xl soft-shadow p-6 card-animate" style="animation-delay: 0.2s;">
                 <h3 class="font-semibold text-[#17252A] mb-3">Akun & Pembayaran</h3>
 
                 <?php if ($payment): ?>
@@ -212,7 +217,7 @@ if ($tableCheckResult && $tableCheckResult->num_rows > 0) {
         </div> <!-- grid -->
 
         <!-- RECENT SESSIONS -->
-        <div class="bg-white rounded-2xl soft-shadow p-6 mb-10">
+        <div class="card-gradient rounded-2xl soft-shadow p-6 mb-10 card-animate" style="animation-delay: 0.3s;">
             <h3 class="text-xl font-semibold text-[#17252A] mb-4">Riwayat Sesi Terbaru</h3>
 
             <?php if (empty($sessions)): ?>
@@ -248,24 +253,24 @@ if ($tableCheckResult && $tableCheckResult->num_rows > 0) {
 
         <!-- QUICK ACTIONS -->
         <div class="grid md:grid-cols-3 gap-6 mb-10">
-            <a href="index.php?p=match" class="block p-6 bg-white rounded-xl soft-shadow text-center hover:shadow-md">
+            <a href="index.php?p=match" class="block p-6 card-gradient rounded-xl soft-shadow text-center hover:shadow-md card-animate" style="animation-delay: 0.4s;">
                 <div class="font-semibold text-[#17252A]">Temukan Konselor</div>
                 <div class="text-sm text-gray-500 mt-2">Mulai sesi trial 1 hari</div>
             </a>
 
-            <a href="index.php?p=survey" class="block p-6 bg-white rounded-xl soft-shadow text-center hover:shadow-md">
+            <a href="index.php?p=survey" class="block p-6 card-gradient rounded-xl soft-shadow text-center hover:shadow-md card-animate" style="animation-delay: 0.5s;">
                 <div class="font-semibold text-[#17252A]">Perbarui Survey</div>
                 <div class="text-sm text-gray-500 mt-2">Ubah preferensimu kapan saja</div>
             </a>
 
-            <a href="index.php?p=payments" class="block p-6 bg-white rounded-xl soft-shadow text-center hover:shadow-md">
+            <a href="index.php?p=payments" class="block p-6 card-gradient rounded-xl soft-shadow text-center hover:shadow-md card-animate" style="animation-delay: 0.6s;">
                 <div class="font-semibold text-[#17252A]">Pembayaran</div>
                 <div class="text-sm text-gray-500 mt-2">Atur langganan & metode pembayaran</div>
             </a>
         </div>
 
         <!-- PROFILE SETTINGS BUTTON -->
-        <div class="bg-white rounded-2xl soft-shadow p-8">
+        <div class="card-gradient rounded-2xl soft-shadow p-8 card-animate" style="animation-delay: 0.7s; background: linear-gradient(135deg, rgba(58, 175, 169, 0.08) 0%, rgba(222, 242, 241, 0.1) 100%); border: 1px solid rgba(58, 175, 169, 0.15);">
             <div class="flex items-center justify-between">
                 <div>
                     <h2 class="text-2xl font-bold text-[#17252A]">⚙️ Pengaturan Akun</h2>
@@ -282,5 +287,86 @@ if ($tableCheckResult && $tableCheckResult->num_rows > 0) {
 
 
 <style>
-.soft-shadow { box-shadow: 0 10px 30px rgba(0,0,0,0.06); }
+.soft-shadow { 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+}
+
+.soft-shadow:hover {
+    box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+    transform: translateY(-2px);
+}
+
+.card-gradient {
+    background: var(--bg-card);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    color: var(--text-primary);
+}
+
+.card-gradient:hover {
+    border-color: rgba(58, 175, 169, 0.3);
+}
+
+.stat-card {
+    background: linear-gradient(135deg, rgba(58, 175, 169, 0.05) 0%, rgba(222, 242, 241, 0.1) 100%);
+    border-left: 4px solid #3AAFA9;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    background: linear-gradient(135deg, rgba(58, 175, 169, 0.1) 0%, rgba(222, 242, 241, 0.15) 100%);
+    transform: translateX(4px);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card-animate {
+    animation: slideIn 0.5s ease forwards;
+}
+
+/* Dark mode specific adjustments */
+html.dark-mode .card-gradient {
+    background: linear-gradient(135deg, rgba(21, 42, 53, 0.9) 0%, rgba(26, 58, 71, 0.85) 100%);
+    border: 1px solid rgba(58, 175, 169, 0.2);
+}
+
+html.dark-mode .stat-card {
+    background: linear-gradient(135deg, rgba(58, 175, 169, 0.1) 0%, rgba(58, 175, 169, 0.05) 100%);
+    border-left-color: #4DBBB0;
+}
+
+html.dark-mode .stat-card:hover {
+    background: linear-gradient(135deg, rgba(58, 175, 169, 0.15) 0%, rgba(58, 175, 169, 0.1) 100%);
+}
+
+html.dark-mode .bg-green-100 {
+    background-color: rgba(58, 175, 169, 0.2);
+    border-color: rgba(58, 175, 169, 0.4);
+    color: #4DBBB0;
+}
+
+html.dark-mode .bg-red-100 {
+    background-color: rgba(220, 100, 100, 0.2);
+    border-color: rgba(220, 100, 100, 0.4);
+    color: #ff8080;
+}
+
+html.dark-mode .border-green-400 {
+    border-color: rgba(58, 175, 169, 0.4);
+}
+
+html.dark-mode .border-red-400 {
+    border-color: rgba(220, 100, 100, 0.4);
+}
 </style>

@@ -28,9 +28,13 @@ $error_msg = $_SESSION['error'] ?? null;
 unset($_SESSION['success'], $_SESSION['error']);
 ?>
 
-<div class="min-h-screen px-6 py-20 bg-gradient-to-br from-[#F2FBFA] to-[#FEFFFF]">
+<div class="min-h-screen px-6 py-20" style="background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 25%, var(--bg-primary) 50%, var(--bg-secondary) 75%, var(--bg-primary) 100%); position: relative; overflow: hidden; transition: background-color 0.3s ease;">
+    
+    <!-- Decorative Background Elements -->
+    <div style="position: fixed; top: -50%; right: -10%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(58, 175, 169, 0.1) 0%, transparent 70%); border-radius: 50%; z-index: 0; pointer-events: none;"></div>
+    <div style="position: fixed; bottom: -30%; left: -5%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(23, 37, 42, 0.05) 0%, transparent 70%); border-radius: 50%; z-index: 0; pointer-events: none;"></div>
 
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-4xl mx-auto relative z-10">
         
         <!-- Success/Error Messages -->
         <?php if ($success_msg): ?>
@@ -116,7 +120,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                             
                             <div class="text-center">
                                 <div class="inline-block relative mb-6">
-                                    <img src="<?= isset($user['profile_picture']) && $user['profile_picture'] ? "./uploads/profile/".htmlspecialchars($user['profile_picture']) : 'https://via.placeholder.com/180x180?text=Profile' ?>" 
+                                    <img src="<?= isset($user['profile_picture']) && $user['profile_picture'] ? "../uploads/profile/".htmlspecialchars($user['profile_picture']) : 'https://via.placeholder.com/180x180?text=Profile' ?>" 
                                          alt="profile" class="w-48 h-48 object-cover rounded-2xl shadow-lg border-4 border-[#3AAFA9]">
                                     <div class="absolute bottom-0 right-0 bg-[#3AAFA9] text-white p-3 rounded-full shadow-lg">
                                         📷
@@ -258,6 +262,28 @@ unset($_SESSION['success'], $_SESSION['error']);
 .settings-tab.active {
     color: #17252A;
     border-bottom-color: #3AAFA9;
+}
+
+/* Dark mode adjustments */
+html.dark-mode .settings-tab:hover {
+    background-color: rgba(77, 187, 176, 0.1);
+    color: #4DBBB0;
+}
+
+html.dark-mode .settings-tab.active {
+    color: var(--text-primary);
+    border-bottom-color: #4DBBB0;
+}
+
+html.dark-mode .bg-blue-50,
+html.dark-mode .bg-yellow-50 {
+    background: rgba(58, 175, 169, 0.1);
+    border-color: rgba(58, 175, 169, 0.2);
+}
+
+html.dark-mode .bg-blue-50 p,
+html.dark-mode .bg-yellow-50 p {
+    color: var(--text-secondary);
 }
 </style>
 

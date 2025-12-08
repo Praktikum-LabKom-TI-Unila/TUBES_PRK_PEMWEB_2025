@@ -20,12 +20,39 @@ function load_view($path) {
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
 <style>
+    :root {
+        /* Light Mode Colors */
+        --bg-primary: #FBFCFD;
+        --bg-secondary: #F2FBFA;
+        --bg-tertiary: #E8F8F6;
+        --bg-card: rgba(255, 255, 255, 0.95);
+        --text-primary: #17252A;
+        --text-secondary: #666;
+        --text-tertiary: #999;
+        --border-color: rgba(58, 175, 169, 0.1);
+        --accent-color: #3AAFA9;
+    }
+
+    html.dark-mode {
+        /* Dark Mode Colors - Based on dark tones from light palette */
+        --bg-primary: #0F1920;
+        --bg-secondary: #152A35;
+        --bg-tertiary: #1A3A47;
+        --bg-card: rgba(21, 42, 53, 0.95);
+        --text-primary: #E8F4F3;
+        --text-secondary: #B8D4D1;
+        --text-tertiary: #7FA8A5;
+        --border-color: rgba(58, 175, 169, 0.2);
+        --accent-color: #4DBBB0;
+    }
+
     body { 
         font-family: 'Inter', sans-serif; 
-        background:#FBFCFD;
+        background: var(--bg-primary);
         position: relative;
         min-height: 100vh;
         overflow-x: hidden;
+        transition: background-color 0.3s ease;
     }
 
     /* GLOBAL SOFT BACKGROUND IMAGE */
@@ -43,6 +70,48 @@ function load_view($path) {
     }
 
     .soft-shadow { box-shadow:0 10px 30px rgba(0,0,0,0.08); }
+
+    /* Text color adjustments for dark mode */
+    html.dark-mode .text-gray-600,
+    html.dark-mode .text-gray-700,
+    html.dark-mode .text-gray-500 {
+        color: var(--text-secondary) !important;
+    }
+
+    html.dark-mode .text-gray-400 {
+        color: var(--text-tertiary) !important;
+    }
+
+    html.dark-mode p {
+        color: var(--text-primary);
+    }
+
+    html.dark-mode h1, html.dark-mode h2, html.dark-mode h3, html.dark-mode h4, html.dark-mode h5, html.dark-mode h6 {
+        color: var(--text-primary);
+    }
+
+    html.dark-mode label {
+        color: var(--text-primary);
+    }
+
+    html.dark-mode input[type="text"],
+    html.dark-mode input[type="email"],
+    html.dark-mode input[type="password"],
+    html.dark-mode textarea,
+    html.dark-mode select {
+        background-color: var(--bg-tertiary);
+        color: var(--text-primary);
+        border-color: var(--border-color);
+    }
+
+    html.dark-mode input[type="text"]:focus,
+    html.dark-mode input[type="email"]:focus,
+    html.dark-mode input[type="password"]:focus,
+    html.dark-mode textarea:focus,
+    html.dark-mode select:focus {
+        background-color: var(--bg-tertiary);
+        color: var(--text-primary);
+    }
 
     /* HERO IMAGE: full height + extends downward */
     /* Tidak lagi dipakai sebagai <img>, tapi tetap disimpan jika butuh nanti */
@@ -77,18 +146,19 @@ function load_view($path) {
 
 <!-- NAVBAR (visible only on homepage) -->
 <?php if ($p === 'home'): ?>
-<header class="fixed top-0 w-full bg-white/80 backdrop-blur-md soft-shadow z-50">
+<header style="background: var(--bg-secondary); border-bottom: 1px solid var(--border-color);" class="fixed top-0 w-full backdrop-blur-md soft-shadow z-50 transition-colors duration-300">
     <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 flex items-center justify-center bg-[#17252A] text-[#DEF2F1] rounded-md font-bold">AP</div>
-            <div class="text-xl font-semibold">Astral Psychologist</div>
+            <div class="w-10 h-10 flex items-center justify-center bg-[#3AAFA9] text-white rounded-md font-bold">AP</div>
+            <div class="text-xl font-semibold" style="color: var(--text-primary);">Astral Psychologist</div>
         </div>
 
         <nav class="hidden md:flex items-center gap-6">
-            <a href="index.php" class="hover:text-[#3AAFA9]">Home</a>
-            <a href="index.php?p=survey" class="hover:text-[#3AAFA9]">Survey</a>
-            <a href="index.php?p=login" class="hover:text-[#3AAFA9]">Login</a>
+            <a href="index.php" style="color: var(--text-primary);" class="hover:text-[#3AAFA9] transition">Home</a>
+            <a href="index.php?p=survey" style="color: var(--text-primary);" class="hover:text-[#3AAFA9] transition">Survey</a>
+            <a href="index.php?p=login" style="color: var(--text-primary);" class="hover:text-[#3AAFA9] transition">Login</a>
             <a href="index.php?p=register" class="px-4 py-2 bg-[#3AAFA9] text-white rounded-lg hover:bg-[#2B8E89]">Mulai</a>
+            <button id="darkModeToggle" onclick="toggleDarkMode()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition" title="Toggle Dark Mode">🌙</button>
         </nav>
     </div>
 </header>
@@ -278,6 +348,10 @@ if (isset($_GET['p'])) {
         case 'user_settings':
             load_view("dashboard/user_settings");
             break;
+        
+        case 'profile':
+            load_view("profile/user_profile");
+            break;
 
         default:
             load_view("404");
@@ -300,6 +374,33 @@ if (isset($_GET['p'])) {
 
 }
 ?>
+
+<!-- DARK MODE TOGGLE & INITIALIZATION -->
+<script>
+// Initialize dark mode on page load
+function initDarkMode() {
+    const isDarkMode = localStorage.getItem('darkMode') === 'true';
+    if (isDarkMode) {
+        document.documentElement.classList.add('dark-mode');
+    }
+}
+
+// Toggle dark mode function
+function toggleDarkMode() {
+    const isDarkMode = document.documentElement.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', isDarkMode);
+    
+    // Update button icon if it exists
+    const darkModeBtn = document.getElementById('darkModeToggle');
+    if (darkModeBtn) {
+        darkModeBtn.textContent = isDarkMode ? '☀️' : '🌙';
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', initDarkMode);
+initDarkMode();
+</script>
 
 <!-- TESTIMONIAL AUTO-SCROLL -->
 <script>
