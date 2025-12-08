@@ -21,8 +21,8 @@ $query = "SELECT v.*, b.nama_bundle
 $result = mysqli_query($koneksi, $query);
 ?>
 
-<!-- Panggil CSS Voucher (Pastikan filenya ada di assets/css) -->
-<link rel="stylesheet" href="<?php echo $base_url; ?>/assets/css/style_voucher.css">
+<!-- Panggil CSS Voucher -->
+<link rel="stylesheet" href="<?php echo $base_url; ?>/assets/css/style_voucher.css?v=<?php echo time(); ?>">
 
 <div class="container mt-4 mb-5 page-wrapper">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -37,46 +37,59 @@ $result = mysqli_query($koneksi, $query);
         <table class="table-voucher">
             <thead>
                 <tr>
-                    <th>Kode Unik</th>
-                    <th>Untuk Bundle</th>
-                    <th>Kuota</th>
-                    <th>Expired</th>
-                    <th>Status</th>
+                    <th width="25%">Kode Unik</th>
+                    <th width="30%">Untuk Bundle</th>
+                    <th width="15%">Kuota</th>
+                    <th width="15%">Expired</th>
+                    <th width="15%">Status</th>
                 </tr>
             </thead>
             <tbody>
             <?php if(mysqli_num_rows($result) > 0): ?>
                 <?php while ($row = mysqli_fetch_assoc($result)): ?>
                 <tr>
-                    <td class="fw-bold text-primary"><?= $row['kode_voucher'] ?></td>
-                    <td><?= $row['nama_bundle'] ?></td>
+                    <!-- PERUBAHAN DI SINI: Menggunakan class voucher-badge -->
                     <td>
-                        <?= $row['kuota_terpakai'] ?> / <?= $row['kuota_maksimal'] ?>
+                        <span class="voucher-badge">
+                            <?= $row['kode_voucher'] ?>
+                        </span>
                     </td>
+                    
+                    <td class="fw-bold text-secondary"><?= $row['nama_bundle'] ?></td>
+                    
+                    <td>
+                        <span class="fw-bold text-dark"><?= $row['kuota_terpakai'] ?></span> 
+                        <span class="text-muted">/ <?= $row['kuota_maksimal'] ?></span>
+                    </td>
+                    
                     <td>
                         <?php 
                             if($row['expired_at']) {
-                                echo date('d M Y', strtotime($row['expired_at']));
+                                // Warna merah jika sudah lewat
+                                $tgl = strtotime($row['expired_at']);
+                                $color = ($tgl < time()) ? 'text-danger fw-bold' : 'text-muted';
+                                echo "<span class='$color'>" . date('d M Y', $tgl) . "</span>";
                             } else {
                                 echo '<span class="text-muted">Seumur Hidup</span>';
                             }
                         ?>
                     </td>
+                    
                     <td>
                         <?php 
                             if($row['status'] == 'available') {
-                                echo '<span class="badge bg-success">Aktif</span>';
+                                echo '<span class="badge bg-success rounded-pill px-3">Aktif</span>';
                             } elseif($row['status'] == 'expired') {
-                                echo '<span class="badge bg-warning text-dark">Expired</span>';
+                                echo '<span class="badge bg-danger rounded-pill px-3">Expired</span>';
                             } else {
-                                echo '<span class="badge bg-secondary">Habis</span>';
+                                echo '<span class="badge bg-secondary rounded-pill px-3">Habis</span>';
                             }
                         ?>
                     </td>
                 </tr>
                 <?php endwhile; ?>
             <?php else: ?>
-                <tr><td colspan="5" class="text-center py-4 text-muted">Belum ada voucher dibuat.</td></tr>
+                <tr><td colspan="5" class="text-center py-5 text-muted">Belum ada voucher dibuat.</td></tr>
             <?php endif; ?>
             </tbody>
         </table>

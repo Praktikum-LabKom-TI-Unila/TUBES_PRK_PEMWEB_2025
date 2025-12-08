@@ -75,14 +75,16 @@
 .table-voucher th, .table-voucher td {
     padding: 16px;
     text-align: center;
+    vertical-align: middle; /* Pastikan konten di tengah secara vertikal */
 }
 
 .table-voucher tbody tr {
     background: var(--white);
     transition: .3s;
+    border-bottom: 1px solid #f0f0f0;
 }
 .table-voucher tbody tr:hover {
-    background: rgba(237,125,49,0.10);
+    background: #FFF8E1; /* Warna hover kuning lembut */
 }
 
 /* BADGE STATUS */
@@ -274,4 +276,31 @@ input:focus {
     color: var(--secondary);
     font-weight: 600;
     opacity: 0.7;
+}
+
+/* ======================================================
+   === TAMBAHAN BARU: VOUCHER BADGE (AGAR TIDAK TABRAKAN) ===
+   ====================================================== */
+.voucher-badge {
+    display: inline-block;
+    background-color: #FFF3E0; /* Cream/Oren sangat muda (Supaya teks terbaca) */
+    color: var(--primary);     /* Warna Oren Bata (#ED7D31) */
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-weight: 800;
+    font-family: 'Courier New', Courier, monospace; /* Font ala kod tiket */
+    letter-spacing: 1px;
+    border: 2px dashed var(--primary); /* Garis putus-putus (Ciri khas voucher) */
+    min-width: 120px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+/* Efek Hover di Badge */
+.table-voucher tbody tr:hover .voucher-badge {
+    background-color: var(--primary);
+    color: var(--white);
+    border-style: solid;
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(237, 125, 49, 0.3);
 }
