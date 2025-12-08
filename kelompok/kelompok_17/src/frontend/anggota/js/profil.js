@@ -1,53 +1,487 @@
-/* =========================================================
-   SIMORA - PROFIL ANGGOTA
-   Menangani pengambilan dan update data profil
-   ========================================================= */
+/**
+ * SIMORA Profile Page - JavaScript
+ * Features: Load Profile, Edit Profile, Change Password, Attendance Stats
+ */
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // ========================================
+    // CONFIGURATION
+    // ========================================
+    const API_BASE = '../../backend/api';
 
-    /* -----------------------------------------------------
-       Dummy data — nanti diganti API
-    ----------------------------------------------------- */
-    const userData = {
-        name: "Naufal Akbar",
-        email: "naufal@example.com",
-        phone: "081234567890",
-        address: "Jl. Merdeka No. 45, Bandung",
-        joinDate: "12 Januari 2024",
-        status: "Aktif",
-        membership: "Anggota Tetap"
+    // Store current user data
+    let currentUser = null;
+    let currentProfile = null;
+
+    // ========================================
+    // MODAL MANAGEMENT
+    // ========================================
+    const modalManager = {
+        editProfile: {
+            overlay: document.getElementById('modalOverlay'),
+            modal: document.getElementById('editProfileModal'),
+            form: document.getElementById('editProfileForm'),
+            close: document.getElementById('modalClose'),
+            cancel: document.getElementById('modalCancel'),
+            submit: document.querySelector('#editProfileModal button[type="submit"]')
+        },
+        changePassword: {
+            modal: document.getElementById('changePasswordModal'),
+            form: document.getElementById('changePasswordForm'),
+            close: document.getElementById('passwordModalClose'),
+            cancel: document.getElementById('passwordCancel'),
+            submit: document.querySelector('#changePasswordModal button[type="submit"]')
+        }
     };
 
-    /* -----------------------------------------------------
-       Elemen DOM
-    ----------------------------------------------------- */
-    const elName = document.getElementById("profile-name");
-    const elRole = document.getElementById("profile-role");
-    const elEmail = document.getElementById("detail-email");
-    const elPhone = document.getElementById("detail-phone");
-    const elAddress = document.getElementById("detail-address");
-    const elJoin = document.getElementById("detail-join");
-    const elStatus = document.getElementById("detail-status");
-    const elAvatar = document.getElementById("profile-avatar");
+    const openModal = (key) => {
+        const modal = modalManager[key];
+        if (modal.overlay) modal.overlay.classList.add('active');
+        modal.modal.classList.add('active');
+    };
 
-    /* Modal */
-    const modal = document.getElementById("modal-edit");
-    const modalBackdrop = document.getElementById("modal-backdrop");
-    const btnOpenModal = document.getElementById("btn-edit-profil");
-    const btnCloseModal = document.getElementById("close-modal");
-    const btnCancel = document.getElementById("cancel-edit");
-    const btnSave = document.getElementById("save-edit");
+    const closeModal = (key) => {
+        const modal = modalManager[key];
+        if (modal.overlay) modal.overlay.classList.remove('active');
+        modal.modal.classList.remove('active');
+    };
 
-    /* Input Fields */
-    const editName = document.getElementById("edit-name");
-    const editEmail = document.getElementById("edit-email");
-    const editPhone = document.getElementById("edit-phone");
-    const editAddress = document.getElementById("edit-address");
-    const editStatus = document.getElementById("edit-status");
+    // ========================================
+    // 1. AUTHENTICATION CHECK
+    // ========================================
+    const checkAuth = async () => {
+        try {
+            console.log('🔍 Checking authentication...');
+            const response = await fetch(`${API_BASE}/auth.php?action=me`, {
+                method: 'GET',
+                credentials: 'include'
+            });
 
+            const result = await response.json();
 
-    /* -----------------------------------------------------
-       Fungsi untuk load data ke tampilan
+            if (!response.ok || result.status !== 'success') {
+                console.error('❌ Auth failed');
+                window.location.href = '../auth/login.html';
+                return null;
+            }
+
+            console.log('✅ Auth successful');
+            currentUser = result.data;
+            return currentUser;
+        } catch (error) {
+            console.error('❌ Auth Error:', error);
+            window.location.href = '../auth/login.html';
+            return null;
+        }
+    };
+
+    // ========================================
+    // 2. LOAD PROFILE DATA
+    // ========================================
+    const loadProfile = async () => {
+        try {
+            console.log('📥 Loading profile data...');
+            const response = await fetch(`${API_BASE}/profile.php?action=me`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || result.status !== 'success') {
+                console.error('❌ Failed to load profile:', result.message);
+                return null;
+            }
+
+            currentProfile = result.data;
+            console.log('✅ Profile loaded:', currentProfile);
+            return currentProfile;
+        } catch (error) {
+            console.error('❌ Load Profile Error:', error);
+            return null;
+        }
+    };
+
+    // ========================================
+    // 3. DISPLAY PROFILE INFORMATION
+    // ========================================
+    const displayProfile = (user, profile) => {
+        // Update navbar
+        document.getElementById('navUsername').textContent = profile?.full_name || user.username;
+        const initials = (profile?.full_name || user.username)
+            .split(' ')
+            .map(word => word.charAt(0))
+            .join('')
+            .substring(0, 2)
+            .toUpperCase();
+        document.getElementById('userInitials').textContent = initials;
+        document.getElementById('profileInitials').textContent = initials;
+
+        // Profile header
+        document.getElementById('profileFullName').textContent = profile?.full_name || user.username;
+        document.getElementById('profileNPM').textContent = profile?.npm || '-';
+
+        // Status badge
+        const statusMap = {
+            'aktif': 'status-aktif',
+            'sp1': 'status-sp1',
+            'sp2': 'status-sp2',
+            'non-aktif': 'status-inactive'
+        };
+        const statusElement = document.getElementById('profileStatus');
+        if (profile?.activity_status) {
+            const statusKey = profile.activity_status.toLowerCase();
+            statusElement.innerHTML = `<span class="status-badge ${statusMap[statusKey] || 'status-inactive'}">${profile.activity_status}</span>`;
+        }
+
+        // Personal Info
+        document.getElementById('infoFullName').textContent = profile?.full_name || '-';
+        document.getElementById('infoEmail').textContent = user.email || '-';
+        document.getElementById('infoPhone').textContent = profile?.phone_number || '-';
+        document.getElementById('infoAddress').textContent = profile?.address || '-';
+
+        // Academic Info
+        document.getElementById('infoNPM').textContent = profile?.npm || '-';
+        document.getElementById('infoDepartment').textContent = profile?.department || '-';
+        
+        const joinDate = user.created_at ? new Date(user.created_at).toLocaleDateString('id-ID') : '-';
+        document.getElementById('infoJoinDate').textContent = joinDate;
+
+        const activityStatusMap = {
+            'aktif': 'Aktif',
+            'sp1': 'SP 1',
+            'sp2': 'SP 2',
+            'non-aktif': 'Non-Aktif'
+        };
+        const activityStatus = activityStatusMap[profile?.activity_status?.toLowerCase()] || profile?.activity_status || '-';
+        document.getElementById('infoActivityStatus').textContent = activityStatus;
+
+        // Populate edit form
+        document.getElementById('formFullName').value = profile?.full_name || '';
+        document.getElementById('formPhone').value = profile?.phone_number || '';
+        document.getElementById('formAddress').value = profile?.address || '';
+        document.getElementById('formDepartment').value = profile?.department || '';
+    };
+
+    // ========================================
+    // 4. LOAD ATTENDANCE STATISTICS
+    // ========================================
+    const loadAttendanceStats = async () => {
+        try {
+            console.log('📊 Loading attendance statistics...');
+            const response = await fetch(`${API_BASE}/attendance.php?action=statistics`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.status === 'success') {
+                const stats = result.data;
+                const total = stats.total || 0;
+
+                // Animate stat values
+                animateValue('statHadir', 0, stats.hadir || 0, 800);
+                animateValue('statIzin', 0, stats.izin || 0, 800);
+                animateValue('statSakit', 0, stats.sakit || 0, 800);
+                animateValue('statAlpa', 0, stats.alpha || 0, 800);
+
+                // Update progress bar
+                if (total > 0) {
+                    const haidirPercent = (stats.hadir / total) * 100;
+                    const izinPercent = (stats.izin / total) * 100;
+                    const sakitPercent = (stats.sakit / total) * 100;
+                    const alpaPercent = (stats.alpha / total) * 100;
+
+                    document.getElementById('progressHadir').style.width = haidirPercent + '%';
+                    document.getElementById('progressIzin').style.width = izinPercent + '%';
+                    document.getElementById('progressSakit').style.width = sakitPercent + '%';
+                    document.getElementById('progressAlpa').style.width = alpaPercent + '%';
+                }
+
+                console.log('✅ Attendance stats loaded');
+            }
+        } catch (error) {
+            console.error('❌ Error loading attendance stats:', error);
+        }
+    };
+
+    const animateValue = (elementId, start, end, duration) => {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+
+        const range = end - start;
+        const startTime = performance.now();
+
+        const updateValue = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+            const current = Math.floor(start + range * easeOutQuart);
+
+            element.textContent = current.toString();
+
+            if (progress < 1) {
+                requestAnimationFrame(updateValue);
+            }
+        };
+
+        requestAnimationFrame(updateValue);
+    };
+
+    // ========================================
+    // 5. EDIT PROFILE HANDLER
+    // ========================================
+    const initEditProfileHandler = () => {
+        const btnEdit = document.getElementById('btnEditProfile');
+
+        btnEdit?.addEventListener('click', () => {
+            openModal('editProfile');
+        });
+
+        // Close modal
+        modalManager.editProfile.close?.addEventListener('click', () => closeModal('editProfile'));
+        modalManager.editProfile.cancel?.addEventListener('click', () => closeModal('editProfile'));
+        modalManager.editProfile.overlay?.addEventListener('click', (e) => {
+            if (e.target === modalManager.editProfile.overlay) closeModal('editProfile');
+        });
+
+        // Submit form
+        modalManager.editProfile.form?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const fullName = document.getElementById('formFullName').value.trim();
+            const phone = document.getElementById('formPhone').value.trim();
+            const address = document.getElementById('formAddress').value.trim();
+            const department = document.getElementById('formDepartment').value.trim();
+
+            // Validation
+            if (!fullName) {
+                showMessage('formMessage', 'Nama lengkap tidak boleh kosong', 'error');
+                return;
+            }
+
+            try {
+                const submitBtn = modalManager.editProfile.submit;
+                const originalText = submitBtn?.textContent;
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Menyimpan...';
+                }
+
+                const response = await fetch(`${API_BASE}/profile.php?action=update`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        full_name: fullName,
+                        phone_number: phone || null,
+                        address: address || null,
+                        department: department || null
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.status === 'success') {
+                    showMessage('formMessage', 'Profil berhasil diperbarui', 'success');
+                    
+                    // Reload profile data
+                    setTimeout(async () => {
+                        await loadProfile();
+                        displayProfile(currentUser, currentProfile);
+                        closeModal('editProfile');
+                    }, 1500);
+                } else {
+                    showMessage('formMessage', result.message || 'Gagal memperbarui profil', 'error');
+                }
+
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+            } catch (error) {
+                console.error('❌ Edit Profile Error:', error);
+                showMessage('formMessage', 'Terjadi kesalahan: ' + error.message, 'error');
+                const submitBtn = modalManager.editProfile.submit;
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Simpan Perubahan';
+                }
+            }
+        });
+    };
+
+    // ========================================
+    // 6. CHANGE PASSWORD HANDLER
+    // ========================================
+    const initChangePasswordHandler = () => {
+        const btnChange = document.getElementById('btnChangePassword');
+
+        btnChange?.addEventListener('click', () => {
+            openModal('changePassword');
+        });
+
+        // Close modal
+        modalManager.changePassword.close?.addEventListener('click', () => closeModal('changePassword'));
+        modalManager.changePassword.cancel?.addEventListener('click', () => closeModal('changePassword'));
+
+        // Submit form
+        modalManager.changePassword.form?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const oldPassword = document.getElementById('formOldPassword').value;
+            const newPassword = document.getElementById('formNewPassword').value;
+            const confirmPassword = document.getElementById('formConfirmPassword').value;
+
+            // Validation
+            if (!oldPassword || !newPassword || !confirmPassword) {
+                showMessage('passwordMessage', 'Semua field harus diisi', 'error');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                showMessage('passwordMessage', 'Password baru minimal 6 karakter', 'error');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                showMessage('passwordMessage', 'Konfirmasi password tidak cocok', 'error');
+                return;
+            }
+
+            try {
+                const submitBtn = modalManager.changePassword.submit;
+                const originalText = submitBtn?.textContent;
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Mengubah...';
+                }
+
+                const response = await fetch(`${API_BASE}/auth.php?action=change-password`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        old_password: oldPassword,
+                        new_password: newPassword
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.status === 'success') {
+                    showMessage('passwordMessage', 'Password berhasil diubah', 'success');
+                    
+                    setTimeout(() => {
+                        document.getElementById('changePasswordForm').reset();
+                        closeModal('changePassword');
+                    }, 1500);
+                } else {
+                    showMessage('passwordMessage', result.message || 'Gagal mengubah password', 'error');
+                }
+
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+            } catch (error) {
+                console.error('❌ Change Password Error:', error);
+                showMessage('passwordMessage', 'Terjadi kesalahan: ' + error.message, 'error');
+                const submitBtn = modalManager.changePassword.submit;
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Ubah Password';
+                }
+            }
+        });
+    };
+
+    // ========================================
+    // 7. MESSAGE HELPER
+    // ========================================
+    const showMessage = (elementId, message, type) => {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+
+        element.className = `alert alert-${type}`;
+        element.textContent = message;
+        element.style.display = 'block';
+
+        // Auto hide after 5 seconds
+        setTimeout(() => {
+            element.style.display = 'none';
+        }, 5000);
+    };
+
+    // ========================================
+    // 8. LOGOUT HANDLER
+    // ========================================
+    const initLogout = () => {
+        const btnLogout = document.getElementById('btnLogout');
+
+        btnLogout?.addEventListener('click', async () => {
+            if (!confirm('Yakin ingin keluar?')) return;
+
+            try {
+                btnLogout.textContent = 'Loading...';
+                btnLogout.disabled = true;
+
+                await fetch(`${API_BASE}/auth.php?action=logout`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+
+                window.location.href = '../auth/login.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+                window.location.href = '../auth/login.html';
+            }
+        });
+    };
+
+    // ========================================
+    // 9. MOBILE NAVIGATION
+    // ========================================
+    const initMobileNav = () => {
+        const toggle = document.getElementById('navToggle');
+        const menu = document.getElementById('navMenu');
+
+        toggle?.addEventListener('click', () => {
+            menu?.classList.toggle('active');
+            toggle.classList.toggle('active');
+        });
+
+        menu?.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                menu.classList.remove('active');
+                toggle?.classList.remove('active');
+            });
+        });
+    };
+
+    // ========================================
+    // INITIALIZE ALL
+    // ========================================
+    try {
+        const user = await checkAuth();
+        if (!user) return;
+
+        const profile = await loadProfile();
+        if (profile) {
+            displayProfile(user, profile);
+            await loadAttendanceStats();
+        }
+
+        initEditProfileHandler();
+        initChangePasswordHandler();
+        initLogout();
+        initMobileNav();
+
+        console.log('✅ Profile page initialized successfully');
+    } catch (error) {
+        console.error('❌ Initialization Error:', error);
+    }
     ----------------------------------------------------- */
     function loadProfile() {
         elName.textContent = userData.name;
@@ -63,54 +497,6 @@ document.addEventListener("DOMContentLoaded", () => {
         elAvatar.textContent = getInitials(userData.name);
     }
 
-    function getInitials(name) {
-        return name.split(" ").map(n => n[0]).join("").toUpperCase();
+        console.error('❌ Initialization Error:', error);
     }
-
-    loadProfile();
-
-
-    /* -----------------------------------------------------
-       MODAL: buka & tutup
-    ----------------------------------------------------- */
-    function openModal() {
-        modal.classList.add("show");
-        modalBackdrop.classList.add("show");
-
-        // Pre-fill form
-        editName.value = userData.name;
-        editEmail.value = userData.email;
-        editPhone.value = userData.phone;
-        editAddress.value = userData.address;
-        editStatus.value = userData.status;
-    }
-
-    function closeModal() {
-        modal.classList.remove("show");
-        modalBackdrop.classList.remove("show");
-    }
-
-    btnOpenModal.addEventListener("click", openModal);
-    btnCloseModal.addEventListener("click", closeModal);
-    btnCancel.addEventListener("click", closeModal);
-
-    modalBackdrop.addEventListener("click", closeModal);
-
-
-    /* -----------------------------------------------------
-       SIMPAN PERUBAHAN
-    ----------------------------------------------------- */
-    btnSave.addEventListener("click", () => {
-
-        userData.name = editName.value;
-        userData.email = editEmail.value;
-        userData.phone = editPhone.value;
-        userData.address = editAddress.value;
-        userData.status = editStatus.value;
-
-        loadProfile();   // Refresh UI
-        closeModal();    // Tutup modal
-
-    });
-
 });
