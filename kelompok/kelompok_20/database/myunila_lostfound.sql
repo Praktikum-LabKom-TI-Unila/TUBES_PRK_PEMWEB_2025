@@ -1,10 +1,14 @@
+DROP DATABASE IF EXISTS myunila_lostfound;
+CREATE DATABASE myunila_lostfound;
+USE myunila_lostfound;
+
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     identity_number VARCHAR(20) NOT NULL UNIQUE,
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    phone VARCHAR(20) NOT NULL,
+    phone VARCHAR(20) DEFAULT NULL,
     role ENUM('admin', 'user') DEFAULT 'user',
     avatar VARCHAR(255) DEFAULT 'default.jpg',
     is_active TINYINT(1) DEFAULT 1,
@@ -107,7 +111,6 @@ INSERT INTO categories (id, name) VALUES
 (8, 'Kendaraan'),
 (9, 'Lainnya');
 
-
 INSERT INTO locations (id, name) VALUES
 (1, 'Gedung Rektorat'),
 (2, 'Gedung Serba Guna (GSG)'),
@@ -121,7 +124,7 @@ INSERT INTO locations (id, name) VALUES
 (10, 'Gedung F - FKIP'),
 (11, 'Gedung G - Fakultas Pertanian'),
 (12, 'Gedung H - Fakultas Kedokteran'),
-(13, 'Masjid Al-Wasi''i'),
+(13, "Masjid Al-Wasi'i"),
 (14, 'Lapangan Olahraga'),
 (15, 'Parkiran Motor Pusat'),
 (16, 'Parkiran Mobil Pusat'),
@@ -129,3 +132,9 @@ INSERT INTO locations (id, name) VALUES
 (18, 'Poliklinik Unila'),
 (19, 'Asrama Mahasiswa'),
 (20, 'Lainnya');
+
+-- Akun Administrator Default
+-- Password: password123 (hash bcrypt standar)
+-- Identity Number menggunakan format umum 'ADMIN001'
+INSERT INTO users (id, name, identity_number, email, password, phone, role, is_active) VALUES
+(1, 'Administrator', 'ADMIN001', 'admin@unila.ac.id', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '081234567890', 'admin', 1);
