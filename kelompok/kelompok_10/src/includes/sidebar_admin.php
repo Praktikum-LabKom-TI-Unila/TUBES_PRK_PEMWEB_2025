@@ -53,16 +53,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </span>
             <span>Kelola Paket</span>
         </a>
-        <a href="transactions.php" class="nav-item <?php echo $current_page === 'transactions.php' ? 'active' : ''; ?>">
-            <span class="icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-                    <line x1="1" y1="10" x2="23" y2="10"></line>
-                </svg>
-            </span>
-            <span>Transaksi</span>
-        </a>
-        <a href="reports.php" class="nav-item <?php echo $current_page === 'reports.php' ? 'active' : ''; ?>">
+        <a href="laporan.php" class="nav-item <?php echo $current_page === 'laporan.php' ? 'active' : ''; ?>">
             <span class="icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="20" x2="18" y2="10"></line>
