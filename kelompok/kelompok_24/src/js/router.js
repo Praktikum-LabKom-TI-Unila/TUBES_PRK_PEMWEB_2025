@@ -35,6 +35,19 @@ const routes = {
     }
 };
 
+async function loadScript(src) {
+    return new Promise((resolve, reject) => {
+        const old = document.querySelector(`script[src="${src}"]`);
+        if (old) old.remove(); // buang script lama biar tidak double-execute
+
+        const script = document.createElement("script");
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.body.appendChild(script);
+    });
+}
+
 /**
  * Fungsi Utama: Load konten berdasarkan Hash URL
  */
@@ -89,6 +102,11 @@ async function loadContent() {
         
         // 7. Inject HTML ke Dashboard
         contentDiv.innerHTML = html;
+
+        // Load controller khusus users
+        if (hash === "users") {
+            await loadScript("js/controllers/users.js");
+        }
 
         // 8. Jalankan Script Init Khusus (jika ada)
         // Contoh: Load data tabel inventory setelah HTML masuk
