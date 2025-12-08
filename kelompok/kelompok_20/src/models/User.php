@@ -13,19 +13,19 @@ final class User
 
     public function register(array $data): bool
     {
-        $sql = "INSERT INTO users (name, npm, email, password, phone, role, is_active, created_at) 
-                VALUES (:name, :npm, :email, :password, :phone, :role, :is_active, NOW())";
+        $sql = "INSERT INTO users (name, identity_number, email, password, phone, role, is_active, created_at) 
+                VALUES (:name, :identity_number, :email, :password, :phone, :role, :is_active, NOW())";
 
         $stmt = $this->db->prepare($sql);
 
         return $stmt->execute([
-            ':name'      => $data['name'],
-            ':npm'       => $data['npm'],
-            ':email'     => $data['email'],
-            ':password'  => $data['password'],
-            ':phone'     => $data['phone'] ?? null,
-            ':role'      => $data['role'] ?? 'user',
-            ':is_active' => $data['is_active'] ?? 1
+            ':name'            => $data['name'],
+            ':identity_number' => $data['identity_number'],
+            ':email'           => $data['email'],
+            ':password'        => $data['password'],
+            ':phone'           => $data['phone'] ?? null,
+            ':role'            => $data['role'] ?? 'user',
+            ':is_active'       => $data['is_active'] ?? 1
         ]);
     }
 
@@ -38,11 +38,11 @@ final class User
         return $stmt->fetch();
     }
 
-    public function findByNpm(string $npm): array|false
+    public function findByIdentityNumber(string $identityNumber): array|false
     {
-        $sql = "SELECT * FROM users WHERE npm = :npm LIMIT 1";
+        $sql = "SELECT * FROM users WHERE identity_number = :identity_number LIMIT 1";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':npm' => $npm]);
+        $stmt->execute([':identity_number' => $identityNumber]);
 
         return $stmt->fetch();
     }
@@ -69,8 +69,8 @@ final class User
         return $this->findByEmail($email) !== false;
     }
 
-    public function npmExists(string $npm): bool
+    public function identityNumberExists(string $identityNumber): bool
     {
-        return $this->findByNpm($npm) !== false;
+        return $this->findByIdentityNumber($identityNumber) !== false;
     }
 }

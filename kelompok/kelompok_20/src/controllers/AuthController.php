@@ -15,14 +15,14 @@ final class AuthController
 
     public function register(): void
     {
-        $name     = clean($_POST['name'] ?? '');
-        $npm      = clean($_POST['npm'] ?? '');
-        $email    = clean($_POST['email'] ?? '');
-        $phone    = clean($_POST['phone'] ?? '');
-        $password = $_POST['password'] ?? '';
-        $confirm  = $_POST['password_confirmation'] ?? '';
+        $name           = clean($_POST['name'] ?? '');
+        $identityNumber = clean($_POST['identity_number'] ?? '');
+        $email          = clean($_POST['email'] ?? '');
+        $phone          = clean($_POST['phone'] ?? '');
+        $password       = $_POST['password'] ?? '';
+        $confirm        = $_POST['password_confirmation'] ?? '';
 
-        $errors = $this->validateRegistration($name, $npm, $email, $password, $confirm);
+        $errors = $this->validateRegistration($name, $identityNumber, $email, $password, $confirm);
 
         if (!empty($errors)) {
             flash('message', implode('<br>', $errors), 'error');
@@ -36,8 +36,8 @@ final class AuthController
             return;
         }
 
-        if ($this->userModel->npmExists($npm)) {
-            flash('message', 'NPM sudah terdaftar. Silakan gunakan NPM lain.', 'error');
+        if ($this->userModel->identityNumberExists($identityNumber)) {
+            flash('message', 'Nomor Identitas sudah terdaftar. Silakan gunakan nomor identitas lain.', 'error');
             redirect('index.php?page=auth&action=register');
             return;
         }
@@ -45,13 +45,13 @@ final class AuthController
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
         $userData = [
-            'name'     => $name,
-            'npm'      => $npm,
-            'email'    => $email,
-            'password' => $hashedPassword,
-            'phone'    => $phone ?: null,
-            'role'     => 'user',
-            'is_active'=> 1
+            'name'            => $name,
+            'identity_number' => $identityNumber,
+            'email'           => $email,
+            'password'        => $hashedPassword,
+            'phone'           => $phone ?: null,
+            'role'            => 'user',
+            'is_active'       => 1
         ];
 
         $registered = $this->userModel->register($userData);
@@ -145,18 +145,18 @@ final class AuthController
 
         $_SESSION['user_id'] = (int)$user['id'];
         $_SESSION['user'] = [
-            'id'     => (int)$user['id'],
-            'name'   => $user['name'],
-            'email'  => $user['email'],
-            'npm'    => $user['npm'],
-            'role'   => $user['role'],
-            'avatar' => $user['avatar'] ?? null
+            'id'              => (int)$user['id'],
+            'name'            => $user['name'],
+            'email'           => $user['email'],
+            'identity_number' => $user['identity_number'],
+            'role'            => $user['role'],
+            'avatar'          => $user['avatar'] ?? null
         ];
     }
 
     private function validateRegistration(
         string $name,
-        string $npm,
+        string $identityNumber,
         string $email,
         string $password,
         string $confirm
@@ -169,12 +169,12 @@ final class AuthController
             $errors[] = 'Nama lengkap minimal 3 karakter.';
         }
 
-        if (empty($npm)) {
-            $errors[] = 'NPM wajib diisi.';
-        } elseif (!ctype_digit($npm)) {
-            $errors[] = 'NPM harus berupa angka.';
-        } elseif (strlen($npm) < 10) {
-            $errors[] = 'NPM minimal 10 digit.';
+        if (empty($identityNumber)) {
+            $errors[] = 'Nomor Identitas (NPM/NIP/NIK) wajib diisi.';
+        } elseif (!ctype_digit($identityNumber)) {
+            $errors[] = 'Nomor Identitas harus berupa angka.';
+        } elseif (strlen($identityNumber) < 8 || strlen($identityNumber) > 20) {
+            $errors[] = 'Nomor Identitas harus antara 8-20 digit.';
         }
 
         if (empty($email)) {
