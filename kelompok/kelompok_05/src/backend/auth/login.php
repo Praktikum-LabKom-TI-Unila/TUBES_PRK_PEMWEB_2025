@@ -27,6 +27,7 @@ if (isset($_POST['login'])) {
             $_SESSION['user_id'] = $row['id'];
             $_SESSION['nama'] = $row['nama'];
             $_SESSION['role'] = $row['role'];
+            $_SESSION['profile_photo'] = $row['profile_photo'] ?? 'default.jpg'; // Simpan foto profil ke session
 
             if ($row['role'] == 'admin') {
                 header("Location: ../dashboard_admin.php");

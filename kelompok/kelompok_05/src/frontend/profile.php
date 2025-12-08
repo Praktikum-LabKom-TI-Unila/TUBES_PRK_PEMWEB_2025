@@ -130,6 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['success_message'] = "Profil berhasil diperbarui!";
             // Update data user di session
             $_SESSION['nama'] = $nama;
+            $_SESSION['profile_photo'] = $profile_photo; // Update foto di session
             $user['nama'] = $nama;
             $user['profile_photo'] = $profile_photo;
         } else {
