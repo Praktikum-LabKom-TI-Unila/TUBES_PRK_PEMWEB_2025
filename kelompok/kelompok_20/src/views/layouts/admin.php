@@ -48,7 +48,7 @@
       >
         <div class="p-6 flex items-center border-b border-gray-700">
           <img
-            src="../../assets/images/iconlost&found.png"
+            src="iconlost&found.jpg"
             alt="Logo myUnila"
             class="w-10 h-10 rounded-full object-cover border-2 border-cyan-500 mr-3"
           />
@@ -63,16 +63,18 @@
 
         <nav class="mt-6 flex-1 px-2 space-y-2">
           <a
-            href="dashboard.php"
+            href="#"
+            onclick="showSection('dashboard')"
             id="nav-dashboard"
-            class="group flex items-center px-4 py-3 text-sm font-medium rounded-r-md hover:bg-gray-800 hover:text-cyan-400 transition"
+            class="active-nav group flex items-center px-4 py-3 text-sm font-medium rounded-r-md hover:bg-gray-800 hover:text-cyan-400 transition"
           >
             <i class="fa-solid fa-gauge mr-3 text-lg"></i>
             Dashboard
           </a>
 
           <a
-            href="items.php"
+            href="#"
+            onclick="showSection('items')"
             id="nav-items"
             class="group flex items-center px-4 py-3 text-sm font-medium rounded-r-md hover:bg-gray-800 hover:text-cyan-400 transition"
           >
@@ -81,12 +83,23 @@
           </a>
 
           <a
-            href="users.php"
+            href="#"
+            onclick="showSection('users')"
             id="nav-users"
-            class="active-nav group flex items-center px-4 py-3 text-sm font-medium rounded-r-md hover:bg-gray-800 hover:text-cyan-400 transition"
+            class="group flex items-center px-4 py-3 text-sm font-medium rounded-r-md hover:bg-gray-800 hover:text-cyan-400 transition"
           >
             <i class="fa-solid fa-users mr-3 text-lg"></i>
             Data User
+          </a>
+
+          <a
+            href="#"
+            onclick="showSection('master')"
+            id="nav-master"
+            class="group flex items-center px-4 py-3 text-sm font-medium rounded-r-md hover:bg-gray-800 hover:text-cyan-400 transition"
+          >
+            <i class="fa-solid fa-database mr-3 text-lg"></i>
+            Master Data
           </a>
         </nav>
 
@@ -139,94 +152,11 @@
         </header>
 
         <main class="flex-1 overflow-x-hidden overflow-y-auto bg-slate-50 p-6">
-         
-
-
-          <div id="section-users" class=" space-y-6">
-            <div
-              class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-100"
-            >
-              <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
-                <h3 class="text-lg font-bold text-slate-800">
-                  Manajemen Pengguna
-                </h3>
-              </div>
-              <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                  <thead class="bg-slate-50">
-                    <tr>
-                      <th
-                        class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-                      >
-                        User Profile
-                      </th>
-                      <th
-                        class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-                      >
-                        Kontak
-                      </th>
-                      <th
-                        class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-                      >
-                        Status
-                      </th>
-                      <th
-                        class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider"
-                      >
-                        Aksi
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody class="bg-white divide-y divide-gray-200">
-                    <tr class="hover:bg-slate-50 transition">
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                          <div
-                            class="h-9 w-9 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-bold text-xs shadow-sm"
-                          >
-                            BS
-                          </div>
-                          <div class="ml-3">
-                            <div class="text-sm font-semibold text-slate-900">
-                              Budi Santoso
-                            </div>
-                            <div class="text-xs text-gray-500">
-                              NPM: 2115061001
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td
-                        class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"
-                      >
-                        budi@students.unila.ac.id
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <span
-                          id="status-badge-1"
-                          class="px-2.5 py-1 text-xs font-bold rounded-full bg-green-100 text-green-700"
-                        >
-                          Active
-                        </span>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-right">
-                        <button
-                          onclick="toggleBan(this, 'status-badge-1')"
-                          class="text-amber-600 hover:text-white hover:bg-amber-500 border border-amber-200 px-3 py-1.5 rounded-md transition text-xs font-medium shadow-sm w-24"
-                        >
-                          <i class="fa-solid fa-ban mr-1"></i> Ban User
-                        </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+            <?php echo $content; ?>
         </main>
       </div>
     </div>
 
-    <script src="../../assets/js/main.js"></script>
+    <script src="/assets/js/main.js"></script>
   </body>
 </html>
