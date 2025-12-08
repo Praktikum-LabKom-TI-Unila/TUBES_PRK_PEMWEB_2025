@@ -149,6 +149,15 @@ final class ItemController
             return;
         }
 
+        // Determine ownership and login status
+        $isLoggedIn = isLoggedIn();
+        $isOwner = $isLoggedIn && (int) $_SESSION['user']['id'] === (int) $item['user_id'];
+
+        // Fetch comments for this item
+        require_once __DIR__ . '/../models/Comment.php';
+        $commentModel = new Comment();
+        $comments = $commentModel->getByItemId($id);
+
         $pageTitle = $item['title'] . ' - myUnila Lost & Found';
 
         require_once __DIR__ . '/../views/items/show.php';
