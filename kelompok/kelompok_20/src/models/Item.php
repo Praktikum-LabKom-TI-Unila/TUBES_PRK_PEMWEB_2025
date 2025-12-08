@@ -25,6 +25,8 @@ final class Item
 
         $stmt = $this->db->prepare($sql);
 
+        // UPDATE: Default status diubah dari 'open' menjadi 'pending'
+        // agar postingan baru masuk moderasi dulu.
         $result = $stmt->execute([
             'user_id'           => $data['user_id'],
             'category_id'       => $data['category_id'],
@@ -34,7 +36,7 @@ final class Item
             'type'              => $data['type'],
             'incident_date'     => $data['incident_date'],
             'image_path'        => $data['image_path'] ?? null,
-            'status'            => $data['status'] ?? 'open',
+            'status'            => $data['status'] ?? 'pending', 
             'is_safe_claim'     => $data['is_safe_claim'] ?? 0,
             'security_question' => $data['security_question'] ?? null,
             'security_answer'   => $data['security_answer'] ?? null
@@ -91,7 +93,6 @@ final class Item
 
         return $stmt->execute(['id' => $id, 'status' => $status]);
     }
-
     
     private function buildFilterConditions(array $filters): array
     {
@@ -180,7 +181,6 @@ final class Item
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    
     public function countAllFiltered(array $filters = []): int
     {
         $sql = "SELECT COUNT(*) 
@@ -295,10 +295,8 @@ final class Item
         return $this->getAll(['limit' => $limit]);
     }
 
-    
     public function findMatches(array $targetItem, int $limit = 5): array
     {
-
         $oppositeType = ($targetItem['type'] === 'lost') ? 'found' : 'lost';
 
         $sql = "SELECT 
@@ -344,10 +342,8 @@ final class Item
         return $item && (int) $item['user_id'] === $userId;
     }
 
-    
     public function getStats(): array
     {
-
         $sql = "SELECT 
                     COUNT(*) as total_items,
                     SUM(CASE WHEN type = 'lost' THEN 1 ELSE 0 END) as total_lost,
@@ -366,5 +362,23 @@ final class Item
             'total_open' => 0,
             'total_closed' => 0
         ];
+    }
+
+    public function getPendingItems(): array
+    {
+        $sql = "SELECT 
+                    i.*,
+                    u.name AS user_name,
+                    c.name AS category_name,
+                    l.name AS location_name
+                FROM items i
+                JOIN users u ON i.user_id = u.id
+                JOIN categories c ON i.category_id = c.id
+                JOIN locations l ON i.location_id = l.id
+                WHERE i.status = 'pending' AND i.deleted_at IS NULL
+                ORDER BY i.created_at DESC";
+
+        $stmt = $this->db->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
