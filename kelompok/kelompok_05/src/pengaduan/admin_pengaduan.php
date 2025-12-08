@@ -788,7 +788,82 @@ function get_status_badge($status) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-    // Fungsi-fingsi nantinya disini
+        // Character counter untuk tanggapan
+        document.querySelectorAll('.response-textarea').forEach(textarea => {
+            textarea.addEventListener('input', function() {
+                const count = this.value.length;
+                this.parentElement.querySelector('.char-count-num').textContent = count;
+            });
+        });
+        
+        // Update status via AJAX
+        function updateStatus(pengaduanId) {
+            const dropdown = document.querySelector(`.status-dropdown[data-id="${pengaduanId}"]`);
+            const newStatus = dropdown.value;
+            
+            if (!newStatus) {
+                alert('Pilih status terlebih dahulu');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('action', 'update_status');
+            formData.append('pengaduan_id', pengaduanId);
+            formData.append('status', newStatus);
+            
+            fetch('admin_pengaduan.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Status berhasil diperbarui!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat mengubah status');
+            });
+        }
+        
+        // Add response via AJAX
+        function addResponse(pengaduanId) {
+            const textarea = document.getElementById(`response-${pengaduanId}`);
+            const tanggapan = textarea.value.trim();
+            
+            if (tanggapan.length < 10) {
+                alert('Tanggapan minimal 10 karakter');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('action', 'add_response');
+            formData.append('pengaduan_id', pengaduanId);
+            formData.append('tanggapan', tanggapan);
+            
+            fetch('admin_pengaduan.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Tanggapan berhasil ditambahkan!');
+                    textarea.value = '';
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat menambahkan tanggapan');
+            });
+        }
     </script>
 </body>
 </html>
