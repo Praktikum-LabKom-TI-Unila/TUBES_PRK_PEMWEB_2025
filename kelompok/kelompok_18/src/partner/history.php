@@ -109,22 +109,24 @@ $result = mysqli_query($koneksi, $query);
         <p class="text-muted">Arsip kolaborasi yang telah selesai atau dibatalkan.</p>
     </div>
 
-    <div class="nav-pills-custom">
-        <a href="index.php" class="nav-link-custom">
+    <div class="menu-nav">
+        <a href="index.php" class="btn-menu">
             <i class="fa fa-store"></i> Jelajahi Mitra
         </a>
-        <a href="request.php" class="nav-link-custom">
+        <a href="request.php" class="btn-menu">
             <i class="fa fa-envelope"></i> Inbox Request
             <?php 
-                // Cek notifikasi pending
-                $cek_notif = mysqli_query($koneksi, "SELECT id FROM bundles WHERE mitra_id='$my_id' AND status='pending'");
-                if(mysqli_num_rows($cek_notif) > 0) echo '<span class="badge bg-danger rounded-circle p-1" style="width:10px; height:10px; display:inline-block;"></span>';
+            $cek = mysqli_query($koneksi, "SELECT id FROM bundles WHERE mitra_id='$my_id' AND status='pending'");
+            if(mysqli_num_rows($cek) > 0) echo "<span class='badge bg-danger rounded-pill ms-1'>".mysqli_num_rows($cek)."</span>";
             ?>
         </a>
-        <a href="my_bundles.php" class="nav-link-custom">
+        <a href="my_bundles.php" class="btn-menu ">
             <i class="fa fa-handshake"></i> Kolaborasi Aktif
         </a>
-        <a href="history.php" class="nav-link-custom active">
+        <a href="agreements.php" class="btn-menu">
+            <i class="fa fa-handshake"></i> Produk Deal
+        </a>
+        <a href="history.php" class="btn-menu active">
             <i class="fa fa-history"></i> Riwayat
         </a>
     </div>

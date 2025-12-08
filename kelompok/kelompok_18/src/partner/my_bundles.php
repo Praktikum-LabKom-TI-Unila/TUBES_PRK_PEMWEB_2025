@@ -67,6 +67,9 @@ if (!$result) {
         <a href="my_bundles.php" class="btn-menu active">
             <i class="fa fa-handshake"></i> Kolaborasi Aktif
         </a>
+        <a href="agreements.php" class="btn-menu">
+            <i class="fa fa-handshake"></i> Produk Deal
+        </a>
         <a href="history.php" class="btn-menu">
             <i class="fa fa-history"></i> Riwayat
         </a>
@@ -121,6 +124,11 @@ if (!$result) {
                             <a href="chat_room.php?bundle_id=<?= $row['id'] ?>" class="btn btn-cari rounded-pill">
                                 <i class="fa fa-comments me-2"></i> Buka Ruang Diskusi
                             </a>
+                            <div class="d-grid gap-2">
+                              <a href="manage_deal.php?bundle_id=<?= $row['id'] ?>" class="btn btn-cari rounded-pill btn-sm">
+                            <i class="fa-solid fa-file-contract"></i> Atur Kolaborasi
+                        </a>
+                        </div>
                             <a href="detail.php?bundle_id=<?= $row['id'] ?>" class="btn btn-outline-secondary rounded-pill">
                                 <i class="fa fa-info-circle me-2"></i> Detail Kolaborasi
                             </a>

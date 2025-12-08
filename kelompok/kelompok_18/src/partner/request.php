@@ -33,6 +33,7 @@ $res_out = mysqli_query($koneksi, $query_out);
         <a href="index.php" class="btn-menu">Jelajahi Mitra</a>
         <a href="request.php" class="btn-menu active">Inbox Request</a>
         <a href="my_bundles.php" class="btn-menu">Kolaborasi Aktif</a>
+        <a href="agreements.php" class="btn-menu">Produk Deal</a>
         <a href="history.php" class="btn-menu">
             <i class="fa fa-history"></i> Riwayat
         </a>

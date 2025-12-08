@@ -58,11 +58,14 @@ $result = mysqli_query($koneksi, $query);
             <i class="fa fa-envelope"></i> Inbox Request
             <?php 
             $cek = mysqli_query($koneksi, "SELECT id FROM bundles WHERE mitra_id='$my_id' AND status='pending'");
-            if(mysqli_num_rows($cek) > 0) echo "<span class='badge bg-danger rounded-pill'>!</span>";
+            if(mysqli_num_rows($cek) > 0) echo "<span class='badge bg-danger rounded-pill ms-1'>".mysqli_num_rows($cek)."</span>";
             ?>
         </a>
         <a href="my_bundles.php" class="btn-menu">
             <i class="fa fa-handshake"></i> Kolaborasi Aktif
+        </a>
+        <a href="agreements.php" class="btn-menu">
+            <i class="fa fa-handshake"></i> Produk Deal
         </a>
         <a href="history.php" class="btn-menu">
             <i class="fa fa-history"></i> Riwayat
