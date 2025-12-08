@@ -27,8 +27,91 @@ try {
             break;
             
         case 'items':
-            $pageTitle = 'Daftar Barang - myUnila Lost & Found';
-            require_once __DIR__ . '/views/items/index.php';
+            require_once __DIR__ . '/controllers/ItemController.php';
+            $controller = new ItemController();
+
+            if ($isPostRequest) {
+                match ($action) {
+                    'store'  => $controller->store(),
+                    'update' => $controller->update(),
+                    'delete' => $controller->delete(),
+                    default  => redirect('index.php?page=items')
+                };
+            } else {
+                match ($action) {
+                    'index', ''  => $controller->index(),
+                    'show'       => $controller->show(),
+                    'create'     => $controller->create(),
+                    'edit'       => $controller->edit(),
+                    'delete'     => $controller->delete(),
+                    'my'         => $controller->myItems(),
+                    'matches'    => $controller->matches(),
+                    default      => $controller->index()
+                };
+            }
+            break;
+
+        case 'comments':
+            require_once __DIR__ . '/controllers/CommentController.php';
+            $controller = new CommentController();
+
+            if ($isPostRequest) {
+                match ($action) {
+                    'store'  => $controller->store(),
+                    'delete' => $controller->delete(),
+                    default  => redirect('index.php?page=items')
+                };
+            } else {
+                match ($action) {
+                    'delete' => $controller->delete(),
+                    default  => redirect('index.php?page=items')
+                };
+            }
+            break;
+
+        case 'claims':
+            require_once __DIR__ . '/controllers/ClaimController.php';
+            $controller = new ClaimController();
+
+            if ($isPostRequest) {
+                match ($action) {
+                    'store'  => $controller->store(),
+                    'verify' => $controller->verify(),
+                    'reject' => $controller->reject(),
+                    'cancel' => $controller->cancel(),
+                    default  => redirect('index.php?page=items')
+                };
+            } else {
+                match ($action) {
+                    'my'     => $controller->myClaims(),
+                    'verify' => $controller->verify(),
+                    'reject' => $controller->reject(),
+                    'cancel' => $controller->cancel(),
+                    default  => redirect('index.php?page=items')
+                };
+            }
+            break;
+
+        case 'notifications':
+            require_once __DIR__ . '/controllers/NotificationController.php';
+            $controller = new NotificationController();
+
+            if ($isPostRequest) {
+                match ($action) {
+                    'mark-read'     => $controller->markRead(),
+                    'mark-all-read' => $controller->markAllRead(),
+                    default         => redirect('index.php?page=notifications')
+                };
+            } else {
+                match ($action) {
+                    'index', ''     => $controller->index(),
+                    'mark-read'     => $controller->markRead(),
+                    'mark-all-read' => $controller->markAllRead(),
+                    'unread'        => $controller->getUnread(),
+                    'count'         => $controller->getUnreadCount(),
+                    default         => $controller->index()
+                };
+            }
             break;
             
         case 'auth':
@@ -79,8 +162,24 @@ try {
                 flash('message', 'Akses ditolak. Hanya admin yang dapat mengakses halaman ini.', 'error');
                 redirect('index.php?page=home');
             }
-            $pageTitle = 'Dashboard Admin - myUnila Lost & Found';
-            require_once __DIR__ . '/views/admin/dashboard.php';
+
+            require_once __DIR__ . '/controllers/AdminController.php';
+            $adminController = new AdminController();
+
+            if ($isPostRequest) {
+                match ($action) {
+                    'delete_user' => $adminController->deleteUser(),
+                    'delete_item' => $adminController->deleteItem(),
+                    default       => redirect('index.php?page=admin')
+                };
+            } else {
+                match ($action) {
+                    'users'        => $adminController->users(),
+                    'items'        => $adminController->items(),
+                    'dashboard', '' => $adminController->dashboard(),
+                    default        => $adminController->dashboard()
+                };
+            }
             break;
             
         default:
@@ -104,4 +203,5 @@ try {
 
 $content = ob_get_clean();
 
-require_once __DIR__ . '/views/layouts/main.php';
+$layout = ($page === 'admin') ? 'admin' : 'main';
+require_once __DIR__ . '/views/layouts/' . $layout . '.php';

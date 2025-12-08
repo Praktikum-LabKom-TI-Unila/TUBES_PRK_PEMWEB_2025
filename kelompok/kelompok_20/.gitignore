@@ -1,5 +1,10 @@
 # myUnila Lost & Found - Git Ignore Rules
 
+# Postman Collections
+*.postman_collection.json
+*.postman_environment.json
+docs/*.json
+
 # Folder Uploads User (Jangan di-push ke Git)
 src/assets/uploads/items/
 src/assets/uploads/profiles/

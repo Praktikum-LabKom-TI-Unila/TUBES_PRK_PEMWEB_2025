@@ -73,4 +73,56 @@ final class User
     {
         return $this->findByIdentityNumber($identityNumber) !== false;
     }
+
+    /**
+     * Get all users with pagination
+     * 
+     * @param int $limit Number of users per page
+     * @param int $offset Offset for pagination
+     * @return array
+     */
+    public function getAll(int $limit = 20, int $offset = 0): array
+    {
+        $sql = "SELECT 
+                    id, name, npm, email, phone, avatar, role, is_active, 
+                    created_at, updated_at, deleted_at
+                FROM users
+                WHERE deleted_at IS NULL
+                ORDER BY created_at DESC
+                LIMIT :limit OFFSET :offset";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Count all active users
+     * 
+     * @return int
+     */
+    public function countAll(): int
+    {
+        $sql = "SELECT COUNT(*) FROM users WHERE deleted_at IS NULL";
+        $stmt = $this->db->query($sql);
+
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Soft delete a user
+     * 
+     * @param int $id User ID
+     * @return bool
+     */
+    public function delete(int $id): bool
+    {
+        $sql = "UPDATE users SET deleted_at = NOW(), is_active = 0 WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+
+        return $stmt->execute(['id' => $id]);
+    }
 }
