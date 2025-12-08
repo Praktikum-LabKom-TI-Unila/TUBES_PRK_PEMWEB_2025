@@ -1,4 +1,4 @@
-﻿<section class="gradient-mesh min-h-[85vh] flex items-center relative overflow-hidden">
+﻿<section class="gradient-mesh min-h-[85vh] flex items-center relative">
     <div class="absolute inset-0 overflow-hidden">
         <div class="absolute -top-40 -right-40 w-80 h-80 bg-primary-400/20 rounded-full blur-3xl"></div>
         <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-sky-400/20 rounded-full blur-3xl"></div>
@@ -11,7 +11,7 @@
                 Platform Resmi Universitas Lampung
             </div>
             
-            <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold text-slate-900 dark:text-white mb-6 leading-tight">
+            <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold text-slate-900 dark:text-white mb-8 leading-relaxed">
                 Temukan Barang
                 <span class="gradient-text block">Hilang Anda</span>
             </h1>
