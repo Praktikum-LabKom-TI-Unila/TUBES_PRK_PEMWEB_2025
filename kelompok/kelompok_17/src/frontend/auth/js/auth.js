@@ -91,7 +91,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
 
     // ========================================================
-    //  LOGIN HANDLER — Redirect setelah sesi dikonfirmasi
+    // 🔥 LOGIN HANDLER (DITAMBAH: Cek Approval Status)
     // ========================================================
     if (loginForm) {
         loginForm.addEventListener("submit", async (e) => {
@@ -113,23 +113,33 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const result = await safeJson(response);
 
                 if (result && result.status === "success") {
+                    
+                    // --- PENTING: Pengecekan status approval di respons API ---
+                    // Ini hanya sebagai fallback, logika utama harus di PHP (Controller)
+                    const isApproved = result.data?.user?.is_approved == 1;
+                    const role = result.data?.user?.role;
+                    
+                    if (role && role.toLowerCase() === "anggota" && !isApproved) {
+                         // Walaupun login berhasil, status UI harus menunjukkan pending
+                         displayMessage("loginMessage", "**Akun belum disetujui Admin.** Silakan tunggu notifikasi email.", "warning");
+                         toggleButton(btn, false, "Masuk", "Memproses...");
+                         return;
+                    }
+                    // -------------------------------------------------------------
+
                     displayMessage("loginMessage", "Login berhasil! Menunggu konfirmasi sesi...", "success");
 
                     // Tunggu konfirmasi session dari server
                     const session = await waitForSession(6, 300);
 
                     if (session && (session.logged_in === true || session.user)) {
-                        const role = (session.user && session.user.role) || session.role || (result.data?.user?.role);
+                        const finalRole = (session.user && session.user.role) || session.role || (result.data?.user?.role);
                         
                         // Periksa peran dan redirect ke dashboard yang sesuai
-                        if (role && role.toLowerCase() === "admin") {
-                            // Jalur: auth/js/ -> keluar 2 tingkat -> admin/dashboard.html
+                        if (finalRole && finalRole.toLowerCase() === "admin") {
                             location.replace("/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/frontend/admin/admin.html");
-
                         } else {
-                            // Jalur: auth/js/ -> keluar 2 tingkat -> anggota/dashboard.html
                             location.replace("/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/frontend/anggota/dashboard.html");
-
                         }
                         return;
 
@@ -140,7 +150,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                 } else {
                     // Gagal login
                     const msg = (result && result.message) || "Gagal login. Cek kredensial Anda.";
-                    displayMessage("loginMessage", msg, "danger");
+                    
+                    // Cek jika errornya adalah penolakan karena pending (Error 403 dari Backend)
+                    const msgType = msg.includes("belum disetujui") ? "warning" : "danger";
+
+                    displayMessage("loginMessage", msg, msgType);
 
                     if (result && result.errors) {
                         handleValidationErrors(loginForm, result.errors, "login");
@@ -157,7 +171,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // ========================================================
-    //  REGISTER HANDLER
+    // 🔥 REGISTER HANDLER (DITAMBAH: Pesan Menunggu Approval)
     // ========================================================
     if (registerForm) {
         registerForm.addEventListener("submit", async (e) => {
@@ -179,8 +193,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const result = await safeJson(response);
 
                 if (result && result.status === "success") {
-                    displayMessage("registerMessage", "Registrasi berhasil! Silakan login.", "success");
-                    setTimeout(() => location.replace("login.html"), 1400);
+                    // MENGGANTI PESAN SUKSES & MENGHAPUS REDIRECT INSTAN
+                    displayMessage("registerMessage", "**Registrasi berhasil!** Akun Anda akan aktif setelah disetujui oleh Admin. Silakan tunggu notifikasi email.", "success");
+                    // setTimeout(() => location.replace("login.html"), 1400); // Dihapus
                 } else {
                     displayMessage("registerMessage", (result && result.message) || "Registrasi gagal", "danger");
                     if (result && result.errors) handleValidationErrors(registerForm, result.errors, "reg");

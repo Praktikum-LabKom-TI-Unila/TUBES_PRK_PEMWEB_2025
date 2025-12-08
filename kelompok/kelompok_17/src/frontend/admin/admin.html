@@ -11,22 +11,22 @@
     <link rel="stylesheet" href="css/admin.css">
 
     <style>
-        /* Mendefinisikan Variable Warna Utama - FOKUS HIJAU TUA/TEAL */
+        /* Mendefinisikan Variable Warna Utama - BEBAS DARI ERROR KARAKTER ASING */
         :root {
             /* Warna Brand (Teal & Aksen) */
-            --clr-primary-brand: #01A29D;       /* Bright Teal (Aksen utama/Indicator) */
-            --clr-hover-dark: #005A54;          /* Darker Green/Teal for hover BG */
+            --clr-primary-brand: #01A29D;
+            --clr-hover-dark: #005A54;
             
             /* SIDEBAR COLORS */
-            --clr-sidebar-bg: #01A29D;          /* SIDEBAR BACKGROUND HIJAU TUA (Sesuai Gambar) */
-            --clr-sidebar-active-bg: #E3F8F3;   /* Lightest Mint Green BG on hover */
-            --clr-sidebar-base-text: #E5E7EB;   /* Light text for non-active items */
-            --clr-sidebar-active-text: #FFFFFF; /* Teks Putih pada menu aktif (untuk kontras di gambar) */
-            --clr-menu-active-bg-dark: #00877C; /* Latar Belakang DASHBOARD (Hijau gelap) */
+            --clr-sidebar-bg: #01A29D;
+            --clr-sidebar-active-bg: #E3F8F3;
+            --clr-sidebar-base-text: #E5E7EB;
+            --clr-sidebar-active-text: #FFFFFF;
+            --clr-menu-active-bg-dark: #00877C;
             
             /* BACKGROUND GRADIENT & MAIN UI */
-            --clr-base-bg: #F4FBF9;             /* Light Mint-Green Tint for main background */
-            --clr-text-primary: #1F2937;        /* Dark Gray */
+            --clr-base-bg: #F4FBF9;
+            --clr-text-primary: #1F2937;
             
             /* Card Icon Gradients */
             --clr-total-anggota-bg: linear-gradient(135deg, #60a5fa, #3b82f6);
@@ -38,36 +38,35 @@
             --clr-btn-orange: #FF853D;
             --clr-btn-red: #F75B50;
         }
+
+        /* Styling tambahan untuk admin.js */
+        .alert-success { background-color: #d1e7dd; color: #0f5132; }
+        .alert-danger { background-color: #f8d7da; color: #842029; }
+        .alert-warning { background-color: #fff3cd; color: #664d03; }
+        .d-none { display: none; }
+        .btn-approve { background-color: #10B981; }
+        .btn-approve:hover { background-color: #059669; }
+        .btn-reject { background-color: #EF4444; }
+        .btn-reject:hover { background-color: #DC2626; }
     </style>
 </head>
-<body>
+<body class="bg-[var(--clr-base-bg)]">
 
     <div class="flex h-screen bg-gray-50 overflow-hidden">
 
         <aside id="sidebar-desktop" class="sidebar-custom hidden lg:flex flex-col flex-shrink-0">
-            
             <div class="p-4 flex items-center justify-start h-16">
                 <span class="text-xl font-extrabold text-white">SIMORA</span> 
             </div>
-
             <nav class="flex-1 flex flex-col overflow-y-auto mt-4 px-2">
                 <a href="#" class="nav-item-custom active-dark-bg"> 
                     <i class="fas fa-chart-line"></i> DASHBOARD
                 </a>
-                <a href="#" class="nav-item-custom">
-                    <i class="fas fa-users"></i> Data Anggota
-                </a>
-                <a href="#" class="nav-item-custom">
-                    <i class="fas fa-calendar-alt"></i> Kalender Kegiatan
-                </a>
-                <a href="#" class="nav-item-custom">
-                    <i class="fas fa-chart-bar"></i> Laporan Keaktifan
-                </a>
-                <a href="#" class="nav-item-custom">
-                    <i class="fas fa-cogs"></i> Pengaturan Sistem
-                </a>
+                <a href="#" class="nav-item-custom"> <i class="fas fa-users"></i> Data Anggota </a>
+                <a href="#" class="nav-item-custom"> <i class="fas fa-calendar-alt"></i> Kalender Kegiatan </a>
+                <a href="#" class="nav-item-custom"> <i class="fas fa-chart-bar"></i> Laporan Keaktifan </a>
+                <a href="#" class="nav-item-custom"> <i class="fas fa-cogs"></i> Pengaturan Sistem </a>
             </nav>
-
             <div class="p-4 border-t mt-auto border-gray-700">
                 <a href="#" class="btn-logout-custom active-logout w-full">
                     <i class="fas fa-arrow-right-to-bracket -rotate-180 mr-2"></i> Keluar
@@ -83,19 +82,21 @@
                 </button>
 
                 <div class="flex-1 flex items-center justify-between ml-4">
+                    
                     <div class="input-group search-input-group w-96 max-w-full">
                         <span class="input-group-text"><i class="fas fa-search text-gray-400"></i></span>
                         <input type="text" class="form-control" placeholder="Cari Anggota/Kegiatan...">
                     </div>
                     
                     <div class="flex items-center space-x-4">
-                        <button class="btn-action-orange">
+                        
+                        <button class="btn-action-orange p-2 font-semibold text-white flex items-center h-10">
                             <i class="fas fa-plus mr-2"></i> Buat Kegiatan
                         </button>
                         
-                        <div class="profile-indicator">
-                            <span class="text-sm font-semibold mr-2 text-gray-700">Admin Aktif</span>
-                            <div class="avatar-admin-circle">A</div>
+                        <div class="profile-indicator flex items-center">
+                            <span class="text-sm font-semibold mr-2 text-gray-700 hidden sm:inline">Admin Aktif</span>
+                            <div class="avatar-admin-circle w-10 h-10 flex items-center justify-center font-bold text-base">A</div>
                         </div>
                     </div>
                 </div>
@@ -107,8 +108,31 @@
                 <p class="text-xl font-bold text-gray-700 mb-6">Ikhtisar Organisasi</p>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" id="stats-container">
-                    </div>
+                </div>
 
+                <div class="mb-8">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-user-plus mr-2 text-red-500"></i> Persetujuan Anggota Baru (Pending)
+                    </h2>
+                    
+                    <div id="adminMessage" class="alert d-none p-3 mb-4 rounded" role="alert"></div>
+
+                    <div class="bg-white shadow-lg rounded-xl overflow-x-auto border border-gray-100">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Lengkap</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pending-members-list" class="bg-white divide-y divide-gray-200">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     
                     <div class="bg-white p-6 rounded-xl shadow-lg agenda-card-animated">
@@ -140,7 +164,7 @@
                             [Placeholder: Garis Tren Keaktifan]
                         </div>
 
-                        <button class="btn-primary w-full btn-laporan">
+                        <button class="btn-primary w-full btn-laporan bg-[var(--clr-primary-brand)] text-white">
                             Lihat Laporan Lengkap
                         </button>
                     </div>

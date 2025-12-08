@@ -1,9 +1,5 @@
 /* Custom CSS for SIMORA Admin Dashboard - FINAL, SINKRONISASI TAMPILAN */
 
-/* --- VARIABLE COLOR PALETTE ---
-   Variabel warna penting didefinisikan di HTML <style> block.
-*/
-
 /* --- GLOBAL BACKGROUND: GRADASI HIJAU MUDA --- */
 .flex.h-screen.bg-gray-50.overflow-hidden {
     /* Gradasi vertikal yang lembut dari hijau muda ke putih */
@@ -22,12 +18,12 @@
 
 /* Logo Text Style */
 .sidebar-custom .text-xl {
-    color: white; /* SIMORA Teks Putih/Terang di atas BG Hijau Tua */
+    color: white; 
 }
 
 /* Nav Item Styling */
 .nav-item-custom {
-    color: var(--clr-sidebar-base-text); /* Teks terang (Greyish White) */
+    color: var(--clr-sidebar-base-text);
     font-weight: 500;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
@@ -38,39 +34,36 @@
 }
 
 .nav-item-custom i {
-    color: var(--clr-sidebar-base-text); /* Ikon non-aktif berwarna terang */
+    color: var(--clr-sidebar-base-text);
     width: 24px;
     text-align: center;
     margin-right: 0.75rem;
 }
 
 .nav-item-custom:hover:not(.active-dark-bg) {
-    /* HOVER HIJAU LEBIH GELAP (EVEN DARKER GREEN) */
+    /* HOVER HIJAU LEBIH GELAP */
     color: var(--clr-sidebar-active-text); 
     background-color: var(--clr-hover-dark); 
     font-weight: 600;
     transform: translateX(2px);
 }
 .nav-item-custom:hover:not(.active-dark-bg) i {
-    color: var(--clr-sidebar-base-text); /* Icon tetap terang/putih di BG hover gelap */
+    color: var(--clr-sidebar-base-text);
 }
 
-/* --- ACTIVE STATE: DASHBOARD (BG HIJAU TUA) & LINK LAIN (BG MINT CERAH) --- */
-
-/* 1. Dashboard Active (Background Penuh Hijau Tua, Teks Putih) */
+/* --- ACTIVE STATE --- */
 .nav-item-custom.active-dark-bg {
     background-color: var(--clr-menu-active-bg-dark); /* HIJAU GELAP SOLID */
-    color: white; /* Teks Putih */
+    color: white; 
     font-weight: 700;
-    /* Menghilangkan border kiri dan shadow di sini */
     border-left: none; 
     box-shadow: none;
 }
 .nav-item-custom.active-dark-bg i {
-    color: white; /* Ikon Putih */
+    color: white;
 }
 
-/* 2. Tombol Keluar - Merah */
+/* Tombol Keluar - Merah */
 .btn-logout-custom {
     background-color: var(--clr-btn-red);
     color: white;
@@ -79,7 +72,7 @@
     border-radius: 0.5rem;
     transition: background-color 0.2s, transform 0.2s;
     box-shadow: 0 4px 10px rgba(247, 91, 80, 0.3);
-    display: block; /* Agar link berfungsi sebagai tombol */
+    display: block; 
     text-align: center;
     text-decoration: none;
 }
@@ -91,41 +84,37 @@
 }
 
 /* --- HEADER & ACTION BUTTONS --- */
-/* --- HEADER & ACTION BUTTONS --- */
 
-/* 1. KOTAK PENCARIAN (Border Hijau) */
+/* 1. KOTAK PENCARIAN & TOMBOL BUAT KEGIATAN (Styling Serupa) */
 .search-input-group .input-group-text,
-.search-input-group .form-control {
+.search-input-group .form-control,
+.btn-action-orange { /* Tambahkan styling ke tombol */
     border-color: var(--clr-primary-brand) !important;
     border-width: 2px;
+    border-radius: 0.375rem; /* Standard rounded-md */
 }
+
 .search-input-group .form-control:focus {
     box-shadow: 0 0 0 0.25rem rgba(1, 162, 157, 0.25); /* Subtle teal focus ring */
 }
+
 .search-input-group .input-group-text {
     background-color: white;
-    /* Menghapus border-right default agar menyambung rapi */
     border-right: none; 
-}
-
-.btn-action-orange {
-    background-color: var(--clr-btn-orange);
-    box-shadow: 0 2px 5px rgba(255, 133, 61, 0.4);
 }
 
 /* 2. LOGO ADMIN AKTIF (Bulat Sempurna) */
 .avatar-admin-circle {
-    /* Bentuk sudah bulat (50%), hanya memastikan ring color */
     background-color: var(--clr-primary-brand);
     box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--clr-primary-brand); 
     transition: all 0.3s;
+    color: white; /* Pastikan teks/inisial di dalam lingkaran berwarna putih */
 }
 
-/* --- CARD & WIDGET STYLES: LEBIH JELAS & BERWARNA (Aksen Hijau Kuat) --- */
+/* --- CARD & WIDGET STYLES --- */
 
 .card-ringkasan-base, .agenda-card-animated, .activity-card-animated {
-    /* Menambahkan border yang lebih tebal dan berwarna untuk definisi */
-    border: 1px solid var(--clr-primary-brand); /* Border tipis warna Teal */
+    border: 1px solid var(--clr-primary-brand);
     border-radius: 1rem; 
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08); 
     transition: all 0.4s cubic-bezier(0.2, 0.7, 0.4, 1.2); 
@@ -133,7 +122,6 @@
 
 .card-ringkasan-base:hover, .agenda-card-animated:hover, .activity-card-animated:hover {
     transform: translateY(-8px); 
-    /* Shadow dengan sedikit warna Teal di dalamnya saat hover */
     box-shadow: 0 20px 40px rgba(1, 162, 157, 0.25);
 }
 
@@ -141,21 +129,51 @@
 .card-icon-circle {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
 }
+.card-icon-circle i {
+    color: white;
+}
 
 /* Status Text Coloring */
 .status-text-positive { color: var(--clr-primary-brand); font-weight: 700; }
 .status-text-negative { color: var(--clr-btn-red); font-weight: 700; }
+.status-text-neutral { color: #4b5563; font-weight: 600; }
 
-/* Agenda/Laporan Buttons (Teal/Green Brand) */
-.btn-agenda-action, .btn-laporan {
+/* Agenda/Laporan Buttons */
+.btn-agenda-action, .btn-laporan, .btn-primary {
     background-color: var(--clr-primary-brand); 
     border-color: var(--clr-primary-brand);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: all 0.3s;
     box-shadow: 0 4px 10px rgba(0, 135, 124, 0.3);
+    text-decoration: none;
+    display: inline-block;
 }
-.btn-agenda-action:hover, .btn-laporan:hover {
+.btn-agenda-action:hover, .btn-laporan:hover, .btn-primary:hover {
     background-color: var(--clr-hover-dark);
     border-color: var(--clr-hover-dark);
+    transform: translateY(-1px);
 }
+
+/* --- STYLING KHUSUS UNTUK TABEL PERSETUJUAN ANGGOTA --- */
+.btn-approve { background-color: #10B981; transition: background-color 0.2s; }
+.btn-approve:hover { background-color: #059669; }
+
+.btn-reject { background-color: #EF4444; transition: background-color 0.2s; }
+.btn-reject:hover { background-color: #DC2626; }
+
+/* Alert Styling (Untuk pesan adminMessage di admin.js) */
+.alert {
+    padding: 1rem 1.5rem;
+    border: 1px solid transparent;
+    border-radius: 0.5rem;
+    font-weight: 600;
+}
+.alert-success { background-color: #D1FAE5; color: #065F46; border-color: #34D399; }
+.alert-danger { background-color: #FEE2E2; color: #991B1B; border-color: #F87171; }
+.alert-warning { background-color: #FEF3C7; color: #92400E; border-color: #FBBF24; }
 
 /* --- MEDIA QUERIES --- */
 @media (max-width: 1024px) {
