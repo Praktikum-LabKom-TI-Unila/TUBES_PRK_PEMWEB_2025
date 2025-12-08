@@ -39,17 +39,22 @@ class CategoryApiController extends Controller
 
             // Get data
             $categories = $this->categoryModel->getAll($page, $perPage);
+            
+            // Add material count to each category
+            foreach ($categories as &$category) {
+                $category['material_count'] = $this->categoryModel->getMaterialCount($category['id']);
+            }
+            unset($category);
+            
             $total = $this->categoryModel->countAll();
             $totalPages = ceil($total / $perPage);
 
             Response::success('Data kategori berhasil diambil', [
-                'categories' => $categories,
-                'pagination' => [
-                    'page' => $page,
-                    'per_page' => $perPage,
-                    'total' => $total,
-                    'total_pages' => $totalPages
-                ]
+                'data' => $categories,
+                'current_page' => $page,
+                'per_page' => $perPage,
+                'total' => $total,
+                'last_page' => $totalPages
             ]);
 
         } catch (Exception $e) {
