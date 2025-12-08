@@ -34,6 +34,9 @@ $payment = null;
 $sessions = [];
 $total_sessions = 0;
 
+// find upcoming session (first active/trial with the nearest future started_at)
+$upcoming_session = null;
+
 // === Fetch latest survey (if any) ===
 $tableCheckResult = $conn->query("SHOW TABLES LIKE 'user_survey'");
 if ($tableCheckResult && $tableCheckResult->num_rows > 0) {
@@ -60,6 +63,20 @@ if ($tableCheckResult && $tableCheckResult->num_rows > 0) {
         $res = $stmt->get_result();
         if ($res) {
             while ($row = $res->fetch_assoc()) $sessions[] = $row;
+            // determine upcoming session (closest future or active)
+            usort($sessions, function($a,$b){
+                $ta = strtotime($a['started_at'] ?? 0);
+                $tb = strtotime($b['started_at'] ?? 0);
+                return $ta <=> $tb;
+            });
+            $now = time();
+            foreach($sessions as $scheck){
+                $st = strtotime($scheck['started_at'] ?? 0);
+                if (($scheck['status']??'') === 'active' || ($scheck['status']??'') === 'trial' || $st > $now) {
+                    $upcoming_session = $scheck;
+                    break;
+                }
+            }
         }
     }
 }
@@ -78,13 +95,44 @@ if ($tableCheckResult && $tableCheckResult->num_rows > 0) {
 
 // average rating given? (if there is a table user_ratings) — optional, skip if not exist
 ?>
-<div class="min-h-screen px-6 py-20" style="background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 25%, var(--bg-primary) 50%, var(--bg-secondary) 75%, var(--bg-primary) 100%); position: relative; overflow: hidden;">
-    
-    <!-- Decorative Background Elements -->
-    <div style="position: fixed; top: -50%; right: -10%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(58, 175, 169, 0.1) 0%, transparent 70%); border-radius: 50%; z-index: 0; pointer-events: none;"></div>
-    <div style="position: fixed; bottom: -30%; left: -5%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(23, 37, 42, 0.05) 0%, transparent 70%); border-radius: 50%; z-index: 0; pointer-events: none;"></div>
+<div class="min-h-screen" style="background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 25%, var(--bg-primary) 50%, var(--bg-secondary) 75%, var(--bg-primary) 100%); position: relative; overflow: hidden;">
 
-    <div class="max-w-6xl mx-auto relative z-10 transition-colors duration-300">
+    <!-- Layout: Sidebar + Main -->
+    <div class="flex min-h-screen">
+
+        <!-- SIDEBAR (user-focused: simplified) -->
+        <aside style="width:260px; background: linear-gradient(180deg,#2fb39a,#1fa08e);" class="hidden md:flex flex-col p-6 text-white shadow-lg">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-bold">AP</div>
+                <div>
+                    <div class="font-bold text-lg">Halo, <?= htmlspecialchars(explode(' ', $user['name'] ?? $user['email'])[0]) ?></div>
+                    <div class="text-sm opacity-90">Pengguna</div>
+                </div>
+            </div>
+
+            <nav class="flex-1">
+                <a href="index.php?p=user_dashboard" class="block px-4 py-3 rounded-lg bg-white/10 mb-2 font-semibold">Beranda</a>
+                <a href="index.php?p=match" class="block px-4 py-3 rounded-lg hover:bg-white/5 mb-2">Temukan Konselor</a>
+                <a href="index.php?p=chat" class="block px-4 py-3 rounded-lg hover:bg-white/5 mb-2">Chat</a>
+                <a href="index.php?p=profile" class="block px-4 py-3 rounded-lg hover:bg-white/5 mb-2">Profil & Preferensi</a>
+                <a href="index.php?p=user_settings" class="block px-4 py-3 rounded-lg hover:bg-white/5 mb-2">Pengaturan</a>
+            </nav>
+
+            <div class="mt-4 p-4 bg-white/10 rounded-lg text-sm">
+                <div class="font-semibold"><?= htmlspecialchars($user['name'] ?? $user['email']) ?></div>
+                <div class="text-xs opacity-90"><?= htmlspecialchars($user['email']) ?></div>
+            </div>
+
+            <a href="index.php?p=logout" class="mt-4 inline-block px-4 py-3 bg-white/10 rounded-lg text-center">Logout</a>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 px-6 py-8">
+            <!-- Decorative Background Elements -->
+            <div style="position: fixed; top: -50%; right: -10%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(58, 175, 169, 0.06) 0%, transparent 70%); border-radius: 50%; z-index: 0; pointer-events: none;"></div>
+            <div style="position: fixed; bottom: -30%; left: -5%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(23, 37, 42, 0.03) 0%, transparent 70%); border-radius: 50%; z-index: 0; pointer-events: none;"></div>
+
+            <div class="max-w-7xl mx-auto relative z-10 transition-colors duration-300">
         
         <!-- Success/Error Messages -->
         <?php if ($success_msg): ?>
@@ -99,24 +147,52 @@ if ($tableCheckResult && $tableCheckResult->num_rows > 0) {
             </div>
         <?php endif; ?>
 
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8">
-            <div>
-                <h1 class="text-3xl font-bold" style="color: var(--text-primary);">Dashboard</h1>
-                <p style="color: var(--text-secondary);" class="mt-1">Halo, <strong><?= htmlspecialchars($user['name'] ?? $user['email']) ?></strong>. Ini ringkasan akunmu.</p>
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold" style="color: var(--text-primary);">Dashboard</h1>
+                    <p style="color: var(--text-secondary);" class="mt-1">Halo, <strong><?= htmlspecialchars($user['name'] ?? $user['email']) ?></strong>. Ini ringkasan akunmu.</p>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-3 bg-white rounded-lg px-3 py-2 border border-gray-200">
+                        <input id="search" placeholder="Cari konselor atau sesi..." class="outline-none" style="background:transparent; width:300px; color:var(--text-primary);" />
+                        <select id="statusFilter" class="border-none bg-transparent outline-none">
+                            <option value="all">Semua Status</option>
+                            <option value="active">Active</option>
+                            <option value="closed">Closed</option>
+                            <option value="trial">Trial</option>
+                        </select>
+                    </div>
+                    <a href="index.php?p=match" class="px-4 py-2 bg-[#3AAFA9] text-white rounded-lg">Cari Konselor</a>
+                </div>
             </div>
 
-            <div class="flex items-center gap-4">
-                <a href="index.php?p=survey" class="px-4 py-2 border border-[#3AAFA9] text-[#3AAFA9] rounded-lg">Perbarui Survey</a>
-                <a href="index.php?p=match" class="px-4 py-2 bg-[#3AAFA9] text-white rounded-lg">Cari Konselor</a>
-                <button id="darkModeToggle" onclick="toggleDarkMode()" style="background-color: var(--bg-tertiary); color: var(--text-primary);" class="px-4 py-2 rounded-lg font-semibold transition border border-[#3AAFA9]" title="Toggle Dark Mode">🌙</button>
+            <!-- Top stats (user-focused) -->
+            <div class="grid md:grid-cols-4 gap-6 mb-8">
+                <div class="p-4 rounded-lg" style="background: linear-gradient(90deg,#2fb39a,#1fa08e); color:white;">
+                    <div class="text-sm">Total Sesi</div>
+                    <div class="text-2xl font-bold mt-2"><?= intval($total_sessions) ?></div>
+                </div>
+
+                <div class="p-4 rounded-lg" style="background: linear-gradient(90deg,#6dd3c9,#3aaea3); color:white;">
+                    <div class="text-sm">Jadwal Berikutnya</div>
+                    <div class="text-2xl font-bold mt-2"><?= $upcoming_session ? date('d M Y H:i', strtotime($upcoming_session['started_at'] ?? $upcoming_session['created_at'])) : 'Tidak ada' ?></div>
+                </div>
+
+                <div class="p-4 rounded-lg" style="background: linear-gradient(90deg,#7ad3f6,#3aa8f0); color:white;">
+                    <div class="text-sm">Langganan</div>
+                    <div class="text-2xl font-bold mt-2"><?= $payment ? htmlspecialchars($payment['plan'] ?? $payment['status']) : 'Trial' ?></div>
+                </div>
+
+                <div class="p-4 rounded-lg" style="background: linear-gradient(90deg,#ffd8a8,#ffb36b); color:#2b2b2b;">
+                    <div class="text-sm">Bergabung</div>
+                    <div class="text-2xl font-bold mt-2"><?= (new DateTime($user['created_at'] ?? date('Y-m-d')))->format('d M Y') ?></div>
+                </div>
             </div>
-        </div>
 
-        <div class="grid md:grid-cols-3 gap-8 mb-10">
-
-            <!-- PROFILE CARD -->
-            <div class="card-gradient rounded-2xl soft-shadow p-6 card-animate">
+            <div class="grid md:grid-cols-1 gap-8 mb-6">
+                <div class="card-gradient rounded-2xl soft-shadow p-6 card-animate">
                 <div class="flex items-center gap-4">
                     <img src="<?= isset($user['profile_picture']) && $user['profile_picture'] ? "../uploads/profile/".htmlspecialchars($user['profile_picture']) : 'https://via.placeholder.com/80x80?text=User' ?>"
                          alt="avatar" class="w-20 h-20 object-cover rounded-xl shadow-sm">
@@ -143,8 +219,43 @@ if ($tableCheckResult && $tableCheckResult->num_rows > 0) {
                 </div>
             </div>
 
-            <!-- USAGE & SURVEY SUMMARY -->
-            <div class="card-gradient rounded-2xl soft-shadow p-6 card-animate" style="animation-delay: 0.1s;">
+                <!-- RECENT SESSIONS (user-friendly list) -->
+                <h3 class="text-xl font-semibold text-[#17252A] mb-4">Riwayat Sesi</h3>
+
+                <div class="space-y-4">
+                    <?php if (empty($sessions)): ?>
+                        <div class="p-6 bg-white rounded-lg border" style="color:var(--text-secondary);">Belum ada sesi. <a href="index.php?p=match" class="text-[#3AAFA9]">Temukan konselor</a> untuk memulai.</div>
+                    <?php else: ?>
+                        <?php foreach ($sessions as $s): ?>
+                            <div class="flex items-center justify-between gap-4 p-4 rounded-lg border bg-white">
+                                <div class="flex items-center gap-4">
+                                    <img src="<?= isset($s['konselor_pic']) && $s['konselor_pic'] ? "./uploads/konselor/".htmlspecialchars($s['konselor_pic']) : 'https://via.placeholder.com/56x56?text=K' ?>" class="w-12 h-12 object-cover rounded-lg">
+                                    <div>
+                                        <div class="font-semibold"><?= htmlspecialchars($s['konselor_name'] ?? '—') ?></div>
+                                        <div class="text-xs" style="color:var(--text-secondary);"><?= date('d M Y H:i', strtotime($s['started_at'] ?? $s['created_at'] ?? '-')) ?></div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-3">
+                                    <div style="min-width:110px; text-align:center;">
+                                        <div style="font-weight:600; color:<?= ($s['status']??'')==='active' ? '#047857' : '#4b5563' ?>;"><?= htmlspecialchars(ucfirst($s['status'] ?? '—')) ?></div>
+                                        <div class="text-xs" style="color:var(--text-secondary);"><?= intval($s['messages_count'] ?? 1) ?> sesi</div>
+                                    </div>
+
+                                    <?php if (($s['status'] ?? '') === 'active' || ($s['status'] ?? '') === 'trial'): ?>
+                                        <a href="index.php?p=chat&session_id=<?= intval($s['session_id']) ?>" class="px-4 py-2 bg-[#3AAFA9] text-white rounded-lg">Lanjutkan Chat</a>
+                                    <?php else: ?>
+                                        <a href="index.php?p=match" class="px-4 py-2 border border-[#3AAFA9] text-[#3AAFA9] rounded-lg">Cari Konselor</a>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+
+            </div>
+
+        </div>
                 <h3 class="font-semibold text-[#17252A] mb-3">Ringkasan Survey</h3>
 
                 <?php if ($survey): ?>
@@ -282,7 +393,10 @@ if ($tableCheckResult && $tableCheckResult->num_rows > 0) {
             </div>
         </div>
 
+            </div>
+        </main>
     </div>
+
 </div>
 
 
@@ -370,3 +484,27 @@ html.dark-mode .border-red-400 {
     border-color: rgba(220, 100, 100, 0.4);
 }
 </style>
+<script>
+// Small client-side filtering for search/status on the sessions table
+document.addEventListener('DOMContentLoaded', function(){
+    const search = document.getElementById('search');
+    const status = document.getElementById('statusFilter');
+    if (!search || !status) return;
+
+    function filterRows(){
+        const q = search.value.toLowerCase();
+        const st = status.value;
+        const rows = document.querySelectorAll('main table tbody tr');
+        rows.forEach(r => {
+            const txt = r.innerText.toLowerCase();
+            const matchesQ = q ? txt.indexOf(q) !== -1 : true;
+            const rowStatus = (r.querySelector('td:nth-child(5)')||{}).innerText.toLowerCase();
+            const matchesStatus = (st === 'all') ? true : (rowStatus.indexOf(st) !== -1);
+            r.style.display = (matchesQ && matchesStatus) ? '' : 'none';
+        });
+    }
+
+    search.addEventListener('input', filterRows);
+    status.addEventListener('change', filterRows);
+});
+</script>
