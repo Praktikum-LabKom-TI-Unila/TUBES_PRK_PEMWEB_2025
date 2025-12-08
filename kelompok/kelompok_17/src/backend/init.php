@@ -6,7 +6,7 @@ if (basename($_SERVER['PHP_SELF']) === 'init.php') {
 }
 
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
 
 date_default_timezone_set('Asia/Jakarta');
 

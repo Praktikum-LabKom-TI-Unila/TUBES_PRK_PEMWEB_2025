@@ -1,0 +1,287 @@
+/* Custom CSS for SIMORA Admin Dashboard - FINAL, SINKRONISASI TAMPILAN */
+
+/* --- GLOBAL BACKGROUND: GRADASI HIJAU MUDA --- */
+.flex.h-screen.bg-gray-50.overflow-hidden {
+    /* Gradasi vertikal yang lembut dari hijau muda ke putih */
+    background: linear-gradient(to bottom, var(--clr-base-bg) 0%, #FFFFFF 100%);
+}
+
+/* --- SIDEBAR STYLES: HIJAU TUA (Sesuai Gambar) --- */
+.sidebar-custom {
+    width: 250px;
+    background-color: var(--clr-sidebar-bg); /* DEEP GREEN / TEAL TUA */
+    color: white; 
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.3);
+    border-right: none; 
+    z-index: 50; 
+}
+
+/* Logo Text Style */
+.sidebar-custom .text-xl {
+    color: white; 
+}
+
+/* Nav Item Styling */
+.nav-item-custom {
+    color: var(--clr-sidebar-base-text); /* Light text color */
+    font-weight: 500;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    margin: 0.25rem 0;
+    border-radius: 0.25rem;
+}
+
+.nav-item-custom i {
+    color: var(--clr-sidebar-base-text);
+    width: 24px;
+    text-align: center;
+    margin-right: 0.75rem;
+}
+
+.nav-item-custom:hover:not(.active-dark-bg) {
+    /* HOVER HIJAU LEBIH GELAP */
+    color: var(--clr-sidebar-active-text); 
+    background-color: var(--clr-menu-active-bg-dark); /* Menggunakan warna active dark untuk hover */
+    font-weight: 600;
+}
+.nav-item-custom:hover:not(.active-dark-bg) i {
+    color: var(--clr-sidebar-active-text);
+}
+
+/* --- ACTIVE STATE --- */
+.nav-item-custom.active-dark-bg {
+    background-color: var(--clr-menu-active-bg-dark); /* HIJAU GELAP SOLID */
+    color: white; 
+    font-weight: 700;
+    border-left: 4px solid white; /* Aksen putih di kiri */
+    padding-left: calc(1rem - 4px); /* Kompensasi padding untuk border */
+}
+.nav-item-custom.active-dark-bg i {
+    color: white;
+}
+
+/* Tombol Keluar - Merah */
+.btn-logout-custom {
+    background-color: var(--clr-btn-red);
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s, transform 0.2s;
+    box-shadow: 0 4px 10px rgba(247, 91, 80, 0.3);
+    display: block; 
+    text-align: center;
+    text-decoration: none;
+}
+.btn-logout-custom:hover {
+    background-color: #C24141;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px rgba(247, 91, 80, 0.6);
+    color: white;
+}
+
+/* --- HEADER & ACTION BUTTONS --- */
+header {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    z-index: 30; 
+}
+
+/* KOTAK PENCARIAN */
+.search-input-group {
+    height: 40px; 
+}
+.search-input-group .input-group-text,
+.search-input-group .form-control {
+    border-color: #E5E7EB !important; 
+    border-width: 1px;
+    border-radius: 0.5rem; 
+    transition: all 0.3s;
+}
+
+.search-input-group .form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(1, 162, 157, 0.25); 
+    border-color: var(--clr-primary-brand) !important;
+}
+
+.search-input-group .input-group-text {
+    background-color: white;
+    border-right: none; 
+}
+
+/* TOMBOL BUAT KEGIATAN (Warna Orange) */
+.btn-action-orange {
+    background-color: var(--clr-btn-orange); 
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 0.5rem; 
+    transition: background-color 0.2s, transform 0.2s;
+    box-shadow: 0 4px 10px rgba(255, 133, 61, 0.4); 
+    padding: 0.5rem 1rem;
+}
+.btn-action-orange:hover {
+    background-color: #E5734A; 
+    transform: translateY(-1px);
+}
+
+/* LOGO ADMIN AKTIF (Bulat Sempurna Aksen Teal) */
+.avatar-admin-circle {
+    background-color: var(--clr-primary-brand); 
+    border-radius: 9999px; 
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--clr-primary-brand); 
+    transition: all 0.3s;
+    color: white; 
+    cursor: pointer;
+}
+.avatar-admin-circle:hover {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 6px var(--clr-primary-brand); 
+}
+
+/* --- CARD & WIDGET STYLES --- */
+
+.card-ringkasan-base, .agenda-card-animated, .activity-card-animated {
+    /* Aksen border initial primary brand */
+    border: 1px solid var(--clr-primary-brand); 
+    background-color: white; 
+    border-radius: 1rem; 
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08); 
+    transition: all 0.4s cubic-bezier(0.2, 0.7, 0.4, 1.2); 
+    position: relative;
+}
+
+/* Icon Container */
+.card-icon-circle {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+    width: 50px;
+    height: 50px;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    transition: background 0.3s;
+}
+.card-icon-circle i {
+    color: white;
+}
+
+/* --- HOVER KHUSUS PADA KARTU (CARD) --- */
+/* Efek angkat (sama untuk semua kartu) */
+.card-ringkasan-base:hover, .agenda-card-animated:hover, .activity-card-animated:hover {
+    transform: translateY(-8px); 
+}
+
+/* 1. TOTAL ANGGOTA (Biru) */
+#stats-card-1 .card-icon-circle {
+    background: var(--clr-total-anggota-bg); 
+}
+#stats-card-1:hover {
+    /* Box shadow biru tebal saat hover */
+    box-shadow: 0 20px 40px rgba(65, 105, 225, 0.4); 
+}
+
+/* 2. AGENDA BULAN INI (Teal/Hijau) */
+#stats-card-2 .card-icon-circle {
+    background: var(--clr-agenda-bg);
+}
+#stats-card-2:hover {
+    /* Box shadow teal/hijau tebal saat hover */
+    box-shadow: 0 20px 40px rgba(1, 162, 157, 0.4); 
+}
+
+/* 3. ANGGOTA NON-AKTIF (Orange/Merah) */
+#stats-card-3 .card-icon-circle {
+    background: var(--clr-nonaktif-bg);
+}
+#stats-card-3:hover {
+    /* Box shadow merah/orange tebal saat hover */
+    box-shadow: 0 20px 40px rgba(255, 133, 61, 0.4); 
+}
+
+/* 4. RATA-RATA PRESENSI (Ungu) */
+#stats-card-4 .card-icon-circle {
+    background: var(--clr-presensi-bg);
+}
+#stats-card-4:hover {
+    /* Box shadow ungu tebal saat hover */
+    box-shadow: 0 20px 40px rgba(139, 92, 246, 0.4); 
+}
+/* ------------------------------------------------------------------------ */
+
+
+/* Status Text Coloring */
+.status-text-positive { color: var(--clr-primary-brand); font-weight: 700; }
+.status-text-negative { color: var(--clr-btn-red); font-weight: 700; }
+.status-text-neutral { color: #4b5563; font-weight: 600; }
+
+/* Agenda/Laporan Buttons */
+.btn-agenda-action, .btn-laporan, .btn-primary {
+    background-color: var(--clr-primary-brand); 
+    border-color: var(--clr-primary-brand);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: all 0.3s;
+    box-shadow: 0 4px 10px rgba(0, 135, 124, 0.3);
+    text-decoration: none;
+    display: inline-block;
+}
+.btn-agenda-action:hover, .btn-laporan:hover, .btn-primary:hover {
+    background-color: var(--clr-hover-dark);
+    border-color: var(--clr-hover-dark);
+    transform: translateY(-1px);
+}
+
+/* --- STYLING KHUSUS UNTUK TABEL PERSETUJUAN ANGGOTA --- */
+.btn-approve { background-color: #10B981; transition: background-color 0.2s; }
+.btn-approve:hover { background-color: #059669; }
+
+.btn-reject { background-color: #EF4444; transition: background-color 0.2s; }
+.btn-reject:hover { background-color: #DC2626; }
+
+/* Alert Styling */
+.alert {
+    padding: 1rem 1.5rem;
+    border: 1px solid transparent;
+    border-radius: 0.5rem;
+    font-weight: 600;
+}
+.alert-success { background-color: #D1FAE5; color: #065F46; border-color: #34D399; }
+.alert-danger { background-color: #FEE2E2; color: #991B1B; border-color: #F87171; }
+.alert-warning { background-color: #FEF3C7; color: #92400E; border-color: #FBBF24; }
+
+
+/* --- MOBILE STYLES & OVERLAY --- */
+
+#sidebar-mobile {
+    z-index: 50; 
+}
+#sidebar-mobile-overlay {
+    z-index: 40; 
+}
+
+@media (max-width: 1024px) {
+    .sidebar-custom {
+        transform: translateX(-250px);
+        transition: transform 0.3s ease-in-out;
+    }
+    .sidebar-custom.active {
+        transform: translateX(0);
+    }
+    
+    #sidebar-mobile-overlay.active {
+        display: block;
+    }
+    
+    #mobile-menu-button {
+        display: block;
+    }
+
+    .search-input-group {
+        display: none;
+    }
+}

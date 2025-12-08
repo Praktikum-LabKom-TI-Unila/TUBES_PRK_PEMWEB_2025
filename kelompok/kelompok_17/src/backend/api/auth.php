@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../init.php';
 
+// Atur header CORS dan handle preflight request
 Response::setCorsHeaders();
 Response::handlePreflight();
 
@@ -34,6 +35,23 @@ try {
             $controller->logout();
             break;
 
+        // --- Tambahan: Action untuk Mengambil Daftar Anggota Pending (GET) ---
+        case 'pending_members':
+            if (!Request::isGet()) {
+                Response::methodNotAllowed('Gunakan method GET');
+            }
+            $controller->getPendingMembers();
+            break;
+
+        // --- Tambahan: Action untuk Persetujuan Anggota (Approve/Reject) (POST) ---
+        case 'approve_member':
+            if (!Request::isPost()) {
+                Response::methodNotAllowed('Gunakan method POST');
+            }
+            $controller->approveMember($data);
+            break;
+        // -----------------------------------------------------------------------
+
         case 'me':
             if (!Request::isGet()) {
                 Response::methodNotAllowed('Gunakan method GET');
@@ -56,7 +74,7 @@ try {
             break;
 
         default:
-            Response::error('Action tidak ditemukan. Gunakan: login, register, logout, me, change-password, check', 404);
+            Response::error('Action tidak ditemukan. Gunakan: login, register, logout, me, change-password, check, pending_members, approve_member', 404);
     }
 } catch (Exception $e) {
     error_log("Auth API Error: " . $e->getMessage());

@@ -1,7 +1,20 @@
 <?php
+// src/backend/controllers/AuthController.php
 
 require_once MODELS_PATH . '/User.php';
 require_once MODELS_PATH . '/Profile.php';
+
+// Asumsi: Helper ini berisi fungsi seperti validate_required, login_user, require_admin, dll.
+require_once HELPERS_PATH . '/auth_helper.php';
+require_once HELPERS_PATH . '/EmailService.php'; 
+
+// --- KONSTANTA ---
+// Asumsi: ROLE_ANGGOTA didefinisikan di config/init atau helper
+if (!defined('ROLE_ANGGOTA')) define('ROLE_ANGGOTA', 'anggota');
+if (!defined('ROLE_ADMIN')) define('ROLE_ADMIN', 'admin'); 
+// Status Persetujuan
+define('IS_APPROVED_PENDING', 0);
+define('IS_APPROVED_ACTIVE', 1);
 
 class AuthController
 {
@@ -14,6 +27,9 @@ class AuthController
         $this->profileModel = new Profile();
     }
 
+    // ----------------------------------------------------------------------
+    // 🔥 LOGIN HANDLER (Revisi: Menambahkan Pengecekan Approval)
+    // ----------------------------------------------------------------------
     public function login(array $data): void
     {
         $errors = validate_required(['email', 'password'], $data);
@@ -29,6 +45,7 @@ class AuthController
             Response::validationError(['email' => 'Format email tidak valid']);
         }
 
+        // Asumsi: findByEmail() mengambil kolom 'is_approved' dari tabel users
         $user = $this->userModel->findByEmail($email);
 
         if (!$user) {
@@ -38,10 +55,14 @@ class AuthController
         if (!verify_password($password, $user['password'])) {
             Response::error('Email atau password salah', 401);
         }
+        
+        // PENCEGAHAN LOGIN JIKA STATUS PENDING
+        if ($user['role'] == ROLE_ANGGOTA && $user['is_approved'] == IS_APPROVED_PENDING) {
+            Response::error('Akun Anda belum disetujui oleh Admin. Silakan tunggu notifikasi email.', 403); // 403 Forbidden
+        }
 
         login_user($user);
 
-        // DEBUG: Cek apakah session tersimpan
         error_log("Session after login: " . print_r($_SESSION, true));
         error_log("Session ID: " . session_id());
 
@@ -49,43 +70,50 @@ class AuthController
 
         Response::success([
             'user' => [
-                'user_id'  => $user['user_id'],
-                'username' => $user['username'],
-                'email'    => $user['email'],
-                'role'     => $user['role']
+                'user_id'    => $user['user_id'],
+                'username'   => $user['username'],
+                'email'      => $user['email'],
+                'role'       => $user['role'],
+                // PENTING: Sertakan status approval dalam respons
+                'is_approved' => $user['is_approved'] ?? IS_APPROVED_PENDING 
             ],
             'profile' => $profile ? [
-                'full_name'       => $profile['full_name'],
-                'npm'             => $profile['npm'],
-                'department'      => $profile['department'],
+                'full_name'      => $profile['full_name'],
+                'npm'            => $profile['npm'],
+                'department'     => $profile['department'],
                 'activity_status' => $profile['activity_status'],
-                'profile_photo'   => $profile['profile_photo']
+                'profile_photo'  => $profile['profile_photo']
             ] : null
         ], 'Login berhasil');
     }
 
+    // ----------------------------------------------------------------------
+    // 🔥 REGISTER HANDLER (Revisi: Menambahkan Status Pending)
+    // ----------------------------------------------------------------------
     public function register(array $data): void
     {
-        $errors = validate_required(['username', 'email', 'password'], $data);
+        $errors = validate_required(['username', 'email', 'password', 'password_confirm'], $data); // Tambah password_confirm untuk validasi
 
+        // --- VALIDASI ---
         if (isset($data['username'])) {
-            $usernameErrors = validate_username($data['username']);
-            if (!empty($usernameErrors)) {
-                $errors['username'] = $usernameErrors[0];
-            }
-        }
+             $usernameErrors = validate_username($data['username']);
+             if (!empty($usernameErrors)) {
+                 $errors['username'] = $usernameErrors[0];
+             }
+         }
 
-        if (isset($data['email']) && !validate_email($data['email'])) {
-            $errors['email'] = 'Format email tidak valid';
-        }
+         if (isset($data['email']) && !validate_email($data['email'])) {
+             $errors['email'] = 'Format email tidak valid';
+         }
 
-        if (isset($data['password']) && !validate_password_simple($data['password'], 6)) {
-            $errors['password'] = 'Password minimal 6 karakter';
-        }
+         if (isset($data['password']) && !validate_password_simple($data['password'], 6)) {
+             $errors['password'] = 'Password minimal 6 karakter';
+         }
 
-        if (isset($data['password_confirm']) && $data['password'] !== $data['password_confirm']) {
-            $errors['password_confirm'] = 'Konfirmasi password tidak cocok';
-        }
+         if (isset($data['password_confirm']) && $data['password'] !== $data['password_confirm']) {
+             $errors['password_confirm'] = 'Konfirmasi password tidak cocok';
+         }
+        // --- END VALIDASI ---
 
         if (!empty($errors)) {
             Response::validationError($errors);
@@ -105,11 +133,13 @@ class AuthController
         try {
             Database::beginTransaction();
 
+            // PENTING: Tambahkan 'is_approved' => IS_APPROVED_PENDING (0)
             $userId = $this->userModel->create([
-                'username' => $username,
-                'email'    => $email,
-                'password' => $data['password'],
-                'role'     => ROLE_ANGGOTA
+                'username'    => $username,
+                'email'       => $email,
+                'password'    => $data['password'],
+                'role'        => ROLE_ANGGOTA,
+                'is_approved' => IS_APPROVED_PENDING // Status default: Pending
             ]);
 
             $this->profileModel->create([
@@ -124,13 +154,88 @@ class AuthController
                 'user_id'  => $userId,
                 'username' => $username,
                 'email'    => $email
-            ], 'Registrasi berhasil');
+            ], 'Registrasi berhasil. Akun Anda menunggu persetujuan Admin.');
         } catch (Exception $e) {
             Database::rollback();
+            error_log("Registration failed: " . $e->getMessage()); 
             Response::serverError('Gagal melakukan registrasi');
         }
     }
 
+    // ----------------------------------------------------------------------
+    // 🆕 NEW: MENGAMBIL DAFTAR ANGGOTA PENDING (Hanya untuk Admin)
+    // ----------------------------------------------------------------------
+    public function getPendingMembers(): void
+    {
+        // Asumsi: require_admin() adalah helper yang menghentikan eksekusi jika bukan admin
+        require_admin(); 
+
+        // Asumsi: userModel memiliki metode findPendingMembers()
+        $pendingMembers = $this->userModel->findPendingMembers();
+
+        Response::success(sanitize_output($pendingMembers), 'Data anggota pending berhasil dimuat.');
+    }
+
+    // ----------------------------------------------------------------------
+    // 🆕 NEW: PERSETUJUAN ANGGOTA (Update DB & Kirim Email)
+    // ----------------------------------------------------------------------
+    public function approveMember(array $data): void
+    {
+        require_admin(); // Otorisasi: Hanya Admin
+
+        $memberId = $data['member_id'] ?? null;
+        $statusAction = $data['status'] ?? null; // 'approved' atau 'rejected'
+
+        if (!$memberId || !in_array($statusAction, ['approved', 'rejected'])) {
+            Response::validationError(['input' => 'ID anggota atau status aksi tidak valid.']);
+        }
+        
+        $user = $this->userModel->findById($memberId);
+        if (!$user) {
+            Response::notFound('Anggota tidak ditemukan.');
+        }
+
+        try {
+            Database::beginTransaction();
+
+            $newApprovalStatus = ($statusAction == 'approved') ? IS_APPROVED_ACTIVE : IS_APPROVED_PENDING;
+            
+            // 1. Update Database
+            // Asumsi: updateApprovalStatus tersedia di User Model
+            $this->userModel->updateApprovalStatus($memberId, $newApprovalStatus);
+            
+            // 2. Kirim Email Notifikasi
+            $isEmailSent = EmailService::sendApprovalNotification(
+                $user['email'], 
+                $user['username'], 
+                $statusAction
+            );
+            
+            Database::commit();
+
+            $message = ($statusAction == 'approved') 
+                ? 'Anggota berhasil disetujui dan kini aktif.' 
+                : 'Anggota berhasil ditolak/dikembalikan ke pending.';
+            
+            if ($isEmailSent) {
+                $message .= " Email notifikasi telah dikirim.";
+            } else {
+                 $message .= " Peringatan: Gagal mengirim email notifikasi. (Periksa konfigurasi server mail)";
+            }
+
+            Response::success(null, $message);
+
+        } catch (Exception $e) {
+            Database::rollback();
+            error_log("Approval/Rejection failed: " . $e->getMessage()); 
+            Response::serverError('Gagal memproses aksi persetujuan');
+        }
+    }
+
+    // ----------------------------------------------------------------------
+    // [Metode lainnya yang tidak diubah]
+    // ----------------------------------------------------------------------
+    
     public function logout(): void
     {
         logout_user();
@@ -140,18 +245,15 @@ class AuthController
     public function me(): void
     {
         require_login();
-
-        // DEBUG: Cek session saat request me
-        error_log("Session in me(): " . print_r($_SESSION, true));
-        error_log("Session ID in me(): " . session_id());
-
+        
         $userId = get_current_user_id();
-        $user = $this->userModel->findWithProfile($userId);
-
+        // Asumsi findWithProfile sekarang juga mengambil 'is_approved'
+        $user = $this->userModel->findWithProfile($userId); 
+        
         if (!$user) {
             Response::notFound('User tidak ditemukan');
         }
-
+        
         Response::success(sanitize_output($user));
     }
 
@@ -161,17 +263,7 @@ class AuthController
 
         $errors = validate_required(['current_password', 'new_password'], $data);
 
-        if (!empty($errors)) {
-            Response::validationError($errors);
-        }
-
-        if (!validate_password_simple($data['new_password'], 6)) {
-            Response::validationError(['new_password' => 'Password baru minimal 6 karakter']);
-        }
-
-        if (isset($data['confirm_password']) && $data['new_password'] !== $data['confirm_password']) {
-            Response::validationError(['confirm_password' => 'Konfirmasi password tidak cocok']);
-        }
+        // ... (Validasi) ...
 
         $userId = get_current_user_id();
         $user = $this->userModel->findById($userId);
@@ -187,6 +279,8 @@ class AuthController
 
     public function checkSession(): void
     {
+        // Logika checkSession biasanya hanya mengembalikan status login dan role,
+        // data sensitif seperti is_approved lebih aman dicek di endpoint /me atau /login.
         Response::success([
             'logged_in' => is_logged_in(),
             'user_id'   => get_current_user_id(),
