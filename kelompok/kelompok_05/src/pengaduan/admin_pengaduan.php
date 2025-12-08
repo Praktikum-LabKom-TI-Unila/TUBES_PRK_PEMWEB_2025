@@ -191,13 +191,387 @@ function get_status_badge($status) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Validasi Pengaduan - LampungSmart</title>
+    
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- LampungSmart Theme -->
+    <link href="../../assets/css/lampung-theme.css" rel="stylesheet">
+    
     <style>
-
+        :root {
+            --lampung-green: #009639;
+            --lampung-red: #D60000;
+            --lampung-blue: #00308F;
+            --lampung-gold: #FFD700;
+            --lampung-charcoal: #212121;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, var(--lampung-blue) 0%, var(--lampung-green) 100%);
+            color: white;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+        
+        .page-header h1 {
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .page-header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+            border-top: 4px solid var(--lampung-green);
+        }
+        
+        .stat-card.pending {
+            border-top-color: #ffc107;
+        }
+        
+        .stat-card.proses {
+            border-top-color: #17a2b8;
+        }
+        
+        .stat-card.selesai {
+            border-top-color: #28a745;
+        }
+        
+        .stat-card.ditolak {
+            border-top-color: var(--lampung-red);
+        }
+        
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--lampung-charcoal);
+            margin: 10px 0;
+        }
+        
+        .stat-card .label {
+            font-size: 13px;
+            color: #666;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+        
+        .filter-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .filter-section label {
+            color: var(--lampung-charcoal);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .form-control,
+        .form-select {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+        }
+        
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--lampung-green);
+            box-shadow: 0 0 0 0.2rem rgba(0, 150, 57, 0.25);
+        }
+        
+        .btn-filter {
+            background-color: var(--lampung-green);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-filter:hover {
+            background-color: #007a2f;
+            transform: translateY(-2px);
+        }
+        
+        .btn-reset-filter {
+            background-color: #999;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-reset-filter:hover {
+            background-color: #777;
+        }
+        
+        .pengaduan-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--lampung-green);
+        }
+        
+        .pengaduan-card:hover {
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .pengaduan-card.pending {
+            border-left-color: #ffc107;
+        }
+        
+        .pengaduan-card.proses {
+            border-left-color: #17a2b8;
+        }
+        
+        .pengaduan-card.selesai {
+            border-left-color: #28a745;
+        }
+        
+        .pengaduan-card.ditolak {
+            border-left-color: var(--lampung-red);
+        }
+        
+        .pengaduan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .pengaduan-header h5 {
+            color: var(--lampung-charcoal);
+            font-weight: 700;
+            margin: 0;
+            flex: 1;
+        }
+        
+        .pengaduan-warga {
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        
+        .pengaduan-warga i {
+            color: var(--lampung-blue);
+            margin-right: 5px;
+        }
+        
+        .pengaduan-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            flex-wrap: wrap;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .pengaduan-meta i {
+            color: var(--lampung-green);
+        }
+        
+        .pengaduan-lokasi {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 13px;
+            color: #555;
+        }
+        
+        .pengaduan-lokasi i {
+            color: var(--lampung-green);
+            margin-right: 5px;
+        }
+        
+        .pengaduan-foto {
+            margin: 10px 0;
+        }
+        
+        .pengaduan-foto img {
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .status-selector {
+            margin-bottom: 15px;
+        }
+        
+        .status-selector label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--lampung-charcoal);
+            margin-bottom: 5px;
+        }
+        
+        .status-selector select {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .response-section {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .response-section label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--lampung-charcoal);
+            margin-bottom: 8px;
+        }
+        
+        .response-section textarea {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 13px;
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .response-section textarea:focus {
+            border-color: var(--lampung-green);
+            box-shadow: 0 0 0 0.2rem rgba(0, 150, 57, 0.25);
+            outline: none;
+        }
+        
+        .response-section .char-count {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .btn-update-status {
+            background-color: var(--lampung-green);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-update-status:hover {
+            background-color: #007a2f;
+            transform: translateY(-2px);
+        }
+        
+        .btn-add-response {
+            background-color: var(--lampung-blue);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .btn-add-response:hover {
+            background-color: #002060;
+            transform: translateY(-2px);
+        }
+        
+        .response-list {
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .response-item {
+            background-color: white;
+            padding: 12px;
+            border-left: 3px solid var(--lampung-blue);
+            margin-bottom: 10px;
+            border-radius: 5px;
+            font-size: 13px;
+        }
+        
+        .response-item .admin-name {
+            color: var(--lampung-blue);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .response-item .admin-time {
+            color: #999;
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 15px;
+        }
+        
+        .empty-state h4 {
+            color: var(--lampung-charcoal);
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
+    <?php include '../frontend/layout/header.html'; ?>
     <!-- Page Header -->
-        <div class="page-header">
+    <div class="page-header">
         <div class="container">
             <div class="row">
                 <div class="col-12">
@@ -407,5 +781,14 @@ function get_status_badge($status) {
         <?php endif; ?>
         
     </div>
+    
+    <?php include '../frontend/layout/footer.html'; ?>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    // Fungsi-fingsi nantinya disini
+    </script>
 </body>
 </html>
