@@ -1,7 +1,7 @@
-<!-- Create Item Form -->
+
 <div class="min-h-screen gradient-mesh py-12 px-4">
     <div class="container mx-auto max-w-3xl">
-        <!-- Header -->
+        
         <div class="text-center mb-8">
             <h1 class="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-3">
                 Buat Laporan Baru
@@ -11,7 +11,7 @@
             </p>
         </div>
 
-        <!-- Form Card -->
+        
         <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200/50 dark:border-slate-700/50 p-6 md:p-8">
             <form 
                 action="<?= base_url('index.php?page=items&action=store') ?>" 
@@ -19,7 +19,7 @@
                 enctype="multipart/form-data"
                 class="space-y-6"
             >
-                <!-- Judul Barang -->
+                
                 <div>
                     <label for="title" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                         Judul Barang <span class="text-rose-500">*</span>
@@ -34,13 +34,13 @@
                     >
                 </div>
 
-                <!-- Jenis Laporan (Radio Cards) -->
+                
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
                         Jenis Laporan <span class="text-rose-500">*</span>
                     </label>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Kehilangan Card -->
+                        
                         <label class="relative cursor-pointer group">
                             <input 
                                 type="radio" 
@@ -64,7 +64,7 @@
                             </div>
                         </label>
 
-                        <!-- Menemukan Card -->
+                        
                         <label class="relative cursor-pointer group">
                             <input 
                                 type="radio" 
@@ -90,9 +90,9 @@
                     </div>
                 </div>
 
-                <!-- Kategori & Lokasi Grid -->
+                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Kategori -->
+                    
                     <div>
                         <label for="category_id" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                             Kategori <span class="text-rose-500">*</span>
@@ -113,7 +113,7 @@
                         </select>
                     </div>
 
-                    <!-- Lokasi -->
+                    
                     <div>
                         <label for="location_id" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                             Lokasi Kejadian <span class="text-rose-500">*</span>
@@ -135,7 +135,7 @@
                     </div>
                 </div>
 
-                <!-- Tanggal Kejadian -->
+                
                 <div>
                     <label for="incident_date" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                         Tanggal Kejadian <span class="text-rose-500">*</span>
@@ -150,7 +150,7 @@
                     >
                 </div>
 
-                <!-- Foto Barang (Drag & Drop) -->
+                
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                         Foto Barang
@@ -189,7 +189,7 @@
                     </div>
                 </div>
 
-                <!-- Deskripsi -->
+                
                 <div>
                     <label for="description" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                         Deskripsi Detail <span class="text-rose-500">*</span>
@@ -207,7 +207,7 @@
                     </p>
                 </div>
 
-                <!-- Safe Claim Feature -->
+                
                 <div class="bg-gradient-to-br from-primary-50 to-sky-50 dark:from-primary-950/20 dark:to-sky-950/20 rounded-xl p-6 border border-primary-200 dark:border-primary-800/30">
                     <div class="flex items-start gap-3 mb-4">
                         <input 
@@ -228,7 +228,7 @@
                         </div>
                     </div>
 
-                    <!-- Safe Claim Fields (Hidden by default) -->
+                    
                     <div id="safe-claim-fields" class="hidden space-y-4 mt-4 pt-4 border-t border-primary-200 dark:border-primary-800/30">
                         <div>
                             <label for="security_question" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
@@ -261,7 +261,7 @@
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
+                
                 <div class="flex flex-col sm:flex-row gap-3 pt-4">
                     <button 
                         type="submit"
@@ -282,7 +282,7 @@
             </form>
         </div>
 
-        <!-- Info Card -->
+        
         <div class="mt-6 bg-sky-50 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-800/30 rounded-xl p-4">
             <div class="flex items-start gap-3">
                 <svg class="w-6 h-6 text-sky-600 dark:text-sky-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -302,20 +302,19 @@
     </div>
 </div>
 
-<!-- JavaScript for Image Preview and Safe Claim Toggle -->
+
 <script>
-// Image Preview Function
+
 function previewImage(event) {
     const file = event.target.files[0];
     if (file) {
-        // Validate file size (5MB)
+
         if (file.size > 5 * 1024 * 1024) {
             alert('File terlalu besar! Maksimal 5MB.');
             event.target.value = '';
             return;
         }
 
-        // Validate file type
         if (!file.type.match('image.*')) {
             alert('File harus berupa gambar (PNG, JPG, JPEG)');
             event.target.value = '';
@@ -332,7 +331,6 @@ function previewImage(event) {
     }
 }
 
-// Remove Image Function
 function removeImage() {
     document.getElementById('image').value = '';
     document.getElementById('upload-placeholder').classList.remove('hidden');
@@ -340,7 +338,6 @@ function removeImage() {
     document.getElementById('preview-img').src = '';
 }
 
-// Toggle Safe Claim Fields
 function toggleSafeClaim() {
     const checkbox = document.getElementById('is_safe_claim');
     const fields = document.getElementById('safe-claim-fields');
@@ -360,7 +357,6 @@ function toggleSafeClaim() {
     }
 }
 
-// Drag and Drop for Image Upload
 const dropzone = document.getElementById('dropzone');
 const fileInput = document.getElementById('image');
 

@@ -1,7 +1,7 @@
-<!-- Login Page -->
+
 <main class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 gradient-mesh">
     <div class="max-w-md w-full space-y-8">
-        <!-- Header -->
+        
         <div class="text-center">
             <div class="flex justify-center mb-4">
                 <div class="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/30">
@@ -18,10 +18,10 @@
             </p>
         </div>
 
-        <!-- Login Form Card -->
+        
         <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl shadow-xl p-8 border border-gray-200/50 dark:border-gray-700/50">
             <form class="space-y-6" action="index.php?page=auth&action=login" method="POST">
-                <!-- Email Input -->
+                
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Email
@@ -44,7 +44,7 @@
                     </div>
                 </div>
 
-                <!-- Password Input -->
+                
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Password
@@ -77,7 +77,7 @@
                     </div>
                 </div>
 
-                <!-- Remember Me & Forgot Password -->
+                
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
                         <input 
@@ -98,7 +98,7 @@
                     </div>
                 </div>
 
-                <!-- Submit Button -->
+                
                 <div>
                     <button 
                         type="submit" 
@@ -113,7 +113,7 @@
                     </button>
                 </div>
 
-                <!-- Register Link -->
+                
                 <div class="text-center">
                     <p class="text-sm text-gray-600 dark:text-gray-400">
                         Belum punya akun?
@@ -125,7 +125,7 @@
             </form>
         </div>
 
-        <!-- Additional Info -->
+        
         <div class="text-center">
             <p class="text-xs text-gray-500 dark:text-gray-400">
                 Dengan masuk, Anda menyetujui 

@@ -74,13 +74,7 @@ final class User
         return $this->findByIdentityNumber($identityNumber) !== false;
     }
 
-    /**
-     * Get all users with pagination
-     * 
-     * @param int $limit Number of users per page
-     * @param int $offset Offset for pagination
-     * @return array
-     */
+    
     public function getAll(int $limit = 20, int $offset = 0): array
     {
         $sql = "SELECT 
@@ -99,11 +93,7 @@ final class User
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Count all active users
-     * 
-     * @return int
-     */
+    
     public function countAll(): int
     {
         $sql = "SELECT COUNT(*) FROM users WHERE deleted_at IS NULL";
@@ -112,43 +102,32 @@ final class User
         return (int) $stmt->fetchColumn();
     }
 
-    /**
-     * Update user profile
-     * 
-     * @param int $id User ID
-     * @param array $data User data to update
-     * @return bool
-     */
+    
     public function update(int $id, array $data): bool
     {
         $fields = [];
         $params = [':id' => $id];
 
-        // Name
         if (isset($data['name'])) {
             $fields[] = "name = :name";
             $params[':name'] = $data['name'];
         }
 
-        // Phone
         if (isset($data['phone'])) {
             $fields[] = "phone = :phone";
             $params[':phone'] = $data['phone'];
         }
 
-        // Password (only if provided)
         if (!empty($data['password'])) {
             $fields[] = "password = :password";
             $params[':password'] = password_hash($data['password'], PASSWORD_DEFAULT);
         }
 
-        // Avatar
         if (isset($data['avatar'])) {
             $fields[] = "avatar = :avatar";
             $params[':avatar'] = $data['avatar'];
         }
 
-        // Always update timestamp
         $fields[] = "updated_at = NOW()";
 
         if (empty($fields)) {
@@ -161,12 +140,7 @@ final class User
         return $stmt->execute($params);
     }
 
-    /**
-     * Soft delete a user
-     * 
-     * @param int $id User ID
-     * @return bool
-     */
+    
     public function delete(int $id): bool
     {
         $sql = "UPDATE users SET deleted_at = NOW(), is_active = 0 WHERE id = :id";

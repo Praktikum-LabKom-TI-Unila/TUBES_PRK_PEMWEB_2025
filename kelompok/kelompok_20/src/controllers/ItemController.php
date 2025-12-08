@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 require_once __DIR__ . '/../models/Item.php';
@@ -18,7 +17,7 @@ final class ItemController
 
     public function index(): void
     {
-        // Base filters
+
         $filters = [
             'type'        => clean($_GET['type'] ?? ''),
             'category_id' => !empty($_GET['category']) ? (int) $_GET['category'] : null,
@@ -27,7 +26,6 @@ final class ItemController
             'status'      => clean($_GET['status'] ?? '')
         ];
 
-        // Advanced filters: Date Range
         if (!empty($_GET['start_date'])) {
             $filters['start_date'] = clean($_GET['start_date']);
         }
@@ -35,21 +33,17 @@ final class ItemController
             $filters['end_date'] = clean($_GET['end_date']);
         }
 
-        // Sorting
         $sort = clean($_GET['sort'] ?? 'newest');
         if (!in_array($sort, ['newest', 'oldest'], true)) {
             $sort = 'newest';
         }
         $filters['sort'] = $sort;
 
-        // Remove empty values for clean query building
         $filters = array_filter($filters, fn($v) => $v !== null && $v !== '');
 
-        // Pagination: Get total count first
         $totalItems = $this->itemModel->countAllFiltered($filters);
         $totalPages = (int) ceil($totalItems / $this->itemsPerPage);
 
-        // Current page
         $currentPage = (int) ($_GET['page'] ?? 1);
         if ($currentPage < 1) {
             $currentPage = 1;
@@ -58,19 +52,15 @@ final class ItemController
             $currentPage = $totalPages;
         }
 
-        // Calculate offset
         $offset = ($currentPage - 1) * $this->itemsPerPage;
 
-        // Apply pagination to filters
         $filters['limit'] = $this->itemsPerPage;
         $filters['offset'] = $offset;
 
-        // Fetch items with all filters applied
         $items = $this->itemModel->getAll($filters);
         $categories = $this->itemModel->getCategories();
         $locations = $this->itemModel->getLocations();
 
-        // Pagination data for view
         $pagination = [
             'current_page' => $currentPage,
             'total_pages'  => $totalPages,
@@ -85,12 +75,7 @@ final class ItemController
         require_once __DIR__ . '/../views/items/index.php';
     }
 
-    /**
-     * Smart Match: Find potential matching items for a given item
-     * 
-     * If viewing a "lost" item → show "found" items with same category
-     * If viewing a "found" item → show "lost" items with same category
-     */
+    
     public function matches(): void
     {
         $id = (int) ($_GET['id'] ?? 0);
@@ -101,7 +86,6 @@ final class ItemController
             return;
         }
 
-        // Fetch the target item
         $item = $this->itemModel->getById($id);
 
         if (!$item) {
@@ -110,15 +94,12 @@ final class ItemController
             return;
         }
 
-        // Get limit from query param (default 5, max 20)
         $limit = (int) ($_GET['limit'] ?? 5);
         if ($limit < 1) $limit = 5;
         if ($limit > 20) $limit = 20;
 
-        // Find potential matches
         $matches = $this->itemModel->findMatches($item, $limit);
 
-        // Prepare data for view/API response
         $matchData = [
             'target_item'   => $item,
             'matches'       => $matches,
@@ -149,11 +130,9 @@ final class ItemController
             return;
         }
 
-        // Determine ownership and login status
         $isLoggedIn = isLoggedIn();
         $isOwner = $isLoggedIn && (int) $_SESSION['user']['id'] === (int) $item['user_id'];
 
-        // Fetch comments for this item
         require_once __DIR__ . '/../models/Comment.php';
         $commentModel = new Comment();
         $comments = $commentModel->getByItemId($id);

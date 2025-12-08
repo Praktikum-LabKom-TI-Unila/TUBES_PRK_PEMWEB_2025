@@ -1,4 +1,4 @@
-﻿<!-- Hero Section with Search -->
+
 <section class="gradient-mesh min-h-[85vh] flex items-center relative">
     <div class="absolute inset-0 overflow-hidden">
         <div class="absolute -top-40 -right-40 w-80 h-80 bg-primary-400/20 rounded-full blur-3xl"></div>
@@ -7,24 +7,24 @@
     
     <div class="container mx-auto px-4 py-20 relative z-10">
         <div class="max-w-4xl mx-auto text-center">
-            <!-- Badge -->
+            
             <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-sm font-medium mb-6 animate-fade-in">
                 <span class="w-2 h-2 bg-primary-500 rounded-full animate-pulse"></span>
                 Platform Resmi Universitas Lampung
             </div>
             
-            <!-- Hero Title -->
+            
             <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold text-slate-900 dark:text-white mb-8 leading-relaxed">
                 Temukan Barang Hilang
                 <span class="gradient-text block">di Kampus</span>
             </h1>
             
-            <!-- Hero Description -->
+            
             <p class="text-lg md:text-xl text-slate-600 dark:text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed">
                 Platform digital untuk membantu civitas akademika Universitas Lampung dalam melaporkan dan menemukan barang hilang dengan mudah, cepat, dan aman.
             </p>
             
-            <!-- Search Bar -->
+            
             <form action="<?= base_url('index.php?page=items') ?>" method="GET" class="max-w-2xl mx-auto mb-8">
                 <input type="hidden" name="page" value="items">
                 <div class="relative">
@@ -42,7 +42,7 @@
                 </div>
             </form>
             
-            <!-- CTA Buttons -->
+            
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="<?= base_url('index.php?page=items&action=create') ?>" class="inline-flex items-center justify-center gap-2 px-8 py-4 gradient-primary text-white rounded-2xl font-semibold shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 hover:-translate-y-1 transition-all">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,11 +61,11 @@
     </div>
 </section>
 
-<!-- Live Statistics Section -->
+
 <section class="py-16 bg-white dark:bg-slate-800/50 border-y border-slate-200 dark:border-slate-700/50">
     <div class="container mx-auto px-4">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Lost Items Stat -->
+            
             <div class="text-center p-6 group hover:-translate-y-2 transition-all duration-300">
                 <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-rose-500 to-red-500 rounded-2xl flex items-center justify-center shadow-lg shadow-rose-500/20 group-hover:shadow-xl group-hover:shadow-rose-500/30 transition-all">
                     <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,7 +78,7 @@
                 <p class="text-slate-600 dark:text-slate-400 font-medium">Barang Hilang</p>
             </div>
             
-            <!-- Found Items Stat -->
+            
             <div class="text-center p-6 group hover:-translate-y-2 transition-all duration-300">
                 <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-teal-500 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg shadow-teal-500/20 group-hover:shadow-xl group-hover:shadow-teal-500/30 transition-all">
                     <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,7 +91,7 @@
                 <p class="text-slate-600 dark:text-slate-400 font-medium">Barang Ditemukan</p>
             </div>
             
-            <!-- Returned Items Stat -->
+            
             <div class="text-center p-6 group hover:-translate-y-2 transition-all duration-300">
                 <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:shadow-xl group-hover:shadow-amber-500/30 transition-all">
                     <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -107,7 +107,7 @@
     </div>
 </section>
 
-<!-- Recent Items Section -->
+
 <section class="py-20 bg-slate-50 dark:bg-slate-900/50">
     <div class="container mx-auto px-4">
         <div class="text-center mb-12">
@@ -123,7 +123,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <?php foreach ($recentItems as $item): ?>
                     <article class="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden bento-shadow hover:shadow-xl transition-all duration-300 group">
-                        <!-- Item Image -->
+                        
                         <div class="aspect-video bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 relative overflow-hidden">
                             <?php if (!empty($item['image_path'])): ?>
                                 <img 
@@ -140,7 +140,7 @@
                                 </div>
                             <?php endif; ?>
                             
-                            <!-- Type Badge -->
+                            
                             <?php if ($item['type'] === 'lost'): ?>
                                 <span class="absolute top-3 left-3 px-3 py-1.5 bg-rose-500 text-white text-xs font-semibold rounded-full shadow-lg">
                                     Kehilangan
@@ -152,7 +152,7 @@
                             <?php endif; ?>
                         </div>
                         
-                        <!-- Item Details -->
+                        
                         <div class="p-5">
                             <h3 class="font-semibold text-lg text-slate-900 dark:text-white mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition line-clamp-1">
                                 <?= htmlspecialchars($item['title']) ?>
@@ -162,7 +162,7 @@
                                 <?= htmlspecialchars($item['description'] ?? 'Tidak ada deskripsi') ?>
                             </p>
                             
-                            <!-- Meta Information -->
+                            
                             <div class="flex items-center justify-between text-sm mb-4">
                                 <span class="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -179,7 +179,7 @@
                                 </span>
                             </div>
                             
-                            <!-- View Detail Button -->
+                            
                             <a 
                                 href="<?= base_url('index.php?page=items&action=show&id=' . $item['id']) ?>" 
                                 class="block w-full text-center px-4 py-2.5 bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 rounded-xl font-medium hover:bg-primary-500 hover:text-white dark:hover:bg-primary-500 transition-all"
@@ -191,7 +191,7 @@
                 <?php endforeach; ?>
             </div>
             
-            <!-- View All Button -->
+            
             <div class="text-center mt-12">
                 <a 
                     href="<?= base_url('index.php?page=items') ?>" 
@@ -204,7 +204,7 @@
                 </a>
             </div>
         <?php else: ?>
-            <!-- Empty State -->
+            
             <div class="max-w-md mx-auto text-center py-16">
                 <div class="w-24 h-24 mx-auto mb-6 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
                     <svg class="w-12 h-12 text-slate-400 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -231,7 +231,7 @@
     </div>
 </section>
 
-<!-- How It Works Section -->
+
 <section class="py-20 gradient-mesh">
     <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto text-center">
@@ -243,7 +243,7 @@
             </p>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Step 1 -->
+                
                 <div class="glass-card rounded-2xl p-8 text-center hover:-translate-y-2 transition-all duration-300">
                     <div class="w-16 h-16 mx-auto mb-6 gradient-primary rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-primary-500/30">
                         1
@@ -256,7 +256,7 @@
                     </p>
                 </div>
                 
-                <!-- Step 2 -->
+                
                 <div class="glass-card rounded-2xl p-8 text-center hover:-translate-y-2 transition-all duration-300">
                     <div class="w-16 h-16 mx-auto mb-6 gradient-primary rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-primary-500/30">
                         2
@@ -269,7 +269,7 @@
                     </p>
                 </div>
                 
-                <!-- Step 3 -->
+                
                 <div class="glass-card rounded-2xl p-8 text-center hover:-translate-y-2 transition-all duration-300">
                     <div class="w-16 h-16 mx-auto mb-6 gradient-primary rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-primary-500/30">
                         3

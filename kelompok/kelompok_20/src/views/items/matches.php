@@ -1,13 +1,5 @@
 <?php
-/**
- * Smart Match Results View
- * 
- * Available variables:
- * - $matchData['target_item']   : The item being matched
- * - $matchData['matches']       : Array of potential matching items
- * - $matchData['matches_count'] : Number of matches found
- * - $matchData['opposite_type'] : The opposite type we're searching for
- */
+
 
 declare(strict_types=1);
 
@@ -21,7 +13,7 @@ $oppositeLabel = $oppositeType === 'lost' ? 'Hilang' : 'Ditemukan';
 ?>
 
 <div class="container mx-auto px-4 py-8">
-    <!-- Header -->
+    
     <div class="mb-8">
         <a href="<?= base_url('index.php?page=items&action=show&id=' . $targetItem['id']) ?>" 
            class="inline-flex items-center text-cyan-500 hover:text-cyan-400 mb-4">
@@ -40,7 +32,7 @@ $oppositeLabel = $oppositeType === 'lost' ? 'Hilang' : 'Ditemukan';
         </p>
     </div>
 
-    <!-- Target Item Card -->
+    
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-8 border-l-4 border-cyan-500">
         <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">
             📌 Barang Anda
@@ -94,7 +86,7 @@ $oppositeLabel = $oppositeType === 'lost' ? 'Hilang' : 'Ditemukan';
         </div>
     </div>
 
-    <!-- Matches Section -->
+    
     <div class="mb-6">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
             ✨ Kecocokan Potensial
@@ -106,7 +98,7 @@ $oppositeLabel = $oppositeType === 'lost' ? 'Hilang' : 'Ditemukan';
     </div>
 
     <?php if (empty($matches)): ?>
-    <!-- No Matches -->
+    
     <div class="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-12 text-center">
         <div class="text-6xl mb-4">🔎</div>
         <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
@@ -120,7 +112,7 @@ $oppositeLabel = $oppositeType === 'lost' ? 'Hilang' : 'Ditemukan';
     </div>
 
     <?php else: ?>
-    <!-- Matches Grid -->
+    
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <?php foreach ($matches as $match): ?>
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300
@@ -132,7 +124,7 @@ $oppositeLabel = $oppositeType === 'lost' ? 'Hilang' : 'Ditemukan';
             </div>
             <?php endif; ?>
             
-            <!-- Image -->
+            
             <div class="relative h-48 bg-gray-100 dark:bg-gray-700">
                 <?php if (!empty($match['image_path'])): ?>
                 <img src="<?= base_url('assets/uploads/items/' . $match['image_path']) ?>" 
@@ -146,7 +138,7 @@ $oppositeLabel = $oppositeType === 'lost' ? 'Hilang' : 'Ditemukan';
                 </div>
                 <?php endif; ?>
                 
-                <!-- Type Badge -->
+                
                 <span class="absolute top-3 left-3 px-3 py-1 text-xs font-semibold rounded-full 
                     <?= $match['type'] === 'lost' 
                         ? 'bg-red-500 text-white' 
@@ -155,7 +147,7 @@ $oppositeLabel = $oppositeType === 'lost' ? 'Hilang' : 'Ditemukan';
                 </span>
             </div>
             
-            <!-- Content -->
+            
             <div class="p-5">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 line-clamp-1">
                     <?= htmlspecialchars($match['title']) ?>
@@ -180,7 +172,7 @@ $oppositeLabel = $oppositeType === 'lost' ? 'Hilang' : 'Ditemukan';
                     </span>
                 </div>
                 
-                <!-- User Info -->
+                
                 <div class="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
                     <div class="flex items-center gap-2">
                         <div class="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white text-xs font-bold overflow-hidden">
@@ -207,7 +199,7 @@ $oppositeLabel = $oppositeType === 'lost' ? 'Hilang' : 'Ditemukan';
     </div>
     <?php endif; ?>
 
-    <!-- Action Buttons -->
+    
     <div class="mt-10 flex flex-wrap justify-center gap-4">
         <a href="<?= base_url('index.php?page=items&type=' . $oppositeType . '&category=' . $targetItem['category_id']) ?>" 
            class="px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">

@@ -1,17 +1,10 @@
 <?php
-/**
- * Item Detail View - Advanced UI with Safe Claim Protection
- * Features: Blur Logic, Glassmorphism, Timeline Comments, Dynamic Claim Modal
- */
-
-// Determine if image should be blurred (Safe Claim protection)
 $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
 ?>
 
-<!-- Item Detail View -->
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50/30 to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 py-8">
     <div class="container mx-auto px-4 max-w-7xl">
-        <!-- Breadcrumb Navigation -->
+        
         <nav class="flex items-center gap-2 text-sm mb-8 bg-white/60 dark:bg-slate-800/60 backdrop-blur-md px-4 py-3 rounded-xl shadow-sm" aria-label="Breadcrumb">
             <a href="<?= base_url('index.php') ?>" class="text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition font-medium">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -32,9 +25,9 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
             </span>
         </nav>
 
-        <!-- Main Content Grid -->
+        
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <!-- LEFT COLUMN: Advanced Image Section with Blur Logic -->
+            
             <div class="space-y-4">
                 <div class="relative bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border border-white/20 dark:border-slate-700/50">
                     <div class="aspect-square bg-gradient-to-br from-slate-100 via-slate-50 to-cyan-50 dark:from-slate-800 dark:via-slate-900 dark:to-slate-800 flex items-center justify-center relative overflow-hidden">
@@ -48,7 +41,7 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
                                 onerror="this.parentElement.innerHTML='<svg class=\'w-32 h-32 text-slate-400 dark:text-slate-600\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\'/></svg>'"
                             >
                             
-                            <!-- Safe Claim Protection Overlay -->
+                            
                             <?php if ($shouldBlurImage): ?>
                             <div class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-sm">
                                 <div class="text-center space-y-4 px-6">
@@ -77,7 +70,7 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
                     </div>
                 </div>
 
-                <!-- Image Info Badge -->
+                
                 <?php if (!empty($item['is_safe_claim'])): ?>
                 <div class="flex items-center gap-2 text-sm text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/30 px-4 py-2 rounded-xl border border-purple-200 dark:border-purple-800/50">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,17 +81,17 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
                 <?php endif; ?>
             </div>
 
-            <!-- RIGHT COLUMN: Item Information -->
+            
             <div class="space-y-6">
-                <!-- Title & Badges -->
+                
                 <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-white/20 dark:border-slate-700/50">
                     <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-4 leading-tight">
                         <?= htmlspecialchars($item['title']) ?>
                     </h1>
                     
-                    <!-- Status Badges -->
+                    
                     <div class="flex flex-wrap gap-2 mb-6">
-                        <!-- Type Badge -->
+                        
                         <?php if ($item['type'] === 'lost'): ?>
                             <span class="px-4 py-2 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-full text-sm font-bold shadow-lg shadow-rose-500/30 flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -115,12 +108,12 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
                             </span>
                         <?php endif; ?>
 
-                        <!-- Category Badge -->
+                        
                         <span class="px-4 py-2 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-full text-sm font-bold border border-primary-200 dark:border-primary-800">
                             <?= htmlspecialchars($item['category_name'] ?? 'Lainnya') ?>
                         </span>
 
-                        <!-- Status Badge -->
+                        
                         <?php if ($item['status'] === 'closed'): ?>
                             <span class="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-sm font-bold shadow-lg shadow-green-500/30 flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,9 +132,9 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
                         <?php endif; ?>
                     </div>
 
-                    <!-- Metadata Grid -->
+                    
                     <div class="grid grid-cols-2 gap-4">
-                        <!-- Category -->
+                        
                         <div class="flex items-start gap-3">
                             <div class="p-2 bg-cyan-100 dark:bg-cyan-900/30 rounded-lg">
                                 <svg class="w-5 h-5 text-cyan-600 dark:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -154,7 +147,7 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
                             </div>
                         </div>
 
-                        <!-- Location -->
+                        
                         <div class="flex items-start gap-3">
                             <div class="p-2 bg-rose-100 dark:bg-rose-900/30 rounded-lg">
                                 <svg class="w-5 h-5 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,7 +161,7 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
                             </div>
                         </div>
 
-                        <!-- Date -->
+                        
                         <div class="flex items-start gap-3">
                             <div class="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
                                 <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -181,7 +174,7 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
                             </div>
                         </div>
 
-                        <!-- Reporter -->
+                        
                         <div class="flex items-start gap-3">
                             <div class="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
                                 <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -196,7 +189,7 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
                     </div>
                 </div>
 
-                <!-- Description Card (Glassmorphism) -->
+                
                 <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-white/20 dark:border-slate-700/50">
                     <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                         <svg class="w-6 h-6 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -211,7 +204,7 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
+                
                 <div class="flex flex-wrap gap-3">
                     <?php if ($isLoggedIn && !$isOwner && $item['status'] === 'open'): ?>
                         <button 
@@ -249,7 +242,7 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
             </div>
         </div>
 
-        <!-- Comments Section (Timeline Style) -->
+        
         <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-md rounded-3xl p-6 md:p-8 shadow-xl border border-white/20 dark:border-slate-700/50">
             <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3">
                 <svg class="w-7 h-7 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -259,7 +252,7 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
                 <span class="text-sm font-semibold text-slate-500 dark:text-slate-400">(<?= count($comments) ?>)</span>
             </h2>
 
-            <!-- Comments Timeline -->
+            
             <div class="space-y-4 mb-6">
                 <?php if (empty($comments)): ?>
                     <div class="text-center py-12">
@@ -279,7 +272,7 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
                         ?>
                         <div class="<?= $commentBorderClass ?> backdrop-blur-sm rounded-xl p-4 transition-all duration-300 hover:shadow-md">
                             <div class="flex items-start gap-3">
-                                <!-- Avatar -->
+                                
                                 <div class="flex-shrink-0">
                                     <?php if (!empty($comment['user_avatar']) && $comment['user_avatar'] !== 'default.jpg'): ?>
                                         <img 
@@ -294,7 +287,7 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
                                     <?php endif; ?>
                                 </div>
 
-                                <!-- Comment Content -->
+                                
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center gap-2 mb-1">
                                         <span class="font-bold text-slate-900 dark:text-white">
@@ -319,12 +312,12 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
                 <?php endif; ?>
             </div>
 
-            <!-- Comment Input (Chat Style) -->
+            
             <?php if ($isLoggedIn): ?>
                 <form action="<?= base_url('index.php?page=comments&action=store') ?>" method="POST" class="mt-6">
                     <input type="hidden" name="item_id" value="<?= $item['id'] ?>">
                     <div class="flex gap-3 items-end">
-                        <!-- User Avatar -->
+                        
                         <div class="flex-shrink-0">
                             <?php if (!empty($_SESSION['user']['avatar']) && $_SESSION['user']['avatar'] !== 'default.jpg'): ?>
                                 <img 
@@ -339,7 +332,7 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
                             <?php endif; ?>
                         </div>
 
-                        <!-- Input Field -->
+                        
                         <div class="flex-1">
                             <textarea 
                                 name="body" 
@@ -351,7 +344,7 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
                             ></textarea>
                         </div>
 
-                        <!-- Send Button -->
+                        
                         <button 
                             type="submit"
                             class="px-6 py-3 bg-gradient-to-r from-primary-600 to-cyan-600 hover:from-primary-700 hover:to-cyan-700 text-white font-bold rounded-2xl shadow-lg shadow-primary-500/30 transition-all duration-300 hover:scale-105 flex items-center gap-2"
@@ -376,10 +369,10 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
     </div>
 </div>
 
-<!-- CLAIM VERIFICATION MODAL -->
+
 <div id="claimModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm">
     <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-700">
-        <!-- Modal Header -->
+        
         <div class="sticky top-0 bg-gradient-to-r from-primary-600 to-cyan-600 text-white px-6 py-5 rounded-t-3xl">
             <h3 class="text-2xl font-bold flex items-center gap-3">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -390,11 +383,11 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
             <p class="text-primary-100 text-sm mt-1">Buktikan bahwa barang ini milik Anda</p>
         </div>
 
-        <!-- Modal Content -->
+        
         <form action="<?= base_url('index.php?page=claims&action=store') ?>" method="POST" class="p-6 space-y-5">
             <input type="hidden" name="item_id" value="<?= $item['id'] ?>">
 
-            <!-- Safe Claim Security Question (Conditional) -->
+            
             <?php if (!empty($item['is_safe_claim']) && !empty($item['security_question'])): ?>
                 <div class="bg-purple-50 dark:bg-purple-950/30 border-l-4 border-purple-500 rounded-lg p-4">
                     <div class="flex items-start gap-3">
@@ -423,7 +416,7 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
                 </div>
             <?php endif; ?>
 
-            <!-- Message to Item Owner -->
+            
             <div>
                 <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
                     Pesan untuk <?= $item['type'] === 'found' ? 'Penemu' : 'Pemilik' ?> *
@@ -440,7 +433,7 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
                 </p>
             </div>
 
-            <!-- Action Buttons -->
+            
             <div class="flex gap-3 pt-4">
                 <button 
                     type="button" 
@@ -463,9 +456,9 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
     </div>
 </div>
 
-<!-- JavaScript for Modal & Image Protection -->
+
 <script>
-// Modal Controls
+
 function openClaimModal() {
     document.getElementById('claimModal').classList.remove('hidden');
     document.body.style.overflow = 'hidden'; // Prevent body scroll
@@ -476,21 +469,18 @@ function closeClaimModal() {
     document.body.style.overflow = 'auto'; // Restore scroll
 }
 
-// Close modal on outside click
 document.getElementById('claimModal')?.addEventListener('click', function(e) {
     if (e.target === this) {
         closeClaimModal();
     }
 });
 
-// Close modal on ESC key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeClaimModal();
     }
 });
 
-// Delete Confirmation
 function confirmDelete() {
     if (confirm('⚠️ Apakah Anda yakin ingin menghapus laporan ini?\n\nTindakan ini tidak dapat dibatalkan!')) {
         const form = document.createElement('form');
@@ -508,7 +498,6 @@ function confirmDelete() {
     }
 }
 
-// Image Protection (Prevent Right-Click on Blurred Images)
 <?php if ($shouldBlurImage): ?>
 document.getElementById('itemImage')?.addEventListener('contextmenu', function(e) {
     e.preventDefault();
@@ -516,14 +505,12 @@ document.getElementById('itemImage')?.addEventListener('contextmenu', function(e
     return false;
 });
 
-// Prevent drag & drop
 document.getElementById('itemImage')?.addEventListener('dragstart', function(e) {
     e.preventDefault();
     return false;
 });
 <?php endif; ?>
 
-// Auto-resize comment textarea
 document.addEventListener('DOMContentLoaded', function() {
     const textarea = document.querySelector('textarea[name="body"]');
     if (textarea) {

@@ -7,7 +7,7 @@
     <meta name="description" content="Sistem Manajemen Kehilangan dan Penemuan Barang Universitas Lampung">
     <title><?= $pageTitle ?? 'myUnila Lost & Found' ?></title>
     
-    <!-- Favicons -->
+    
     <link rel="icon" type="image/svg+xml" href="<?= base_url('favicon.svg') ?>">
     <link rel="icon" type="image/png" href="<?= base_url('assets/images/iconlost&found.png') ?>">
     <link rel="apple-touch-icon" href="<?= base_url('assets/images/iconlost&found.png') ?>">

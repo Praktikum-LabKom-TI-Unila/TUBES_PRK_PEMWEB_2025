@@ -1,15 +1,11 @@
 <?php
-
 declare(strict_types=1);
 
 require_once __DIR__ . '/../models/Comment.php';
 require_once __DIR__ . '/../models/Item.php';
 require_once __DIR__ . '/../models/Notification.php';
 
-/**
- * Comment Controller
- * Handles comment creation and deletion
- */
+
 final class CommentController
 {
     private Comment $commentModel;
@@ -23,12 +19,10 @@ final class CommentController
         $this->notificationModel = new Notification();
     }
 
-    /**
-     * Store a new comment
-     */
+    
     public function store(): void
     {
-        // Check if user is logged in
+
         if (!isLoggedIn()) {
             flash('message', 'Silakan login untuk berkomentar.', 'error');
             redirect('index.php?page=auth&action=login');
@@ -38,14 +32,12 @@ final class CommentController
         $itemId = (int) ($_POST['item_id'] ?? 0);
         $body = clean($_POST['body'] ?? '');
 
-        // Validate item ID
         if ($itemId <= 0) {
             flash('message', 'Item tidak valid.', 'error');
             redirect('index.php?page=items');
             return;
         }
 
-        // Validate comment body
         if (empty($body)) {
             flash('message', 'Komentar tidak boleh kosong.', 'error');
             redirect('index.php?page=items&action=show&id=' . $itemId);
@@ -64,7 +56,6 @@ final class CommentController
             return;
         }
 
-        // Check if item exists
         $item = $this->itemModel->getById($itemId);
         if (!$item) {
             flash('message', 'Item tidak ditemukan.', 'error');
@@ -72,7 +63,6 @@ final class CommentController
             return;
         }
 
-        // Create comment
         $data = [
             'item_id' => $itemId,
             'user_id' => $_SESSION['user_id'],
@@ -87,7 +77,6 @@ final class CommentController
             return;
         }
 
-        // Send notification to item owner (if not self-comment)
         if ((int) $item['user_id'] !== $_SESSION['user_id']) {
             $this->notificationModel->create(
                 (int) $item['user_id'],
@@ -101,13 +90,10 @@ final class CommentController
         redirect('index.php?page=items&action=show&id=' . $itemId . '#comments');
     }
 
-    /**
-     * Delete a comment
-     * Allowed: Comment Owner, Item Owner, or Admin
-     */
+    
     public function delete(): void
     {
-        // Check if user is logged in
+
         if (!isLoggedIn()) {
             flash('message', 'Silakan login terlebih dahulu.', 'error');
             redirect('index.php?page=auth&action=login');
@@ -122,7 +108,6 @@ final class CommentController
             return;
         }
 
-        // Get comment details
         $comment = $this->commentModel->getById($commentId);
 
         if (!$comment) {
@@ -131,10 +116,8 @@ final class CommentController
             return;
         }
 
-        // Get item to check ownership
         $item = $this->itemModel->getById($comment['item_id']);
 
-        // Check permission: Comment Owner OR Item Owner OR Admin
         $isCommentOwner = (int) $comment['user_id'] === $_SESSION['user_id'];
         $isItemOwner = $item && (int) $item['user_id'] === $_SESSION['user_id'];
         $isAdminUser = isAdmin();
@@ -145,7 +128,6 @@ final class CommentController
             return;
         }
 
-        // Perform soft delete
         $deleted = $this->commentModel->delete($commentId);
 
         if (!$deleted) {

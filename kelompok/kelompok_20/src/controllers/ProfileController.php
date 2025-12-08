@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 final class ProfileController
@@ -10,7 +9,7 @@ final class ProfileController
 
     public function __construct()
     {
-        // Ensure user is logged in
+
         if (!isset($_SESSION['user'])) {
             flash('error', 'Silakan login terlebih dahulu', 'error');
             redirect('index.php?page=auth&action=login');
@@ -21,14 +20,11 @@ final class ProfileController
         $this->claimModel = new Claim();
     }
 
-    /**
-     * Display user profile page
-     */
+    
     public function index(): void
     {
         $userId = (int) $_SESSION['user']['id'];
 
-        // Fetch current user data
         $user = $this->userModel->findById($userId);
 
         if (!$user) {
@@ -36,26 +32,20 @@ final class ProfileController
             redirect('index.php');
         }
 
-        // Fetch user statistics
         $stats = [
             'total_items' => $this->itemModel->countByUserId($userId),
             'total_claims' => $this->claimModel->countByUserId($userId)
         ];
 
-        // Set page title
         $pageTitle = 'Profil Saya - myUnila Lost & Found';
 
-        // Get flash messages
         $success = flash('success');
         $error = flash('error');
 
-        // Load view (layout will be loaded by router)
         require_once __DIR__ . '/../views/profile/index.php';
     }
 
-    /**
-     * Handle profile update
-     */
+    
     public function update(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -66,7 +56,6 @@ final class ProfileController
         $errors = [];
         $updateData = [];
 
-        // Validate Name
         $name = trim($_POST['name'] ?? '');
         if (empty($name)) {
             $errors[] = 'Nama wajib diisi';
@@ -74,7 +63,6 @@ final class ProfileController
             $updateData['name'] = $name;
         }
 
-        // Validate Phone (optional)
         $phone = trim($_POST['phone'] ?? '');
         if (!empty($phone)) {
             if (!preg_match('/^[0-9]{10,15}$/', $phone)) {
@@ -86,13 +74,12 @@ final class ProfileController
             $updateData['phone'] = null;
         }
 
-        // Validate Password Change (if provided)
         $oldPassword = $_POST['old_password'] ?? '';
         $newPassword = $_POST['new_password'] ?? '';
         $confirmPassword = $_POST['confirm_password'] ?? '';
 
         if (!empty($oldPassword) || !empty($newPassword) || !empty($confirmPassword)) {
-            // Fetch current user to verify old password
+
             $currentUser = $this->userModel->findById($userId);
 
             if (empty($oldPassword)) {
@@ -111,17 +98,14 @@ final class ProfileController
                 $errors[] = 'Konfirmasi password tidak sesuai';
             }
 
-            // If no errors, add password to update data
             if (empty($errors) && !empty($newPassword)) {
                 $updateData['password'] = $newPassword; // Will be hashed in model
             }
         }
 
-        // Handle Avatar Upload
         if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
             $uploadDir = __DIR__ . '/../assets/uploads/profiles/';
-            
-            // Create directory if not exists
+
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0755, true);
             }
@@ -136,7 +120,7 @@ final class ProfileController
             if ($avatarPath === false) {
                 $errors[] = 'Gagal mengupload foto profil. Pastikan file adalah gambar (JPG, PNG, GIF) dan ukuran maksimal 5MB';
             } else {
-                // Delete old avatar if exists and not default
+
                 $currentUser = $this->userModel->findById($userId);
                 if (!empty($currentUser['avatar']) && $currentUser['avatar'] !== 'default.jpg') {
                     $oldAvatarPath = __DIR__ . '/../assets/uploads/profiles/' . $currentUser['avatar'];
@@ -145,22 +129,19 @@ final class ProfileController
                     }
                 }
 
-                // Store relative path
                 $updateData['avatar'] = basename($avatarPath);
             }
         }
 
-        // If there are validation errors, redirect back with errors
         if (!empty($errors)) {
             flash('error', implode('<br>', $errors), 'error');
             redirect('index.php?page=profile');
         }
 
-        // Perform update
         $success = $this->userModel->update($userId, $updateData);
 
         if ($success) {
-            // Update session data
+
             $_SESSION['user']['name'] = $updateData['name'];
             if (isset($updateData['avatar'])) {
                 $_SESSION['user']['avatar'] = $updateData['avatar'];

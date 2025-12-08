@@ -1,7 +1,7 @@
-<!-- Items Index - List All Items with Filters & Pagination -->
+
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50/30 to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 py-8">
     <div class="container mx-auto px-4">
-        <!-- Header Section -->
+        
         <div class="mb-8">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                 <div>
@@ -26,12 +26,12 @@
                 <?php endif; ?>
             </div>
 
-            <!-- Filters Section -->
+            
             <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-2xl shadow-xl border border-slate-200/50 dark:border-slate-700/50 overflow-hidden">
                 <form method="GET" action="<?= base_url('index.php') ?>">
                     <input type="hidden" name="page" value="items">
                     
-                    <!-- Filter Header -->
+                    
                     <div class="px-6 py-4 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-900 border-b border-slate-200 dark:border-slate-700">
                         <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                             <svg class="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,9 +41,9 @@
                         </h2>
                     </div>
 
-                    <!-- Filter Body -->
+                    
                     <div class="p-6">
-                        <!-- Search Bar (Full Width) -->
+                        
                         <div class="mb-5">
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -61,9 +61,9 @@
                             </div>
                         </div>
 
-                        <!-- Filter Grid -->
+                        
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-5">
-                            <!-- Type Filter -->
+                            
                             <div>
                                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 uppercase tracking-wide">
                                     Jenis Laporan
@@ -78,7 +78,7 @@
                                 </select>
                             </div>
 
-                            <!-- Status Filter -->
+                            
                             <div>
                                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 uppercase tracking-wide">
                                     Status
@@ -94,7 +94,7 @@
                                 </select>
                             </div>
 
-                            <!-- Category Filter -->
+                            
                             <div>
                                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 uppercase tracking-wide">
                                     Kategori
@@ -112,7 +112,7 @@
                                 </select>
                             </div>
 
-                            <!-- Location Filter -->
+                            
                             <div>
                                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 uppercase tracking-wide">
                                     Lokasi
@@ -130,7 +130,7 @@
                                 </select>
                             </div>
 
-                            <!-- Sort Filter -->
+                            
                             <div>
                                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 uppercase tracking-wide">
                                     Urutkan
@@ -145,7 +145,7 @@
                             </div>
                         </div>
 
-                        <!-- Action Buttons -->
+                        
                         <div class="flex gap-3">
                             <button 
                                 type="submit"
@@ -171,7 +171,7 @@
             </div>
         </div>
 
-        <!-- Items Grid -->
+        
         <?php if (empty($items)): ?>
             <div class="text-center py-20">
                 <svg class="w-20 h-20 text-slate-400 dark:text-slate-600 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -198,7 +198,7 @@
                         href="<?= base_url('index.php?page=items&action=show&id=' . $item['id']) ?>"
                         class="group bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-lg shadow-lg hover:shadow-xl border border-white/20 dark:border-slate-700/50 overflow-hidden transition-all duration-200"
                     >
-                        <!-- Image -->
+                        
                         <div class="aspect-square bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 relative overflow-hidden">
                             <?php if (!empty($item['image_path'])): ?>
                                 <img 
@@ -213,7 +213,7 @@
                                 </svg>
                             <?php endif; ?>
                             
-                            <!-- Type Badge -->
+                            
                             <div class="absolute top-3 left-3">
                                 <?php if ($item['type'] === 'lost'): ?>
                                     <span class="px-3 py-1 bg-rose-500 text-white text-xs font-semibold rounded-lg shadow-md">
@@ -226,7 +226,7 @@
                                 <?php endif; ?>
                             </div>
 
-                            <!-- Status Badge -->
+                            
                             <div class="absolute top-3 right-3">
                                 <?php if ($item['status'] === 'closed'): ?>
                                     <span class="px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded-lg shadow-md">
@@ -239,7 +239,7 @@
                                 <?php endif; ?>
                             </div>
 
-                            <!-- Safe Claim Badge -->
+                            
                             <?php if (!empty($item['is_safe_claim'])): ?>
                                 <div class="absolute bottom-3 right-3">
                                     <span class="px-3 py-1 bg-purple-500 text-white text-xs font-semibold rounded-lg shadow-md flex items-center gap-1">
@@ -252,7 +252,7 @@
                             <?php endif; ?>
                         </div>
 
-                        <!-- Content -->
+                        
                         <div class="p-4">
                             <h3 class="font-bold text-slate-900 dark:text-white mb-2 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                                 <?= htmlspecialchars($item['title']) ?>
@@ -284,7 +284,7 @@
                 <?php endforeach; ?>
             </div>
 
-            <!-- Pagination -->
+            
             <?php if ($pagination['total_pages'] > 1): ?>
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white/60 dark:bg-slate-800/60 backdrop-blur-md rounded-lg p-6 shadow-lg border border-white/20 dark:border-slate-700/50">
                     <p class="text-sm text-slate-600 dark:text-slate-400">
@@ -299,7 +299,7 @@
                         $baseUrl = 'index.php?' . ($queryString ? $queryString . '&' : '') . 'page=items&';
                         ?>
 
-                        <!-- Previous Button -->
+                        
                         <?php if ($pagination['has_prev']): ?>
                             <a 
                                 href="<?= base_url($baseUrl . 'page=' . ($pagination['current_page'] - 1)) ?>"
@@ -309,7 +309,7 @@
                             </a>
                         <?php endif; ?>
 
-                        <!-- Page Numbers -->
+                        
                         <?php
                         $start = max(1, $pagination['current_page'] - 2);
                         $end = min($pagination['total_pages'], $pagination['current_page'] + 2);
@@ -324,7 +324,7 @@
                             </a>
                         <?php endfor; ?>
 
-                        <!-- Next Button -->
+                        
                         <?php if ($pagination['has_next']): ?>
                             <a 
                                 href="<?= base_url($baseUrl . 'page=' . ($pagination['current_page'] + 1)) ?>"

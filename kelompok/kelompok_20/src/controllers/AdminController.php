@@ -1,17 +1,11 @@
 <?php
-
 declare(strict_types=1);
 
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Item.php';
 require_once __DIR__ . '/../models/Claim.php';
 
-/**
- * Admin Controller
- * Handles admin management operations
- * 
- * SECURITY: All methods require admin authentication
- */
+
 final class AdminController
 {
     private User $userModel;
@@ -25,25 +19,20 @@ final class AdminController
         $this->claimModel = new Claim();
     }
 
-    /**
-     * Admin Dashboard
-     * Shows statistics and overview
-     */
+    
     public function dashboard(): void
     {
-        // Security check
+
         if (!isAdmin()) {
             flash('message', 'Akses ditolak. Hanya admin yang dapat mengakses halaman ini.', 'error');
             redirect('index.php?page=home');
             return;
         }
 
-        // Fetch statistics
         $totalUsers = $this->userModel->countAll();
         $itemStats = $this->itemModel->getStats();
         $totalVerifiedClaims = $this->claimModel->countVerified();
 
-        // Prepare data for view
         $stats = [
             'total_users' => $totalUsers,
             'total_lost' => (int) ($itemStats['total_lost'] ?? 0),
@@ -58,25 +47,20 @@ final class AdminController
         require_once __DIR__ . '/../views/admin/dashboard.php';
     }
 
-    /**
-     * User Management
-     * Lists all users with pagination
-     */
+    
     public function users(): void
     {
-        // Security check
+
         if (!isAdmin()) {
             flash('message', 'Akses ditolak. Hanya admin yang dapat mengakses halaman ini.', 'error');
             redirect('index.php?page=home');
             return;
         }
 
-        // Pagination
         $page = isset($_GET['p']) ? max(1, (int) $_GET['p']) : 1;
         $limit = 20;
         $offset = ($page - 1) * $limit;
 
-        // Fetch users
         $users = $this->userModel->getAll($limit, $offset);
         $totalUsers = $this->userModel->countAll();
         $totalPages = (int) ceil($totalUsers / $limit);
@@ -85,25 +69,20 @@ final class AdminController
         require_once __DIR__ . '/../views/admin/users.php';
     }
 
-    /**
-     * Item Management
-     * Lists all items with pagination
-     */
+    
     public function items(): void
     {
-        // Security check
+
         if (!isAdmin()) {
             flash('message', 'Akses ditolak. Hanya admin yang dapat mengakses halaman ini.', 'error');
             redirect('index.php?page=home');
             return;
         }
 
-        // Pagination
         $page = isset($_GET['p']) ? max(1, (int) $_GET['p']) : 1;
         $limit = 20;
         $offset = ($page - 1) * $limit;
 
-        // Fetch items with pagination in filters
         $filters = [
             'limit' => $limit,
             'offset' => $offset,
@@ -118,13 +97,10 @@ final class AdminController
         require_once __DIR__ . '/../views/admin/items.php';
     }
 
-    /**
-     * Delete User (Soft Delete)
-     * Deactivates a user account
-     */
+    
     public function deleteUser(): void
     {
-        // Security check
+
         if (!isAdmin()) {
             if ($this->isAjaxRequest()) {
                 http_response_code(403);
@@ -136,7 +112,6 @@ final class AdminController
             return;
         }
 
-        // Validate request
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             redirect('index.php?page=admin&action=users');
             return;
@@ -155,7 +130,6 @@ final class AdminController
             return;
         }
 
-        // Prevent self-deletion
         if ($userId === $_SESSION['user_id']) {
             if ($this->isAjaxRequest()) {
                 http_response_code(400);
@@ -167,7 +141,6 @@ final class AdminController
             return;
         }
 
-        // Delete user
         $deleted = $this->userModel->delete($userId);
 
         if ($this->isAjaxRequest()) {
@@ -188,13 +161,10 @@ final class AdminController
         redirect('index.php?page=admin&action=users');
     }
 
-    /**
-     * Delete Item (Soft Delete)
-     * Removes an item from listings
-     */
+    
     public function deleteItem(): void
     {
-        // Security check
+
         if (!isAdmin()) {
             if ($this->isAjaxRequest()) {
                 http_response_code(403);
@@ -206,7 +176,6 @@ final class AdminController
             return;
         }
 
-        // Validate request
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             redirect('index.php?page=admin&action=items');
             return;
@@ -225,7 +194,6 @@ final class AdminController
             return;
         }
 
-        // Delete item
         $deleted = $this->itemModel->delete($itemId);
 
         if ($this->isAjaxRequest()) {
@@ -246,9 +214,7 @@ final class AdminController
         redirect('index.php?page=admin&action=items');
     }
 
-    /**
-     * Check if request is AJAX
-     */
+    
     private function isAjaxRequest(): bool
     {
         return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) 

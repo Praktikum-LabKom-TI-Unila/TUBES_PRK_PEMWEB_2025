@@ -1,16 +1,11 @@
 <?php
-/**
- * My Claims View
- * 
- * Available variables:
- * - $claims: Array of user's claims with item info
- */
+
 
 declare(strict_types=1);
 ?>
 
 <div class="container mx-auto px-4 py-8">
-    <!-- Header -->
+    
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             📋 Klaim Saya
@@ -21,7 +16,7 @@ declare(strict_types=1);
     </div>
 
     <?php if (empty($claims)): ?>
-    <!-- Empty State -->
+    
     <div class="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-12 text-center">
         <div class="text-6xl mb-4">📭</div>
         <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
@@ -41,12 +36,12 @@ declare(strict_types=1);
     </div>
 
     <?php else: ?>
-    <!-- Claims List -->
+    
     <div class="space-y-4">
         <?php foreach ($claims as $claim): ?>
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
             <div class="flex flex-col md:flex-row">
-                <!-- Image -->
+                
                 <div class="md:w-48 h-48 md:h-auto bg-gray-100 dark:bg-gray-700 flex-shrink-0">
                     <?php if (!empty($claim['item_image'])): ?>
                     <img src="<?= base_url('assets/uploads/items/' . $claim['item_image']) ?>" 
@@ -61,11 +56,11 @@ declare(strict_types=1);
                     <?php endif; ?>
                 </div>
 
-                <!-- Content -->
+                
                 <div class="flex-1 p-6">
                     <div class="flex flex-wrap items-start justify-between gap-4 mb-4">
                         <div>
-                            <!-- Type Badge -->
+                            
                             <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full mb-2
                                 <?= $claim['item_type'] === 'lost' 
                                     ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' 
@@ -85,7 +80,7 @@ declare(strict_types=1);
                             </p>
                         </div>
 
-                        <!-- Status Badge -->
+                        
                         <span class="px-4 py-2 text-sm font-semibold rounded-full
                             <?php 
                             switch ($claim['status']) {
@@ -110,7 +105,7 @@ declare(strict_types=1);
                         </span>
                     </div>
 
-                    <!-- Info -->
+                    
                     <div class="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400 mb-4">
                         <span class="flex items-center gap-1">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -128,7 +123,7 @@ declare(strict_types=1);
                     </div>
                     <?php endif; ?>
 
-                    <!-- Actions -->
+                    
                     <div class="flex flex-wrap gap-3">
                         <a href="<?= base_url('index.php?page=items&action=show&id=' . $claim['item_id']) ?>" 
                            class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm">

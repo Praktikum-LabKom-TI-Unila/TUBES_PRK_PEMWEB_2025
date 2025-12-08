@@ -1,15 +1,11 @@
 <?php
-
 declare(strict_types=1);
 
 require_once __DIR__ . '/../models/Claim.php';
 require_once __DIR__ . '/../models/Item.php';
 require_once __DIR__ . '/../models/Notification.php';
 
-/**
- * Claim Controller
- * Handles claim operations (store, verify, cancel)
- */
+
 final class ClaimController
 {
     private Claim $claimModel;
@@ -23,12 +19,10 @@ final class ClaimController
         $this->notificationModel = new Notification();
     }
 
-    /**
-     * Store a new claim
-     */
+    
     public function store(): void
     {
-        // Check if user is logged in
+
         if (!isLoggedIn()) {
             flash('message', 'Silakan login untuk mengajukan klaim.', 'error');
             redirect('index.php?page=auth&action=login');
@@ -38,14 +32,12 @@ final class ClaimController
         $itemId = (int) ($_POST['item_id'] ?? 0);
         $answer = clean($_POST['answer'] ?? '');
 
-        // Validate item ID
         if ($itemId <= 0) {
             flash('message', 'Item tidak valid.', 'error');
             redirect('index.php?page=items');
             return;
         }
 
-        // Check if item exists
         $item = $this->itemModel->getById($itemId);
         if (!$item) {
             flash('message', 'Item tidak ditemukan.', 'error');
@@ -53,28 +45,24 @@ final class ClaimController
             return;
         }
 
-        // Check: User cannot claim their own item
         if ((int) $item['user_id'] === $_SESSION['user_id']) {
             flash('message', 'Anda tidak dapat mengklaim barang milik sendiri.', 'error');
             redirect('index.php?page=items&action=show&id=' . $itemId);
             return;
         }
 
-        // Check: Item must be open
         if ($item['status'] !== 'open') {
             flash('message', 'Item ini sudah tidak dapat diklaim.', 'error');
             redirect('index.php?page=items&action=show&id=' . $itemId);
             return;
         }
 
-        // Check: User cannot claim twice
         if ($this->claimModel->hasClaimed($itemId, $_SESSION['user_id'])) {
             flash('message', 'Anda sudah mengajukan klaim untuk item ini.', 'error');
             redirect('index.php?page=items&action=show&id=' . $itemId);
             return;
         }
 
-        // Safe Claim Logic: Validate answer if item has safe claim enabled
         if ($item['is_safe_claim'] && !empty($item['security_answer'])) {
             if (empty($answer)) {
                 flash('message', 'Silakan jawab pertanyaan keamanan untuk mengklaim item ini.', 'error');
@@ -82,7 +70,6 @@ final class ClaimController
                 return;
             }
 
-            // Compare answers (case-insensitive)
             if (strtolower(trim($answer)) !== strtolower(trim($item['security_answer']))) {
                 flash('message', 'Jawaban keamanan tidak sesuai. Klaim tidak dapat diproses.', 'error');
                 redirect('index.php?page=items&action=show&id=' . $itemId);
@@ -90,7 +77,6 @@ final class ClaimController
             }
         }
 
-        // Create claim
         $data = [
             'item_id'             => $itemId,
             'user_id'             => $_SESSION['user_id'],
@@ -105,10 +91,8 @@ final class ClaimController
             return;
         }
 
-        // Update item status to 'process' if this is the first claim
         $this->itemModel->updateStatus($itemId, 'process');
 
-        // Send notification to Item Owner
         $this->notificationModel->create(
             (int) $item['user_id'],
             'Klaim Baru',
@@ -120,12 +104,10 @@ final class ClaimController
         redirect('index.php?page=items&action=show&id=' . $itemId);
     }
 
-    /**
-     * Verify a claim (only item owner can verify)
-     */
+    
     public function verify(): void
     {
-        // Check if user is logged in
+
         if (!isLoggedIn()) {
             flash('message', 'Silakan login terlebih dahulu.', 'error');
             redirect('index.php?page=auth&action=login');
@@ -140,7 +122,6 @@ final class ClaimController
             return;
         }
 
-        // Get claim details
         $claim = $this->claimModel->getById($claimId);
 
         if (!$claim) {
@@ -149,7 +130,6 @@ final class ClaimController
             return;
         }
 
-        // Get item to verify ownership
         $item = $this->itemModel->getById($claim['item_id']);
 
         if (!$item) {
@@ -158,21 +138,18 @@ final class ClaimController
             return;
         }
 
-        // Only Item Owner can verify (or Admin)
         if ((int) $item['user_id'] !== $_SESSION['user_id'] && !isAdmin()) {
             flash('message', 'Anda tidak memiliki akses untuk memverifikasi klaim ini.', 'error');
             redirect('index.php?page=items&action=show&id=' . $item['id']);
             return;
         }
 
-        // Check if claim is still pending
         if ($claim['status'] !== 'pending') {
             flash('message', 'Klaim ini sudah diproses sebelumnya.', 'error');
             redirect('index.php?page=items&action=show&id=' . $item['id']);
             return;
         }
 
-        // Verify the claim (with transaction)
         $verified = $this->claimModel->verifyClaim($claimId, $item['id']);
 
         if (!$verified) {
@@ -181,7 +158,6 @@ final class ClaimController
             return;
         }
 
-        // Send notification to successful claimer
         $this->notificationModel->create(
             (int) $claim['user_id'],
             'Klaim Diverifikasi! 🎉',
@@ -193,12 +169,10 @@ final class ClaimController
         redirect('index.php?page=items&action=show&id=' . $item['id']);
     }
 
-    /**
-     * Reject a claim (only item owner can reject)
-     */
+    
     public function reject(): void
     {
-        // Check if user is logged in
+
         if (!isLoggedIn()) {
             flash('message', 'Silakan login terlebih dahulu.', 'error');
             redirect('index.php?page=auth&action=login');
@@ -214,7 +188,6 @@ final class ClaimController
             return;
         }
 
-        // Get claim details
         $claim = $this->claimModel->getById($claimId);
 
         if (!$claim) {
@@ -223,7 +196,6 @@ final class ClaimController
             return;
         }
 
-        // Get item to verify ownership
         $item = $this->itemModel->getById($claim['item_id']);
 
         if (!$item) {
@@ -232,21 +204,18 @@ final class ClaimController
             return;
         }
 
-        // Only Item Owner can reject (or Admin)
         if ((int) $item['user_id'] !== $_SESSION['user_id'] && !isAdmin()) {
             flash('message', 'Anda tidak memiliki akses untuk menolak klaim ini.', 'error');
             redirect('index.php?page=items&action=show&id=' . $item['id']);
             return;
         }
 
-        // Check if claim is still pending
         if ($claim['status'] !== 'pending') {
             flash('message', 'Klaim ini sudah diproses sebelumnya.', 'error');
             redirect('index.php?page=items&action=show&id=' . $item['id']);
             return;
         }
 
-        // Reject the claim
         $rejected = $this->claimModel->rejectClaim($claimId, !empty($notes) ? $notes : null);
 
         if (!$rejected) {
@@ -255,7 +224,6 @@ final class ClaimController
             return;
         }
 
-        // Send notification to rejected claimer
         $this->notificationModel->create(
             (int) $claim['user_id'],
             'Klaim Ditolak',
@@ -267,12 +235,10 @@ final class ClaimController
         redirect('index.php?page=items&action=show&id=' . $item['id']);
     }
 
-    /**
-     * Cancel own pending claim
-     */
+    
     public function cancel(): void
     {
-        // Check if user is logged in
+
         if (!isLoggedIn()) {
             flash('message', 'Silakan login terlebih dahulu.', 'error');
             redirect('index.php?page=auth&action=login');
@@ -287,7 +253,6 @@ final class ClaimController
             return;
         }
 
-        // Get claim details
         $claim = $this->claimModel->getById($claimId);
 
         if (!$claim) {
@@ -296,21 +261,18 @@ final class ClaimController
             return;
         }
 
-        // Check ownership
         if ((int) $claim['user_id'] !== $_SESSION['user_id']) {
             flash('message', 'Anda tidak dapat membatalkan klaim milik orang lain.', 'error');
             redirect('index.php?page=claims&action=my');
             return;
         }
 
-        // Check if claim is still pending
         if ($claim['status'] !== 'pending') {
             flash('message', 'Hanya klaim dengan status pending yang dapat dibatalkan.', 'error');
             redirect('index.php?page=claims&action=my');
             return;
         }
 
-        // Cancel the claim
         $cancelled = $this->claimModel->cancel($claimId, $_SESSION['user_id']);
 
         if (!$cancelled) {
@@ -323,12 +285,10 @@ final class ClaimController
         redirect('index.php?page=claims&action=my');
     }
 
-    /**
-     * View user's claims
-     */
+    
     public function myClaims(): void
     {
-        // Check if user is logged in
+
         if (!isLoggedIn()) {
             flash('message', 'Silakan login terlebih dahulu.', 'error');
             redirect('index.php?page=auth&action=login');

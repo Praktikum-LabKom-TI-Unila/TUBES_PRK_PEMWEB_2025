@@ -208,8 +208,7 @@ try {
     error_log('Router Error: ' . $e->getMessage());
     error_log('Stack trace: ' . $e->getTraceAsString());
     http_response_code(500);
-    
-    // Show detailed error in development
+
     echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Error</title></head><body style="font-family: sans-serif; padding: 40px; background: #1e293b; color: #e2e8f0;">';
     echo '<div style="max-width: 800px; margin: 0 auto;">';
     echo '<h1 style="color: #ef4444; font-size: 2rem; margin-bottom: 1rem;">⚠️ Application Error</h1>';

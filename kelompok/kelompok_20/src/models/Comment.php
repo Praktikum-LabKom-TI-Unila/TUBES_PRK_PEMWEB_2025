@@ -2,10 +2,7 @@
 
 declare(strict_types=1);
 
-/**
- * Comment Model
- * Handles comment CRUD operations for items
- */
+
 final class Comment
 {
     private PDO $db;
@@ -15,12 +12,7 @@ final class Comment
         $this->db = Database::getConnection();
     }
 
-    /**
-     * Create a new comment
-     * 
-     * @param array $data Comment data (item_id, user_id, body)
-     * @return int|false Returns comment ID on success, false on failure
-     */
+    
     public function create(array $data): int|false
     {
         $sql = "INSERT INTO comments (item_id, user_id, body, created_at)
@@ -37,12 +29,7 @@ final class Comment
         return $result ? (int) $this->db->lastInsertId() : false;
     }
 
-    /**
-     * Get all comments for an item with user info
-     * 
-     * @param int $itemId Item ID
-     * @return array
-     */
+    
     public function getByItemId(int $itemId): array
     {
         $sql = "SELECT 
@@ -65,12 +52,7 @@ final class Comment
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Get a single comment by ID
-     * 
-     * @param int $id Comment ID
-     * @return array|false
-     */
+    
     public function getById(int $id): array|false
     {
         $sql = "SELECT 
@@ -93,12 +75,7 @@ final class Comment
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Soft delete a comment
-     * 
-     * @param int $id Comment ID
-     * @return bool
-     */
+    
     public function delete(int $id): bool
     {
         $sql = "UPDATE comments SET deleted_at = NOW() WHERE id = :id";
@@ -107,12 +84,7 @@ final class Comment
         return $stmt->execute(['id' => $id]);
     }
 
-    /**
-     * Count comments for an item
-     * 
-     * @param int $itemId Item ID
-     * @return int
-     */
+    
     public function countByItemId(int $itemId): int
     {
         $sql = "SELECT COUNT(*) FROM comments
@@ -124,12 +96,7 @@ final class Comment
         return (int) $stmt->fetchColumn();
     }
 
-    /**
-     * Get comments by user ID
-     * 
-     * @param int $userId User ID
-     * @return array
-     */
+    
     public function getByUserId(int $userId): array
     {
         $sql = "SELECT 
@@ -150,13 +117,7 @@ final class Comment
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Check if user is the owner of a comment
-     * 
-     * @param int $commentId Comment ID
-     * @param int $userId User ID
-     * @return bool
-     */
+    
     public function isOwner(int $commentId, int $userId): bool
     {
         $sql = "SELECT user_id FROM comments WHERE id = :id AND deleted_at IS NULL LIMIT 1";

@@ -92,47 +92,38 @@ final class Item
         return $stmt->execute(['id' => $id, 'status' => $status]);
     }
 
-    /**
-     * Build WHERE clause and params for filtering (DRY principle)
-     * Used by both getAll() and countAll()
-     */
+    
     private function buildFilterConditions(array $filters): array
     {
         $conditions = ["i.deleted_at IS NULL"];
         $params = [];
 
-        // Type filter (lost/found)
         if (!empty($filters['type'])) {
             $conditions[] = "i.type = :type";
             $params['type'] = $filters['type'];
         }
 
-        // Category filter
         if (!empty($filters['category_id'])) {
             $conditions[] = "i.category_id = :category_id";
             $params['category_id'] = $filters['category_id'];
         }
 
-        // Location filter
         if (!empty($filters['location_id'])) {
             $conditions[] = "i.location_id = :location_id";
             $params['location_id'] = $filters['location_id'];
         }
 
-        // Status filter
         if (!empty($filters['status'])) {
             $conditions[] = "i.status = :status";
             $params['status'] = $filters['status'];
         }
 
-        // Keyword search (title + description)
         if (!empty($filters['keyword'])) {
             $conditions[] = "(i.title LIKE :keyword OR i.description LIKE :keyword2)";
             $params['keyword'] = '%' . $filters['keyword'] . '%';
             $params['keyword2'] = '%' . $filters['keyword'] . '%';
         }
 
-        // Date range filter (incident_date)
         if (!empty($filters['start_date'])) {
             $conditions[] = "i.incident_date >= :start_date";
             $params['start_date'] = $filters['start_date'];
@@ -143,7 +134,6 @@ final class Item
             $params['end_date'] = $filters['end_date'];
         }
 
-        // User filter (for specific user's items)
         if (!empty($filters['user_id'])) {
             $conditions[] = "i.user_id = :user_id";
             $params['user_id'] = $filters['user_id'];
@@ -168,17 +158,14 @@ final class Item
                 JOIN categories c ON i.category_id = c.id
                 JOIN locations l ON i.location_id = l.id";
 
-        // Build WHERE clause
         $filterData = $this->buildFilterConditions($filters);
         $sql .= " WHERE " . $filterData['where'];
         $params = $filterData['params'];
 
-        // Sorting (newest/oldest)
         $sort = $filters['sort'] ?? 'newest';
         $orderDirection = ($sort === 'oldest') ? 'ASC' : 'DESC';
         $sql .= " ORDER BY i.created_at " . $orderDirection;
 
-        // Pagination
         if (isset($filters['limit']) && $filters['limit'] > 0) {
             $sql .= " LIMIT " . (int) $filters['limit'];
 
@@ -193,9 +180,7 @@ final class Item
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Count all items with same filters as getAll (for pagination)
-     */
+    
     public function countAllFiltered(array $filters = []): int
     {
         $sql = "SELECT COUNT(*) 
@@ -204,7 +189,6 @@ final class Item
                 JOIN categories c ON i.category_id = c.id
                 JOIN locations l ON i.location_id = l.id";
 
-        // Build WHERE clause (same logic as getAll)
         $filterData = $this->buildFilterConditions($filters);
         $sql .= " WHERE " . $filterData['where'];
 
@@ -311,23 +295,10 @@ final class Item
         return $this->getAll(['limit' => $limit]);
     }
 
-    /**
-     * Smart Match: Find potential matching items
-     * 
-     * Logic:
-     * - If target is 'lost', find 'found' items (and vice versa)
-     * - MUST match category_id
-     * - SHOULD match location_id (prioritized in results)
-     * - Exclude the item itself
-     * - Order by location match (priority), then by created_at DESC
-     * 
-     * @param array $targetItem The item to find matches for
-     * @param int $limit Maximum number of matches to return
-     * @return array List of potential matching items
-     */
+    
     public function findMatches(array $targetItem, int $limit = 5): array
     {
-        // Determine opposite type
+
         $oppositeType = ($targetItem['type'] === 'lost') ? 'found' : 'lost';
 
         $sql = "SELECT 
@@ -351,7 +322,6 @@ final class Item
 
         $stmt = $this->db->prepare($sql);
 
-        // Bind parameters with explicit types
         $stmt->bindValue(':target_location_id', (int) $targetItem['location_id'], PDO::PARAM_INT);
         $stmt->bindValue(':target_id', (int) $targetItem['id'], PDO::PARAM_INT);
         $stmt->bindValue(':opposite_type', $oppositeType, PDO::PARAM_STR);
@@ -374,14 +344,10 @@ final class Item
         return $item && (int) $item['user_id'] === $userId;
     }
 
-    /**
-     * Get statistics for admin dashboard
-     * 
-     * @return array Statistics data
-     */
+    
     public function getStats(): array
     {
-        // Total items by type
+
         $sql = "SELECT 
                     COUNT(*) as total_items,
                     SUM(CASE WHEN type = 'lost' THEN 1 ELSE 0 END) as total_lost,

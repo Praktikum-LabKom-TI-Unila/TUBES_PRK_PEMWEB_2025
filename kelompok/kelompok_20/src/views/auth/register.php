@@ -1,7 +1,7 @@
-<!-- Register Page -->
+
 <main class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 gradient-mesh">
     <div class="max-w-2xl w-full space-y-8">
-        <!-- Header -->
+        
         <div class="text-center">
             <div class="flex justify-center mb-4">
                 <div class="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/30">
@@ -18,10 +18,10 @@
             </p>
         </div>
 
-        <!-- Register Form Card -->
+        
         <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl shadow-xl p-8 border border-gray-200/50 dark:border-gray-700/50">
             <form class="space-y-6" action="index.php?page=auth&action=register" method="POST">
-                <!-- Name Input -->
+                
                 <div>
                     <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Nama Lengkap
@@ -44,7 +44,7 @@
                     </div>
                 </div>
 
-                <!-- Identity Number Input -->
+                
                 <div>
                     <label for="identity_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Nomor Identitas (NPM/NIP/NIK)
@@ -66,9 +66,9 @@
                     </div>
                 </div>
 
-                <!-- Email & Phone Grid -->
+                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Email Input -->
+                    
                     <div>
                         <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Email
@@ -91,7 +91,7 @@
                         </div>
                     </div>
 
-                    <!-- Phone Input -->
+                    
                     <div>
                         <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Nomor WhatsApp/HP
@@ -115,9 +115,9 @@
                     </div>
                 </div>
 
-                <!-- Password & Confirm Password Grid -->
+                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Password Input -->
+                    
                     <div>
                         <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Password
@@ -150,7 +150,7 @@
                         </div>
                     </div>
 
-                    <!-- Confirm Password Input -->
+                    
                     <div>
                         <label for="password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Konfirmasi Password
@@ -184,7 +184,7 @@
                     </div>
                 </div>
 
-                <!-- Terms & Conditions -->
+                
                 <div class="flex items-start">
                     <div class="flex items-center h-5">
                         <input 
@@ -209,7 +209,7 @@
                     </div>
                 </div>
 
-                <!-- Submit Button -->
+                
                 <div>
                     <button 
                         type="submit" 
@@ -224,7 +224,7 @@
                     </button>
                 </div>
 
-                <!-- Login Link -->
+                
                 <div class="text-center">
                     <p class="text-sm text-gray-600 dark:text-gray-400">
                         Sudah punya akun?
@@ -236,7 +236,7 @@
             </form>
         </div>
 
-        <!-- Additional Info -->
+        
         <div class="text-center">
             <p class="text-xs text-gray-500 dark:text-gray-400">
                 Data Anda akan dijaga kerahasiaannya sesuai dengan kebijakan privasi kami

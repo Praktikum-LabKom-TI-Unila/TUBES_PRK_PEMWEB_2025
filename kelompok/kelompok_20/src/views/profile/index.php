@@ -1,7 +1,7 @@
-<!-- User Profile Page -->
+
 <div class="min-h-screen bg-slate-50 dark:bg-slate-900 py-8">
     <div class="container mx-auto px-4">
-        <!-- Header -->
+        
         <div class="mb-8">
             <h1 class="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-2">
                 <span class="gradient-text">Profil Saya</span>
@@ -11,7 +11,7 @@
             </p>
         </div>
 
-        <!-- Flash Messages -->
+        
         <?php if ($success): ?>
             <div class="mb-6 px-6 py-4 bg-green-50 dark:bg-green-950/30 border-l-4 border-green-500 rounded-r-xl">
                 <div class="flex items-center gap-3">
@@ -34,12 +34,12 @@
             </div>
         <?php endif; ?>
 
-        <!-- Main Grid Layout -->
+        
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Column 1: Identity Card -->
+            
             <div class="lg:col-span-1">
                 <div class="glass-card rounded-2xl p-6 sticky top-6">
-                    <!-- Avatar -->
+                    
                     <div class="text-center mb-6">
                         <div class="relative inline-block">
                             <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-primary-500 dark:border-primary-400 shadow-xl mx-auto">
@@ -56,7 +56,7 @@
                                     </div>
                                 <?php endif; ?>
                             </div>
-                            <!-- Camera Icon Overlay -->
+                            
                             <div class="absolute bottom-0 right-0 bg-primary-600 rounded-full p-2 shadow-lg">
                                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
@@ -66,13 +66,13 @@
                         </div>
                     </div>
 
-                    <!-- User Info -->
+                    
                     <div class="text-center mb-6">
                         <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">
                             <?= htmlspecialchars($user['name']) ?>
                         </h2>
                         
-                        <!-- Role Badge -->
+                        
                         <?php if ($user['role'] === 'admin'): ?>
                             <span class="inline-flex items-center gap-1.5 px-4 py-2 bg-purple-100 dark:bg-purple-950/50 text-purple-700 dark:text-purple-400 rounded-full text-sm font-semibold">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -90,9 +90,9 @@
                         <?php endif; ?>
                     </div>
 
-                    <!-- Read-Only Fields -->
+                    
                     <div class="space-y-4 mb-6">
-                        <!-- Identity Number -->
+                        
                         <div>
                             <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">
                                 NOMOR IDENTITAS (NPM/NIP)
@@ -102,7 +102,7 @@
                             </div>
                         </div>
 
-                        <!-- Email -->
+                        
                         <div>
                             <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">
                                 EMAIL
@@ -113,10 +113,10 @@
                         </div>
                     </div>
 
-                    <!-- Mini Stats -->
+                    
                     <div class="border-t border-slate-200 dark:border-slate-700 pt-6">
                         <div class="grid grid-cols-2 gap-4">
-                            <!-- Total Items -->
+                            
                             <div class="text-center">
                                 <div class="text-3xl font-bold gradient-text mb-1">
                                     <?= $stats['total_items'] ?>
@@ -126,7 +126,7 @@
                                 </div>
                             </div>
 
-                            <!-- Total Claims -->
+                            
                             <div class="text-center">
                                 <div class="text-3xl font-bold text-amber-600 dark:text-amber-400 mb-1">
                                     <?= $stats['total_claims'] ?>
@@ -140,10 +140,10 @@
                 </div>
             </div>
 
-            <!-- Column 2 & 3: Edit Form -->
+            
             <div class="lg:col-span-2">
                 <form action="<?= base_url('index.php?page=profile&action=update') ?>" method="POST" enctype="multipart/form-data" class="space-y-6">
-                    <!-- Basic Information Card -->
+                    
                     <div class="glass-card rounded-2xl p-6">
                         <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
                             <svg class="w-6 h-6 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -153,7 +153,7 @@
                         </h3>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Name -->
+                            
                             <div class="md:col-span-2">
                                 <label for="name" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                     Nama Lengkap <span class="text-rose-500">*</span>
@@ -176,7 +176,7 @@
                                 </div>
                             </div>
 
-                            <!-- Phone -->
+                            
                             <div class="md:col-span-2">
                                 <label for="phone" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                     Nomor Telepon
@@ -202,7 +202,7 @@
                                 </p>
                             </div>
 
-                            <!-- Avatar Upload -->
+                            
                             <div class="md:col-span-2">
                                 <label for="avatar" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                     Foto Profil
@@ -221,7 +221,7 @@
                         </div>
                     </div>
 
-                    <!-- Password Change Card -->
+                    
                     <div class="glass-card rounded-2xl p-6">
                         <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
                             <svg class="w-6 h-6 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -234,7 +234,7 @@
                         </p>
 
                         <div class="space-y-4">
-                            <!-- Old Password -->
+                            
                             <div>
                                 <label for="old_password" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                     Password Lama
@@ -255,7 +255,7 @@
                                 </div>
                             </div>
 
-                            <!-- New Password -->
+                            
                             <div>
                                 <label for="new_password" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                     Password Baru
@@ -277,7 +277,7 @@
                                 </div>
                             </div>
 
-                            <!-- Confirm Password -->
+                            
                             <div>
                                 <label for="confirm_password" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                     Konfirmasi Password Baru
@@ -300,7 +300,7 @@
                         </div>
                     </div>
 
-                    <!-- Submit Button -->
+                    
                     <div class="flex justify-end gap-4">
                         <a 
                             href="<?= base_url('index.php') ?>"

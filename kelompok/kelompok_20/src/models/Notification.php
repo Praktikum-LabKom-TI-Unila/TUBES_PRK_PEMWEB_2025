@@ -2,10 +2,7 @@
 
 declare(strict_types=1);
 
-/**
- * Notification Model
- * Handles notification CRUD operations
- */
+
 final class Notification
 {
     private PDO $db;
@@ -15,15 +12,7 @@ final class Notification
         $this->db = Database::getConnection();
     }
 
-    /**
-     * Create a new notification
-     * 
-     * @param int $userId Target user ID
-     * @param string $title Notification title
-     * @param string $message Notification message
-     * @param string|null $link Optional link to redirect
-     * @return bool
-     */
+    
     public function create(int $userId, string $title, string $message, ?string $link = null): bool
     {
         $sql = "INSERT INTO notifications (user_id, title, message, link, is_read, created_at)
@@ -39,13 +28,7 @@ final class Notification
         ]);
     }
 
-    /**
-     * Get unread notifications for a user
-     * 
-     * @param int $userId User ID
-     * @param int $limit Maximum number of notifications to fetch
-     * @return array
-     */
+    
     public function getUnread(int $userId, int $limit = 5): array
     {
         $sql = "SELECT id, title, message, link, is_read, created_at
@@ -62,13 +45,7 @@ final class Notification
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Get all notifications for a user
-     * 
-     * @param int $userId User ID
-     * @param int $limit Maximum number of notifications to fetch
-     * @return array
-     */
+    
     public function getAllByUserId(int $userId, int $limit = 20): array
     {
         $sql = "SELECT id, title, message, link, is_read, created_at
@@ -85,13 +62,7 @@ final class Notification
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Mark a specific notification as read
-     * 
-     * @param int $id Notification ID
-     * @param int $userId User ID (for ownership validation)
-     * @return bool
-     */
+    
     public function markAsRead(int $id, int $userId): bool
     {
         $sql = "UPDATE notifications
@@ -106,12 +77,7 @@ final class Notification
         ]);
     }
 
-    /**
-     * Mark all notifications as read for a user
-     * 
-     * @param int $userId User ID
-     * @return bool
-     */
+    
     public function markAllAsRead(int $userId): bool
     {
         $sql = "UPDATE notifications
@@ -123,12 +89,7 @@ final class Notification
         return $stmt->execute(['user_id' => $userId]);
     }
 
-    /**
-     * Count unread notifications for a user
-     * 
-     * @param int $userId User ID
-     * @return int
-     */
+    
     public function countUnread(int $userId): int
     {
         $sql = "SELECT COUNT(*) FROM notifications
@@ -140,12 +101,7 @@ final class Notification
         return (int) $stmt->fetchColumn();
     }
 
-    /**
-     * Delete old notifications (cleanup)
-     * 
-     * @param int $daysOld Delete notifications older than this
-     * @return bool
-     */
+    
     public function deleteOld(int $daysOld = 30): bool
     {
         $sql = "DELETE FROM notifications

@@ -1,17 +1,11 @@
 <?php
-/**
- * Notifications View
- * 
- * Available variables:
- * - $notifications: Array of user's notifications
- * - $unreadCount: Number of unread notifications
- */
+
 
 declare(strict_types=1);
 ?>
 
 <div class="container mx-auto px-4 py-8">
-    <!-- Header -->
+    
     <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
         <div>
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
@@ -37,7 +31,7 @@ declare(strict_types=1);
     </div>
 
     <?php if (empty($notifications)): ?>
-    <!-- Empty State -->
+    
     <div class="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-12 text-center">
         <div class="text-6xl mb-4">🔕</div>
         <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
@@ -49,19 +43,19 @@ declare(strict_types=1);
     </div>
 
     <?php else: ?>
-    <!-- Notifications List -->
+    
     <div class="space-y-3">
         <?php foreach ($notifications as $notification): ?>
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden
             <?= !$notification['is_read'] ? 'border-l-4 border-cyan-500' : '' ?>">
             <div class="p-4 flex items-start gap-4">
-                <!-- Icon -->
+                
                 <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center
                     <?= !$notification['is_read'] 
                         ? 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400' 
                         : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400' ?>">
                     <?php
-                    // Determine icon based on title
+
                     $icon = '🔔';
                     if (str_contains($notification['title'], 'Komentar')) $icon = '💬';
                     elseif (str_contains($notification['title'], 'Klaim')) $icon = '📋';
@@ -71,7 +65,7 @@ declare(strict_types=1);
                     ?>
                 </div>
 
-                <!-- Content -->
+                
                 <div class="flex-1 min-w-0">
                     <div class="flex items-start justify-between gap-2">
                         <h4 class="font-semibold text-gray-900 dark:text-white text-sm">
@@ -86,7 +80,7 @@ declare(strict_types=1);
                         <?= htmlspecialchars($notification['message']) ?>
                     </p>
 
-                    <!-- Actions -->
+                    
                     <div class="flex items-center gap-3 mt-3">
                         <?php if (!empty($notification['link'])): ?>
                         <a href="<?= base_url($notification['link']) ?>" 
@@ -106,7 +100,7 @@ declare(strict_types=1);
                     </div>
                 </div>
 
-                <!-- Unread indicator -->
+                
                 <?php if (!$notification['is_read']): ?>
                 <div class="flex-shrink-0">
                     <span class="w-2 h-2 bg-cyan-500 rounded-full inline-block"></span>

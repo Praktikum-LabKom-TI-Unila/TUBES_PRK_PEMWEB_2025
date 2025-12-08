@@ -1,13 +1,9 @@
 <?php
-
 declare(strict_types=1);
 
 require_once __DIR__ . '/../models/Notification.php';
 
-/**
- * Notification Controller
- * Handles notification operations
- */
+
 final class NotificationController
 {
     private Notification $notificationModel;
@@ -17,12 +13,10 @@ final class NotificationController
         $this->notificationModel = new Notification();
     }
 
-    /**
-     * Get notifications (for AJAX or page)
-     */
+    
     public function index(): void
     {
-        // Check if user is logged in
+
         if (!isLoggedIn()) {
             flash('message', 'Silakan login terlebih dahulu.', 'error');
             redirect('index.php?page=auth&action=login');
@@ -37,12 +31,10 @@ final class NotificationController
         require_once __DIR__ . '/../views/notifications/index.php';
     }
 
-    /**
-     * Mark a notification as read
-     */
+    
     public function markRead(): void
     {
-        // Check if user is logged in
+
         if (!isLoggedIn()) {
             if ($this->isAjaxRequest()) {
                 http_response_code(401);
@@ -84,12 +76,10 @@ final class NotificationController
         redirect('index.php?page=notifications');
     }
 
-    /**
-     * Mark all notifications as read
-     */
+    
     public function markAllRead(): void
     {
-        // Check if user is logged in
+
         if (!isLoggedIn()) {
             if ($this->isAjaxRequest()) {
                 http_response_code(401);
@@ -118,9 +108,7 @@ final class NotificationController
         redirect('index.php?page=notifications');
     }
 
-    /**
-     * Get unread count (for AJAX navbar badge)
-     */
+    
     public function getUnreadCount(): void
     {
         header('Content-Type: application/json');
@@ -135,9 +123,7 @@ final class NotificationController
         exit;
     }
 
-    /**
-     * Get unread notifications (for AJAX dropdown)
-     */
+    
     public function getUnread(): void
     {
         header('Content-Type: application/json');
@@ -158,9 +144,7 @@ final class NotificationController
         exit;
     }
 
-    /**
-     * Check if request is AJAX
-     */
+    
     private function isAjaxRequest(): bool
     {
         return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) 
