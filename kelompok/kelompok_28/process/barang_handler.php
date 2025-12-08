@@ -51,4 +51,25 @@ elseif ($action == 'delete') {
         echo "Gagal menghapus data";
     }
 }
+
+// --- LOGIKA TAMBAH KATEGORI BARU ---
+elseif ($action == 'add_category') {
+    $store_id = $_SESSION['store_id']; // Ambil ID toko dari session
+    $name     = mysqli_real_escape_string($conn, $_POST['category_name']);
+
+    // Cek biar ga duplikat
+    $check = mysqli_query($conn, "SELECT id FROM categories WHERE store_id='$store_id' AND name='$name'");
+    if(mysqli_num_rows($check) > 0) {
+        header("Location: ../pages/admin_gudang/inventory.php?status=error&msg=Kategori sudah ada");
+        exit;
+    }
+
+    $query = "INSERT INTO categories (store_id, name) VALUES ('$store_id', '$name')";
+
+    if (mysqli_query($conn, $query)) {
+        header("Location: ../pages/admin_gudang/inventory.php?status=success_cat");
+    } else {
+        header("Location: ../pages/admin_gudang/inventory.php?status=error");
+    }
+}
 ?>
