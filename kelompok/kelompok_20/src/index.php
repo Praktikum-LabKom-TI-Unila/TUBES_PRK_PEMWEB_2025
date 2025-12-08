@@ -22,8 +22,9 @@ ob_start();
 try {
     switch ($page) {
         case 'home':
-            $pageTitle = 'Beranda - myUnila Lost & Found';
-            require_once __DIR__ . '/views/home/index.php';
+            require_once __DIR__ . '/controllers/HomeController.php';
+            $controller = new HomeController();
+            $controller->index();
             break;
             
         case 'items':
@@ -193,12 +194,21 @@ try {
     }
 } catch (Exception $e) {
     error_log('Router Error: ' . $e->getMessage());
+    error_log('Stack trace: ' . $e->getTraceAsString());
     http_response_code(500);
-    echo '<div class="container mx-auto px-4 py-20 text-center">';
-    echo '<h1 class="text-6xl font-bold text-red-600 mb-4">500</h1>';
-    echo '<p class="text-xl text-gray-600 mb-8">Terjadi kesalahan pada server</p>';
-    echo '<a href="' . base_url('index.php') . '" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-blue-600 transition inline-block">Kembali ke Beranda</a>';
+    
+    // Show detailed error in development
+    echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Error</title></head><body style="font-family: sans-serif; padding: 40px; background: #1e293b; color: #e2e8f0;">';
+    echo '<div style="max-width: 800px; margin: 0 auto;">';
+    echo '<h1 style="color: #ef4444; font-size: 2rem; margin-bottom: 1rem;">⚠️ Application Error</h1>';
+    echo '<div style="background: #0f172a; padding: 20px; border-radius: 8px; margin-bottom: 20px;">';
+    echo '<p style="margin: 0;"><strong>Message:</strong> ' . htmlspecialchars($e->getMessage()) . '</p>';
+    echo '<p style="margin: 10px 0 0 0;"><strong>File:</strong> ' . htmlspecialchars($e->getFile()) . ' (Line: ' . $e->getLine() . ')</p>';
     echo '</div>';
+    echo '<pre style="background: #0f172a; padding: 20px; border-radius: 8px; overflow-x: auto; font-size: 12px;">' . htmlspecialchars($e->getTraceAsString()) . '</pre>';
+    echo '<a href="' . base_url('index.php') . '" style="display: inline-block; margin-top: 20px; padding: 12px 24px; background: #06b6d4; color: white; text-decoration: none; border-radius: 8px;">← Kembali ke Beranda</a>';
+    echo '</div></body></html>';
+    exit;
 }
 
 $content = ob_get_clean();
