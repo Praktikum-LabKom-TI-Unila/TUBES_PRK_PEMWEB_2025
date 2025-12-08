@@ -12,6 +12,12 @@ if ($conn->connect_error) {
     die("Koneksi gagal: " . $conn->connect_error);
 }
 
+// Matikan display error agar tidak merusak output PDF saat live
+// error_reporting(0); 
+// Tapi untuk debugging saat ini, biarkan menyala:
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // 2. SETUP DATA
 session_start();
 $store_id = $_SESSION['store_id'] ?? 1; // Default 1 jika testing
@@ -30,6 +36,7 @@ $store_data = $stmt->get_result()->fetch_assoc();
 if (!$store_data) die("Data toko tidak ditemukan.");
 
 // 3. PANGGIL LIBRARY FPDF
+// Pastikan path ini benar sesuai struktur folder Anda
 require('../../library/fpdf.php');
 
 class PDF extends FPDF {
@@ -126,26 +133,24 @@ if ($result->num_rows > 0) {
         $pdf->Cell(35, 7, date('d/m/Y H:i', strtotime($row['date'])), 1, 0, 'C');
         $pdf->Cell(40, 7, $row['invoice_code'], 1, 0, 'C');
         
-        // Nama kasir (potong jika panjang)
+        // Nama kasir
         $kasir = $row['kasir_name'] ? $row['kasir_name'] : '-';
-        $pdf->Cell(60, 7, '  ' . substr($kasir, 0, 30), 1, 0, 'L'); // Tambah spasi dikit
+        $pdf->Cell(60, 7, '  ' . substr($kasir, 0, 30), 1, 0, 'L'); 
         
-        $pdf->Cell(45, 7, number_format($row['total_price'], 0, ',', '.') . '   ', 1, 1, 'R'); // Tambah spasi
+        // Harga
+        $pdf->Cell(45, 7, number_format($row['total_price'], 0, ',', '.') . '   ', 1, 1, 'R');
         
         $grand_total += $row['total_price'];
     }
 
-    // --- BARIS TOTAL (PERBAIKAN UTAMA DISINI) ---
+    // --- BARIS TOTAL ---
     $pdf->SetFont('Arial', 'B', 10);
+    $pdf->SetFillColor(255, 255, 200); // Kuning Muda
     
-    // Set warna background KUNING MUDA agar tidak hitam (R, G, B)
-    // Jika ingin abu-abu, ganti jadi (200, 200, 200)
-    $pdf->SetFillColor(255, 255, 200); 
-    
-    // Merge kolom 1 s/d 4 (10+35+40+60 = 145mm) untuk label
+    // Label Total
     $pdf->Cell(145, 10, 'GRAND TOTAL PENJUALAN   ', 1, 0, 'R', true);
     
-    // Kolom Nilai (45mm)
+    // Nilai Total
     $pdf->Cell(45, 10, 'Rp ' . number_format($grand_total, 0, ',', '.') . '   ', 1, 1, 'R', true);
 
 } else {
@@ -157,22 +162,34 @@ if ($result->num_rows > 0) {
 }
 
 // 7. TANDA TANGAN
-$pdf->Ln(15); // Jarak dari tabel ke tanda tangan
+$pdf->Ln(15); 
 $pdf->SetFont('Arial', '', 10);
 
-// Geser posisi X ke kanan (titik mulai 140mm)
+// Helper untuk Tanggal Indonesia
+$bulanIndo = array(
+    '01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April',
+    '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus',
+    '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'
+);
+$tglSekarang = date('d') . ' ' . $bulanIndo[date('m')] . ' ' . date('Y');
+
+// Posisi Tanda Tangan
 $pdf->SetX(140);
-$pdf->Cell(50, 5, 'Metro, ' . date('d F Y'), 0, 1, 'C');
+$pdf->Cell(50, 5, 'Metro, ' . $tglSekarang, 0, 1, 'C');
 
 $pdf->SetX(140);
 $pdf->Cell(50, 5, 'Pemilik Toko,', 0, 1, 'C');
 
-$pdf->Ln(25); // Ruang untuk tanda tangan basah
+$pdf->Ln(25); // Ruang Tanda Tangan
 
 $nama_pemilik = $_SESSION['fullname'] ?? 'Budi Santoso'; 
 
 $pdf->SetX(140);
-$pdf->SetFont('Arial', 10); // Nama ditebalkan
+
+// --- PERBAIKAN UTAMA DISINI ---
+// Menggunakan parameter 'B' (Bold) di tengah.
+// Sebelumnya error karena: $pdf->SetFont('Arial', 10);
+$pdf->SetFont('Arial', 'B', 10); 
 $pdf->Cell(50, 5, '( ' . $nama_pemilik . ' )', 0, 1, 'C');
 
 // Output
