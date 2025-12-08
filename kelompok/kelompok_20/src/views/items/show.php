@@ -177,7 +177,7 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
                             </div>
                             <div>
                                 <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Tanggal</p>
-                                <p class="text-sm font-bold text-slate-900 dark:text-white"><?= date('d M Y', strtotime($item['date_lost_found'])) ?></p>
+                                <p class="text-sm font-bold text-slate-900 dark:text-white"><?= date('d M Y', strtotime($item['incident_date'])) ?></p>
                             </div>
                         </div>
 
