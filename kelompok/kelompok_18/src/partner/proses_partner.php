@@ -4,7 +4,7 @@ include '../config/koneksi.php';
 session_start();
 
 // 1. Cek Login
-$my_id = $_SESSION['user_id'] ?? $_SESSION['id'] ?? null;
+$my_id = $_SESSION['id'] ?? $_SESSION['user_id'] ?? null;
 if (!$my_id) {
     echo "<script>alert('Sesi habis. Silakan login ulang.'); window.location='../auth/login.php';</script>";
     exit;
@@ -13,21 +13,22 @@ if (!$my_id) {
 $action = $_POST['action'] ?? '';
 
 // ==========================================
-// 1. KIRIM REQUEST / BUAT BUNDLE BARU
+// 1. KIRIM REQUEST / AJAK KOLABORASI
 // ==========================================
 if ($action == 'create_request') {
     $mitra_id    = mysqli_real_escape_string($koneksi, $_POST['mitra_id']);
     $nama_bundle = mysqli_real_escape_string($koneksi, $_POST['nama_bundle'] ?? 'Kolaborasi Baru');
     $pesan_awal  = mysqli_real_escape_string($koneksi, $_POST['pesan_awal']);
 
-    // Cek request pending
+    // Cek apakah sudah ada request pending?
     $cek = mysqli_query($koneksi, "SELECT id FROM bundles WHERE pembuat_id='$my_id' AND mitra_id='$mitra_id' AND status='pending'");
+    
     if (mysqli_num_rows($cek) > 0) {
-        echo "<script>alert('Request kolaborasi masih menunggu konfirmasi (Pending).'); window.location='index.php';</script>";
+        echo "<script>alert('Request masih pending. Tunggu respon mitra.'); window.location='index.php';</script>";
         exit;
     }
 
-    // Insert bundles (Produk masih NULL dulu)
+    // Insert ke tabel bundles
     $q_bundle = "INSERT INTO bundles (pembuat_id, mitra_id, nama_bundle, status, created_at) 
                  VALUES ('$my_id', '$mitra_id', '$nama_bundle', 'pending', NOW())";
     
@@ -39,7 +40,7 @@ if ($action == 'create_request') {
                    VALUES ('$new_bundle_id', '$my_id', '$pesan_awal', NOW())";
         mysqli_query($koneksi, $q_chat);
 
-        echo "<script>alert('Ajakan Kolaborasi Terkirim!'); window.location='index.php';</script>";
+        echo "<script>alert('Ajakan Terkirim!'); window.location='chat_room.php?bundle_id=$new_bundle_id';</script>";
     } else {
         echo "<script>alert('Gagal: " . mysqli_error($koneksi) . "'); window.location='index.php';</script>";
     }
@@ -68,7 +69,7 @@ if ($action == 'send_message') {
         $target_file = $target_dir . $file_name;
         $file_ext = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
-        // Tentukan Tipe File (Image atau File Dokumen)
+        // Tentukan Tipe File
         $img_exts = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
         $doc_exts = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'zip', 'rar'];
 
@@ -87,32 +88,19 @@ if ($action == 'send_message') {
         }
     }
 
-    // --- INSERT KE DATABASE (FIXED) ---
-    // Pastikan minimal ada pesan ATAU file (jangan kosong dua-duanya)
+    // --- INSERT KE DATABASE ---
     if (!empty($bundle_id) && (!empty($message) || !empty($attachment))) {
         
-        // PERBAIKAN DI SINI:
-        // Jika variabel kosong (null), kita set string "NULL" (tanpa kutip) untuk SQL
-        // Jika ada isinya, kita bungkus dengan kutip satu '$variable'
-        
-        $sql_attachment = ($attachment) ? "'$attachment'" : "NULL";
-        $sql_type       = ($attachment_type) ? "'$attachment_type'" : "NULL";
-
-        // Perhatikan variabel $sql_attachment dan $sql_type TIDAK dibungkus kutip lagi di dalam string query
-        // karena logic di atas sudah menangani kutipnya.
-        
         $q_chat = "INSERT INTO chats (bundle_id, sender_id, message, attachment, attachment_type, created_at) 
-                   VALUES ('$bundle_id', '$my_id', '$message', $sql_attachment, $sql_type, NOW())";
+                   VALUES ('$bundle_id', '$my_id', '$message', '$attachment', '$attachment_type', NOW())";
         
         if (mysqli_query($koneksi, $q_chat)) {
             header("Location: chat_room.php?bundle_id=$bundle_id");
             exit;
         } else {
-            // Tampilkan error jika query gagal
-            echo "Error Database: " . mysqli_error($koneksi);
+            echo "Error: " . mysqli_error($koneksi);
         }
     } else {
-        // Jika user tidak mengetik apa-apa dan tidak upload file
         header("Location: chat_room.php?bundle_id=$bundle_id");
     }
 }
@@ -127,7 +115,7 @@ if ($action == 'accept') {
     $update = mysqli_query($koneksi, "UPDATE bundles SET status='active' WHERE id='$bundle_id' AND mitra_id='$my_id'");
     
     if ($update) {
-        $sys_msg = "[SISTEM] Kolaborasi disetujui! Silakan diskusi produk & tentukan Deal.";
+        $sys_msg = "[SISTEM] Kolaborasi disetujui! Silakan mulai diskusi.";
         mysqli_query($koneksi, "INSERT INTO chats (bundle_id, sender_id, message) VALUES ('$bundle_id', '$my_id', '$sys_msg')");
         
         echo "<script>alert('Kolaborasi Diterima!'); window.location='chat_room.php?bundle_id=$bundle_id';</script>";
@@ -146,52 +134,85 @@ if ($action == 'reject') {
 }
 
 // ==========================================
-// 5. DEAL PRODUK (UPDATE BUNDLE)
+// 5. AJUKAN KESEPAKATAN / DEAL (Fitur Atur Kolaborasi)
 // ==========================================
-if ($action == 'deal_bundle') {
-    $bundle_id = mysqli_real_escape_string($koneksi, $_POST['bundle_id']);
+if ($action == 'propose_deal') {
+    $bundle_id      = mysqli_real_escape_string($koneksi, $_POST['bundle_id']);
+    $nama_bundle    = mysqli_real_escape_string($koneksi, $_POST['nama_bundle']);
+    $harga_bundle   = mysqli_real_escape_string($koneksi, $_POST['harga_bundle']);
+    $pesan_tambahan = mysqli_real_escape_string($koneksi, $_POST['pesan_proposal']);
     
-    // Cek siapa pembuat dan siapa mitra di bundle ini agar ID produk masuk ke kolom yang benar
-    $q_cek = mysqli_query($koneksi, "SELECT * FROM bundles WHERE id='$bundle_id'");
-    $d_cek = mysqli_fetch_assoc($q_cek);
-    
-    $input_prod_saya    = $_POST['produk_pembuat']; // Dari dropdown "Produk Saya"
-    $input_prod_partner = $_POST['produk_mitra'];   // Dari dropdown "Produk Partner"
-    
-    if ($d_cek['pembuat_id'] == $my_id) {
-        // Jika saya adalah pembuat (Penginisiasi)
-        $save_prod_pembuat = $input_prod_saya;
-        $save_prod_mitra   = $input_prod_partner;
+    $prod_saya      = mysqli_real_escape_string($koneksi, $_POST['produk_saya']);
+    $prod_partner   = mysqli_real_escape_string($koneksi, $_POST['produk_partner']);
+
+    // Buat JSON Data (Teknik tanpa ubah DB)
+    $data_json = json_encode([
+        'nama_bundle' => $nama_bundle,
+        'harga'       => $harga_bundle,
+        'prod_A'      => $prod_saya,
+        'prod_B'      => $prod_partner,
+        'catatan'     => $pesan_tambahan
+    ]);
+
+    // Bungkus dengan TANDA KHUSUS
+    $final_message = "[DEAL_PROPOSAL]" . $data_json;
+
+    $q = "INSERT INTO chats (bundle_id, sender_id, message, created_at) 
+          VALUES ('$bundle_id', '$my_id', '$final_message', NOW())";
+
+    if (mysqli_query($koneksi, $q)) {
+        echo "<script>alert('Penawaran dikirim ke chat!'); window.location='chat_room.php?bundle_id=$bundle_id';</script>";
     } else {
-        // Jika saya adalah mitra (Penerima)
-        $save_prod_pembuat = $input_prod_partner; 
-        $save_prod_mitra   = $input_prod_saya;
-    }
-
-    $harga_bundle = $_POST['harga_bundle'];
-    $nama_bundle  = mysqli_real_escape_string($koneksi, $_POST['nama_bundle']);
-
-    // Update Data Bundle
-    $query = "UPDATE bundles SET 
-              produk_pembuat_id = '$save_prod_pembuat',
-              produk_mitra_id = '$save_prod_mitra',
-              harga_bundle = '$harga_bundle',
-              nama_bundle = '$nama_bundle'
-              WHERE id = '$bundle_id'";
-
-    if (mysqli_query($koneksi, $query)) {
-        // Kirim Notifikasi Sistem di Chat
-        $msg = "[SISTEM] Deal Updated: $nama_bundle (Harga Paket: Rp " . number_format($harga_bundle) . ")";
-        mysqli_query($koneksi, "INSERT INTO chats (bundle_id, sender_id, message) VALUES ('$bundle_id', '$my_id', '$msg')");
-
-        echo "<script>alert('Berhasil update kesepakatan produk!'); window.location='chat_room.php?bundle_id=$bundle_id';</script>";
-    } else {
-        echo "<script>alert('Gagal update: " . mysqli_error($koneksi) . "'); window.history.back();</script>";
+        echo "Error: " . mysqli_error($koneksi);
     }
 }
 
 // ==========================================
-// 6. BATALKAN KOLABORASI (CANCEL)
+// 6. TERIMA KESEPAKATAN (DEAL SAH)
+// ==========================================
+if ($action == 'accept_deal_proposal') {
+    $chat_id = $_POST['chat_id'];
+    
+    // Ambil pesan dari DB
+    $q_chat = mysqli_query($koneksi, "SELECT * FROM chats WHERE id='$chat_id'");
+    $chat   = mysqli_fetch_assoc($q_chat);
+    
+    // Decode JSON dari pesan
+    $clean_json = str_replace("[DEAL_PROPOSAL]", "", $chat['message']);
+    $data       = json_decode($clean_json, true);
+    
+    $bundle_id = $chat['bundle_id'];
+
+    // Cek peran pengirim untuk mapping produk
+    $q_bundle = mysqli_query($koneksi, "SELECT * FROM bundles WHERE id='$bundle_id'");
+    $bundle   = mysqli_fetch_assoc($q_bundle);
+
+    if ($chat['sender_id'] == $bundle['pembuat_id']) {
+        $prod_pembuat = $data['prod_A'];
+        $prod_mitra   = $data['prod_B'];
+    } else {
+        $prod_mitra   = $data['prod_A']; 
+        $prod_pembuat = $data['prod_B'];
+    }
+
+    // UPDATE BUNDLE (Finalisasi)
+    $update = "UPDATE bundles SET 
+               nama_bundle = '{$data['nama_bundle']}',
+               harga_bundle = '{$data['harga']}',
+               produk_pembuat_id = '$prod_pembuat',
+               produk_mitra_id = '$prod_mitra'
+               WHERE id = '$bundle_id'";
+    
+    if (mysqli_query($koneksi, $update)) {
+        $sys = "[SISTEM] ✅ Kesepakatan DISETUJUI! Bundle telah diperbarui.";
+        mysqli_query($koneksi, "INSERT INTO chats (bundle_id, sender_id, message) VALUES ('$bundle_id', '$my_id', '$sys')");
+        
+        echo "<script>alert('Kesepakatan Sah!'); window.location='chat_room.php?bundle_id=$bundle_id';</script>";
+    }
+}
+
+// ==========================================
+// 7. BATALKAN KOLABORASI (CANCEL)
 // ==========================================
 if ($action == 'cancel_bundle') {
     $bundle_id = mysqli_real_escape_string($koneksi, $_POST['bundle_id']);
@@ -199,7 +220,7 @@ if ($action == 'cancel_bundle') {
     $update = mysqli_query($koneksi, "UPDATE bundles SET status='cancelled' WHERE id='$bundle_id' AND (pembuat_id='$my_id' OR mitra_id='$my_id')");
     
     if ($update) {
-        $sys_msg = "[SISTEM] Kolaborasi dibatalkan.";
+        $sys_msg = "[SISTEM] 🚫 Kolaborasi dibatalkan.";
         mysqli_query($koneksi, "INSERT INTO chats (bundle_id, sender_id, message) VALUES ('$bundle_id', '$my_id', '$sys_msg')");
         echo "<script>alert('Kolaborasi dibatalkan.'); window.location='history.php';</script>";
     } else {
@@ -208,7 +229,7 @@ if ($action == 'cancel_bundle') {
 }
 
 // ==========================================
-// 7. BUAT VOUCHER
+// 8. BUAT VOUCHER
 // ==========================================
 if ($action == 'create_voucher') {
     $bundle_id      = mysqli_real_escape_string($koneksi, $_POST['bundle_id']);
@@ -217,10 +238,9 @@ if ($action == 'create_voucher') {
     $kuota          = mysqli_real_escape_string($koneksi, $_POST['kuota_maksimal']);
     $expired        = mysqli_real_escape_string($koneksi, $_POST['expired_at']);
 
-    // Cek duplikat kode
     $cek = mysqli_query($koneksi, "SELECT id FROM vouchers WHERE kode_voucher='$kode_voucher'");
     if (mysqli_num_rows($cek) > 0) {
-        echo "<script>alert('Kode Voucher sudah ada! Gunakan kode lain.'); window.history.back();</script>";
+        echo "<script>alert('Kode Voucher sudah ada!'); window.history.back();</script>";
         exit;
     }
 
@@ -228,13 +248,11 @@ if ($action == 'create_voucher') {
           VALUES ('$bundle_id', '$kode_voucher', '$potongan_harga', '$kuota', '$expired')";
 
     if (mysqli_query($koneksi, $q)) {
-        $msg = "[SISTEM] Voucher Dibuat: $kode_voucher (Disc: Rp " . number_format($potongan_harga) . ")";
+        $msg = "[SISTEM]  Voucher Dibuat: $kode_voucher (Disc: $potongan_harga)";
         mysqli_query($koneksi, "INSERT INTO chats (bundle_id, sender_id, message) VALUES ('$bundle_id', '$my_id', '$msg')");
-        
-        // Redirect balik ke chat room agar user melihat notifikasi
         echo "<script>alert('Voucher berhasil dibuat!'); window.location='chat_room.php?bundle_id=$bundle_id';</script>";
     } else {
-        echo "<script>alert('Gagal membuat voucher: " . mysqli_error($koneksi) . "'); window.history.back();</script>";
+        echo "<script>alert('Gagal membuat voucher.'); window.history.back();</script>";
     }
 }
 ?>

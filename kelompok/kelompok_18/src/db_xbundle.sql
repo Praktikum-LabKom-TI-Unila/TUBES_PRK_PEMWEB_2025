@@ -1,4 +1,4 @@
--- Active: 1744639830308@@localhost@3306@db_xbundle
+-- Active: 1753257938710@@127.0.0.1@3306@db_xbundle
 -- =============================================
 -- DATABASE X-BUNDLE (FINAL STRUCTURE)
 -- =============================================
@@ -99,6 +99,17 @@ CREATE TABLE vouchers (
     CONSTRAINT fk_vouchers_bundle 
         FOREIGN KEY (bundle_id) REFERENCES bundles(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+CREATE TABLE bundle_deals (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    bundle_id INT NOT NULL,
+    produk_pembuat_id INT NOT NULL,
+    produk_mitra_id INT NOT NULL,
+    harga_bundle DECIMAL(10,2) NOT NULL,
+    voucher_code VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (bundle_id) REFERENCES bundles(id) ON DELETE CASCADE
+);
 
 -- =============================================
 -- DATA DUMMY (UNTUK TEST)
