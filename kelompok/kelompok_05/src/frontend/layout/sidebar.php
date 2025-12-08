@@ -5,9 +5,10 @@ $role = $_SESSION['role'] ?? 'guest';
 <div class="sidebar p-3 d-flex flex-column" style="width: 260px; min-height: 100vh;">
     
     <div class="text-center mt-3 mb-5">
-        <h4 class="fw-bold text-white tracking-wide">
-            <i class="fas fa-map-marker-alt text-warning me-2"></i>Lampung<span class="text-warning">Smart</span>
-        </h4>
+        <a href="../backend/dashboard_warga.php" class="text-decoration-none d-flex align-items-center justify-content-center sidebar-logo-link">
+            <img src="../assets/images/logo-lampung.png" alt="Logo Lampung" class="logo-lampung-sidebar"> 
+            <span class="text-white fw-bold fs-5 ms-2">Lampung<span class="text-warning">Smart</span></span>
+        </a>
     </div>
     
     <ul class="nav flex-column gap-2">
@@ -43,6 +44,14 @@ $role = $_SESSION['role'] ?? 'guest';
                     <i class="fas fa-file-contract me-3"></i> Status Izin
                 </a>
             </li>
+            
+            <li class="nav-header text-uppercase text-white-50 fs-7 fw-bold mt-3 mb-2 px-3" style="font-size: 0.75rem;">Akun</li>
+            
+            <li class="nav-item">
+                <a href="../frontend/profile.php" class="nav-link d-flex align-items-center <?php echo basename($_SERVER['PHP_SELF']) == 'profile.php' ? 'active' : ''; ?>">
+                    <i class="fas fa-user-circle me-3"></i> Profil Saya
+                </a>
+            </li>
         
         <?php elseif ($role == 'admin'): ?>
             <li class="nav-header text-uppercase text-white-50 fs-7 fw-bold mt-3 mb-2 px-3" style="font-size: 0.75rem;">Panel Admin</li>
@@ -67,7 +76,7 @@ $role = $_SESSION['role'] ?? 'guest';
 
     <div class="mt-auto mb-4">
         <hr class="border-secondary opacity-50">
-        <a href="../backend/logout.php" class="nav-link text-danger d-flex align-items-center fw-bold" onclick="return confirm('Yakin mau keluar?')">
+        <a href="../backend/auth/logout.php" class="nav-link text-danger d-flex align-items-center fw-bold" onclick="return confirm('Yakin mau keluar?')">
             <i class="fas fa-sign-out-alt me-3"></i> Logout
         </a>
     </div>
