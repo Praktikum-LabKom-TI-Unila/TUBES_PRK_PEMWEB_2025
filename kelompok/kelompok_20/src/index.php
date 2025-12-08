@@ -150,12 +150,24 @@ try {
             break;
             
         case 'profile':
-            if (!isLoggedIn()) {
-                flash('message', 'Silakan login terlebih dahulu', 'error');
-                redirect('index.php?page=auth&action=login');
+            require_once __DIR__ . '/controllers/ProfileController.php';
+            require_once __DIR__ . '/models/User.php';
+            require_once __DIR__ . '/models/Item.php';
+            require_once __DIR__ . '/models/Claim.php';
+            
+            $controller = new ProfileController();
+
+            if ($isPostRequest) {
+                match ($action) {
+                    'update' => $controller->update(),
+                    default  => redirect('index.php?page=profile')
+                };
+            } else {
+                match ($action) {
+                    'index', '' => $controller->index(),
+                    default     => $controller->index()
+                };
             }
-            $pageTitle = 'Profil - myUnila Lost & Found';
-            require_once __DIR__ . '/views/profile/index.php';
             break;
             
         case 'admin':
