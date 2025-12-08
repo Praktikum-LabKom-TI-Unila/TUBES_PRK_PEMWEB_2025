@@ -61,7 +61,7 @@ if (isset($_POST['login'])) {
                 <div class="card card-login p-4 p-md-5 bg-white">
                     <div class="card-body px-0">
                         <div class="text-center mb-5">
-                            <img src="../../assets/images/logo-lampung.png" alt="Logo Lampung" class="logo-lampung-sidebar"> 
+                            <img src="../assets/images/logo-lampung.png" alt="Logo Lampung" class="logo-lampung-sidebar"> 
                             <h3 class="fw-bold text-brand-primary">LampungSmart</h3>
                             <p class="text-muted">Masuk untuk mengakses layanan</p>
                         </div>
