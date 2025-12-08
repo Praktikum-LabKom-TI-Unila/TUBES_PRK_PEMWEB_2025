@@ -30,24 +30,52 @@ $data    = mysqli_fetch_assoc($query);
                     </div>
                 <?php endif; ?>
 
-                <form action="proses_auth.php?aksi=update_profil" method="POST">
+                <?php if(isset($_SESSION['error'])): ?>
+                    <div class="alert alert-danger border-0 shadow-sm">
+                        <i class="fa-solid fa-exclamation-circle me-2"></i> <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
+                    </div>
+                <?php endif; ?>
+
+                <!-- PENTING: enctype untuk upload file -->
+                <form action="proses_auth.php?aksi=update_profil" method="POST" enctype="multipart/form-data">
                     
-                    <!-- Nama Toko -->
+                    <!-- BAGIAN FOTO PROFIL / LOGO -->
+                    <div class="text-center mb-4">
+                        <label class="fw-bold d-block mb-2" style="color: #4F4A45;">Logo Toko</label>
+                        
+                        <!-- Container Preview -->
+                        <div class="p-2 border rounded bg-light d-inline-block position-relative" style="min-width: 150px; max-width: 300px;">
+                            <!-- Gambar Preview: 
+                                 - max-width: 100% (agar responsif mengikuti lebar container)
+                                 - height: auto (agar proporsi terjaga/tidak gepeng)
+                                 - object-fit: contain (memastikan seluruh gambar terlihat)
+                            -->
+                            <img id="preview-foto" 
+                                 src="<?php echo !empty($data['foto_profil']) && file_exists('../assets/uploads/'.$data['foto_profil']) ? '../assets/uploads/'.$data['foto_profil'] : 'https://ui-avatars.com/api/?name='.urlencode($data['nama_toko']).'&background=random&size=200'; ?>" 
+                                 class="d-block mx-auto shadow-sm" 
+                                 style="width: 100%; height: auto; max-height: 200px; object-fit: contain; border-radius: 8px;">
+                            
+                            <!-- Tombol Kamera Upload -->
+                            <label for="upload-foto" class="position-absolute bottom-0 end-0 bg-white border shadow rounded-circle p-2 m-2" style="cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fa-solid fa-camera text-primary"></i>
+                                <input type="file" name="foto_profil" id="upload-foto" class="d-none" accept="image/*" onchange="previewImage(event)">
+                            </label>
+                        </div>
+                        <div class="form-text mt-2">Format: JPG/PNG, Maks. 2MB. Disarankan rasio persegi atau logo transparan.</div>
+                    </div>
+
+                    <!-- Input Lainnya Tetap Sama -->
                     <div class="mb-3">
                         <label class="form-label fw-bold" style="color: #4F4A45;">Nama Toko</label>
-                        <!-- FIX: Tambahkan ?? '' agar tidak error jika NULL -->
                         <input type="text" name="nama_toko" class="form-control" value="<?php echo htmlspecialchars($data['nama_toko'] ?? ''); ?>" required>
                     </div>
 
-                    <!-- Kategori Bisnis -->
                     <div class="mb-3">
                         <label class="form-label fw-bold" style="color: #4F4A45;">Kategori Bisnis</label>
                         <select name="kategori_bisnis" class="form-select">
                             <?php 
                             $kategori = ['Kuliner (FnB)', 'Fashion', 'Agribisnis', 'Manufaktur/Kerajinan', 'Jasa', 'Retail/Grosir', 'Teknologi', 'Lainnya'];
-                            // FIX: Cek isset sebelum membandingkan
                             $kategori_user = $data['kategori_bisnis'] ?? '';
-                            
                             foreach($kategori as $kat) {
                                 $selected = ($kategori_user == $kat) ? 'selected' : '';
                                 echo "<option value='$kat' $selected>$kat</option>";
@@ -56,29 +84,22 @@ $data    = mysqli_fetch_assoc($query);
                         </select>
                     </div>
 
-                    <!-- Nomor HP (BARU) -->
                     <div class="mb-3">
                         <label class="form-label fw-bold" style="color: #4F4A45;">Nomor WhatsApp / HP</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light text-muted"><i class="fa-brands fa-whatsapp"></i></span>
-                            <!-- FIX: Tambahkan ?? '' -->
                             <input type="text" name="no_hp" class="form-control" value="<?php echo htmlspecialchars($data['no_hp'] ?? ''); ?>" placeholder="Contoh: 08123456789">
                         </div>
-                        <div class="form-text">Nomor ini akan dilihat calon partner untuk menghubungi Anda.</div>
                     </div>
 
-                    <!-- Alamat -->
                     <div class="mb-3">
                         <label class="form-label fw-bold" style="color: #4F4A45;">Alamat Lengkap</label>
-                        <!-- FIX: Tambahkan ?? '' -->
                         <textarea name="alamat_toko" class="form-control" rows="2"><?php echo htmlspecialchars($data['alamat_toko'] ?? ''); ?></textarea>
                     </div>
 
-                    <!-- Deskripsi (BARU) -->
                     <div class="mb-4">
                         <label class="form-label fw-bold" style="color: #4F4A45;">Deskripsi Toko</label>
-                        <!-- FIX: Tambahkan ?? '' -->
-                        <textarea name="deskripsi_toko" class="form-control" rows="4" placeholder="Ceritakan keunggulan toko Anda agar partner tertarik..."><?php echo htmlspecialchars($data['deskripsi_toko'] ?? ''); ?></textarea>
+                        <textarea name="deskripsi_toko" class="form-control" rows="4" placeholder="Ceritakan keunggulan toko Anda..."><?php echo htmlspecialchars($data['deskripsi_toko'] ?? ''); ?></textarea>
                     </div>
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
@@ -91,5 +112,18 @@ $data    = mysqli_fetch_assoc($query);
         </div>
     </div>
 </div>
+
+<script>
+function previewImage(event) {
+    var reader = new FileReader();
+    reader.onload = function(){
+        var output = document.getElementById('preview-foto');
+        output.src = reader.result;
+    };
+    if(event.target.files[0]) {
+        reader.readAsDataURL(event.target.files[0]);
+    }
+}
+</script>
 
 <?php include '../layouts/footer.php'; ?>

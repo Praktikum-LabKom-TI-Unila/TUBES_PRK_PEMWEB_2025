@@ -6,6 +6,11 @@ if (session_status() == PHP_SESSION_NONE) {
 
 // Cek status login user
 $isLoggedIn = isset($_SESSION['status']) && $_SESSION['status'] == 'login';
+
+// LOGIKA BARU: Ambil foto profil dari session jika ada
+$foto_profil = isset($_SESSION['foto_profil']) && !empty($_SESSION['foto_profil']) 
+               ? $_SESSION['foto_profil'] 
+               : null;
 ?>
 
 <!DOCTYPE html>
@@ -48,7 +53,6 @@ $isLoggedIn = isset($_SESSION['status']) && $_SESSION['status'] == 'login';
 
         <?php if ($isLoggedIn): ?>
             <!-- === MENU KHUSUS MEMBER (Sudah Login) === -->
-            <!-- Menu Beranda Dihapus dari sini -->
             
             <li class="nav-item">
                 <a class="nav-link" href="<?php echo $base_url; ?>/partner/index.php">Cari Partner</a>
@@ -64,8 +68,20 @@ $isLoggedIn = isset($_SESSION['status']) && $_SESSION['status'] == 'login';
 
             <!-- Dropdown Profil -->
             <li class="nav-item dropdown ms-2">
-                <a class="nav-link dropdown-toggle btn btn-outline-primary px-3" href="#" role="button" data-bs-toggle="dropdown">
-                    <i class="fa-solid fa-user"></i> Akun
+                <a class="nav-link dropdown-toggle btn btn-outline-primary px-3 d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">
+                    
+                    <!-- LOGIKA TAMPILAN LOGO -->
+                    <?php if ($foto_profil && file_exists(__DIR__ . '/../assets/uploads/' . $foto_profil)): ?>
+                        <!-- Tampilkan Gambar: object-fit: contain agar logo tidak terpotong -->
+                        <img src="<?php echo $base_url; ?>/assets/uploads/<?php echo $foto_profil; ?>" 
+                             class="rounded-circle bg-white border" 
+                             style="width: 25px; height: 25px; object-fit: contain;">
+                    <?php else: ?>
+                        <!-- Tampilkan Ikon Default -->
+                        <i class="fa-solid fa-user"></i> 
+                    <?php endif; ?>
+                    
+                    Akun
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><a class="dropdown-item" href="<?php echo $base_url; ?>/auth/profil.php">Edit Profil Toko</a></li>
@@ -77,7 +93,6 @@ $isLoggedIn = isset($_SESSION['status']) && $_SESSION['status'] == 'login';
         <?php else: ?>
             <!-- === MENU TAMU (Belum Login) === -->
             
-            <!-- (PINDAHAN) Menu Beranda cuma buat Tamu -->
             <li class="nav-item">
                 <a class="nav-link" href="<?php echo $base_url; ?>/index.php">Beranda</a>
             </li>
