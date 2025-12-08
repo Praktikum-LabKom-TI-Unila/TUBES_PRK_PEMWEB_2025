@@ -1,4 +1,5 @@
 <?php
+// Lokasi file: src/backend/models/User.php
 
 class User
 {
@@ -7,8 +8,11 @@ class User
 
     public function __construct()
     {
+        // Asumsi Database::getInstance() mengembalikan objek PDO
         $this->db = Database::getInstance();
     }
+
+    // --- UTAMA: READ DATA ---
 
     public function findById(int $id): ?array
     {
@@ -31,45 +35,61 @@ class User
         return $result;
     }
 
-    public function getAll(int $page = 1, int $limit = 10): array
+    // --- FITUR BARU: PERSERSETUJUAN ADMIN ---
+
+    /**
+     * Mengambil daftar semua anggota yang status persetujuannya pending (IS_APPROVED_PENDING).
+     */
+    public function findPendingMembers(): array
     {
-        $offset = ($page - 1) * $limit;
+        $sql = "SELECT u.user_id, u.username, u.email, u.created_at, p.full_name
+                FROM {$this->table} u
+                LEFT JOIN profiles p ON u.user_id = p.user_id
+                WHERE u.role = :role AND u.is_approved = :is_approved
+                ORDER BY u.created_at ASC";
         
-        $sql = "SELECT user_id, username, email, role, created_at 
-                FROM {$this->table} 
-                ORDER BY created_at DESC 
-                LIMIT :limit OFFSET :offset";
-        
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-        $stmt->execute();
+        $stmt = Database::query($sql, [
+            'role' => ROLE_ANGGOTA,
+            'is_approved' => IS_APPROVED_PENDING // Menggunakan konstanta
+        ]);
         
         return $stmt->fetchAll();
     }
 
-    public function count(): int
+    /**
+     * Mengupdate status persetujuan anggota (IS_APPROVED_ACTIVE atau IS_APPROVED_PENDING).
+     */
+    public function updateApprovalStatus(int $id, int $status): bool
     {
-        $sql = "SELECT COUNT(*) FROM {$this->table}";
-        return (int) Database::query($sql)->fetchColumn();
+        // $status harus berupa IS_APPROVED_ACTIVE (1) atau IS_APPROVED_PENDING (0)
+        $sql = "UPDATE {$this->table} SET is_approved = :status WHERE user_id = :id";
+        
+        Database::query($sql, [
+            'id'     => $id,
+            'status' => $status
+        ]);
+        
+        return true;
     }
 
-    public function countByRole(string $role): int
-    {
-        $sql = "SELECT COUNT(*) FROM {$this->table} WHERE role = :role";
-        return (int) Database::query($sql, ['role' => $role])->fetchColumn();
-    }
 
+    // --- UTAMA: CREATE DAN UPDATE ---
+
+    /**
+     * Membuat pengguna baru dengan status default IS_APPROVED_PENDING.
+     */
     public function create(array $data): int
     {
-        $sql = "INSERT INTO {$this->table} (username, email, password, role, created_at) 
-                VALUES (:username, :email, :password, :role, NOW())";
+        // Tambahkan kolom is_approved dengan nilai IS_APPROVED_PENDING
+        $sql = "INSERT INTO {$this->table} (username, email, password, role, is_approved, created_at) 
+                 VALUES (:username, :email, :password, :role, :is_approved, NOW())";
         
         Database::query($sql, [
             'username' => $data['username'],
             'email'    => $data['email'],
             'password' => hash_password($data['password']),
-            'role'     => $data['role'] ?? ROLE_ANGGOTA
+            'role'     => $data['role'] ?? ROLE_ANGGOTA,
+            'is_approved' => IS_APPROVED_PENDING // <-- Menggunakan konstanta 0
         ]);
         
         return (int) Database::lastInsertId();
@@ -121,6 +141,8 @@ class User
         Database::query($sql, ['id' => $id]);
         return true;
     }
+    
+    // --- UTAMA: VALIDASI DAN PENCARIAN ---
 
     public function emailExists(string $email, ?int $excludeId = null): bool
     {
@@ -150,15 +172,47 @@ class User
 
     public function findWithProfile(int $id): ?array
     {
-        $sql = "SELECT u.user_id, u.username, u.email, u.role, u.created_at,
-                       p.profile_id, p.full_name, p.npm, p.department, 
-                       p.activity_status, p.profile_photo
+        // Sertakan kolom u.is_approved
+        $sql = "SELECT u.user_id, u.username, u.email, u.role, u.is_approved, u.created_at,
+                         p.profile_id, p.full_name, p.npm, p.department, 
+                         p.activity_status, p.profile_photo
                 FROM {$this->table} u
                 LEFT JOIN profiles p ON u.user_id = p.user_id
                 WHERE u.user_id = :id
                 LIMIT 1";
         
         return Database::fetchOne($sql, ['id' => $id]);
+    }
+    
+    // --- UTAMA: GET ALL & COUNT ---
+    
+    public function getAll(int $page = 1, int $limit = 10): array
+    {
+        $offset = ($page - 1) * $limit;
+        
+        $sql = "SELECT user_id, username, email, role, created_at 
+                 FROM {$this->table} 
+                 ORDER BY created_at DESC 
+                 LIMIT :limit OFFSET :offset";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        return $stmt->fetchAll();
+    }
+
+    public function count(): int
+    {
+        $sql = "SELECT COUNT(*) FROM {$this->table}";
+        return (int) Database::query($sql)->fetchColumn();
+    }
+
+    public function countByRole(string $role): int
+    {
+        $sql = "SELECT COUNT(*) FROM {$this->table} WHERE role = :role";
+        return (int) Database::query($sql, ['role' => $role])->fetchColumn();
     }
 
     public function search(string $keyword, int $page = 1, int $limit = 10): array
@@ -167,10 +221,10 @@ class User
         $keyword = "%{$keyword}%";
         
         $sql = "SELECT user_id, username, email, role, created_at 
-                FROM {$this->table} 
-                WHERE username LIKE :keyword OR email LIKE :keyword2
-                ORDER BY created_at DESC 
-                LIMIT :limit OFFSET :offset";
+                 FROM {$this->table} 
+                 WHERE username LIKE :keyword OR email LIKE :keyword2
+                 ORDER BY created_at DESC 
+                 LIMIT :limit OFFSET :offset";
         
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(':keyword', $keyword, PDO::PARAM_STR);

@@ -1,98 +1,112 @@
 <?php
 // Lokasi file: src/backend/helpers/EmailService.php
 
-// --- KONFIGURASI EMAIL NATIVE ---
-// Ganti nilai-nilai ini!
-// Email ini harus valid di server hosting Anda agar fungsi mail() bekerja.
-define('SYSTEM_EMAIL_SENDER', 'noreply@simora.example.com'); 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+// === LOAD PHPMailer ===
+// Sesuaikan path berdasarkan struktur foldermu. Asumsi folder PhpMailer ada di .../backend/PhpMailer
+require_once __DIR__ . '/../PhpMailer/PHPMailer.php';
+require_once __DIR__ . '/../PhpMailer/SMTP.php';
+require_once __DIR__ . '/../PhpMailer/Exception.php';
+
+// === CONFIG (Asumsi konstanta ini didefinisikan di sini untuk kemudahan) ===
+
+// 🔥 PERBAIKAN: SYSTEM_EMAIL_SENDER HARUS SAMA DENGAN $mail->Username
+define('SYSTEM_EMAIL_SENDER', 'dhinivadilas@gmail.com'); 
 define('SYSTEM_SENDER_NAME', 'SIMORA Administrator');
-// Ganti URL ini sesuai dengan path hosting Anda
-define('LOGIN_PAGE_URL', 'http://localhost/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/frontend/auth/login.html'); 
+define('LOGIN_PAGE_URL', 'http://localhost/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/frontend/auth/login.html');
 
 class EmailService
 {
     /**
-     * Mengirim notifikasi persetujuan atau penolakan akun menggunakan fungsi mail() native PHP.
-     *
-     * @param string $recipientEmail Email penerima.
-     * @param string $username Nama pengguna (atau nama lengkap).
-     * @param string $action 'approved' atau 'rejected'.
-     * @return bool True jika email berhasil dikirim, False sebaliknya.
+     * Mengirim email notifikasi via SMTP Gmail (PHPMailer).
      */
     public static function sendApprovalNotification(string $recipientEmail, string $username, string $action): bool
     {
-        $to = $recipientEmail;
-        $headers = "MIME-Version: 1.0\r\n";
-        $headers .= "Content-type: text/html; charset=UTF-8\r\n";
-        // Header From yang benar sangat penting untuk fungsi mail()
-        $headers .= "From: " . SYSTEM_SENDER_NAME . " <" . SYSTEM_EMAIL_SENDER . ">\r\n";
-        $headers .= "Reply-To: " . SYSTEM_EMAIL_SENDER . "\r\n";
-        $headers .= "X-Mailer: PHP/" . phpversion();
-
         if ($action === 'approved') {
             $subject = "✅ Akun SIMORA Anda Telah Disetujui!";
             $bodyHtml = self::getApprovedEmailTemplate($username);
+
         } elseif ($action === 'rejected') {
             $subject = "⚠️ Status Akun SIMORA Anda (Pending)";
             $bodyHtml = self::getRejectedEmailTemplate($username);
+
         } else {
-            error_log("Attempted to send email with unknown action: " . $action);
+            error_log("Unknown email action: " . $action);
             return false;
         }
 
+        
+        $mail = new PHPMailer(true);
+
         try {
-            // Menggunakan fungsi mail() native PHP
-            $success = mail($to, $subject, $bodyHtml, $headers);
-            
-            if (!$success) {
-                error_log("Native mail() failed to send to: " . $recipientEmail);
-            } else {
-                error_log("Native mail() successfully sent approval notification to: " . $recipientEmail);
-            }
-            return $success;
+            // CONFIG SMTP
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+
+            // === KREDENSIAL GMAIL ===
+            // Username dan Password App HARUS SESUAI
+            $mail->Username = 'dhinivadilas@gmail.com'; 
+            $mail->Password = 'tvxa wquo vhwh taej'; // Sandi Aplikasi (App Password)
+
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+            $mail->CharSet = 'UTF-8'; // Tambahkan untuk encoding yang benar
+
+            // SET HEADER (setFrom HARUS SAMA dengan $mail->Username)
+            $mail->setFrom(SYSTEM_EMAIL_SENDER, SYSTEM_SENDER_NAME); // 🔥 PERBAIKAN
+            $mail->addAddress($recipientEmail);
+
+            $mail->isHTML(true);
+            $mail->Subject = $subject;
+            $mail->Body = $bodyHtml;
+
+            $mail->send();
+            error_log("📧 EMAIL SENT SUCCESSFULLY to " . $recipientEmail);
+            return true;
 
         } catch (Exception $e) {
-            error_log("Error during native mail() process: " . $e->getMessage());
+            // Catat error PHPMailer ke log server Anda
+            error_log("❌ FAILED EMAIL: {$mail->ErrorInfo}"); 
             return false;
         }
     }
 
+
+    // --- TEMPLATE EMAIL ---
+
     /**
-     * Template Email untuk Status Disetujui (Approved).
+     * Template Email Approved
      */
     private static function getApprovedEmailTemplate(string $username): string
     {
         $loginUrl = LOGIN_PAGE_URL;
-        
         return "
-            <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; padding: 20px;'>
-                <h2 style='color: #01A29D;'>Selamat, $username!</h2>
-                <p>Akun keanggotaan SIMORA Anda telah **disetujui** oleh Administrator.</p>
-                <p>Anda sekarang dapat **login** dan mengakses semua fitur dan sumber daya di dashboard anggota.</p>
-                <p style='margin-top: 30px; text-align: center;'>
-                    <a href='{$loginUrl}' style='display: inline-block; padding: 12px 25px; background-color: #01A29D; color: white !important; text-decoration: none; border-radius: 8px; font-weight: bold;'>
-                        Masuk ke Dashboard
-                    </a>
-                </p>
-                <p style='margin-top: 30px; font-size: 0.9em; color: #666;'>Jika Anda memiliki pertanyaan, silakan hubungi tim dukungan kami.</p>
-                <p>Terima kasih,<br>Tim Administrator SIMORA</p>
-            </div>
+             <div style='font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; padding: 20px;'>
+                 <h2 style='color: #01A29D;'>Selamat, {$username}!</h2>
+                 <p>Akun Anda telah <strong>DISETUJUI</strong> oleh Administrator.</p>
+                 <p>Anda sekarang dapat login ke sistem SIMORA.</p>
+                 <a href='{$loginUrl}' style='display: inline-block; padding: 10px 15px; background: #01A29D; color: white; text-decoration: none; border-radius: 5px;'>Login Sekarang</a>
+                 <br><br>
+                 <small style='color: #666;'>Terima kasih - Tim SIMORA</small>
+             </div>
         ";
     }
-    
+
     /**
-     * Template Email untuk Status Ditolak/Pending (Rejected).
+     * Template Email Rejected
      */
     private static function getRejectedEmailTemplate(string $username): string
     {
         return "
-            <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; padding: 20px;'>
-                <h2 style='color: #FF853D;'>Halo $username,</h2>
-                <p>Kami telah memproses permintaan persetujuan akun SIMORA Anda.</p>
-                <p>Saat ini, akun Anda masih berstatus **Pending** atau telah ditolak oleh Admin. Kami menemukan bahwa ada informasi yang kurang atau tidak sesuai dengan persyaratan keanggotaan.</p>
-                <p>Silakan hubungi Administrator untuk menyelesaikan pendaftaran Anda.</p>
-                <p>Terima kasih atas pengertian Anda.</p>
-            </div>
+             <div style='font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; padding: 20px;'>
+                 <h2 style='color: #FF853D;'>Halo, {$username}</h2>
+                 <p>Kami telah meninjau pendaftaran Anda. Akun Anda masih berstatus <strong>PENDING / DITOLAK</strong>.</p>
+                 <p>Silakan hubungi admin untuk informasi atau proses lebih lanjut.</p>
+                 <small style='color: #666;'>Terima kasih - Tim SIMORA</small>
+             </div>
         ";
     }
 }

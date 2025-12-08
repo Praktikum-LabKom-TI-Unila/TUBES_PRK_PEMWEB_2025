@@ -61,6 +61,11 @@ CREATE TABLE attendance (
 INSERT INTO users (username, email, password, role) 
 VALUES ('admin', 'admin@simora.com', '$2y$10$0E4uIS4k7xbUhwkALgEY0.gfwwbcEWIgQVMlB9RtIcp23XrcZSVdq', 'admin');
 
+-- UPDATE STATUS ADMIN MENJADI AKTIF (1)
+UPDATE users 
+SET is_approved = 1
+WHERE email = 'admin@simora.com';
+
 INSERT INTO profiles (user_id, full_name, department, activity_status)
 VALUES (1, 'Super Admin', 'Inti', 'aktif');
 

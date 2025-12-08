@@ -1,12 +1,18 @@
 /* ===========================================
    STYLE AUTH (LOGIN & REGISTER PAGE)
+   Tema: Fresh Mint & Ocean (#0D9488, #0EA5E9)
    =========================================== */
 
 /* Warna Utama */
 :root {
-    --bs-primary: #1e3c72;   /* Biru tua untuk Login */
-    --bs-success: #3c721e;   /* Hijau gelap untuk Register */
-    --bg-light: #f4f6f9;
+    /* Primary: Teal/Emerald (Mint) untuk Tombol Utama dan Aksen */
+    --clr-primary: #0D9488; 
+    /* Secondary: Ocean Blue (Aksen) */
+    --clr-secondary: #0EA5E9;
+    
+    /* Background & Card */
+    --clr-bg-main: #FFFFFF;
+    --clr-card-bg: #F9FAFB;
 }
 
 /* Background + Center Container */
@@ -16,13 +22,13 @@
     justify-content: center;
     align-items: center;
 
-    /* 🌊 Gradasi Biru Modern */
-    background: linear-gradient(135deg, #0d47a1, #1976d2, #42a5f5);
+    /* 🌊 Gradasi Mint/Teal yang Segar */
+    background: linear-gradient(135deg, #10B981, #0D9488, #4DEDD8); /* Gradasi Teal/Emerald/Mint */
 
-    /* Tambahan efek lembut pola cahaya */
+    /* Tambahan efek lembut pola cahaya (Disamarkan agar tidak terlalu mencolok) */
     background-image:
-        radial-gradient(rgba(255,255,255,0.18) 1px, transparent 1px),
-        linear-gradient(135deg, #0d47a1, #1976d2, #42a5f5);
+        radial-gradient(rgba(255, 255, 255, 0.25) 1px, transparent 1px),
+        linear-gradient(135deg, #10B981, #0D9488, #4DEDD8);
 
     background-size: 22px 22px, cover;
     background-repeat: repeat;
@@ -34,11 +40,13 @@
 .auth-card {
     width: 100%;
     max-width: 420px;
-    background: #fff;
+    background: var(--clr-card-bg); /* Off-White/F9FAFB */
     padding: 32px;
     border-radius: 14px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    /* Shadow halus dengan aksen warna primer */
+    box-shadow: 0 10px 30px rgba(13, 148, 136, 0.15), 0 3px 6px rgba(0, 0, 0, 0.05);
     transition: .3s ease;
+    border: 1px solid #E5E7EB; /* Border halus */
 }
 
 /* Title */
@@ -47,7 +55,7 @@
     font-weight: bold;
     text-align: center;
     margin-bottom: 22px;
-    color: var(--bs-primary);
+    color: var(--clr-primary); /* Teal/Emerald */
 }
 
 /* Input Box */
@@ -60,10 +68,12 @@
     outline: none;
     margin-bottom: 16px;
     transition: 0.25s ease;
+    background: white; /* Pastikan input selalu putih */
 }
 
 .auth-form input:focus {
-    border-color: var(--bs-primary);
+    border-color: var(--clr-primary); /* Border fokus warna Teal */
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.2); /* Ring fokus lembut */
 }
 
 /* Tombol */
@@ -76,24 +86,19 @@
     font-size: 16px;
     cursor: pointer;
     transition: 0.25s ease;
+    font-weight: 600;
 }
 
-/* Button Login */
-.btn-login {
-    background: var(--bs-primary);
+/* Button Login & Register (Keduanya menggunakan warna Primary/Teal) */
+.btn-login, .btn-register {
+    background: var(--clr-primary); /* Teal/Emerald */
+    box-shadow: 0 4px 15px rgba(13, 148, 136, 0.35);
 }
 
-.btn-login:hover {
-    background: #14294e;
-}
-
-/* Button Register */
-.btn-register {
-    background: var(--bs-primary);
-}
-
-.btn-register:hover {
-    background: #14294e;
+.btn-login:hover, .btn-register:hover {
+    background: #0F766E; /* Teal sedikit gelap */
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4);
 }
 
 /* Link pindah halaman */
@@ -104,7 +109,7 @@
 }
 
 .switch-text a {
-    color: var(--bs-primary);
+    color: var(--clr-secondary); /* Menggunakan Ocean Blue sebagai aksen link */
     text-decoration: none;
     font-weight: bold;
 }
@@ -115,68 +120,33 @@
 
 
 /* ===========================================
-   ANIMASI TRANSISI HALAMAN LOGIN <→> REGISTER
+   ANIMASI TRANSISI HALAMAN (Sama seperti sebelumnya)
    =========================================== */
 
-/* Wrapper animasi */
-.page-transition {
-    opacity: 0;
-    transform: translateX(-20px);
-    animation: pageSlideIn .45s ease forwards;
+.page-transition, .page-transition-right, .page-transition-left {
+    transition: opacity .45s ease, transform .45s ease;
+    animation-fill-mode: forwards;
 }
 
-/* Slide masuk dari kiri */
 @keyframes pageSlideIn {
-    from {
-        opacity: 0;
-        transform: translateX(-25px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+    from { opacity: 0; transform: translateX(-25px); }
+    to { opacity: 1; transform: translateX(0); }
 }
-
-/* Login → Register: geser ke kanan */
-.page-transition-right {
-    opacity: 0;
-    transform: translateX(30px);
-    animation: pageSlideRight .45s ease forwards;
-}
+.page-transition { animation: pageSlideIn .45s ease forwards; }
 
 @keyframes pageSlideRight {
-    from {
-        opacity: 0;
-        transform: translateX(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
 }
-
-/* Register → Login: geser ke kiri */
-.page-transition-left {
-    opacity: 0;
-    transform: translateX(-30px);
-    animation: pageSlideLeft .45s ease forwards;
-}
+.page-transition-right { animation: pageSlideRight .45s ease forwards; }
 
 @keyframes pageSlideLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
 }
+.page-transition-left { animation: pageSlideLeft .45s ease forwards; }
 
 
-/* ===========================================
-   RESPONSIVE
-   =========================================== */
 
 @media (max-width: 480px) {
     .auth-card {

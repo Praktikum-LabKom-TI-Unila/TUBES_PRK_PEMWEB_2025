@@ -7,11 +7,16 @@ document.addEventListener('DOMContentLoaded', () => {
         "http://localhost/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/backend/api/auth.php"; 
     const PENDING_MEMBERS_API_URL = `${BASE_API_URL}?action=pending_members`;
     const APPROVE_MEMBER_API_URL = `${BASE_API_URL}?action=approve_member`;
+    const LOGOUT_API_URL = `${BASE_API_URL}?action=logout`; // URL untuk Logout API
+    
+    const LOGIN_PAGE_URL = "http://localhost/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/frontend/auth/login.html"; // URL halaman Login
     
     const pendingMembersList = document.getElementById('pending-members-list');
     const statsContainer = document.getElementById('stats-container');
     const agendaList = document.getElementById('agenda-list');
     const adminMessage = document.getElementById('adminMessage'); // Dari admin.html
+    const logoutButtonDesktop = document.getElementById('btn-logout-desktop'); // ID tombol keluar desktop
+    const logoutButtonMobile = document.getElementById('btn-logout-mobile'); // ID tombol keluar mobile
 
     // --- 1. Data Simulation (Dari kode Anda) ---
     const statsData = [
@@ -28,19 +33,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- 2. Helper Functions ---
-    const safeJson = async (res) => { try { return await res.json(); } catch { return null; } };
+    const safeJson = async (res) => { 
+        try { 
+            return await res.json(); 
+        } catch (e) { 
+            console.error('JSON Parse Error:', e);
+            return null; 
+        } 
+    };
 
     const displayMessage = (message, type) => {
         if (!adminMessage) return;
         adminMessage.classList.remove("d-none", "alert-danger", "alert-success", "alert-warning");
         adminMessage.classList.add(`alert-${type}`);
         adminMessage.textContent = message;
+        
+        // Sembunyikan pesan setelah 5 detik
+        if (type !== 'd-none') {
+            setTimeout(() => {
+                adminMessage.classList.add("d-none");
+                adminMessage.textContent = '';
+            }, 5000);
+        }
     };
 
 
-    // --- 3. Data Rendering (Dari kode Anda) ---
+    // --- 3. Data Rendering (Kode Anda) ---
+    // (renderStatsCards dan renderAgendaList Dihilangkan untuk keringkasan)
     
     function renderStatsCards(container) {
+        // [Kode renderStatsCards Anda]
         container.innerHTML = ''; 
         statsData.forEach((stat) => {
             let statusClass;
@@ -70,6 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderAgendaList(list) {
+        // [Kode renderAgendaList Anda]
         list.innerHTML = ''; 
         agendaData.forEach((item) => {
             const locationIcon = item.isZoom ? 'fas fa-video' : 'fas fa-map-marker-alt';
@@ -93,8 +116,9 @@ document.addEventListener('DOMContentLoaded', () => {
             list.innerHTML += html;
         });
     }
-    
-    // --- 4. Logika Persetujuan Anggota (Diambil dari solusi sebelumnya) ---
+
+
+    // --- 4. Logika Persetujuan Anggota ---
 
     async function fetchAndRenderPendingMembers() {
         if (!pendingMembersList) return;
@@ -111,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const members = result.data;
                 if (members.length === 0) {
                     pendingMembersList.innerHTML = '<tr><td colspan="5" class="text-center py-4 font-medium text-green-600">🎉 Semua pendaftaran telah disetujui.</td></tr>';
+                    pendingMembersList.removeEventListener('click', delegateApprovalAction);
                     return;
                 }
 
@@ -134,63 +159,122 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                     pendingMembersList.innerHTML += row;
                 });
-
-                attachActionEventListeners();
+                
+                // Panggil listener delegasi setelah data dimuat
+                pendingMembersList.addEventListener('click', delegateApprovalAction);
 
             } else {
+                displayMessage(`Gagal memuat data: ${(result && result.message) || 'Kesalahan API.'}`, 'danger');
                 pendingMembersList.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-red-500">Gagal memuat data: ${(result && result.message) || 'Kesalahan API.'}</td></tr>`;
             }
 
         } catch (error) {
+            console.error('Network Error:', error);
             pendingMembersList.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-red-500">Kesalahan jaringan atau server.</td></tr>';
         }
     }
 
-    function attachActionEventListeners() {
-        document.querySelectorAll('.btn-approve').forEach(button => {
-            button.addEventListener('click', () => handleApprovalAction(button, 'approved'));
-        });
-        document.querySelectorAll('.btn-reject').forEach(button => {
-            button.addEventListener('click', () => handleApprovalAction(button, 'rejected'));
-        });
+    // Menggunakan Event Delegation untuk menangani klik tombol (Lebih efisien)
+    function delegateApprovalAction(e) {
+        const button = e.target;
+        if (button.classList.contains('btn-approve') || button.classList.contains('btn-reject')) {
+            const memberId = button.getAttribute('data-member-id');
+            const action = button.classList.contains('btn-approve') ? 'approved' : 'rejected';
+            
+            if (memberId) {
+                 handleApprovalAction(button, memberId, action);
+            }
+        }
     }
 
-    async function handleApprovalAction(button, action) {
-        const memberId = button.getAttribute('data-member-id');
+    async function handleApprovalAction(button, memberId, action) {
         const originalText = button.textContent;
+        const allButtons = document.querySelectorAll(`[data-member-id="${memberId}"]`);
+        
+        // Menonaktifkan semua tombol untuk user ini
+        allButtons.forEach(btn => {
+            btn.disabled = true;
+            if (btn === button) btn.textContent = 'Memproses...';
+        });
 
-        button.disabled = true;
-        button.textContent = 'Memproses...';
         displayMessage('', 'd-none'); 
 
         try {
-            const formData = new FormData();
-            formData.append('member_id', memberId);
-            formData.append('status', action);
-
             const response = await fetch(APPROVE_MEMBER_API_URL, {
                 method: "POST",
-                body: formData,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    member_id: memberId,
+                    status: action
+                }),
                 credentials: "include"
             });
             const result = await safeJson(response);
 
             if (result && result.status === "success") {
-                // Pesan dari backend akan berisi konfirmasi email telah dikirim
                 displayMessage(result.message, 'success'); 
-                fetchAndRenderPendingMembers();
+                fetchAndRenderPendingMembers(); // Muat ulang daftar
             } else {
                 displayMessage(`Gagal ${action}: ${(result && result.message) || 'Kesalahan API.'}`, 'danger');
-                button.textContent = originalText;
-                button.disabled = false;
+                // Aktifkan kembali tombol jika gagal
+                allButtons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.textContent = btn.classList.contains('btn-approve') ? 'Setujui' : 'Tolak';
+                });
             }
 
         } catch (err) {
+            console.error('Network Error:', err);
             displayMessage('Kesalahan jaringan saat memproses permintaan.', 'danger');
-            button.textContent = originalText;
-            button.disabled = false;
+            // Aktifkan kembali tombol jika gagal
+            allButtons.forEach(btn => {
+                btn.disabled = false;
+                btn.textContent = btn.classList.contains('btn-approve') ? 'Setujui' : 'Tolak';
+            });
         }
     }
+
+
+    // ----------------------------------------------------------------------
+    // 🆕 NEW: FUNGSI LOGOUT DAN REDIRECT
+    // ----------------------------------------------------------------------
+    async function handleLogout(e) {
+        e.preventDefault();
+        displayMessage('Logging out...', 'info');
+
+        try {
+            const response = await fetch(LOGOUT_API_URL, {
+                method: 'POST',
+                credentials: 'include' // Kirim cookie sesi
+            });
+            const result = await safeJson(response);
+
+            // Jika backend merespons sukses (atau bahkan gagal tapi kita tetap ingin mengalihkan)
+            if (result && result.status === 'success') {
+                displayMessage(result.message || 'Logout berhasil.', 'success');
+            } else {
+                 // Jika API error, log out secara paksa di frontend
+                console.error('Logout API failed:', result.message);
+                displayMessage('Logout berhasil (Sesi diakhiri secara lokal).', 'warning');
+            }
+
+            // Alihkan ke halaman login
+            setTimeout(() => {
+                window.location.href = LOGIN_PAGE_URL; 
+            }, 500);
+
+        } catch (error) {
+            console.error('Network error during logout:', error);
+            displayMessage('Gagal terhubung ke server saat logout. Mengalihkan secara paksa.', 'danger');
+            // Alihkan secara paksa setelah delay
+            setTimeout(() => {
+                window.location.href = LOGIN_PAGE_URL;
+            }, 1000);
+        }
+    }
+    // ----------------------------------------------------------------------
 
 
     // --- 5. Initialization (Memuat Data Dashboard & Anggota Pending) ---
@@ -202,6 +286,14 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Fetch Anggota Pending
         fetchAndRenderPendingMembers();
+        
+        // Pasang Event Listeners untuk Logout
+        if (logoutButtonDesktop) {
+            logoutButtonDesktop.addEventListener('click', handleLogout);
+        }
+        if (logoutButtonMobile) {
+            logoutButtonMobile.addEventListener('click', handleLogout);
+        }
     }
     
     // Panggil fungsi inisialisasi

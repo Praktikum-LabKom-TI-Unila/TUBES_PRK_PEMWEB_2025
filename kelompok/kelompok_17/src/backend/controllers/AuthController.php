@@ -5,7 +5,7 @@ require_once MODELS_PATH . '/User.php';
 require_once MODELS_PATH . '/Profile.php';
 
 // Asumsi: Helper ini berisi fungsi seperti validate_required, login_user, require_admin, dll.
-require_once HELPERS_PATH . '/AuthHelper.php';
+require_once HELPERS_PATH . '/auth_helper.php';
 require_once HELPERS_PATH . '/EmailService.php'; 
 
 // --- KONSTANTA ---
