@@ -27,7 +27,13 @@ $mechanics = [];
 $res = $mysqli->query("SELECT id, nama, harga, durasi_menit FROM services ORDER BY nama");
 while ($r = $res->fetch_assoc()) $services[] = $r;
 
-$res = $mysqli->query("SELECT id, nama FROM users WHERE role_id IS NOT NULL ORDER BY nama"); // asumsi mekanik tersaring via role
+$res = $mysqli->query("
+    SELECT m.id, m.nama, COUNT(r.id) AS jumlah_aktif 
+    FROM mechanics m 
+    LEFT JOIN reservations r ON m.id = r.mekanik_id AND r.status IN ('booked', 'in_progress')
+    GROUP BY m.id, m.nama
+    ORDER BY jumlah_aktif ASC, m.nama
+");
 while ($r = $res->fetch_assoc()) $mechanics[] = $r;
 
 if (!empty($_GET['id'])) {
@@ -105,7 +111,7 @@ if (!empty($_GET['id'])) {
         <option value="">-- pilih mekanik --</option>
         <?php foreach($mechanics as $m): ?>
           <option value="<?= $m['id'] ?>" <?= $m['id']==$reservation['mekanik_id'] ? 'selected':'' ?>>
-            <?= htmlspecialchars($m['nama']) ?>
+            <?= htmlspecialchars($m['nama']) ?> (<?= $m['jumlah_aktif'] ?? 0 ?> aktif)
           </option>
         <?php endforeach; ?>
       </select>
@@ -114,17 +120,6 @@ if (!empty($_GET['id'])) {
     <div class="mb-3">
       <label class="form-label">Tanggal & Jam *</label>
       <input type="datetime-local" name="tanggal" class="form-control" required value="<?= htmlspecialchars($reservation['tanggal']) ?>">
-    </div>
-
-    <div class="mb-3">
-      <label class="form-label">Status</label>
-      <select name="status" class="form-select">
-        <?php
-        $statuses = ['booked'=>'booked','in_progress'=>'in_progress','completed'=>'completed','canceled'=>'canceled'];
-        foreach($statuses as $k=>$v): ?>
-          <option value="<?= $k?>" <?= $k==$reservation['status'] ? 'selected':'' ?>><?= $v ?></option>
-        <?php endforeach; ?>
-      </select>
     </div>
 
     <div class="mb-3">
