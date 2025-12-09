@@ -50,23 +50,23 @@
         }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gradient-to-br from-pink-200 via-purple-200 to-pink-300 min-h-screen">
     <!-- Navbar -->
-    <nav class="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
+    <nav class="bg-white/95 backdrop-blur-lg border-b border-pink-200 sticky top-0 z-40 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <!-- Logo & Title -->
                 <div class="flex items-center gap-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-gradient-to-br from-blue-950 via-blue-800 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
-                            <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                 <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
                                 <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
                             </svg>
                         </div>
                         <div>
-                            <h1 class="text-lg font-bold text-gray-900">KelasOnline</h1>
-                            <p class="text-xs text-gray-500">Dashboard Dosen</p>
+                            <h1 class="text-lg font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">KelasOnline</h1>
+                            <p class="text-xs text-gray-600">Dashboard Dosen</p>
                         </div>
                     </div>
                 </div>
@@ -74,27 +74,27 @@
                 <!-- User Menu -->
                 <div class="flex items-center gap-4">
                     <!-- Notifications -->
-                    <button class="relative p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                    <button class="relative p-2 text-gray-600 hover:text-pink-600 hover:bg-pink-50 rounded-xl transition-colors">
                         <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                             <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                         </svg>
-                        <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                        <span class="absolute top-1 right-1 w-2 h-2 bg-pink-500 rounded-full animate-pulse"></span>
                     </button>
 
                     <!-- User Profile -->
-                    <div class="flex items-center gap-3 pl-3 border-l border-gray-200">
+                    <div class="flex items-center gap-3 pl-3 border-l border-pink-200">
                         <div class="text-right">
                             <p class="text-sm font-semibold text-gray-900">Dr. Budi Santoso</p>
-                            <p class="text-xs text-gray-500">NIDN: 0012345678</p>
+                            <p class="text-xs text-gray-600">Dosen</p>
                         </div>
-                        <button class="w-10 h-10 bg-gradient-to-br from-blue-800 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold shadow-lg hover:shadow-xl transition-shadow">
+                        <button class="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg hover:shadow-xl transition-shadow">
                             BS
                         </button>
                     </div>
 
                     <!-- Logout -->
-                    <a href="login.html" class="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                    <a href="login.html" class="p-2 text-gray-600 hover:text-pink-600 hover:bg-pink-50 rounded-xl transition-colors">
                         <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                             <polyline points="16 17 21 12 16 7"></polyline>
@@ -108,348 +108,527 @@
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Header Section -->
+        <!-- Hero Banner Section -->
         <div class="mb-8 animate-fadeIn">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <h2 class="text-3xl font-bold text-gray-900 mb-2">Dashboard Dosen</h2>
-                    <p class="text-gray-600">Kelola kelas dan pantau progress mahasiswa Anda</p>
+            <div class="relative bg-gradient-to-br from-pink-400 via-pink-300 to-purple-400 rounded-3xl overflow-hidden shadow-2xl">
+                <div class="absolute inset-0 opacity-20">
+                    <div class="absolute top-10 left-10 w-32 h-32 bg-white rounded-full blur-3xl"></div>
+                    <div class="absolute bottom-10 right-10 w-40 h-40 bg-purple-300 rounded-full blur-3xl"></div>
                 </div>
-                <button onclick="openCreateModal()" class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-800 to-blue-600 hover:from-blue-900 hover:to-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 5v14M5 12h14"/>
-                    </svg>
-                    Buat Kelas Baru
-                </button>
+                
+                <div class="relative px-8 py-12 flex items-center justify-between">
+                    <div class="max-w-xl z-10">
+                        <div class="mb-4">
+                            <span class="inline-block bg-white/90 text-pink-600 px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                                🎓 Selamat Datang Kembali, Dosen!
+                            </span>
+                        </div>
+                        <h1 class="text-4xl md:text-5xl font-black text-gray-900 mb-4 leading-tight">
+                            "Buka Potensi Anda Bersama Kami – Jelajahi, Belajar, dan Berkembang!"
+                        </h1>
+                        <p class="text-gray-800 text-base mb-6 leading-relaxed">
+                            Kelola kelas dengan mudah, pantau perkembangan mahasiswa, dan ciptakan pengalaman belajar yang interaktif dan menarik.
+                        </p>
+                        <div class="flex gap-3">
+                            <button onclick="openCreateModal()" class="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <path d="M12 5v14M5 12h14"/>
+                                </svg>
+                                Buat Kelas Baru
+                            </button>
+                            <button class="inline-flex items-center gap-2 bg-white/90 hover:bg-white text-gray-900 font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                                Lihat Tutorial
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Student Illustration -->
+                    <div class="hidden lg:block relative">
+                        <div class="relative">
+                            <!-- Circle Badge for 1000+ Students -->
+                            <div class="absolute -top-4 -left-8 bg-white rounded-2xl shadow-xl px-4 py-3 z-10">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center">
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-600">1000+</p>
+                                        <p class="text-xs font-bold text-gray-900">Mahasiswa</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Circle Badge for 100+ Courses -->
+                            <div class="absolute bottom-0 -right-4 bg-white rounded-2xl shadow-xl px-4 py-3 z-10">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center">
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-600">100+</p>
+                                        <p class="text-xs font-bold text-gray-900">Kelas Aktif</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Main circular background with student -->
+                            <div class="w-72 h-72 bg-gradient-to-br from-purple-300 to-purple-500 rounded-full flex items-center justify-center shadow-2xl">
+                                <div class="w-64 h-64 bg-gradient-to-br from-pink-200 to-pink-300 rounded-full flex items-center justify-center">
+                                    <!-- Placeholder for student image -->
+                                    <div class="w-48 h-56 bg-gradient-to-b from-blue-400 to-blue-600 rounded-t-full relative">
+                                        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-32 h-40 bg-white rounded-lg"></div>
+                                        <div class="absolute top-4 left-1/2 -translate-x-1/2 w-16 h-16 bg-pink-300 rounded-full"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <!-- Total Kelas -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-shadow animate-slideIn">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center shadow-sm">
-                        <svg class="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-                        </svg>
+            <div class="relative bg-white rounded-3xl shadow-xl p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300 animate-slideIn overflow-hidden">
+                <div class="absolute -top-6 -right-6 w-32 h-32 bg-gradient-to-br from-purple-200 to-pink-200 rounded-full opacity-50"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl transform rotate-6">
+                            <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                            </svg>
+                        </div>
                     </div>
+                    <h3 class="text-4xl font-black text-gray-900 mb-1">8</h3>
+                    <p class="text-sm font-bold text-gray-600">Kelas Aktif</p>
                 </div>
-                <h3 class="text-2xl font-bold text-gray-900 mb-1">8</h3>
-                <p class="text-sm text-gray-600">Total Kelas</p>
             </div>
 
             <!-- Total Mahasiswa -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-shadow animate-slideIn" style="animation-delay: 0.1s;">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-5 h-5 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                        </svg>
+            <div class="relative bg-white rounded-3xl shadow-xl p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300 animate-slideIn overflow-hidden" style="animation-delay: 0.1s;">
+                <div class="absolute -top-6 -right-6 w-32 h-32 bg-gradient-to-br from-green-200 to-teal-200 rounded-full opacity-50"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center shadow-xl transform -rotate-6">
+                            <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
                     </div>
+                    <h3 class="text-4xl font-black text-gray-900 mb-1">245</h3>
+                    <p class="text-sm font-bold text-gray-600">Mahasiswa Aktif</p>
                 </div>
-                <h3 class="text-2xl font-bold text-gray-900 mb-1">245</h3>
-                <p class="text-sm text-gray-600">Total Mahasiswa</p>
             </div>
 
             <!-- Tugas Pending -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-shadow animate-slideIn" style="animation-delay: 0.2s;">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-5 h-5 text-yellow-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <path d="M12 6v6l4 2"></path>
-                        </svg>
+            <div class="relative bg-white rounded-3xl shadow-xl p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300 animate-slideIn overflow-hidden" style="animation-delay: 0.2s;">
+                <div class="absolute -top-6 -right-6 w-32 h-32 bg-gradient-to-br from-orange-200 to-yellow-200 rounded-full opacity-50"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center shadow-xl transform rotate-12">
+                            <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M12 6v6l4 2"></path>
+                            </svg>
+                        </div>
                     </div>
+                    <h3 class="text-4xl font-black text-gray-900 mb-1">12</h3>
+                    <p class="text-sm font-bold text-gray-600">Menunggu Review</p>
                 </div>
-                <h3 class="text-2xl font-bold text-gray-900 mb-1">12</h3>
-                <p class="text-sm text-gray-600">Tugas Pending Review</p>
             </div>
 
             <!-- Materi Upload -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-shadow animate-slideIn" style="animation-delay: 0.3s;">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-5 h-5 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <path d="M14 2v6h6"></path>
-                            <line x1="16" y1="13" x2="8" y2="13"></line>
-                            <line x1="16" y1="17" x2="8" y2="17"></line>
-                            <line x1="10" y1="9" x2="8" y2="9"></line>
-                        </svg>
+            <div class="relative bg-white rounded-3xl shadow-xl p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300 animate-slideIn overflow-hidden" style="animation-delay: 0.3s;">
+                <div class="absolute -top-6 -right-6 w-32 h-32 bg-gradient-to-br from-pink-200 to-rose-200 rounded-full opacity-50"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-16 h-16 bg-gradient-to-br from-pink-400 to-pink-600 rounded-2xl flex items-center justify-center shadow-xl transform -rotate-12">
+                            <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <path d="M14 2v6h6"></path>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <line x1="10" y1="9" x2="8" y2="9"></line>
+                            </svg>
+                        </div>
                     </div>
+                    <h3 class="text-4xl font-black text-gray-900 mb-1">56</h3>
+                    <p class="text-sm font-bold text-gray-600">Materi Diunggah</p>
                 </div>
-                <h3 class="text-2xl font-bold text-gray-900 mb-1">56</h3>
-                <p class="text-sm text-gray-600">Materi Terupload</p>
             </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <a href="export-demo.php" class="group bg-gradient-to-br from-green-50 to-white border-2 border-green-200 rounded-xl p-6 hover:shadow-xl hover:border-green-600 transition-all duration-300 hover:-translate-y-1">
-                <div class="flex items-center gap-4 mb-3">
-                    <div class="w-12 h-12 bg-gradient-to-br from-green-600 to-green-400 rounded-lg flex items-center justify-center shadow-md">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-gray-900 group-hover:text-green-600 transition-colors">Export Data</h4>
-                        <p class="text-xs text-gray-500">Mahasiswa & Nilai</p>
-                    </div>
-                </div>
-                <p class="text-sm text-gray-600">Export daftar mahasiswa dan rekap nilai dalam format Excel, PDF, atau CSV</p>
-            </a>
         </div>
 
         <!-- Daftar Kelas -->
         <div class="mb-8">
             <!-- Header Section -->
             <div class="mb-6">
-                <h2 class="text-3xl font-bold text-gray-900 mb-2">Daftar Kelas</h2>
-                <p class="text-gray-600">Kelola dan akses semua kelas yang Anda ikuti</p>
+                <h2 class="text-2xl font-bold text-gray-900 mb-1">Daftar Kelas</h2>
+                <p class="text-gray-600 text-sm">Kelola dan akses semua kelas yang Anda ajarkan</p>
             </div>
-
-            <!-- Join Kelas Button -->
-            <button onclick="openJoinKelasModal()" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-lg transition-all shadow-md mb-6">
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 5v14M5 12h14"/>
-                </svg>
-                Join Kelas
-            </button>
 
             <!-- Search & Filter Bar -->
-            <div class="bg-gray-50 rounded-xl p-4 mb-6">
-                <div class="flex flex-col md:flex-row gap-3">
-                    <!-- Search Input -->
-                    <div class="flex-1 relative">
-                        <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <path d="m21 21-4.35-4.35"></path>
-                        </svg>
-                        <input type="text" placeholder="Cari kelas (nama, kode, deskripsi)..." class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
-                    </div>
-                    
-                    <!-- Filters -->
-                    <select class="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
-                        <option>Semua Semester</option>
-                        <option>Ganjil 2024/2025</option>
-                        <option>Genap 2023/2024</option>
-                    </select>
-                    
-                    <select class="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
-                        <option>Semua Tahun</option>
-                        <option>2024/2025</option>
-                        <option>2023/2024</option>
-                    </select>
-                    
-                    <select class="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
-                        <option>Semua Status</option>
-                        <option>Aktif</option>
-                        <option>Selesai</option>
-                    </select>
-                    
-                    <select class="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
-                        <option>Nama (A-Z)</option>
-                        <option>Nama (Z-A)</option>
-                        <option>Terbaru</option>
-                        <option>Terlama</option>
-                    </select>
-                    
-                    <button class="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
-                        Reset Filter
-                    </button>
+            <div class="flex flex-col sm:flex-row gap-3 mb-6">
+                <!-- Search Input -->
+                <div class="flex-1 relative">
+                    <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input type="text" placeholder="Cari kelas..." class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
                 </div>
-            </div>
-
-            <!-- Results Counter -->
-            <div class="mb-6">
-                <p class="text-blue-600 font-semibold">Menampilkan <span class="text-gray-900">12 item</span></p>
+                
+                <select class="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                    <option>Semua Status</option>
+                    <option>Aktif</option>
+                    <option>Selesai</option>
+                </select>
             </div>
 
             <!-- Kelas Cards Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" id="kelasGrid">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="kelasGrid">
                 <!-- Kelas Card 1 - Pemrograman Web -->
-                <div class="group bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                    <!-- Card Header with gradient -->
-                    <div class="p-5 pb-3">
-                        <h3 class="text-white font-bold text-lg mb-1 line-clamp-2">Pemrograman Web</h3>
-                        <p class="text-blue-100 text-sm mb-3">KOM123 • Ganjil 2024/2025</p>
-                        <span class="inline-block bg-green-500 text-white text-xs font-bold px-2.5 py-1 rounded">AKTIF</span>
+                <div class="group bg-gradient-to-br from-purple-100 via-purple-50 to-white rounded-2xl overflow-hidden shadow-lg border-2 border-purple-200 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                    <!-- Illustration Section -->
+                    <div class="bg-gradient-to-br from-purple-200 to-purple-100 p-6 flex items-center justify-center h-32 relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-20">
+                            <div class="absolute top-2 left-4 w-16 h-20 bg-purple-400 rounded transform rotate-12"></div>
+                            <div class="absolute bottom-2 right-4 w-16 h-20 bg-purple-500 rounded transform -rotate-6"></div>
+                        </div>
+                        <div class="relative w-20 h-24 bg-gradient-to-br from-purple-500 to-purple-700 rounded-lg shadow-xl transform -rotate-3">
+                            <div class="h-4 bg-purple-700 rounded-t-lg"></div>
+                            <div class="p-2 text-white text-xs font-bold">WEB</div>
+                        </div>
                     </div>
                     
-                    <!-- White footer section -->
-                    <div class="bg-white p-4">
-                        <a href="detail-kelas-dosen.php?id=1" class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors">
+                    <!-- Content Section -->
+                    <div class="p-5 bg-white">
+                        <h3 class="text-purple-900 font-bold text-lg mb-1 line-clamp-2">Pemrograman Web</h3>
+                        <p class="text-purple-600 text-sm mb-3">KOM123 • Ganjil 2024/2025</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                AKTIF
+                            </span>
+                            <span class="text-purple-700 text-sm font-semibold">32 Mhs</span>
+                        </div>
+                        <a href="detail-kelas-dosen.php?id=1" class="block w-full text-center bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
                             Lihat Detail
                         </a>
                     </div>
                 </div>
 
                 <!-- Kelas Card 2 - Struktur Data -->
-                <div class="group bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                    <div class="p-5 pb-3">
-                        <h3 class="text-white font-bold text-lg mb-1 line-clamp-2">Struktur Data</h3>
-                        <p class="text-purple-100 text-sm mb-3">KOM202 • Ganjil 2024/2025</p>
-                        <span class="inline-block bg-green-500 text-white text-xs font-bold px-2.5 py-1 rounded">AKTIF</span>
+                <div class="group bg-gradient-to-br from-pink-100 via-pink-50 to-white rounded-2xl overflow-hidden shadow-lg border-2 border-pink-200 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                    <div class="bg-gradient-to-br from-pink-200 to-pink-100 p-6 flex items-center justify-center h-32 relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-20">
+                            <div class="absolute top-2 left-4 w-16 h-20 bg-pink-400 rounded transform rotate-6"></div>
+                            <div class="absolute bottom-2 right-4 w-16 h-20 bg-pink-500 rounded transform -rotate-12"></div>
+                        </div>
+                        <div class="relative w-20 h-24 bg-gradient-to-br from-pink-500 to-pink-700 rounded-lg shadow-xl transform rotate-6">
+                            <div class="h-4 bg-pink-700 rounded-t-lg"></div>
+                            <div class="p-2 text-white text-xs font-bold">DATA</div>
+                        </div>
                     </div>
-                    
-                    <div class="bg-white p-4">
-                        <a href="detail-kelas-dosen.php?id=2" class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors">
+                    <div class="p-5 bg-white">
+                        <h3 class="text-pink-900 font-bold text-lg mb-1 line-clamp-2">Struktur Data</h3>
+                        <p class="text-pink-600 text-sm mb-3">KOM202 • Ganjil 2024/2025</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                AKTIF
+                            </span>
+                            <span class="text-pink-700 text-sm font-semibold">28 Mhs</span>
+                        </div>
+                        <a href="detail-kelas-dosen.php?id=2" class="block w-full text-center bg-gradient-to-r from-pink-600 to-pink-700 hover:from-pink-700 hover:to-pink-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
                             Lihat Detail
                         </a>
                     </div>
                 </div>
 
                 <!-- Kelas Card 3 - Basis Data -->
-                <div class="group bg-gradient-to-br from-green-600 to-green-800 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                    <div class="p-5 pb-3">
-                        <h3 class="text-white font-bold text-lg mb-1 line-clamp-2">Basis Data</h3>
-                        <p class="text-green-100 text-sm mb-3">KOM201 • Ganjil 2024/2025</p>
-                        <span class="inline-block bg-green-500 text-white text-xs font-bold px-2.5 py-1 rounded">AKTIF</span>
+                <div class="group bg-gradient-to-br from-blue-100 via-blue-50 to-white rounded-2xl overflow-hidden shadow-lg border-2 border-blue-200 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                    <div class="bg-gradient-to-br from-blue-200 to-blue-100 p-6 flex items-center justify-center h-32 relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-20">
+                            <div class="absolute top-2 left-4 w-16 h-20 bg-blue-400 rounded transform -rotate-6"></div>
+                            <div class="absolute bottom-2 right-4 w-16 h-20 bg-blue-500 rounded transform rotate-12"></div>
+                        </div>
+                        <div class="relative w-20 h-24 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg shadow-xl transform -rotate-6">
+                            <div class="h-4 bg-blue-700 rounded-t-lg"></div>
+                            <div class="p-2 text-white text-xs font-bold">DB</div>
+                        </div>
                     </div>
-                    
-                    <div class="bg-white p-4">
-                        <a href="detail-kelas-dosen.php?id=3" class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors">
+                    <div class="p-5 bg-white">
+                        <h3 class="text-blue-900 font-bold text-lg mb-1 line-clamp-2">Basis Data</h3>
+                        <p class="text-blue-600 text-sm mb-3">KOM201 • Ganjil 2024/2025</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                AKTIF
+                            </span>
+                            <span class="text-blue-700 text-sm font-semibold">35 Mhs</span>
+                        </div>
+                        <a href="detail-kelas-dosen.php?id=3" class="block w-full text-center bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
                             Lihat Detail
                         </a>
                     </div>
                 </div>
 
                 <!-- Kelas Card 4 - Algoritma -->
-                <div class="group bg-gradient-to-br from-orange-600 to-orange-800 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                    <div class="p-5 pb-3">
-                        <h3 class="text-white font-bold text-lg mb-1 line-clamp-2">Algoritma dan Pemrograman</h3>
-                        <p class="text-orange-100 text-sm mb-3">KOM101 • Ganjil 2024/2025</p>
-                        <span class="inline-block bg-green-500 text-white text-xs font-bold px-2.5 py-1 rounded">AKTIF</span>
+                <div class="group bg-gradient-to-br from-yellow-100 via-yellow-50 to-white rounded-2xl overflow-hidden shadow-lg border-2 border-yellow-200 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                    <div class="bg-gradient-to-br from-yellow-200 to-yellow-100 p-6 flex items-center justify-center h-32 relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-20">
+                            <div class="absolute top-2 left-4 w-16 h-20 bg-yellow-400 rounded transform rotate-3"></div>
+                            <div class="absolute bottom-2 right-4 w-16 h-20 bg-yellow-500 rounded transform -rotate-6"></div>
+                        </div>
+                        <div class="relative w-20 h-24 bg-gradient-to-br from-yellow-500 to-yellow-700 rounded-lg shadow-xl transform rotate-3">
+                            <div class="h-4 bg-yellow-700 rounded-t-lg"></div>
+                            <div class="p-2 text-white text-xs font-bold">ALGO</div>
+                        </div>
                     </div>
-                    
-                    <div class="bg-white p-4">
-                        <a href="detail-kelas-dosen.php?id=4" class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors">
+                    <div class="p-5 bg-white">
+                        <h3 class="text-yellow-900 font-bold text-lg mb-1 line-clamp-2">Algoritma & Pemrograman</h3>
+                        <p class="text-yellow-600 text-sm mb-3">KOM101 • Ganjil 2024/2025</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                AKTIF
+                            </span>
+                            <span class="text-yellow-700 text-sm font-semibold">30 Mhs</span>
+                        </div>
+                        <a href="detail-kelas-dosen.php?id=4" class="block w-full text-center bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
                             Lihat Detail
                         </a>
                     </div>
                 </div>
 
                 <!-- Kelas Card 5 - Jaringan Komputer -->
-                <div class="group bg-gradient-to-br from-red-600 to-red-800 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                    <div class="p-5 pb-3">
-                        <h3 class="text-white font-bold text-lg mb-1 line-clamp-2">Jaringan Komputer</h3>
-                        <p class="text-red-100 text-sm mb-3">KOM301 • Ganjil 2024/2025</p>
-                        <span class="inline-block bg-green-500 text-white text-xs font-bold px-2.5 py-1 rounded">AKTIF</span>
+                <div class="group bg-gradient-to-br from-green-100 via-green-50 to-white rounded-2xl overflow-hidden shadow-lg border-2 border-green-200 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                    <div class="bg-gradient-to-br from-green-200 to-green-100 p-6 flex items-center justify-center h-32 relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-20">
+                            <div class="absolute top-2 left-4 w-16 h-20 bg-green-400 rounded transform -rotate-12"></div>
+                            <div class="absolute bottom-2 right-4 w-16 h-20 bg-green-500 rounded transform rotate-6"></div>
+                        </div>
+                        <div class="relative w-20 h-24 bg-gradient-to-br from-green-500 to-green-700 rounded-lg shadow-xl transform -rotate-3">
+                            <div class="h-4 bg-green-700 rounded-t-lg"></div>
+                            <div class="p-2 text-white text-xs font-bold">NET</div>
+                        </div>
                     </div>
-                    
-                    <div class="bg-white p-4">
-                        <a href="detail-kelas-dosen.php?id=5" class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors">
+                    <div class="p-5 bg-white">
+                        <h3 class="text-green-900 font-bold text-lg mb-1 line-clamp-2">Jaringan Komputer</h3>
+                        <p class="text-green-600 text-sm mb-3">KOM301 • Ganjil 2024/2025</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                AKTIF
+                            </span>
+                            <span class="text-green-700 text-sm font-semibold">26 Mhs</span>
+                        </div>
+                        <a href="detail-kelas-dosen.php?id=5" class="block w-full text-center bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
                             Lihat Detail
                         </a>
                     </div>
                 </div>
 
                 <!-- Kelas Card 6 - Sistem Operasi -->
-                <div class="group bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                    <div class="p-5 pb-3">
-                        <h3 class="text-white font-bold text-lg mb-1 line-clamp-2">Sistem Operasi</h3>
-                        <p class="text-indigo-100 text-sm mb-3">KOM302 • Ganjil 2024/2025</p>
-                        <span class="inline-block bg-green-500 text-white text-xs font-bold px-2.5 py-1 rounded">AKTIF</span>
+                <div class="group bg-gradient-to-br from-indigo-100 via-indigo-50 to-white rounded-2xl overflow-hidden shadow-lg border-2 border-indigo-200 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                    <div class="bg-gradient-to-br from-indigo-200 to-indigo-100 p-6 flex items-center justify-center h-32 relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-20">
+                            <div class="absolute top-2 left-4 w-16 h-20 bg-indigo-400 rounded transform rotate-6"></div>
+                            <div class="absolute bottom-2 right-4 w-16 h-20 bg-indigo-500 rounded transform -rotate-3"></div>
+                        </div>
+                        <div class="relative w-20 h-24 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-lg shadow-xl transform rotate-6">
+                            <div class="h-4 bg-indigo-700 rounded-t-lg"></div>
+                            <div class="p-2 text-white text-xs font-bold">OS</div>
+                        </div>
                     </div>
-                    
-                    <div class="bg-white p-4">
-                        <a href="detail-kelas-dosen.php?id=6" class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors">
+                    <div class="p-5 bg-white">
+                        <h3 class="text-indigo-900 font-bold text-lg mb-1 line-clamp-2">Sistem Operasi</h3>
+                        <p class="text-indigo-600 text-sm mb-3">KOM302 • Ganjil 2024/2025</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                AKTIF
+                            </span>
+                            <span class="text-indigo-700 text-sm font-semibold">29 Mhs</span>
+                        </div>
+                        <a href="detail-kelas-dosen.php?id=6" class="block w-full text-center bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
                             Lihat Detail
                         </a>
                     </div>
                 </div>
 
                 <!-- Kelas Card 7 - Matematika Diskrit -->
-                <div class="group bg-gradient-to-br from-pink-600 to-pink-800 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                    <div class="p-5 pb-3">
-                        <h3 class="text-white font-bold text-lg mb-1 line-clamp-2">Matematika Diskrit</h3>
-                        <p class="text-pink-100 text-sm mb-3">MTK201 • Ganjil 2024/2025</p>
-                        <span class="inline-block bg-green-500 text-white text-xs font-bold px-2.5 py-1 rounded">AKTIF</span>
+                <div class="group bg-gradient-to-br from-orange-100 via-orange-50 to-white rounded-2xl overflow-hidden shadow-lg border-2 border-orange-200 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                    <div class="bg-gradient-to-br from-orange-200 to-orange-100 p-6 flex items-center justify-center h-32 relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-20">
+                            <div class="absolute top-2 left-4 w-16 h-20 bg-orange-400 rounded transform -rotate-6"></div>
+                            <div class="absolute bottom-2 right-4 w-16 h-20 bg-orange-500 rounded transform rotate-12"></div>
+                        </div>
+                        <div class="relative w-20 h-24 bg-gradient-to-br from-orange-500 to-orange-700 rounded-lg shadow-xl transform -rotate-6">
+                            <div class="h-4 bg-orange-700 rounded-t-lg"></div>
+                            <div class="p-2 text-white text-xs font-bold">MATH</div>
+                        </div>
                     </div>
-                    
-                    <div class="bg-white p-4">
-                        <a href="detail-kelas-dosen.php?id=7" class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors">
+                    <div class="p-5 bg-white">
+                        <h3 class="text-orange-900 font-bold text-lg mb-1 line-clamp-2">Matematika Diskrit</h3>
+                        <p class="text-orange-600 text-sm mb-3">MTK201 • Ganjil 2024/2025</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                AKTIF
+                            </span>
+                            <span class="text-orange-700 text-sm font-semibold">31 Mhs</span>
+                        </div>
+                        <a href="detail-kelas-dosen.php?id=7" class="block w-full text-center bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
                             Lihat Detail
                         </a>
                     </div>
                 </div>
 
                 <!-- Kelas Card 8 - Keamanan Informasi -->
-                <div class="group bg-gradient-to-br from-teal-600 to-teal-800 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                    <div class="p-5 pb-3">
-                        <h3 class="text-white font-bold text-lg mb-1 line-clamp-2">Keamanan Informasi</h3>
-                        <p class="text-teal-100 text-sm mb-3">KOM401 • Ganjil 2024/2025</p>
-                        <span class="inline-block bg-green-500 text-white text-xs font-bold px-2.5 py-1 rounded">AKTIF</span>
+                <div class="group bg-gradient-to-br from-teal-100 via-teal-50 to-white rounded-2xl overflow-hidden shadow-lg border-2 border-teal-200 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                    <div class="bg-gradient-to-br from-teal-200 to-teal-100 p-6 flex items-center justify-center h-32 relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-20">
+                            <div class="absolute top-2 left-4 w-16 h-20 bg-teal-400 rounded transform rotate-3"></div>
+                            <div class="absolute bottom-2 right-4 w-16 h-20 bg-teal-500 rounded transform -rotate-12"></div>
+                        </div>
+                        <div class="relative w-20 h-24 bg-gradient-to-br from-teal-500 to-teal-700 rounded-lg shadow-xl transform rotate-3">
+                            <div class="h-4 bg-teal-700 rounded-t-lg"></div>
+                            <div class="p-2 text-white text-xs font-bold">SEC</div>
+                        </div>
                     </div>
-                    
-                    <div class="bg-white p-4">
-                        <a href="detail-kelas-dosen.php?id=8" class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors">
+                    <div class="p-5 bg-white">
+                        <h3 class="text-teal-900 font-bold text-lg mb-1 line-clamp-2">Keamanan Informasi</h3>
+                        <p class="text-teal-600 text-sm mb-3">KOM401 • Ganjil 2024/2025</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                AKTIF
+                            </span>
+                            <span class="text-teal-700 text-sm font-semibold">27 Mhs</span>
+                        </div>
+                        <a href="detail-kelas-dosen.php?id=8" class="block w-full text-center bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
                             Lihat Detail
                         </a>
                     </div>
                 </div>
 
                 <!-- Kelas Card 9 - Machine Learning -->
-                <div class="group bg-gradient-to-br from-yellow-600 to-yellow-800 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                    <div class="p-5 pb-3">
-                        <h3 class="text-white font-bold text-lg mb-1 line-clamp-2">Machine Learning</h3>
-                        <p class="text-yellow-100 text-sm mb-3">KOM501 • Ganjil 2024/2025</p>
-                        <span class="inline-block bg-green-500 text-white text-xs font-bold px-2.5 py-1 rounded">AKTIF</span>
+                <div class="group bg-gradient-to-br from-yellow-100 via-amber-50 to-white rounded-2xl overflow-hidden shadow-lg border-2 border-yellow-200 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                    <div class="bg-gradient-to-br from-yellow-200 to-amber-100 p-6 flex items-center justify-center h-32 relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-20">
+                            <div class="absolute top-2 left-4 w-16 h-20 bg-yellow-400 rounded transform rotate-12"></div>
+                            <div class="absolute bottom-2 right-4 w-16 h-20 bg-amber-500 rounded transform -rotate-6"></div>
+                        </div>
+                        <div class="relative w-20 h-24 bg-gradient-to-br from-yellow-600 to-amber-700 rounded-lg shadow-xl transform rotate-12">
+                            <div class="h-4 bg-amber-700 rounded-t-lg"></div>
+                            <div class="p-2 text-white text-xs font-bold">ML</div>
+                        </div>
                     </div>
-                    
-                    <div class="bg-white p-4">
-                        <a href="detail-kelas-dosen.php?id=9" class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors">
+                    <div class="p-5 bg-white">
+                        <h3 class="text-yellow-900 font-bold text-lg mb-1 line-clamp-2">Machine Learning</h3>
+                        <p class="text-yellow-600 text-sm mb-3">KOM501 • Ganjil 2024/2025</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                AKTIF
+                            </span>
+                            <span class="text-yellow-700 text-sm font-semibold">24 Mhs</span>
+                        </div>
+                        <a href="detail-kelas-dosen.php?id=9" class="block w-full text-center bg-gradient-to-r from-yellow-600 to-amber-700 hover:from-yellow-700 hover:to-amber-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
                             Lihat Detail
                         </a>
                     </div>
                 </div>
 
                 <!-- Kelas Card 10 - Cloud Computing -->
-                <div class="group bg-gradient-to-br from-cyan-600 to-cyan-800 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                    <div class="p-5 pb-3">
-                        <h3 class="text-white font-bold text-lg mb-1 line-clamp-2">Cloud Computing</h3>
-                        <p class="text-cyan-100 text-sm mb-3">KOM502 • Ganjil 2024/2025</p>
-                        <span class="inline-block bg-green-500 text-white text-xs font-bold px-2.5 py-1 rounded">AKTIF</span>
+                <div class="group bg-gradient-to-br from-cyan-100 via-cyan-50 to-white rounded-2xl overflow-hidden shadow-lg border-2 border-cyan-200 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                    <div class="bg-gradient-to-br from-cyan-200 to-cyan-100 p-6 flex items-center justify-center h-32 relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-20">
+                            <div class="absolute top-2 left-4 w-16 h-20 bg-cyan-400 rounded transform -rotate-6"></div>
+                            <div class="absolute bottom-2 right-4 w-16 h-20 bg-cyan-500 rounded transform rotate-12"></div>
+                        </div>
+                        <div class="relative w-20 h-24 bg-gradient-to-br from-cyan-600 to-cyan-800 rounded-lg shadow-xl transform -rotate-6">
+                            <div class="h-4 bg-cyan-800 rounded-t-lg"></div>
+                            <div class="p-2 text-white text-xs font-bold">CLOUD</div>
+                        </div>
                     </div>
-                    
-                    <div class="bg-white p-4">
-                        <a href="detail-kelas-dosen.php?id=10" class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors">
+                    <div class="p-5 bg-white">
+                        <h3 class="text-cyan-900 font-bold text-lg mb-1 line-clamp-2">Cloud Computing</h3>
+                        <p class="text-cyan-600 text-sm mb-3">KOM502 • Ganjil 2024/2025</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                AKTIF
+                            </span>
+                            <span class="text-cyan-700 text-sm font-semibold">28 Mhs</span>
+                        </div>
+                        <a href="detail-kelas-dosen.php?id=10" class="block w-full text-center bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-700 hover:to-cyan-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
                             Lihat Detail
                         </a>
                     </div>
                 </div>
 
                 <!-- Kelas Card 11 - Mobile Programming -->
-                <div class="group bg-gradient-to-br from-lime-600 to-lime-800 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                    <div class="p-5 pb-3">
-                        <h3 class="text-white font-bold text-lg mb-1 line-clamp-2">Mobile Programming</h3>
-                        <p class="text-lime-100 text-sm mb-3">KOM402 • Ganjil 2024/2025</p>
-                        <span class="inline-block bg-green-500 text-white text-xs font-bold px-2.5 py-1 rounded">AKTIF</span>
+                <div class="group bg-gradient-to-br from-lime-100 via-lime-50 to-white rounded-2xl overflow-hidden shadow-lg border-2 border-lime-200 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                    <div class="bg-gradient-to-br from-lime-200 to-lime-100 p-6 flex items-center justify-center h-32 relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-20">
+                            <div class="absolute top-2 left-4 w-16 h-20 bg-lime-400 rounded transform rotate-6"></div>
+                            <div class="absolute bottom-2 right-4 w-16 h-20 bg-lime-500 rounded transform -rotate-12"></div>
+                        </div>
+                        <div class="relative w-20 h-24 bg-gradient-to-br from-lime-600 to-lime-800 rounded-lg shadow-xl transform rotate-6">
+                            <div class="h-4 bg-lime-800 rounded-t-lg"></div>
+                            <div class="p-2 text-white text-xs font-bold">MOBI</div>
+                        </div>
                     </div>
-                    
-                    <div class="bg-white p-4">
-                        <a href="detail-kelas-dosen.php?id=11" class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors">
+                    <div class="p-5 bg-white">
+                        <h3 class="text-lime-900 font-bold text-lg mb-1 line-clamp-2">Mobile Programming</h3>
+                        <p class="text-lime-600 text-sm mb-3">KOM402 • Ganjil 2024/2025</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                AKTIF
+                            </span>
+                            <span class="text-lime-700 text-sm font-semibold">33 Mhs</span>
+                        </div>
+                        <a href="detail-kelas-dosen.php?id=11" class="block w-full text-center bg-gradient-to-r from-lime-600 to-lime-700 hover:from-lime-700 hover:to-lime-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
                             Lihat Detail
                         </a>
                     </div>
                 </div>
 
                 <!-- Kelas Card 12 - Data Mining -->
-                <div class="group bg-gradient-to-br from-rose-600 to-rose-800 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                    <div class="p-5 pb-3">
-                        <h3 class="text-white font-bold text-lg mb-1 line-clamp-2">Data Mining</h3>
-                        <p class="text-rose-100 text-sm mb-3">KOM503 • Ganjil 2024/2025</p>
-                        <span class="inline-block bg-green-500 text-white text-xs font-bold px-2.5 py-1 rounded">AKTIF</span>
+                <div class="group bg-gradient-to-br from-rose-100 via-rose-50 to-white rounded-2xl overflow-hidden shadow-lg border-2 border-rose-200 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                    <div class="bg-gradient-to-br from-rose-200 to-rose-100 p-6 flex items-center justify-center h-32 relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-20">
+                            <div class="absolute top-2 left-4 w-16 h-20 bg-rose-400 rounded transform -rotate-12"></div>
+                            <div class="absolute bottom-2 right-4 w-16 h-20 bg-rose-500 rounded transform rotate-6"></div>
+                        </div>
+                        <div class="relative w-20 h-24 bg-gradient-to-br from-rose-600 to-rose-800 rounded-lg shadow-xl transform -rotate-12">
+                            <div class="h-4 bg-rose-800 rounded-t-lg"></div>
+                            <div class="p-2 text-white text-xs font-bold">DATA</div>
+                        </div>
                     </div>
-                    
-                    <div class="bg-white p-4">
-                        <a href="detail-kelas-dosen.php?id=12" class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors">
+                    <div class="p-5 bg-white">
+                        <h3 class="text-rose-900 font-bold text-lg mb-1 line-clamp-2">Data Mining</h3>
+                        <p class="text-rose-600 text-sm mb-3">KOM503 • Ganjil 2024/2025</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                AKTIF
+                            </span>
+                            <span class="text-rose-700 text-sm font-semibold">25 Mhs</span>
+                        </div>
+                        <a href="detail-kelas-dosen.php?id=12" class="block w-full text-center bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
                             Lihat Detail
                         </a>
                     </div>
