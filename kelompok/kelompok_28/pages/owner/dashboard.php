@@ -286,11 +286,6 @@ require_once '../../process/process_owner.php';
                                 </h3>
                                 <p class="text-xs text-gray-500 mt-1 ml-13">Analisis tren 7 hari terakhir</p>
                             </div>
-                            <select class="bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm font-semibold text-gray-700 hover:border-purple-300 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500">
-                                <option>7 Hari</option>
-                                <option>30 Hari</option>
-                                <option>90 Hari</option>
-                            </select>
                         </div>
                         <div class="chart-container relative">
                             <canvas id="salesChart" class="w-full" style="height: 300px;"></canvas>
@@ -355,78 +350,107 @@ require_once '../../process/process_owner.php';
                 </div>
             </div>
 
-            <script>
-                const ctx = document.getElementById('salesChart').getContext('2d');
-                const labels = <?= json_encode($chart_labels) ?>;
-                const dataValues = <?= json_encode($chart_data) ?>;
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
 
-                const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-                gradient.addColorStop(0, 'rgba(99, 102, 241, 0.8)');
-                gradient.addColorStop(1, 'rgba(168, 85, 247, 0.8)');
-
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Penjualan (Rp)',
-                            data: dataValues,
-                            backgroundColor: gradient,
-                            borderRadius: 12,
-                            borderSkipped: false,
-                            hoverBackgroundColor: 'rgba(79, 70, 229, 1)',
-                            barThickness: 40
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { 
-                            legend: { display: false },
-                            tooltip: {
-                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                padding: 12,
-                                borderRadius: 8,
-                                titleFont: { size: 14, weight: 'bold' },
-                                bodyFont: { size: 13 },
-                                callbacks: {
-                                    label: function(context) {
-                                        return 'Rp ' + context.parsed.y.toLocaleString('id-ID');
-                                    }
+        const chartLabels = <?= json_encode($chart_labels) ?>;
+        const chartData = <?= json_encode($chart_data) ?>;
+    
+        console.log('Chart Labels:', chartLabels);
+        console.log('Chart Data:', chartData);
+    
+        const canvas = document.getElementById('salesChart');
+        if (!canvas) {
+            console.error('Canvas #salesChart tidak ditemukan!');
+        return;
+        }
+    
+        const ctx = canvas.getContext('2d');
+    
+       const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(99, 102, 241, 0.8)');
+        gradient.addColorStop(1, 'rgba(168, 85, 247, 0.8)');
+    
+        try {
+            const salesChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Penjualan (Rp)',
+                        data: chartData,
+                        backgroundColor: gradient,
+                        borderRadius: 12,
+                        borderSkipped: false,
+                        hoverBackgroundColor: 'rgba(79, 70, 229, 1)',
+                        barThickness: 40
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,
+                    plugins: { 
+                        legend: { 
+                            display: false 
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            borderRadius: 8,
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 13 },
+                            callbacks: {
+                                label: function(context) {
+                                    let value = context.parsed.y || 0;
+                                    return 'Rp ' + value.toLocaleString('id-ID');
                                 }
                             }
-                        },
-                        scales: {
-                            y: { 
-                                beginAtZero: true, 
-                                grid: { 
-                                    borderDash: [5, 5], 
-                                    color: 'rgba(0, 0, 0, 0.05)',
-                                    drawBorder: false
-                                }, 
-                                ticks: { 
-                                    font: { size: 11, weight: '600' },
-                                    color: '#6B7280',
-                                    callback: function(value) {
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { 
+                                borderDash: [5, 5], 
+                                color: 'rgba(0, 0, 0, 0.05)',
+                                drawBorder: false
+                            }, 
+                            ticks: { 
+                                font: { size: 11, weight: '600' },
+                                color: '#6B7280',
+                                callback: function(value) {
+                                    if (value >= 1000000) {
+                                        return 'Rp ' + (value/1000000).toFixed(1) + 'jt';
+                                    } else if (value >= 1000) {
                                         return 'Rp ' + (value/1000) + 'k';
                                     }
-                                }
-                            },
-                            x: { 
-                                grid: { display: false, drawBorder: false },
-                                ticks: { 
-                                    font: { size: 12, weight: '700' },
-                                    color: '#374151'
+                                    return 'Rp ' + value;
                                 }
                             }
                         },
-                        animation: {
-                            duration: 1500,
-                            easing: 'easeInOutQuart'
+                        x: { 
+                            grid: { display: false, drawBorder: false },
+                            ticks: { 
+                                font: { size: 12, weight: '700' },
+                                color: '#374151'
+                            }
                         }
+                    },
+                    animation: {
+                        duration: 1500,
+                        easing: 'easeInOutQuart'
                     }
-                });
-            </script>
+                }
+            });
+        
+            console.log('✅ Chart berhasil dibuat!', salesChart);
+        
+            } catch (error) {
+                console.error('❌ Error saat membuat chart:', error);
+            }
+        });
+    </script>
 
         <?php else: ?>
 
