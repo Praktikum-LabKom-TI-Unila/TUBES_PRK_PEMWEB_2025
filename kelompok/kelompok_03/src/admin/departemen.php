@@ -14,6 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = $isUpdate ? (int)($_POST['departemen_id'] ?? 0) : null;
         $nama = trim((string)($_POST['nama'] ?? ''));
         $deskripsi = trim((string)($_POST['deskripsi'] ?? ''));
+        $leader_id = (int)($_POST['leader_id'] ?? 0) ?: null;
 
         if ($nama === '') {
             $error = 'Nama departemen wajib diisi.';
@@ -27,6 +28,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'updated_at' => $now,
                         'id' => $id,
                     ]);
+                    // assign Ketua Departemen if provided
+                    try {
+                        $jab = db_fetch('SELECT id FROM jabatan WHERE nama = :n LIMIT 1', [':n' => 'Ketua Departemen']);
+                        if ($jab && isset($jab['id'])) {
+                            $jid = (int)$jab['id'];
+                            // remove existing Ketua assignments for this departemen
+                            db_execute('DELETE FROM anggota_jabatan WHERE departemen_id = :d AND jabatan_id = :jid', [':d' => $id, ':jid' => $jid]);
+                            if ($leader_id) {
+                                db_execute('INSERT INTO anggota_jabatan (anggota_id, jabatan_id, departemen_id, divisi_id) VALUES (:anggota_id, :jabatan_id, :departemen_id, NULL)', [
+                                    ':anggota_id' => $leader_id,
+                                    ':jabatan_id' => $jid,
+                                    ':departemen_id' => $id,
+                                ]);
+                            }
+                        }
+                    } catch (Exception $ex) {
+                        $error = 'Departemen diperbarui tetapi gagal meng-assign ketua: ' . $ex->getMessage();
+                    }
                 } else {
                     db_execute('INSERT INTO departemen (nama, deskripsi, created_at, updated_at) VALUES (:nama, :deskripsi, :created_at, :updated_at)', [
                         'nama' => $nama,
@@ -34,6 +53,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'created_at' => $now,
                         'updated_at' => $now,
                     ]);
+                    // assign Ketua Departemen if provided
+                    try {
+                        $dbh = get_db();
+                        $lastId = $dbh->lastInsertId();
+                        $jab = db_fetch('SELECT id FROM jabatan WHERE nama = :n LIMIT 1', [':n' => 'Ketua Departemen']);
+                        if ($jab && isset($jab['id'])) {
+                            $jid = (int)$jab['id'];
+                            if ($leader_id) {
+                                db_execute('INSERT INTO anggota_jabatan (anggota_id, jabatan_id, departemen_id, divisi_id) VALUES (:anggota_id, :jabatan_id, :departemen_id, NULL)', [
+                                    ':anggota_id' => $leader_id,
+                                    ':jabatan_id' => $jid,
+                                    ':departemen_id' => $lastId,
+                                ]);
+                            }
+                        }
+                    } catch (Exception $ex) {
+                        $error = 'Departemen dibuat tetapi gagal meng-assign ketua: ' . $ex->getMessage();
+                    }
                 }
                 header('Location: departemen.php');
                 exit;
@@ -60,6 +97,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 try {
     // fetch all departemen
     $departemen_list = db_fetch_all('SELECT * FROM departemen ORDER BY nama ASC');
+    // fetch all anggota for leader select
+    $allAnggota = db_fetch_all('SELECT id, nama FROM anggota ORDER BY nama ASC');
 } catch (Exception $ex) {
     $error = $ex->getMessage();
 }
@@ -242,59 +281,73 @@ try {
                         <div class="p-4 bg-red-50 text-red-700 rounded">Error: <?php echo e($error); ?></div>
                     <?php endif; ?>
 
-                    <?php foreach ($departemen_list as $dept): ?>
-                        <?php
-                            $id = $dept['id'];
-                            $nama = $dept['nama'] ?? '';
-                            $deskripsi = $dept['deskripsi'] ?? '';
-                            // staff count from anggota_jabatan where departemen_id = id
-                            $staffCount = 0;
-                            $divisiCount = 0;
-                            $kepala = null;
-                            try {
-                                $c = db_fetch('SELECT COUNT(*) as c FROM anggota_jabatan WHERE departemen_id = :d', [':d' => $id]);
-                                $staffCount = isset($c['c']) ? (int)$c['c'] : 0;
-                                $d = db_fetch('SELECT COUNT(*) as c FROM divisi WHERE departemen_id = :d', [':d' => $id]);
-                                $divisiCount = isset($d['c']) ? (int)$d['c'] : 0;
-                                // try to get a kepala candidate: pick first anggota assigned to this departemen
-                                $kep = db_fetch('SELECT a.* FROM anggota a JOIN anggota_jabatan aj ON aj.anggota_id = a.id WHERE aj.departemen_id = :d LIMIT 1', [':d' => $id]);
-                                if ($kep) $kepala = $kep;
-                            } catch (Exception $ex) {
-                                // ignore per-row error and continue
-                            }
-                        ?>
-                        <div data-id="<?= e($id) ?>" data-nama="<?= e($nama) ?>" data-deskripsi="<?= e($deskripsi) ?>" class="group bg-white rounded-[20px] p-4 grid grid-cols-12 gap-4 items-center shadow-card hover:shadow-soft transition-all cursor-pointer border border-transparent hover:border-primary/20">
-                            <div class="col-span-4 flex items-center gap-4">
-                                <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shadow-sm">
-                                    <i class="fa-solid fa-sitemap"></i>
+                    <?php if (empty($departemen_list)): ?>
+                        <div class="bg-white rounded-[20px] p-6 shadow-card">Belum ada departemen terdaftar.</div>
+                    <?php else: ?>
+                        <?php foreach ($departemen_list as $dept): ?>
+                            <?php
+                                $id = $dept['id'];
+                                $nama = $dept['nama'] ?? '';
+                                $deskripsi = $dept['deskripsi'] ?? '';
+                                // staff count from anggota_jabatan where departemen_id = id
+                                $staffCount = 0;
+                                $divisiCount = 0;
+                                $kepala = null;
+                                try {
+                                    $c = db_fetch('SELECT COUNT(*) as c FROM anggota_jabatan WHERE departemen_id = :d', [':d' => $id]);
+                                    $staffCount = isset($c['c']) ? (int)$c['c'] : 0;
+                                    $d = db_fetch('SELECT COUNT(*) as c FROM divisi WHERE departemen_id = :d', [':d' => $id]);
+                                    $divisiCount = isset($d['c']) ? (int)$d['c'] : 0;
+                                    // try to get the Ketua Departemen by matching jabatan.nama = 'Ketua Departemen'
+                                    $kep = db_fetch(
+                                        'SELECT a.* FROM anggota a 
+                                         JOIN anggota_jabatan aj ON aj.anggota_id = a.id 
+                                         JOIN jabatan j ON j.id = aj.jabatan_id 
+                                         WHERE aj.departemen_id = :d AND j.nama = :jabatan LIMIT 1',
+                                        [':d' => $id, ':jabatan' => 'Ketua Departemen']
+                                    );
+                                    // Fallback: any anggota in this departemen
+                                    if (!$kep) {
+                                        $kep = db_fetch('SELECT a.* FROM anggota a JOIN anggota_jabatan aj ON aj.anggota_id = a.id WHERE aj.departemen_id = :d LIMIT 1', [':d' => $id]);
+                                    }
+                                    if ($kep) $kepala = $kep;
+                                } catch (Exception $ex) {
+                                    // ignore per-row error and continue
+                                }
+                            ?>
+                            <div data-id="<?= e($id) ?>" data-nama="<?= e($nama) ?>" data-deskripsi="<?= e($deskripsi) ?>" data-kepala-id="<?= e($kepala['id'] ?? '') ?>" class="group bg-white rounded-[20px] p-4 grid grid-cols-12 gap-4 items-center shadow-card hover:shadow-soft transition-all cursor-pointer border border-transparent hover:border-primary/20">
+                                <div class="col-span-4 flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shadow-sm">
+                                        <i class="fa-solid fa-sitemap"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-dark text-sm group-hover:text-primary transition"><?php echo e($nama); ?></h3>
+                                        <p class="text-[10px] text-muted uppercase tracking-wide"><?php echo e($nama); ?></p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h3 class="font-bold text-dark text-sm group-hover:text-primary transition"><?php echo e($nama); ?></h3>
-                                    <p class="text-[10px] text-muted uppercase tracking-wide"><?php echo e($nama); ?></p>
+                                <div class="col-span-2 flex flex-col gap-1">
+                                    <span class="text-xs font-bold text-dark flex items-center gap-1.5"><i class="fa-solid fa-user-group text-muted"></i> <?php echo e($staffCount); ?> Staf</span>
+                                    <span class="text-xs font-medium text-muted flex items-center gap-1.5"><i class="fa-solid fa-layer-group text-muted"></i> <?php echo e($divisiCount); ?> Divisi</span>
+                                </div>
+                                <div class="col-span-3 flex items-center gap-2">
+                                    <?php if ($kepala): ?>
+                                        <img src="<?php echo e($kepala['foto'] ?: 'https://ui-avatars.com/api/?name=' . urlencode($kepala['nama'])); ?>" class="w-8 h-8 rounded-full border border-white shadow-sm">
+                                        <span class="text-sm font-bold text-dark"><?php echo e($kepala['nama']); ?></span>
+                                    <?php else: ?>
+                                        <div class="w-8 h-8 rounded-full bg-gray-100"></div>
+                                        <span class="text-sm font-bold text-dark">-</span>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="col-span-2 text-xs text-muted line-clamp-2 leading-relaxed">
+                                    <?php echo e($deskripsi); ?>
+                                </div>
+                                <div class="col-span-1 text-right flex items-center justify-end gap-2">
+                                    <button type="button" onclick="openEditDepartemenFromCard(this)" class="text-sm px-3 py-1 rounded-lg bg-blue-50 text-primary hover:bg-blue-100">Edit</button>
+                                    <button type="button" onclick="confirmDeleteDepartemenFromCard(this)" class="text-sm px-3 py-1 rounded-lg bg-red-50 text-red-600 hover:bg-red-100">Hapus</button>
                                 </div>
                             </div>
-                            <div class="col-span-2 flex flex-col gap-1">
-                                <span class="text-xs font-bold text-dark flex items-center gap-1.5"><i class="fa-solid fa-user-group text-muted"></i> <?php echo e($staffCount); ?> Staf</span>
-                                <span class="text-xs font-medium text-muted flex items-center gap-1.5"><i class="fa-solid fa-layer-group text-muted"></i> <?php echo e($divisiCount); ?> Divisi</span>
-                            </div>
-                            <div class="col-span-3 flex items-center gap-2">
-                                <?php if ($kepala): ?>
-                                    <img src="<?php echo e($kepala['foto'] ?: 'https://ui-avatars.com/api/?name=' . urlencode($kepala['nama'])); ?>" class="w-8 h-8 rounded-full border border-white shadow-sm">
-                                    <span class="text-sm font-bold text-dark"><?php echo e($kepala['nama']); ?></span>
-                                <?php else: ?>
-                                    <div class="w-8 h-8 rounded-full bg-gray-100"></div>
-                                    <span class="text-sm font-bold text-dark">-</span>
-                                <?php endif; ?>
-                            </div>
-                            <div class="col-span-2 text-xs text-muted line-clamp-2 leading-relaxed">
-                                <?php echo e($deskripsi); ?>
-                            </div>
-                            <div class="col-span-1 text-right flex items-center justify-end gap-2">
-                                <button type="button" onclick="openEditDepartemenFromCard(this)" class="text-sm px-3 py-1 rounded-lg bg-blue-50 text-primary hover:bg-blue-100">Edit</button>
-                                <button type="button" onclick="confirmDeleteDepartemenFromCard(this)" class="text-sm px-3 py-1 rounded-lg bg-red-50 text-red-600 hover:bg-red-100">Hapus</button>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
 
                 </div>
             </div>
@@ -318,6 +371,19 @@ try {
                 <div>
                     <label class="block text-xs font-bold text-dark uppercase mb-1">Nama</label>
                     <input name="nama" id="departemen-nama" required class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary transition" placeholder="Nama departemen">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-dark uppercase mb-1">Ketua Departemen</label>
+                    <div class="relative">
+                        <select name="leader_id" id="departemen-leader" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary transition">
+                            <option value="">-- Pilih Ketua --</option>
+                            <?php foreach ($allAnggota as $ag): ?>
+                                <option value="<?= e($ag['id']) ?>"><?= e($ag['nama']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <p class="text-[10px] text-muted mt-1 ml-1">Pilih Ketua resmi untuk departemen ini.</p>
                 </div>
 
                 <div>
@@ -369,6 +435,7 @@ try {
                 document.getElementById('departemen-action').value = 'create_departemen';
                 document.getElementById('departemen-id').value = '';
                 document.getElementById('departemen-nama').value = '';
+                const leaderSel = document.getElementById('departemen-leader'); if (leaderSel) leaderSel.value = '';
                 document.getElementById('departemen-deskripsi').value = '';
                 document.getElementById('departemen-modal-title').innerText = 'Tambah Departemen';
                 openModal();
@@ -379,9 +446,11 @@ try {
                 const id = card.getAttribute('data-id');
                 const nama = card.getAttribute('data-nama') || '';
                 const deskripsi = card.getAttribute('data-deskripsi') || '';
+                const kepalaId = card.getAttribute('data-kepala-id') || '';
                 document.getElementById('departemen-action').value = 'update_departemen';
                 document.getElementById('departemen-id').value = id;
                 document.getElementById('departemen-nama').value = nama;
+                const leaderSel = document.getElementById('departemen-leader'); if (leaderSel) leaderSel.value = kepalaId;
                 document.getElementById('departemen-deskripsi').value = deskripsi;
                 document.getElementById('departemen-modal-title').innerText = 'Edit Departemen';
                 openModal();

@@ -281,7 +281,7 @@ try {
                             <span id="departemenButtonLabel">Semua Departemen</span>
                             <i class="fa-solid fa-chevron-down text-xs"></i>
                         </button>
-                        <div id="departemenPanel" class="absolute mt-2 right-0 w-56 bg-white rounded-lg shadow-lg ring-1 ring-black/5 hidden z-30">
+                        <div id="departemenPanel" class="absolute mt-2 left-0 w-56 bg-white rounded-lg shadow-lg ring-1 ring-black/5 hidden z-30">
                             <div class="py-2">
                                 <button data-dep-id="" data-dep-name="Semua Departemen" class="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 filter-dep-item">Semua Departemen</button>
                                 <?php foreach ($departemen_list as $dep): ?>
@@ -323,10 +323,20 @@ try {
                             $avatar = $foto ? e($foto) : 'https://ui-avatars.com/api/?name=' . urlencode($nama) . '&background=random';
                         ?>
                         <?php
-                            // load latest link for this anggota (departemen/divisi)
-                            $link = db_fetch('SELECT departemen_id, divisi_id FROM anggota_jabatan WHERE anggota_id = :id ORDER BY id DESC LIMIT 1', ['id' => $anggota['id']]);
+                            // load latest link for this anggota (departemen/divisi) and fetch their names
+                            $link = db_fetch(
+                                'SELECT aj.departemen_id, aj.divisi_id, dep.nama AS departemen_nama, dv.nama AS divisi_nama
+                                 FROM anggota_jabatan aj
+                                 LEFT JOIN departemen dep ON aj.departemen_id = dep.id
+                                 LEFT JOIN divisi dv ON aj.divisi_id = dv.id
+                                 WHERE aj.anggota_id = :id
+                                 ORDER BY aj.id DESC LIMIT 1',
+                                ['id' => $anggota['id']]
+                            );
                             $link_dep = $link ? ($link['departemen_id'] ?? '') : '';
                             $link_div = $link ? ($link['divisi_id'] ?? '') : '';
+                            $link_dep_name = $link ? ($link['departemen_nama'] ?? '') : '';
+                            $link_div_name = $link ? ($link['divisi_nama'] ?? '') : '';
                         ?>
                             <div class="group bg-white rounded-[20px] p-4 grid grid-cols-12 gap-4 items-center shadow-card hover:shadow-soft transition-all cursor-pointer border border-transparent hover:border-primary/20" 
                                 data-id="<?= e($anggota['id']) ?>" data-nama="<?= e($nama) ?>" data-npm="<?= e($npm) ?>" data-username="<?= e($username) ?>" data-foto="<?= e($foto) ?>" data-password="<?= e($anggota['password'] ?? '') ?>" data-departemen="<?= e($link_dep) ?>" data-divisi="<?= e($link_div) ?>">
@@ -338,7 +348,7 @@ try {
                                 </div>
                             </div>
                             <div class="col-span-2 font-bold text-dark text-sm"><?php echo e($npm); ?></div>
-                            <div class="col-span-3 text-sm text-dark font-medium"><?php echo e($anggota['departemen'] ?? ''); ?> <span class="text-muted text-xs"><?php echo isset($anggota['divisi']) ? '• ' . e($anggota['divisi']) : ''; ?></span></div>
+                            <div class="col-span-3 text-sm text-dark font-medium"><?php echo e($link_dep_name ?: '-'); ?> <span class="text-muted text-xs"><?php echo $link_div_name ? '• ' . e($link_div_name) : ''; ?></span></div>
                             <div class="col-span-2">
                                 <span class="bg-blue-50 text-primary px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1">
                                     <?php echo e($jabatan ?: 'Anggota'); ?>
@@ -354,7 +364,7 @@ try {
             </div>
 
             <div class="flex justify-between items-center mt-8 text-sm px-2">
-                <span class="text-muted font-medium">Menampilkan <?php echo e(min(10, $total)); ?> dari <?php echo e($total); ?> data</span>
+                <span id="listCountLabel" data-total="<?= e($total) ?>" class="text-muted font-medium">Menampilkan <?= e(min(10, $total)) ?> dari <?= e($total) ?> data</span>
             </div>
 
         </div>
@@ -584,6 +594,8 @@ try {
                     if (!selectedDep) { r.style.display = ''; } else { r.style.display = (rowDep === String(selectedDep)) ? '' : 'none'; }
                 }
                 hidePanel();
+                // update visible count
+                updateListCount();
             }
 
             // attach click handlers
@@ -595,10 +607,29 @@ try {
                 });
             }
 
+            // function to update the visible count label
+            function updateListCount() {
+                const labelEl = document.getElementById('listCountLabel');
+                if (!labelEl) return;
+                const total = parseInt(labelEl.getAttribute('data-total') || '0', 10) || 0;
+                // count visible rows that represent anggota (have data-id attribute)
+                const rows = Array.from(document.querySelectorAll('[data-id]'));
+                let visible = 0;
+                for (const r of rows) {
+                    // consider element visible if not explicitly display:none
+                    const style = window.getComputedStyle(r);
+                    if (style.display !== 'none') visible++;
+                }
+                labelEl.textContent = 'Menampilkan ' + visible + ' dari ' + total + ' data';
+            }
+
             // expose toggle to global so button onclick works
             window.toggleDepartemenPanel = toggleDepartemenPanel;
             // expose apply for external use
             window.applyDepartemenFilter = applyFilter;
+
+            // update count on load
+            document.addEventListener('DOMContentLoaded', function(){ updateListCount(); });
         })();
     </script>
     <script>
@@ -628,6 +659,22 @@ try {
             }
 
             departemenSelect.addEventListener('change', filterDivisi);
+            // when a divisi is selected, auto-select its parent departemen
+            divisiSelect.addEventListener('change', function(){
+                const selectedDiv = this.value || '';
+                if (!selectedDiv) return;
+                // find option element for selected divisi
+                const opt = Array.from(this.options).find(o => o.value === selectedDiv);
+                if (!opt) return;
+                const optDep = opt.getAttribute('data-departemen') || '';
+                if (optDep) {
+                    departemenSelect.value = optDep;
+                    // re-apply filter so divisi options for that departemen are visible
+                    filterDivisi();
+                    // ensure the previously selected divisi remains selected
+                    this.value = selectedDiv;
+                }
+            });
             // run once on load to apply initial filtering
             filterDivisi();
         })();
