@@ -17,10 +17,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
-    $role = $_POST['role'] ?? '';
+    $role = 'pasien'; // Fixed: Hanya bisa daftar sebagai pasien
     
     // Validasi input
-    if (empty($nama) || empty($email) || empty($password) || empty($confirm_password) || empty($role)) {
+    if (empty($nama) || empty($email) || empty($password) || empty($confirm_password)) {
         $error = 'Semua field harus diisi';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Format email tidak valid';
@@ -28,8 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Password minimal 6 karakter';
     } elseif ($password !== $confirm_password) {
         $error = 'Password dan konfirmasi password tidak cocok';
-    } elseif (!in_array($role, ['admin', 'dokter', 'pasien'])) {
-        $error = 'Role tidak valid';
     } else {
         $conn = connect_db();
         
@@ -45,13 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $stmt->close();
             
-            // Map role ke id_role
-            $role_map = [
-                'admin' => 1,   // Admin
-                'dokter' => 2,  // Dokter
-                'pasien' => 3   // Pasien
-            ];
-            $id_role = $role_map[$role];
+            // Role fixed: Pasien (id_role = 3)
+            $id_role = 3;
             
             // Hash password
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
@@ -73,27 +66,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $user_id = $conn->insert_id;
                 $stmt->close();
                 
-                // Insert ke tabel doctors atau patients berdasarkan role
-                if ($role === 'dokter') {
-                    $stmt = $conn->prepare("
-                        INSERT INTO doctors (id_user, name, specialization, phone, license_no) 
-                        VALUES (?, ?, 'Umum', '-', '-')
-                    ");
-                    $stmt->bind_param("is", $user_id, $nama);
-                    $stmt->execute();
-                    $stmt->close();
-                } elseif ($role === 'pasien') {
-                    // Generate medical record number
-                    $med_record_no = 'MR' . date('Ymd') . str_pad($user_id, 4, '0', STR_PAD_LEFT);
-                    
-                    $stmt = $conn->prepare("
-                        INSERT INTO patients (id_user, name, birth_date, address, phone, med_record_no) 
-                        VALUES (?, ?, '2000-01-01', '-', '-', ?)
-                    ");
-                    $stmt->bind_param("iss", $user_id, $nama, $med_record_no);
-                    $stmt->execute();
-                    $stmt->close();
-                }
+                // Insert ke tabel patients (registrasi hanya untuk pasien)
+                // Generate medical record number
+                $med_record_no = 'MR' . date('Ymd') . str_pad($user_id, 4, '0', STR_PAD_LEFT);
+                
+                $stmt = $conn->prepare("
+                    INSERT INTO patients (id_user, name, birth_date, address, phone, med_record_no) 
+                    VALUES (?, ?, '2000-01-01', '-', '-', ?)
+                ");
+                $stmt->bind_param("iss", $user_id, $nama, $med_record_no);
+                $stmt->execute();
+                $stmt->close();
                 
                 // Commit transaksi
                 $conn->commit();
@@ -136,25 +119,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </svg>
                 </div>
                 <h1 class="brand-title">Bergabung<br>Bersama Kami</h1>
-                <p class="brand-subtitle">Daftar sekarang dan nikmati kemudahan dalam mengelola sistem kesehatan</p>
+                <p class="brand-subtitle">Daftar sekarang dan pantau kesehatan keluarga Anda dengan mudah</p>
                 <div class="brand-features">
                     <div class="feature-item">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                             <path d="M16.667 5L7.5 14.167L3.333 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        <span>Gratis & Mudah Digunakan</span>
+                        <span>Manajemen Data Pasien</span>
                     </div>
                     <div class="feature-item">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                             <path d="M16.667 5L7.5 14.167L3.333 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        <span>Data Terenkripsi Aman</span>
+                        <span>Jadwal Dokter Otomatis</span>
                     </div>
                     <div class="feature-item">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                             <path d="M16.667 5L7.5 14.167L3.333 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        <span>Akses Multi Platform</span>
+                        <span>Keamanan Terjamin</span>
                     </div>
                 </div>
             </div>
@@ -261,17 +244,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     
                     <div class="form-group">
-                        <label for="role">Role Pengguna</label>
-                        <div class="select-wrapper">
-                            <svg class="select-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M6.25 3.75H3.75V6.25M3.75 13.75V16.25H6.25M13.75 16.25H16.25V13.75M16.25 6.25V3.75H13.75" stroke="#567C8D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <div style="background: #E8F4F8; border: 1px solid #B8E6F5; color: #0D5C75; padding: 14px; border-radius: 10px; font-size: 14px; display: flex; align-items: center; gap: 10px;">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18Z" stroke="currentColor" stroke-width="1.5"/>
+                                <path d="M10 10V14M10 6H10.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                             </svg>
-                            <select id="role" name="role" required>
-                                <option value="">Pilih role Anda</option>
-                                <option value="admin" <?php echo (isset($_POST['role']) && $_POST['role'] === 'admin') ? 'selected' : ''; ?>>Admin</option>
-                                <option value="dokter" <?php echo (isset($_POST['role']) && $_POST['role'] === 'dokter') ? 'selected' : ''; ?>>Dokter</option>
-                                <option value="pasien" <?php echo (isset($_POST['role']) && $_POST['role'] === 'pasien') ? 'selected' : ''; ?>>Pasien</option>
-                            </select>
+                            <span>Anda akan terdaftar sebagai <strong>Pasien</strong></span>
                         </div>
                     </div>
                     

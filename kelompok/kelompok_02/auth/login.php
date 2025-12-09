@@ -49,7 +49,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->close();
                 close_db($conn);
                 
-                header('Location: login_success.php');
+                // Redirect berdasarkan role
+                switch ($user['role_name']) {
+                    case 'Admin':
+                        header('Location: ../admin/dashboard.php');
+                        break;
+                    case 'Dokter':
+                        header('Location: login_success.php'); // Ganti dengan ../doctor/dashboard.php nanti
+                        break;
+                    case 'Pasien':
+                        header('Location: login_success.php'); // Ganti dengan ../patient/dashboard.php nanti
+                        break;
+                    default:
+                        header('Location: login_success.php');
+                }
                 exit();
             } else {
                 $error = 'Email atau password salah';
@@ -84,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </svg>
                 </div>
                 <h1 class="brand-title">Sistem Informasi<br>Rumah Sakit</h1>
-                <p class="brand-subtitle">Kelola data kesehatan dengan mudah dan aman</p>
+                <p class="brand-subtitle">Kelola jadwal, antrian, dan rekam medis dengan cepat dan terpercaya</p>
                 <div class="brand-features">
                     <div class="feature-item">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
