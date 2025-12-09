@@ -82,7 +82,7 @@ require __DIR__ . '/../layouts/sidebar.php';
                     Laporkan sekarang agar segera ditindaklanjuti.
                 </p>
                 
-                <a href="pengaduan_form.php" class="btn border-0 fw-bold px-4 py-2" 
+                <a href="../pengaduan/pengaduan_form.php" class="btn border-0 fw-bold px-4 py-2" 
                    style="background-color: #ffffff1a; color: white; backdrop-filter: blur(5px);">
                     <i class="fas fa-plus-circle me-2"></i> Buat Laporan Baru
                 </a>
@@ -120,10 +120,10 @@ require __DIR__ . '/../layouts/sidebar.php';
             <div class="card-body p-4">
                 <div class="row align-items-center">
                     <div class="col-md-2 text-center">
-                        <img src="../../uploads/profile/<?php echo isset($_SESSION['profile_photo']) ? htmlspecialchars($_SESSION['profile_photo']) : 'default.jpg'; ?>" 
+                        <img src="../../../uploads/profile/<?php echo isset($_SESSION['profile_photo']) ? htmlspecialchars($_SESSION['profile_photo']) : 'default.jpg'; ?>" 
                              alt="Foto Profil" 
                              style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #00308F;"
-                             onerror="this.src='../../uploads/profile/default.jpg'">
+                             onerror="this.src='../../../uploads/profile/default.jpg'">
                     </div>
                     <div class="col-md-7">
                         <h4 class="fw-bold text-brand-primary mb-1"><?php echo htmlspecialchars($_SESSION['nama'] ?? 'Pengguna'); ?></h4>
