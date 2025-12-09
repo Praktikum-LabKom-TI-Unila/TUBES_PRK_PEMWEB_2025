@@ -29,29 +29,26 @@ if (session_status() === PHP_SESSION_NONE) {
 
         <ul class="flex gap-8 text-sm font-medium">
           <?php if (!empty($_SESSION['user'])): ?>
-            
-            <?php if ($_SESSION['user']['role'] === 'admin'): ?>
-              <li>
-                <a href="<?= BASE_URL ?>/product" class="nav-link hover:text-blue-200 transition flex items-center gap-2">
-                  <i data-lucide="package" class="w-4 h-4"></i>
-                  Kelola Produk
-                </a>
-              </li>
-              <li>
-                <a href="<?= BASE_URL ?>/pos" class="nav-link hover:text-blue-200 transition flex items-center gap-2">
-                  <i data-lucide="shopping-cart" class="w-4 h-4"></i>
-                  Kasir
-                </a>
-              </li>
-            <?php else: ?>
-              <li>
-                <a href="<?= BASE_URL ?>/pos" class="nav-link hover:text-blue-200 transition flex items-center gap-2">
-                  <i data-lucide="grid" class="w-4 h-4"></i>
-                  Kasir
-                </a>
-              </li>
-            <?php endif; ?>
-            
+            <li>
+              <a href="<?= BASE_URL ?>" class="nav-link hover:text-blue-200 transition flex items-center gap-2">
+                <i data-lucide="grid" class="w-4 h-4"></i>
+                Daftar Menu
+              </a>
+            </li>
+          <?php if (!empty($_SESSION['user']) && $_SESSION['user']['role'] === 'admin'): ?>
+            <li>
+              <a href="<?= BASE_URL ?>/report/dashboard" class="nav-link">
+                <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                Dashboard Admin
+              </a>
+            </li>
+            <li>
+              <a href="<?= BASE_URL ?>/report/index" class="nav-link">
+                <i data-lucide="file-text" class="w-4 h-4"></i>
+                Laporan
+              </a>
+            </li>
+          <?php endif; ?>
             <li>
               <a href="<?= BASE_URL ?>/auth/logout" class="nav-link hover:text-red-300 transition flex items-center gap-2">
                 <i data-lucide="log-out" class="w-4 h-4"></i>
