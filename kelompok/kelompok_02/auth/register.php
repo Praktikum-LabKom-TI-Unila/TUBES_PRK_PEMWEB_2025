@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'config.php';
+require_once '../config/config.lokal.php';
 
 // Jika sudah login, redirect ke halaman success
 if (isset($_SESSION['user_id'])) {
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (!in_array($role, ['admin', 'dokter', 'pasien'])) {
         $error = 'Role tidak valid';
     } else {
-        $conn = getDBConnection();
+        $conn = connect_db();
         
         // Cek apakah email sudah terdaftar
         $stmt = $conn->prepare("SELECT id_user FROM users WHERE email = ? LIMIT 1");
@@ -111,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         
-        closeDBConnection($conn);
+        close_db($conn);
     }
 }
 ?>

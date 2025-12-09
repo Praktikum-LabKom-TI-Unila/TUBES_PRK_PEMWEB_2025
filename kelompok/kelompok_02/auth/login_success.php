@@ -8,15 +8,15 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Ambil data user dari session
-$nama = $_SESSION['nama'] ?? 'User';
+$username = $_SESSION['username'] ?? 'User';
 $email = $_SESSION['email'] ?? '';
-$role = $_SESSION['role'] ?? 'guest';
+$role = $_SESSION['role'] ?? 'guest'; // Admin, Dokter, Pasien
 
 // Translate role ke Bahasa Indonesia
 $roleText = [
-    'admin' => 'Administrator',
-    'doctor' => 'Dokter',
-    'patient' => 'Pasien'
+    'Admin' => 'Administrator',
+    'Dokter' => 'Dokter',
+    'Pasien' => 'Pasien'
 ];
 $roleName = $roleText[$role] ?? 'Pengguna';
 ?>
@@ -84,18 +84,16 @@ $roleName = $roleText[$role] ?? 'Pengguna';
         }
         
         h1 {
+            color: #2F4156;
             font-size: 28px;
             font-weight: 700;
-            color: #2F4156;
             margin-bottom: 12px;
         }
         
         p {
+            color: #567C8D;
             font-size: 16px;
-            color: #2F4156;
-            opacity: 0.7;
             margin-bottom: 32px;
-            line-height: 1.6;
         }
         
         .user-info {
@@ -119,31 +117,31 @@ $roleName = $roleText[$role] ?? 'Pengguna';
         }
         
         .info-label {
-            font-size: 14px;
-            font-weight: 600;
-            color: #2F4156;
-        }
-        
-        .info-value {
-            font-size: 14px;
             color: #567C8D;
+            font-size: 14px;
             font-weight: 500;
         }
         
+        .info-value {
+            color: #2F4156;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        
         .role-badge {
-            display: inline-block;
-            padding: 6px 16px;
-            background: #2F4156;
+            background: linear-gradient(135deg, #2F4156 0%, #567C8D 100%);
             color: white;
+            padding: 6px 16px;
             border-radius: 20px;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
         }
         
         .btn-group {
             display: flex;
             gap: 12px;
-            margin-top: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
         
         .btn {
@@ -156,7 +154,11 @@ $roleName = $roleText[$role] ?? 'Pengguna';
             cursor: pointer;
             transition: all 0.2s ease;
             text-decoration: none;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 150px;
         }
         
         .btn-primary {
@@ -167,6 +169,7 @@ $roleName = $roleText[$role] ?? 'Pengguna';
         .btn-primary:hover {
             background: #567C8D;
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(47, 65, 86, 0.2);
         }
         
         .btn-secondary {
@@ -189,6 +192,25 @@ $roleName = $roleText[$role] ?? 'Pengguna';
             margin-top: 24px;
             font-size: 14px;
             line-height: 1.6;
+            text-align: left;
+        }
+        
+        @media (max-width: 480px) {
+            .success-container {
+                padding: 32px 24px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -205,8 +227,8 @@ $roleName = $roleText[$role] ?? 'Pengguna';
         
         <div class="user-info">
             <div class="info-item">
-                <span class="info-label">Nama</span>
-                <span class="info-value"><?php echo htmlspecialchars($nama); ?></span>
+                <span class="info-label">Username</span>
+                <span class="info-value"><?php echo htmlspecialchars($username); ?></span>
             </div>
             <div class="info-item">
                 <span class="info-label">Email</span>
@@ -219,12 +241,16 @@ $roleName = $roleText[$role] ?? 'Pengguna';
         </div>
         
         <div class="btn-group">
-            <a href="logout.php" class="btn btn-secondary">Logout</a>
-            <a href="login.php" class="btn btn-primary">Ke Halaman Login</a>
+            <a href="logout.php" class="btn btn-secondary">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M7.5 17.5H4.167C3.72 17.5 3.333 17.113 3.333 16.667V3.333C3.333 2.887 3.72 2.5 4.167 2.5H7.5M13.333 14.167L17.5 10M17.5 10L13.333 5.833M17.5 10H7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Logout
+            </a>
         </div>
         
         <div class="alert-info">
-            <strong>📌 Catatan:</strong> Halaman dashboard belum tersedia. Ini adalah halaman sementara untuk menunjukkan login berhasil. Session Anda tetap aktif.
+            <strong>ℹ️ Info:</strong> Ini adalah halaman sementara setelah login. Dashboard akan ditambahkan nanti sesuai dengan role Anda (<?php echo htmlspecialchars($role); ?>).
         </div>
     </div>
 </body>

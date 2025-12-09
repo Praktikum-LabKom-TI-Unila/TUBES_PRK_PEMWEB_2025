@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'config.php';
+require_once '../config/config.lokal.php';
 
 // Jika sudah login, redirect ke halaman success sementara
 if (isset($_SESSION['user_id'])) {
@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($email) || empty($password)) {
         $error = 'Email dan password harus diisi';
     } else {
-        $conn = getDBConnection();
+        $conn = connect_db();
         
         // Query: JOIN users dengan roles untuk mendapatkan role_name
         $stmt = $conn->prepare("
@@ -47,21 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['login_time'] = time();
                 
                 $stmt->close();
-                closeDBConnection($conn);
-                
-                // Redirect ke halaman success sementara
-                // TODO: Setelah dashboard dibuat, uncomment dan sesuaikan:
-                // switch ($user['role_name']) {
-                //     case 'Admin':
-                //         header('Location: ../admin/dashboard.php');
-                //         break;
-                //     case 'Dokter':
-                //         header('Location: ../doctor/dashboard.php');
-                //         break;
-                //     case 'Pasien':
-                //         header('Location: ../patient/dashboard.php');
-                //         break;
-                // }
+                close_db($conn);
                 
                 header('Location: login_success.php');
                 exit();
@@ -73,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         $stmt->close();
-        closeDBConnection($conn);
+        close_db($conn);
     }
 }
 ?>
