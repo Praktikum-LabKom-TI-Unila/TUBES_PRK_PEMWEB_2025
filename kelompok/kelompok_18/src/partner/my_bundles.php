@@ -10,7 +10,12 @@ if (!$my_id) {
 }
 
 // 2. Query Data Kolaborasi Aktif (Status = 'active')
+// Kita ambil juga ID partner yang sebenarnya untuk keperluan filtering
 $query = "SELECT b.*, 
+          CASE 
+            WHEN b.pembuat_id = '$my_id' THEN u_mitra.id 
+            ELSE u_buat.id 
+          END as partner_id_real,
           CASE 
             WHEN b.pembuat_id = '$my_id' THEN u_mitra.nama_toko 
             ELSE u_buat.nama_toko 
@@ -39,6 +44,9 @@ $result = mysqli_query($koneksi, $query);
 if (!$result) {
     die("Error Database: " . mysqli_error($koneksi));
 }
+
+// Array untuk menyimpan ID partner yang sudah ditampilkan agar tidak duplikat
+$displayed_partners = [];
 ?>
 
 <link rel="stylesheet" href="../assets/css/style_partner.css">
@@ -78,72 +86,87 @@ if (!$result) {
     <div class="row g-4">
         <?php if(mysqli_num_rows($result) > 0): ?>
             <?php while($row = mysqli_fetch_assoc($result)): ?>
-            <div class="col-md-6 col-xl-4">
-                <div class="bundle-card h-100 shadow-sm">
+                <?php 
+                    // --- LOGIKA FILTER DUPLIKAT ---
+                    // Cek apakah ID partner ini sudah pernah ditampilkan?
+                    if (in_array($row['partner_id_real'], $displayed_partners)) {
+                        continue; // Lewati loop ini (jangan tampilkan kartu ganda)
+                    }
+                    // Jika belum, masukkan ke daftar yang sudah tampil
+                    $displayed_partners[] = $row['partner_id_real'];
+                ?>
+
+                <div class="col-md-6 col-xl-4">
+                    <div class="bundle-card h-100 shadow-sm">
                         <div class="bundle-img-wrapper">
-                        <img src="<?= !empty($row['foto_partner']) && file_exists('../assets/uploads/'.$row['foto_partner']) 
-                                    ? '../assets/uploads/'.$row['foto_partner'] 
-                                    : 'https://ui-avatars.com/api/?name='.urlencode($row['nama_partner']).'&background=random&size=300&bold=true' ?>" 
-                             alt="<?= htmlspecialchars($row['nama_partner']) ?>">
-                             
-                        <div class="card-category bg-success shadow-sm">
-                            <i class="fa fa-check-circle me-1"></i> Aktif
-                        </div>
-                    </div>
-                    
-                    <div class="card-body-custom">
-                        <h5 class="fw-bold mb-2 text-dark">
-                            <?= htmlspecialchars($row['nama_partner']) ?>
-                        </h5>
-                        
-                        <div class="mb-3">
-                            <span class="badge bg-light text-dark border me-1">
-                                <i class="fa fa-tag me-1"></i>
-                                <?= htmlspecialchars($row['kategori_partner'] ?? 'Umum') ?>
-                            </span>
+                            <img src="<?= !empty($row['foto_partner']) && file_exists('../assets/uploads/'.$row['foto_partner']) 
+                                        ? '../assets/uploads/'.$row['foto_partner'] 
+                                        : 'https://ui-avatars.com/api/?name='.urlencode($row['nama_partner']).'&background=random&size=300&bold=true' ?>" 
+                                 alt="<?= htmlspecialchars($row['nama_partner']) ?>">
+                                 
+                            <div class="card-category bg-success shadow-sm">
+                                <i class="fa fa-check-circle me-1"></i> Aktif
+                            </div>
                         </div>
                         
-                        <p class="small text-muted mb-3">
-                            <i class="fa fa-map-marker-alt text-danger me-1"></i> 
-                            <?= htmlspecialchars($row['alamat_partner'] ?? 'Lokasi tidak tersedia') ?>
-                        </p>
-                        
-                        <div class="alert alert-light border small mb-3 py-2">
-                            <i class="fa fa-calendar-alt me-2 text-primary"></i> 
-                            <strong>Kolaborasi sejak:</strong><br>
-                            <span class="text-muted"><?= date('d F Y', strtotime($row['created_at'])) ?></span>
-                        </div>
+                        <div class="card-body-custom">
+                            <h5 class="fw-bold mb-2 text-dark">
+                                <?= htmlspecialchars($row['nama_partner']) ?>
+                            </h5>
+                            
+                            <div class="mb-3">
+                                <span class="badge bg-light text-dark border me-1">
+                                    <i class="fa fa-tag me-1"></i>
+                                    <?= htmlspecialchars($row['kategori_partner'] ?? 'Umum') ?>
+                                </span>
+                            </div>
+                            
+                            <p class="small text-muted mb-3">
+                                <i class="fa fa-map-marker-alt text-danger me-1"></i> 
+                                <?= htmlspecialchars($row['alamat_partner'] ?? 'Lokasi tidak tersedia') ?>
+                            </p>
+                            
+                            <div class="alert alert-light border small mb-3 py-2">
+                                <i class="fa fa-calendar-alt me-2 text-primary"></i> 
+                                <strong>Kolaborasi sejak:</strong><br>
+                                <span class="text-muted"><?= date('d F Y', strtotime($row['created_at'])) ?></span>
+                            </div>
 
-                        <div class="collaboration-cta">
-                            <i class="fas fa-comments"></i>
-                            <h6 class="mb-1">Mari Berkolaborasi!</h6>
-                            <p class="small mb-3">Diskusikan strategi dan tingkatkan penjualan bersama mitra Anda</p>
-                        </div>
+                            <div class="collaboration-cta">
+                                <i class="fas fa-comments"></i>
+                                <h6 class="mb-1">Mari Berkolaborasi!</h6>
+                                <p class="small mb-3">Diskusikan strategi dan tingkatkan penjualan bersama mitra Anda</p>
+                            </div>
 
-                        <div class="d-grid gap-2">
-                            <a href="chat_room.php?bundle_id=<?= $row['id'] ?>" class="btn btn-cari rounded-pill">
-                                <i class="fa fa-comments me-2"></i> Buka Ruang Diskusi
-                            </a>
                             <div class="d-grid gap-2">
-                              <a href="manage_deal.php?bundle_id=<?= $row['id'] ?>" class="btn btn-cari rounded-pill btn-sm">
-                            <i class="fa-solid fa-file-contract"></i> Atur Kolaborasi
-                        </a>
-                        </div>
-                            <a href="detail.php?bundle_id=<?= $row['id'] ?>" class="btn btn-outline-secondary rounded-pill">
-                                <i class="fa fa-info-circle me-2"></i> Detail Kolaborasi
-                            </a>
-                            <form action="proses_partner.php" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan kolaborasi ini? Tindakan ini tidak dapat dibatalkan.');">
-                                <input type="hidden" name="action" value="cancel_bundle">
-                                <input type="hidden" name="bundle_id" value="<?= $row['id'] ?>">
-                                <button type="submit" class="btn btn-sm btn-outline-danger w-100 rounded-pill mt-2">
-                                    <i class="fa fa-times-circle me-2"></i> Batalkan Kolaborasi
-                                </button>
-                            </form>
+                                <a href="chat_room.php?partner_id=<?= $row['partner_id_real'] ?>" class="btn btn-cari rounded-pill">
+                                     <i class="fa fa-comments me-2"></i> Buka Ruang Diskusi
+                                </a>
+                                <div class="d-grid gap-2">
+                                    <a href="manage_deal.php?bundle_id=<?= $row['id'] ?>" class="btn btn-cari rounded-pill btn-sm">
+                                        <i class="fa-solid fa-file-contract"></i> Atur Kolaborasi
+                                    </a>
+                                </div>
+                                <a href="detail.php?bundle_id=<?= $row['id'] ?>" class="btn btn-outline-secondary rounded-pill">
+                                    <i class="fa fa-info-circle me-2"></i> Detail Kolaborasi
+                                </a>
+                                <form action="proses_partner.php" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan kolaborasi ini? Tindakan ini tidak dapat dibatalkan.');">
+                                    <input type="hidden" name="action" value="cancel_bundle">
+                                    <input type="hidden" name="bundle_id" value="<?= $row['id'] ?>">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger w-100 rounded-pill mt-2">
+                                        <i class="fa fa-times-circle me-2"></i> Batalkan Kolaborasi
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
             <?php endwhile; ?>
+
+            <?php if (empty($displayed_partners)): ?>
+                <div class="col-12 text-center text-muted">Tidak ada kolaborasi aktif.</div>
+            <?php endif; ?>
+
         <?php else: ?>
             <div class="col-12">
                 <div class="empty-state-wrapper bg-white rounded-4 border shadow-sm">
