@@ -17,13 +17,7 @@ $user_id = $_SESSION['user_id'];
 // Date helper (format dates in Bahasa Indonesia)
 require_once __DIR__ . '/../../helpers/date_helper.php';
 
-// Handle logout action
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'logout') {
-    session_unset();
-    session_destroy();
-    header('Location: ../login.php');
-    exit;
-}
+// Logout is handled centrally via ../logout.php
 
 // === HANDLE EDIT PROFIL + UPLOAD FOTO ===
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'edit_profil') {
@@ -221,7 +215,7 @@ $pengumuman_list = $pengumuman_stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil Anggota - Abelian</title>
+    <title>Profil Anggota - <?= htmlspecialchars($user['nama'] ?? '') ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root{ --primary: #0466c8; --muted:#94a3b8; --bg:#f4f7fe; --text:#1f2937 }
@@ -243,6 +237,7 @@ $pengumuman_list = $pengumuman_stmt->fetchAll(PDO::FETCH_ASSOC);
         .btn{display:inline-block;padding:10px 18px;background:var(--primary);color:#fff;text-decoration:none;border-radius:10px;font-weight:600;cursor:pointer;border:none;font-size:14px}
         .btn:hover{opacity:.95}
         .btn-secondary{background:var(--muted);color:#fff;border-radius:10px;padding:8px 14px}
+        .btn-danger{display:inline-block;padding:10px 18px;background:#ef4444;color:#fff;border-radius:10px;border:none;font-weight:600;cursor:pointer}
         .section{margin-bottom:22px}
         .section h2{font-size:1.1rem;margin-bottom:12px;color:var(--text);padding-bottom:8px;border-bottom:1px solid #f1f5f9}
         .pengumuman-item{background:#fff;padding:14px;border-radius:12px;margin-bottom:12px;box-shadow:0 6px 20px rgba(11,17,32,0.04);border-left:4px solid rgba(4,102,200,0.12)}
@@ -303,9 +298,8 @@ $pengumuman_list = $pengumuman_stmt->fetchAll(PDO::FETCH_ASSOC);
                     <?php endif; ?>
                     <p class="meta-sub" style="margin-top:6px"><?= htmlspecialchars($user['npm']) ?></p>
                     <div class="actions">
-                        <form method="POST" style="display:inline">
-                            <input type="hidden" name="action" value="logout">
-                            <button type="submit" class="btn btn-secondary">Keluar</button>
+                        <form method="POST" action="../logout.php" style="display:inline">
+                            <button type="submit" class="btn btn-danger">Keluar</button>
                         </form>
                     </div>
                 </div>
