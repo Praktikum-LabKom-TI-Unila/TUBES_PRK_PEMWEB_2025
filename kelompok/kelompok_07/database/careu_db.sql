@@ -3,7 +3,6 @@
 -- Platform Crowdfunding Mahasiswa
 -- ============================================
 
--- Hapus database jika sudah ada (opsional, hati-hati!)
 -- DROP DATABASE IF EXISTS careu_db;
 
 -- Buat database
@@ -11,12 +10,6 @@ CREATE DATABASE IF NOT EXISTS careu_db
 CHARACTER SET utf8mb4 
 COLLATE utf8mb4_unicode_ci;
 
--- ============================================
--- Buat User Database (Opsional)
--- Jika ingin menggunakan user khusus untuk aplikasi
--- ============================================
--- Hapus user jika sudah ada (opsional)
--- DROP USER IF EXISTS 'careu_user'@'localhost';
 
 -- Buat user untuk aplikasi CareU
 CREATE USER IF NOT EXISTS 'careu_user'@'localhost' IDENTIFIED BY 'careu_pass123';
