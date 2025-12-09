@@ -1,58 +1,41 @@
 <?php
 
-// Mulai session
 session_start();
-
-// Cek apakah user sudah login
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ../backend/auth/login.php');
+    header('Location: ../auth/login.php');
     exit;
 }
-
-// Cek role user (hanya warga yang bisa submit pengaduan)
 if ($_SESSION['role'] !== 'warga') {
-    header('Location: ../frontend/index.php');
+    header('Location: ../index.php');
     exit;
 }
 
-// Generate CSRF Token
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Koneksi database
-require_once '../backend/config.php';
+require_once '../config/config.php';
 
-// Variable untuk menyimpan pesan error/success
 $success_message = '';
 $error_message = '';
 
-// Rate limiting: cek pengaduan terakhir (max 1 pengaduan per 5 menit per user)
 $rate_limit_key = 'pengaduan_last_submit_' . $_SESSION['user_id'];
 $last_submit = isset($_SESSION[$rate_limit_key]) ? $_SESSION[$rate_limit_key] : 0;
 $current_time = time();
-$rate_limit_seconds = 300; // Atur ke 5 menit
+$rate_limit_seconds = 300; 
 
-// Proses form submit
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // CSRF TOKEN VALIDATION 
     if (empty($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         die('⚠️ CSRF Token validation failed. Request rejected for security reasons.');
     }
-    
-    // RATE LIMITING
     if ($current_time - $last_submit < $rate_limit_seconds) {
         $error_message = "Mohon tunggu " . ($rate_limit_seconds - ($current_time - $last_submit)) . " detik sebelum mengajukan pengaduan berikutnya.";
     } else {
-        // Sanitasi input
         $judul = trim($_POST['judul'] ?? '');
         $deskripsi = trim($_POST['deskripsi'] ?? '');
         $lokasi = trim($_POST['lokasi'] ?? '');
         
-        // Array untuk menyimpan error validasi
         $errors = [];
-        
-        // VALIDATION: JUDUL
         if (empty($judul)) {
             $errors[] = "Judul pengaduan tidak boleh kosong";
         } elseif (strlen($judul) < 5) {
@@ -60,12 +43,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (strlen($judul) > 100) {
             $errors[] = "Judul maksimal 100 karakter";
         }
-        // Cek karakter berbahaya dalam judul
         if (preg_match('/[<>\"\'%;()&+]/i', $judul)) {
             $errors[] = "Judul mengandung karakter yang tidak diizinkan";
         }
         
-        //  VALIDATION: DESKRIPSI 
         if (empty($deskripsi)) {
             $errors[] = "Deskripsi tidak boleh kosong";
         } elseif (strlen($deskripsi) < 10) {
@@ -73,12 +54,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (strlen($deskripsi) > 5000) {
             $errors[] = "Deskripsi maksimal 5000 karakter";
         }
-        // Cek karakter berbahaya dalam deskripsi (tapi allow newline)
         if (preg_match('/<script|<iframe|<object|onclick|onerror|onload/i', $deskripsi)) {
             $errors[] = "Deskripsi mengandung kode berbahaya";
         }
         
-        //  VALIDATION: LOKASI 
         if (empty($lokasi)) {
             $errors[] = "Lokasi tidak boleh kosong";
         } elseif (strlen($lokasi) < 5) {
@@ -87,7 +66,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = "Lokasi maksimal 255 karakter";
         }
         
-        //  SECURITY: FILE UPLOAD VALIDATION 
         $foto_path = null;
         if (isset($_FILES['foto']) && $_FILES['foto']['size'] > 0) {
             $foto = $_FILES['foto'];
@@ -96,7 +74,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $file_name = $foto['name'];
             $file_error = $foto['error'];
             
-            // Cek upload error
             if ($file_error !== UPLOAD_ERR_OK) {
                 switch ($file_error) {
                     case UPLOAD_ERR_INI_SIZE:
@@ -116,26 +93,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
             
-            // Validasi ukuran file (max 5MB)
             if ($file_size > 5 * 1024 * 1024) {
                 $errors[] = "Ukuran file maksimal 5MB";
             }
             
-            // STRICT FILE TYPE VALIDATION 
-            // Whitelist tipe file yang diizinkan
             $allowed_mimes = [
                 'image/jpeg' => 'jpg',
                 'image/png' => 'png',
                 'image/gif' => 'gif'
             ];
             
-            // Gunakan finfo_file (lebih secure)
             if (function_exists('finfo_file')) {
                 $finfo = finfo_open(FILEINFO_MIME_TYPE);
                 $file_type = finfo_file($finfo, $file_tmp);
                 finfo_close($finfo);
             } else {
-                // Fallback: cek magic bytes (file signature)
                 $file_type = $this->getMimeTypeByMagicBytes($file_tmp);
             }
             
@@ -143,66 +115,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $errors[] = "Tipe file harus JPG, PNG, atau GIF (MIME: " . htmlspecialchars($file_type) . ")";
             }
             
-            // CEK MAGIC BYTES / FILE SIGNATURE
-            // Cek file header untuk pastikan benar-benar image
             $file_header = fread(fopen($file_tmp, 'rb'), 12);
             
-            // JPEG signature
             $is_jpeg = (bin2hex(substr($file_header, 0, 3)) === 'ffd8ff');
-            // PNG signature
             $is_png = (bin2hex(substr($file_header, 0, 8)) === '89504e470d0a1a0a');
-            // GIF signature
             $is_gif = (substr($file_header, 0, 3) === 'GIF');
             
             if (!($is_jpeg || $is_png || $is_gif)) {
                 $errors[] = "File signature tidak valid. Pastikan file benar-benar gambar.";
             }
             
-            // PREVENT DOUBLE EXTENSION ATTACK
-            // Hanya ambil extension terakhir (paling strict)
             $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-            
-            // Whitelist extension
             $allowed_ext = ['jpg', 'jpeg', 'png', 'gif'];
             if (!in_array($file_ext, $allowed_ext)) {
                 $errors[] = "Extension file tidak diizinkan. Hanya JPG, PNG, GIF.";
             }
             
-            //  PREVENT RESERVED NAMES 
-            // Jangan allow filename yang berbahaya
             $dangerous_names = ['php', 'phtml', 'php3', 'php4', 'php5', 'sh', 'exe', 'bat', 'cmd'];
             if (in_array($file_ext, $dangerous_names)) {
                 $errors[] = "Extension file tidak diizinkan untuk keamanan";
             }
-            
-            // Jika semua validasi lolos, upload file
             if (empty($errors)) {
                 $upload_dir = '../../uploads/pengaduan/';
-                
-                // Buat folder jika belum ada
                 if (!is_dir($upload_dir)) {
                     @mkdir($upload_dir, 0755, true);
                 }
                 
-                // Generate nama file yang benar aman
-                // Format: pengaduan_[user_id]_[random_hash].[ext]
                 $random_hash = bin2hex(random_bytes(8)); // 16 character random
                 $new_file_name = 'pengaduan_' . (int)$_SESSION['user_id'] . '_' . $random_hash . '.' . $file_ext;
                 $foto_path = $new_file_name;
                 
                 $upload_path = $upload_dir . $new_file_name;
                 
-                // Gunakan move_uploaded_file (secure function)
                 if (!move_uploaded_file($file_tmp, $upload_path)) {
                     $errors[] = "Gagal menyimpan file. Mohon coba lagi.";
                 } else {
-                    // Set file permissions (no execute)
                     @chmod($upload_path, 0644);
                 }
             }
         }
         
-        // INSERT TO DATABASE WITH PREPARED STATEMENT 
         if (empty($errors)) {
             try {
                 $query = "INSERT INTO pengaduan (user_id, judul, deskripsi, lokasi, foto, status) 
@@ -210,7 +162,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 $stmt = $conn->prepare($query);
                 
-                // Ensure type binding
                 $user_id = (int)$_SESSION['user_id'];
                 $stmt->bind_param('issss', $user_id, $judul, $deskripsi, $lokasi, $foto_path);
                 
@@ -218,17 +169,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $pengaduan_id = $stmt->insert_id;
                     $success_message = "Pengaduan berhasil diajukan! Nomor ID: " . $pengaduan_id;
                     
-                    // Update rate limit
                     $_SESSION[$rate_limit_key] = $current_time;
                     
-                    // Reset form
                     $judul = $deskripsi = $lokasi = '';
                     $_FILES = [];
                     
-                    // Generate new CSRF token untuk next form
                     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
                 } else {
-                    // Don't reveal database error to user!
                     $errors[] = "Gagal menyimpan pengaduan. Mohon hubungi support.";
                     error_log("Database Error: " . $stmt->error, 3, "../../logs/pengaduan_errors.log");
                 }
@@ -239,7 +186,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 error_log("Exception: " . $e->getMessage(), 3, "../../logs/pengaduan_errors.log");
             }
         } else {
-            // Jika ada error, tampilkan semua error
             $error_message = implode('<br>', $errors);
         }
     }
@@ -254,16 +200,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Form Pengaduan - LampungSmart</title>
     
-    <!-- Bootstrap 5.3 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    
-    <!-- Font Awesome untuk icon tambahan -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- LampungSmart Theme -->
     <link href="../../assets/css/lampung-theme.css" rel="stylesheet">
     <style>
         :root {
@@ -290,7 +230,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             padding: 20px 0;
         }
         
-        /* ============ HERO SECTION ============ */
         .hero-pengaduan {
             background: linear-gradient(135deg, var(--lampung-blue) 0%, var(--lampung-green) 100%);
             color: white;
@@ -352,13 +291,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 3rem;
         }
         
-        /* ============ MAIN CONTAINER ============ */
         .container-pengaduan {
             max-width: 750px;
             margin: 0 auto;
         }
         
-        /* ============ FORM CARD ============ */
         .card-pengaduan {
             background: white;
             border: none;
@@ -373,7 +310,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12);
         }
         
-        /* ============ ALERT MESSAGES ============ */
         .alert-success-custom {
             background: linear-gradient(135deg, var(--lampung-green-light) 0%, #C8E6C9 100%);
             border: none;
@@ -422,7 +358,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         
-        /* ============ FORM GROUP ============ */
         .form-group-custom {
             margin-bottom: 28px;
         }
@@ -440,7 +375,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-left: 2px;
         }
         
-        /* ============ INPUT & TEXTAREA ============ */
         .form-control-custom {
             width: 100%;
             padding: 12px 16px;
@@ -473,7 +407,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-family: 'Segoe UI', sans-serif;
         }
         
-        /* ============ HELPER TEXT ============ */
         .form-text-custom {
             display: block;
             font-size: 0.85rem;
@@ -487,7 +420,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: var(--lampung-blue);
         }
         
-        /* ============ CHARACTER COUNTER ============ */
         .char-count-container {
             display: flex;
             justify-content: space-between;
@@ -528,7 +460,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background: linear-gradient(90deg, #FF9800, var(--lampung-red));
         }
         
-        /* ============ FILE UPLOAD ============ */
         .file-input-wrapper {
             position: relative;
             display: block;
@@ -624,7 +555,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 0.9rem;
         }
         
-        /* ============ BUTTON SECTION ============ */
         .button-group {
             display: flex;
             gap: 12px;
@@ -676,7 +606,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: var(--lampung-blue);
         }
         
-        /* ============ INFO BOX ============ */
         .info-box {
             background: linear-gradient(135deg, var(--lampung-blue-light) 0%, #B3E5FC 100%);
             border-left: 4px solid var(--lampung-blue);
@@ -725,7 +654,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-bottom: 0;
         }
         
-        /* ============ RESPONSIVE ============ */
         @media (max-width: 768px) {
             .hero-content h1 {
                 font-size: 1.8rem;
@@ -745,7 +673,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         
-        /* ============ ANIMATIONS ============ */
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -768,9 +695,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
-        <?php include '../frontend/layout/header.html'; ?>
-    
-    <!-- HERO SECTION -->
+        <?php include '../layouts/header.php'; ?>
+
     <div class="hero-pengaduan">
         <div class="hero-content">
             <i class="fas fa-megaphone hero-icon"></i>
@@ -779,10 +705,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
     
-    <!-- MAIN CONTAINER -->
     <div class="container-pengaduan">
-        
-        <!-- Alert Success -->
         <?php if (!empty($success_message)): ?>
             <div class="alert-success-custom">
                 <i class="fas fa-check-circle"></i>
@@ -793,7 +716,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php endif; ?>
         
-        <!-- Alert Error -->
         <?php if (!empty($error_message)): ?>
             <div class="alert-danger-custom">
                 <i class="fas fa-exclamation-circle"></i>
@@ -804,15 +726,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php endif; ?>
         
-        <!-- FORM CARD -->
         <div class="card-pengaduan">
             <form method="POST" enctype="multipart/form-data" novalidate id="formPengaduan">
                 <div style="padding: 35px;">
-                    
-                    <!-- CSRF Token -->
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
-                    
-                    <!-- Input Judul -->
                     <div class="form-group-custom">
                         <label for="judul">
                             Judul Pengaduan
@@ -840,8 +757,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <i class="fas fa-lightbulb"></i> Judul yang ringkas dan jelas membantu admin memahami masalah Anda
                         </small>
                     </div>
-                    
-                    <!-- Input Deskripsi -->
                     <div class="form-group-custom">
                         <label for="deskripsi">
                             Deskripsi Lengkap
@@ -867,8 +782,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <i class="fas fa-info-circle"></i> Semakin detail, semakin cepat kami memproses laporan Anda
                         </small>
                     </div>
-                    
-                    <!-- Input Lokasi -->
                     <div class="form-group-custom">
                         <label for="lokasi">
                             Lokasi Kejadian
@@ -888,8 +801,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <i class="fas fa-map-marker-alt"></i> Lokasi spesifik membantu kami merespons lebih cepat
                         </small>
                     </div>
-                    
-                    <!-- Input Foto -->
                     <div class="form-group-custom">
                         <label for="foto">
                             Foto Pendukung
@@ -909,8 +820,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         <div id="fotoInfo"></div>
                     </div>
-                    
-                    <!-- Button Group -->
                     <div class="button-group">
                         <button type="submit" class="btn-submit">
                             <i class="fas fa-paper-plane"></i> Ajukan Pengaduan
@@ -923,8 +832,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </form>
         </div>
-        
-        <!-- INFO BOX -->
         <div class="info-box">
             <h5>
                 <i class="fas fa-clock"></i>
@@ -940,17 +847,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
     </div>
     
-    <?php include '../frontend/layout/footer.html'; ?>
-    
-    <!-- Bootstrap JS -->
+    <?php include '../layouts/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Custom JS -->
     <script>
-        // Wait for DOM to load
         document.addEventListener('DOMContentLoaded', function() {
             
-            // === CHARACTER COUNTER: JUDUL ===
             const judulInput = document.getElementById('judul');
             const judulCount = document.getElementById('judulCount');
             const judulBar = document.getElementById('judulBar');
@@ -962,7 +863,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 judulBar.style.width = percent + '%';
             });
             
-            // === CHARACTER COUNTER: DESKRIPSI ===
             const deskripsiInput = document.getElementById('deskripsi');
             const deskripsiCount = document.getElementById('deskripsiCount');
             const deskripsiBar = document.getElementById('deskripsiBar');
@@ -974,7 +874,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 const percent = (count / 5000) * 100;
                 deskripsiBar.style.width = percent + '%';
                 
-                // Warning jika mendekati max
                 if (count > 4500) {
                     deskripsiCountLabel.classList.add('warning');
                 } else {
@@ -982,7 +881,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             });
             
-            // === FILE INPUT HANDLER ===
             const fotoInput = document.getElementById('foto');
             const fotoInfo = document.getElementById('fotoInfo');
             
@@ -998,7 +896,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             });
             
-            // === DRAG AND DROP ===
             const fileInputLabel = document.querySelector('.file-input-label');
             
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -1029,12 +926,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 const files = dt.files;
                 fotoInput.files = files;
                 
-                // Trigger change event
                 const event = new Event('change', { bubbles: true });
                 fotoInput.dispatchEvent(event);
             });
             
-            // === FORM SUBMISSION ===
             const formPengaduan = document.getElementById('formPengaduan');
             
             formPengaduan.addEventListener('submit', function(e) {
@@ -1045,7 +940,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 this.classList.add('was-validated');
             });
             
-            // === FORM RESET ===
             const btnReset = document.querySelector('.btn-reset');
             
             btnReset.addEventListener('click', function(e) {

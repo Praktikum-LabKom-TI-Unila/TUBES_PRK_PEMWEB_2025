@@ -1,28 +1,22 @@
 <?php
 
-// Mulai session
 session_start();
 
-// Cek apakah user sudah login
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ../backend/auth/login.php');
+    header('Location: ../auth/login.php');
     exit;
 }
 
-// Cek role user (hanya warga yang bisa akses)
 if ($_SESSION['role'] !== 'warga') {
-    header('Location: ../frontend/index.php');
+    header('Location: ../index.php');
     exit;
 }
 
-// Koneksi database
-require_once '../backend/config.php';
+require_once '../config/config.php';
 
-// Variabel filter dan pencarian
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $filter_status = isset($_GET['status']) ? trim($_GET['status']) : '';
 
-// Query dasar
 $query = "SELECT p.*, COUNT(t.id) as jumlah_tanggapan 
           FROM pengaduan p 
           LEFT JOIN tanggapan t ON p.id = t.pengaduan_id 
@@ -30,7 +24,6 @@ $query = "SELECT p.*, COUNT(t.id) as jumlah_tanggapan
 $params = [$_SESSION['user_id']];
 $types = 'i';
 
-// Tambahkan filter pencarian
 if (!empty($search)) {
     $query .= " AND (p.judul LIKE ? OR p.deskripsi LIKE ? OR p.lokasi LIKE ?)";
     $searchTerm = '%' . $search . '%';
@@ -38,17 +31,14 @@ if (!empty($search)) {
     $types .= 'sss';
 }
 
-// Tambahkan filter status
 if (!empty($filter_status) && in_array($filter_status, ['pending', 'proses', 'selesai', 'ditolak'])) {
     $query .= " AND p.status = ?";
     $params[] = $filter_status;
     $types .= 's';
 }
 
-// Urutkan berdasarkan tanggal terbaru
 $query .= " GROUP BY p.id ORDER BY p.created_at DESC";
 
-// Eksekusi query
 $stmt = $conn->prepare($query);
 if (!empty($params)) {
     $stmt->bind_param($types, ...$params);
@@ -62,16 +52,13 @@ while ($row = $result->fetch_assoc()) {
 }
 $stmt->close();
 
-// Fungsi untuk format tanggal
 function format_tanggal($date) {
     $timestamp = strtotime($date);
-    // strftime() deprecated in PHP 8.1+, using date() instead with Indonesian locale
     $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
     $month_index = date('n', $timestamp) - 1;
     return date('d', $timestamp) . ' ' . $months[$month_index] . ' ' . date('Y H:i', $timestamp);
 }
 
-// Fungsi untuk menghitung waktu yang lalu
 function time_ago($date) {
     $timestamp = strtotime($date);
     $now = time();
@@ -90,7 +77,6 @@ function time_ago($date) {
     }
 }
 
-// Fungsi untuk badge status
 function get_status_badge($status) {
     switch ($status) {
         case 'pending':
@@ -114,14 +100,8 @@ function get_status_badge($status) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Riwayat Pengaduan - LampungSmart</title>
-    
-    <!-- Bootstrap 5.3 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    
-    <!-- LampungSmart Theme -->
     <link href="../../assets/css/lampung-theme.css" rel="stylesheet">
     
     <style>
@@ -448,9 +428,7 @@ function get_status_badge($status) {
     </style>
 </head>
 <body>
-        <?php include '../frontend/layout/header.html'; ?>
-    
-    <!-- Page Header -->
+        <?php include '../layouts/header.php'; ?>
     <div class="page-header">
         <div class="container">
             <div class="row align-items-center">
@@ -468,8 +446,6 @@ function get_status_badge($status) {
     </div>
     
     <div class="container">
-        
-        <!-- Filter Section -->
         <div class="filter-section">
             <form method="GET" class="row g-3">
                 <div class="col-md-6">
@@ -504,20 +480,15 @@ function get_status_badge($status) {
                 </div>
             </form>
         </div>
-        
-        <!-- Daftar Pengaduan -->
+
         <?php if (count($pengaduan_list) > 0): ?>
             <div class="pengaduan-list">
                 <?php foreach ($pengaduan_list as $pengaduan): ?>
                     <div class="pengaduan-card <?php echo $pengaduan['status']; ?>">
-                        
-                        <!-- Header -->
                         <div class="pengaduan-header">
                             <h5><?php echo htmlspecialchars($pengaduan['judul']); ?></h5>
                             <?php echo get_status_badge($pengaduan['status']); ?>
                         </div>
-                        
-                        <!-- Meta Info -->
                         <div class="pengaduan-meta">
                             <div class="pengaduan-meta-item">
                                 <i class="bi bi-calendar"></i>
@@ -532,28 +503,21 @@ function get_status_badge($status) {
                                 <span><?php echo $pengaduan['jumlah_tanggapan']; ?> Tanggapan</span>
                             </div>
                         </div>
-                        
-                        <!-- Deskripsi -->
                         <div class="pengaduan-deskripsi">
                             <?php echo htmlspecialchars(substr($pengaduan['deskripsi'], 0, 200)); ?>
                             <?php if (strlen($pengaduan['deskripsi']) > 200): ?>
                                 ...
                             <?php endif; ?>
                         </div>
-                        
-                        <!-- Lokasi -->
                         <div class="pengaduan-lokasi">
                             <i class="bi bi-geo-alt"></i> <?php echo htmlspecialchars($pengaduan['lokasi']); ?>
                         </div>
-                        
-                        <!-- Foto -->
                         <?php if (!empty($pengaduan['foto'])): ?>
                             <div class="pengaduan-foto">
                                 <img src="../../uploads/pengaduan/<?php echo htmlspecialchars($pengaduan['foto']); ?>" alt="Foto Pengaduan">
                             </div>
                         <?php endif; ?>
-                        
-                        <!-- Action Buttons -->
+
                         <div class="pengaduan-action">
                             <a href="#" class="btn-detail" onclick="showDetail(<?php echo $pengaduan['id']; ?>); return false;">
                                 <i class="bi bi-eye"></i> Lihat Detail
@@ -569,12 +533,10 @@ function get_status_badge($status) {
                                 </p>
                             <?php endif; ?>
                         </div>
-                        
-                        <!-- Tanggapan Section (Hidden by default) -->
+
                         <?php if ($pengaduan['jumlah_tanggapan'] > 0): ?>
                             <div class="tanggapan-section" data-pengaduan-id="<?php echo $pengaduan['id']; ?>">
                                 <?php 
-                                // Query untuk mendapatkan tanggapan
                                 $stmt_tanggapan = $conn->prepare(
                                     "SELECT t.*, u.nama 
                                      FROM tanggapan t 
@@ -607,7 +569,7 @@ function get_status_badge($status) {
                 <?php endforeach; ?>
             </div>
         <?php else: ?>
-            <!-- Empty State -->
+
             <div class="empty-state">
                 <i class="bi bi-inbox"></i>
                 <h4>Belum Ada Pengaduan</h4>
@@ -620,13 +582,10 @@ function get_status_badge($status) {
         
     </div>
     
-    <?php include '../frontend/layout/footer.html'; ?>
-    
-    <!-- Bootstrap JS -->
+    <?php include '../layouts/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        // Toggle tanggapan section
         function toggleTanggapan(button) {
             const card = button.closest('.pengaduan-card');
             const tanggapanSection = card.querySelector('.tanggapan-section');
@@ -639,9 +598,7 @@ function get_status_badge($status) {
             }
         }
         
-        // Show detail (bisa di-extend ke modal atau halaman detail)
         function showDetail(id) {
-            // TODO: Bisa membuka modal atau redirect ke halaman detail
             console.log('Show detail pengaduan:', id);
             alert('Fitur detail akan segera hadir!');
         }
