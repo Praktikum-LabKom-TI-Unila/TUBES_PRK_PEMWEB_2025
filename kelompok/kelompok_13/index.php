@@ -1,35 +1,24 @@
 <?php
-// --- BAGIAN 1: KONFIGURASI & LOGIKA BACKEND ---
 
-// 1. Hubungkan ke Database
 include __DIR__ . '/backend/config.php';
 
-// 2. Menghitung Jumlah Kandidat (Real-time dari Database)
-// Pastikan tabel database bernama 'kandidat'
 $query_kandidat = mysqli_query($conn, "SELECT count(*) as total FROM candidates");
 $data_kandidat  = mysqli_fetch_assoc($query_kandidat);
 $jumlah_kandidat = $data_kandidat['total'];
 
-// 3. Menghitung Jumlah Pemilih Terdaftar (Real-time)
-// Pastikan tabel database bernama 'users' atau 'pemilih' (Sesuaikan nama tabel disini)
 $query_pemilih = mysqli_query($conn, "SELECT count(*) as total FROM users");
 $data_pemilih  = mysqli_fetch_assoc($query_pemilih);
 $jumlah_pemilih = $data_pemilih['total']; 
 
-// Jika tabel users belum ada/kosong, set default 0 agar tidak error
 if ($jumlah_pemilih == null) { $jumlah_pemilih = 0; }
 
-// 4. Logika Hitung Mundur (Countdown)
-// Tentukan tanggal berakhir voting (Format: YYYY-MM-DD HH:MM:SS)
-$target_selesai = "2026-05-15 17:00:00"; // Sesuai Timeline di HTML Anda
+$target_selesai = "2026-05-15 17:00:00";
 $waktu_selesai  = strtotime($target_selesai);
 $waktu_sekarang = time();
 $selisih_detik  = $waktu_selesai - $waktu_sekarang;
 
-// Konversi ke Jam (dibulatkan ke bawah)
 $sisa_jam = floor($selisih_detik / (60 * 60));
 
-// Validasi: Jika waktu sudah lewat, set jadi 0
 if ($sisa_jam < 0) { $sisa_jam = 0; }
 ?>
 
@@ -46,7 +35,6 @@ if ($sisa_jam < 0) { $sisa_jam = 0; }
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
     <style>
-        /* Kandidat Section */
         .kandidat-card {
             background: white;
             border-radius: 15px;
@@ -63,9 +51,9 @@ if ($sisa_jam < 0) { $sisa_jam = 0; }
         .kandidat-img {
             width: 100%;
             height: 350px;
-            object-fit: contain; /* PERBAIKAN: agar foto tidak terpotong */
+            object-fit: contain; 
             background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-            padding: 20px; /* Tambah padding agar foto tidak mentok */
+            padding: 20px; 
         }
         
         .kandidat-body {
@@ -108,8 +96,7 @@ if ($sisa_jam < 0) { $sisa_jam = 0; }
             line-height: 1.6;
             margin: 0;
         }
-        
-        /* ========== KANDIDAT SECTION (SESUAI REFERENSI) ========== */
+
         .section-kandidat {
             padding: 80px 0;
             background: #f8fafc;
@@ -138,7 +125,6 @@ if ($sisa_jam < 0) { $sisa_jam = 0; }
             border-color: #1e40af;
         }
         
-        /* Badge Nomor Urut (seperti gambar referensi) */
         .kandidat-number {
             position: absolute;
             top: 20px;
@@ -158,7 +144,6 @@ if ($sisa_jam < 0) { $sisa_jam = 0; }
             border: 4px solid white;
         }
         
-        /* Foto Kandidat (tidak terpotong) */
         .kandidat-img {
             width: 100%;
             height: 380px;
@@ -180,12 +165,10 @@ if ($sisa_jam < 0) { $sisa_jam = 0; }
             color: #cbd5e1;
         }
         
-        /* Body Card */
         .kandidat-body {
             padding: 35px 30px;
         }
-        
-        /* Nama Box (SESUAI REFERENSI dengan background biru) */
+
         .nama-box {
             background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
             padding: 25px;
@@ -226,7 +209,6 @@ if ($sisa_jam < 0) { $sisa_jam = 0; }
             text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
-        /* Visi & Misi Box */
         .visi-misi-container {
             margin-top: 20px;
         }
@@ -374,7 +356,6 @@ if ($sisa_jam < 0) { $sisa_jam = 0; }
         </div>
     </section>
 
-    <!-- Kandidat Section -->
     <section id="kandidat" class="section-kandidat">
         <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
             <h2 style="text-align: center; font-size: 38px; color: #1e293b; margin-bottom: 15px; font-weight: 800;">Calon Kandidat</h2>
@@ -382,7 +363,6 @@ if ($sisa_jam < 0) { $sisa_jam = 0; }
             
             <div class="kandidat-grid">
                 <?php 
-                // Ambil data kandidat dari database
                 $query_kandidat = mysqli_query($conn, "SELECT * FROM candidates ORDER BY id ASC");
                 
                 if(mysqli_num_rows($query_kandidat) > 0) {
@@ -393,10 +373,8 @@ if ($sisa_jam < 0) { $sisa_jam = 0; }
                         $chairman_initial = strtoupper(substr($kandidat['chairman_name'], 0, 1));
                 ?>
                     <div class="kandidat-card">
-                        <!-- Badge Nomor Urut -->
                         <div class="kandidat-number"><?php echo $nomor_urut; ?></div>
-                        
-                        <!-- Foto Kandidat -->
+
                         <?php if ($photo_exists) : ?>
                             <img src="<?php echo $photo_path; ?>" 
                                  alt="Pasangan Kandidat No. <?php echo $nomor_urut; ?>" 
@@ -412,7 +390,6 @@ if ($sisa_jam < 0) { $sisa_jam = 0; }
                         <?php endif; ?>
                         
                         <div class="kandidat-body">
-                            <!-- Nama Box (Background Biru seperti Referensi) -->
                             <div class="nama-box">
                                 <div class="nama-item">
                                     <div class="nama-label">
@@ -427,18 +404,15 @@ if ($sisa_jam < 0) { $sisa_jam = 0; }
                                     <div class="nama-value"><?php echo $kandidat['vice_chairman_name']; ?></div>
                                 </div>
                             </div>
-                            
-                            <!-- Visi & Misi Container -->
+ 
                             <div class="visi-misi-container">
-                                <!-- Visi -->
                                 <div class="visi-misi-item">
                                     <div class="visi-misi-label">
                                         <i class="fas fa-lightbulb"></i> Visi
                                     </div>
                                     <p class="visi-misi-text"><?php echo substr($kandidat['vision'], 0, 180) . (strlen($kandidat['vision']) > 180 ? '...' : ''); ?></p>
                                 </div>
-                                
-                                <!-- Misi -->
+
                                 <div class="visi-misi-item">
                                     <div class="visi-misi-label">
                                         <i class="fas fa-tasks"></i> Misi
