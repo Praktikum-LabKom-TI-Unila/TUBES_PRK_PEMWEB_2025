@@ -82,7 +82,7 @@ require __DIR__ . '/../layouts/sidebar.php';
                     Laporkan sekarang agar segera ditindaklanjuti.
                 </p>
                 
-                <a href="pengaduan_form.php" class="btn border-0 fw-bold px-4 py-2" 
+                <a href="../pengaduan/pengaduan_form.php" class="btn border-0 fw-bold px-4 py-2" 
                    style="background-color: #ffffff1a; color: white; backdrop-filter: blur(5px);">
                     <i class="fas fa-plus-circle me-2"></i> Buat Laporan Baru
                 </a>
