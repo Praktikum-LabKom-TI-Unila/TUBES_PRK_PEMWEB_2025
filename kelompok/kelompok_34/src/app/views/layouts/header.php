@@ -50,6 +50,12 @@ if (session_status() === PHP_SESSION_NONE) {
             </li>
           <?php endif; ?>
             <li>
+              <a href="<?= BASE_URL ?>/help" class="nav-link hover:text-blue-200 transition flex items-center gap-2">
+                <i data-lucide="help-circle" class="w-4 h-4"></i>
+                Bantuan
+              </a>
+            </li>
+            <li>
               <a href="<?= BASE_URL ?>/auth/logout" class="nav-link hover:text-red-300 transition flex items-center gap-2">
                 <i data-lucide="log-out" class="w-4 h-4"></i>
                 Logout
@@ -57,6 +63,12 @@ if (session_status() === PHP_SESSION_NONE) {
             </li>
             
           <?php else: ?>
+            <li>
+              <a href="<?= BASE_URL ?>/help" class="nav-link hover:text-blue-200 transition flex items-center gap-2">
+                <i data-lucide="help-circle" class="w-4 h-4"></i>
+                Bantuan
+              </a>
+            </li>
             <li>
               <a href="<?= BASE_URL ?>/auth/login" class="nav-link hover:text-blue-200 transition flex items-center gap-2">
                 <i data-lucide="log-in" class="w-4 h-4"></i>
