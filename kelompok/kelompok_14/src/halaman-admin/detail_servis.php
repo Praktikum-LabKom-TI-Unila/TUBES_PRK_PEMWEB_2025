@@ -49,6 +49,7 @@ $status_class = $status_colors[$servis['status']] ?? 'bg-slate-100 text-slate-70
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style> body { font-family: 'Inter', sans-serif; } </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-slate-50 min-h-screen">
 
@@ -161,12 +162,30 @@ $status_class = $status_colors[$servis['status']] ?? 'bg-slate-100 text-slate-70
                 <i class="fas fa-arrow-left mr-2"></i> Kembali
             </a>
             <?php if ($servis['status'] === 'Selesai'): ?>
-                <a href="update_status.php?id=<?php echo $servis['id']; ?>&status=Diambil" onclick="return confirm('Konfirmasi barang sudah diambil?')" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-bold transition-colors">
+                <a href="#" onclick="konfirmasiDiambil(<?php echo $servis['id']; ?>)" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-bold transition-colors">
                     <i class="fas fa-check-double mr-2"></i> Tandai Diambil
                 </a>
             <?php endif; ?>
         </div>
     </div>
 
+<script>
+function konfirmasiDiambil(id) {
+    Swal.fire({
+        title: 'Konfirmasi Pengambilan',
+        text: 'Barang sudah diambil pelanggan?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#16a34a',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Ya, Sudah Diambil',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = 'update_status.php?id=' + id + '&status=Diambil';
+        }
+    });
+}
+</script>
 </body>
 </html>

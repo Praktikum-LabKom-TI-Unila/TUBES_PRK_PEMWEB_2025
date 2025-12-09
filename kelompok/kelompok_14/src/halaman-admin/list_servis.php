@@ -28,6 +28,7 @@ $result = $conn->query($query);
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style> body { font-family: 'Inter', sans-serif; } </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-slate-50 min-h-screen">
 
@@ -134,7 +135,7 @@ $result = $conn->query($query);
                                             
                                             <?php if ($row['status'] == 'Selesai'): ?>
                                                 <!-- Tombol Barang Diambil (Hanya muncul jika Selesai) -->
-                                                <a href="update_status.php?id=<?php echo $row['id']; ?>&status=Diambil" onclick="return confirm('Konfirmasi barang sudah diambil pelanggan dan lunasi pembayaran?')" class="bg-green-600 text-white hover:bg-green-700 p-2 rounded-lg transition-all shadow-sm" title="Barang Diambil">
+                                                <a href="#" onclick="konfirmasiDiambil(<?php echo $row['id']; ?>)" class="bg-green-600 text-white hover:bg-green-700 p-2 rounded-lg transition-all shadow-sm" title="Barang Diambil">
                                                     <i class="fas fa-check-double"></i>
                                                 </a>
                                             <?php endif; ?>
@@ -163,5 +164,23 @@ $result = $conn->query($query);
         </div>
     </div>
 
+<script>
+function konfirmasiDiambil(id) {
+    Swal.fire({
+        title: 'Konfirmasi Pengambilan',
+        text: 'Barang sudah diambil pelanggan dan pembayaran lunas?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#16a34a',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Ya, Sudah Diambil',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = 'update_status.php?id=' + id + '&status=Diambil';
+        }
+    });
+}
+</script>
 </body>
 </html>
