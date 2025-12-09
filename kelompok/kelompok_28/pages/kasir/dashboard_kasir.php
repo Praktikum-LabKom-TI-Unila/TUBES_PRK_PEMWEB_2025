@@ -307,11 +307,17 @@ while ($row = $result_trx->fetch_assoc()) {
 
     <script>
         const formatRupiah = (num) => 'Rp ' + parseInt(num).toLocaleString('id-ID');
+        
+        // --- TAMBAHAN BARU: Variabel Global untuk menyimpan ID transaksi yang sedang dibuka ---
+        let currentTrxId = null; 
 
         function showDetail(trx) {
             const modal = document.getElementById('detailModal');
             const content = document.getElementById('detailContent');
             const itemsContainer = document.getElementById('modalItems');
+
+            // --- TAMBAHAN BARU: Simpan ID Transaksi ---
+            currentTrxId = trx.id; 
 
             // Set Header Data
             document.getElementById('modalTrxCode').innerText = `${trx.code} • ${trx.full_date}`;
@@ -355,12 +361,18 @@ while ($row = $result_trx->fetch_assoc()) {
             
             setTimeout(() => {
                 modal.classList.add('hidden');
+                currentTrxId = null; // Reset ID saat tutup modal
             }, 300);
         }
 
+        // --- UPDATE FUNGSI PRINT ---
         function printReceipt() {
-            // Logika print struk bisa ditambahkan di sini
-            alert('Mengirim perintah ke printer...');
+            if (currentTrxId) {
+                // Buka tab baru ke file cetak_struk.php dengan membawa ID transaksi
+                window.open(`cetak_struk.php?id=${currentTrxId}`, '_blank');
+            } else {
+                alert('Terjadi kesalahan: ID Transaksi tidak ditemukan.');
+            }
         }
 
         // Close events
