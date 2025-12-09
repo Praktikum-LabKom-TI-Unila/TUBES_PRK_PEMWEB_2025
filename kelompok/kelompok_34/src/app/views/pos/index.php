@@ -8,12 +8,24 @@
 
       <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto pr-2 custom-scroll">
         <?php foreach ($products as $p): ?>
+          <?php 
+          $imagePath = BASE_URL . "/public/uploads/products/" . $p['image'];
+          $imageExists = file_exists(BASE_PATH . "/src/public/uploads/products/" . $p['image']);
+          ?>
           <div onclick="addToCart(<?= htmlspecialchars(json_encode($p)) ?>)"
             class="bg-white/5 hover:bg-white/10 p-4 rounded-2xl cursor-pointer transition border border-white/10 group">
-            <div class="aspect-square bg-blue-500/20 rounded-xl mb-3 flex items-center justify-center">
-              <i data-lucide="coffee" class="w-10 h-10 text-blue-200 group-hover:scale-110 transition"></i>
+            
+            <div class="aspect-square bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-xl mb-3 flex items-center justify-center overflow-hidden">
+              <?php if ($imageExists && $p['image'] !== 'default.jpg'): ?>
+                <img src="<?= $imagePath ?>" 
+                     alt="<?= htmlspecialchars($p['name']) ?>"
+                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+              <?php else: ?>
+                <i data-lucide="coffee" class="w-10 h-10 text-blue-200 group-hover:scale-110 transition"></i>
+              <?php endif; ?>
             </div>
-            <h3 class="font-bold text-lg truncate"><?= $p['name'] ?></h3>
+            
+            <h3 class="font-bold text-lg truncate"><?= htmlspecialchars($p['name']) ?></h3>
             <p class="text-blue-300">Rp <?= number_format($p['price'], 0, ',', '.') ?></p>
             <p class="text-xs text-gray-100 mt-1">Stok: <?= $p['stock'] ?></p>
           </div>
@@ -50,10 +62,26 @@
   </div>
 </div>
 
+<style>
+  .custom-scroll::-webkit-scrollbar {
+    width: 8px;
+  }
+  .custom-scroll::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+  }
+  .custom-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+  }
+  .custom-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+</style>
+
 <script>
   let cart = [];
 
-  // Fungsi Tambah Barang
   function addToCart(product) {
     const existing = cart.find(item => item.id == product.id);
     if (existing) {
@@ -77,7 +105,6 @@
     renderCart();
   }
 
-  // Fungsi Render Tampilan Keranjang
   function renderCart() {
     const container = document.getElementById('cart-items');
     const totalEl = document.getElementById('cart-total');
@@ -111,7 +138,6 @@
     totalEl.innerText = 'Rp ' + total.toLocaleString('id-ID');
   }
 
-  // Update Jumlah Item
   function updateQty(index, change) {
     cart[index].qty += change;
     if (cart[index].qty <= 0) {
@@ -120,7 +146,6 @@
     renderCart();
   }
 
-  // Fungsi Checkout ke Backend
   async function processCheckout() {
     if (cart.length === 0) return alert('Keranjang kosong!');
     if (!confirm('Proses pembayaran?')) return;

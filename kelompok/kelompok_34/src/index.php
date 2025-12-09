@@ -11,6 +11,7 @@ require BASE_PATH . '/src/app/core/Controller.php';
 require BASE_PATH . '/src/app/core/Model.php';
 
 require BASE_PATH . '/src/app/helpers/auth_helper.php';
+require BASE_PATH . '/src/app/helpers/product_helper.php';
 
 spl_autoload_register(function ($class) {
   $paths = [

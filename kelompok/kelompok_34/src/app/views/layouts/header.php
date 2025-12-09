@@ -55,6 +55,7 @@ if (session_status() === PHP_SESSION_NONE) {
                 Logout
               </a>
             </li>
+            
           <?php else: ?>
             <li>
               <a href="<?= BASE_URL ?>/auth/login" class="nav-link hover:text-blue-200 transition flex items-center gap-2">
