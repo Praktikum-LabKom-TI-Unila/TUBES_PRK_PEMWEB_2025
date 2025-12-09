@@ -1,12 +1,4 @@
 <?php
-// ============================================
-// CETAK STRUK - cetak_struk.php
-// ============================================
-// File ini menangani pembuatan dan pencetakan struk service
-
-header('Content-Type: text/html; charset=utf-8');
-
-// Ambil data dari request
 $serviceId = isset($_GET['serviceId']) ? intval($_GET['serviceId']) : null;
 $customerName = isset($_GET['customerName']) ? htmlspecialchars($_GET['customerName']) : '';
 $itemName = isset($_GET['itemName']) ? htmlspecialchars($_GET['itemName']) : '';
@@ -15,306 +7,117 @@ $additionalDetails = isset($_GET['additionalDetails']) ? htmlspecialchars($_GET[
 $components = isset($_GET['components']) ? json_decode($_GET['components'], true) : [];
 $laborCost = isset($_GET['laborCost']) ? floatval($_GET['laborCost']) : 0;
 
-// Fungsi untuk format currency
 function formatCurrency($value) {
-    return 'Rp ' . number_format($value, 0, ',', '.');
+  return 'Rp ' . number_format($value, 0, ',', '.');
 }
 
-// Hitung total komponen
 $componentTotal = 0;
 foreach ($components as $comp) {
-    $componentTotal += isset($comp['cost']) ? $comp['cost'] : 0;
+  $componentTotal += isset($comp['cost']) ? $comp['cost'] : 0;
 }
 $total = $componentTotal + $laborCost;
-
+header('Content-Type: text/html; charset=utf-8');
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Struk Layanan Perbaikan - FixTrack</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 3px solid #333;
-            padding-bottom: 15px;
-        }
-        
-        .header h1 {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .header p {
-            font-size: 12px;
-            color: #666;
-        }
-        
-        .info-section {
-            margin-bottom: 20px;
-        }
-        
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 13px;
-        }
-        
-        .info-label {
-            font-weight: bold;
-        }
-        
-        .diagnosis-section {
-            margin-bottom: 20px;
-            border-top: 2px solid #333;
-            border-bottom: 2px solid #333;
-            padding: 15px 0;
-        }
-        
-        .diagnosis-section h3 {
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-        
-        .diagnosis-text {
-            font-size: 12px;
-            line-height: 1.4;
-            color: #333;
-            margin-bottom: 8px;
-        }
-        
-        .components-section {
-            margin-bottom: 20px;
-        }
-        
-        .components-section h3 {
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 10px;
-            font-size: 12px;
-        }
-        
-        table thead {
-            border-bottom: 1px solid #999;
-        }
-        
-        table th {
-            text-align: left;
-            padding: 8px 0;
-            font-weight: bold;
-        }
-        
-        table td {
-            padding: 6px 0;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        table td:last-child {
-            text-align: right;
-        }
-        
-        .totals {
-            margin-top: 15px;
-            font-size: 13px;
-        }
-        
-        .total-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
-        }
-        
-        .grand-total {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 2px solid #333;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-            font-size: 11px;
-            color: #666;
-        }
-        
-        .no-data {
-            text-align: center;
-            padding: 10px;
-            color: #999;
-            font-style: italic;
-            font-size: 12px;
-        }
-        
-        @media print {
-            body {
-                background: white;
-                padding: 0;
-            }
-            
-            .container {
-                box-shadow: none;
-                max-width: 100%;
-            }
-            
-            .print-button {
-                display: none;
-            }
-        }
-        
-        .print-button {
-            display: block;
-            margin: 20px auto 0;
-            padding: 10px 30px;
-            background-color: #0066cc;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .print-button:hover {
-            background-color: #0052a3;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Struk Layanan Perbaikan - FixTrack</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>@media print { .print-button { display: none !important; } body { background: white !important; } .container { box-shadow: none !important; } }</style>
 </head>
-<body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1>STRUK LAYANAN PERBAIKAN</h1>
-            <p>FixTrack Service Center</p>
-            <p>Tanggal: <?php echo date('d/m/Y H:i'); ?></p>
-        </div>
-
-        <!-- Info Pelanggan -->
-        <div class="info-section">
-            <div class="info-row">
-                <span class="info-label">Pelanggan:</span>
-                <span><?php echo $customerName ?: '(Tidak ada)'; ?></span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Barang:</span>
-                <span><?php echo $itemName ?: '(Tidak ada)'; ?></span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">No. Servis:</span>
-                <span>#<?php echo str_pad($serviceId, 3, '0', STR_PAD_LEFT); ?></span>
-            </div>
-        </div>
-
-        <!-- Diagnosa -->
-        <div class="diagnosis-section">
-            <h3>Deskripsi Diagnosa:</h3>
-            <div class="diagnosis-text">
-                <?php echo $diagnosisDesc ?: 'Tidak ada deskripsi diagnosa'; ?>
-            </div>
-            <?php if ($additionalDetails): ?>
-                <h3>Catatan Tambahan:</h3>
-                <div class="diagnosis-text">
-                    <?php echo $additionalDetails; ?>
-                </div>
-            <?php endif; ?>
-        </div>
-
-        <!-- Komponen & Biaya -->
-        <div class="components-section">
-            <h3>Komponen & Biaya:</h3>
-            
-            <?php if (!empty($components) && count($components) > 0): ?>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Nama Komponen</th>
-                            <th>Harga</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($components as $comp): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($comp['name'] ?? 'Komponen'); ?></td>
-                                <td><?php echo formatCurrency($comp['cost'] ?? 0); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php else: ?>
-                <div class="no-data">Tidak ada komponen</div>
-            <?php endif; ?>
-        </div>
-
-        <!-- Ringkasan Biaya -->
-        <div class="totals">
-            <div class="total-row">
-                <span>Total Komponen:</span>
-                <span><?php echo formatCurrency($componentTotal); ?></span>
-            </div>
-            <div class="total-row">
-                <span>Biaya Jasa:</span>
-                <span><?php echo formatCurrency($laborCost); ?></span>
-            </div>
-            <div class="grand-total">
-                <span>TOTAL KESELURUHAN:</span>
-                <span><?php echo formatCurrency($total); ?></span>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="footer">
-            <p>Terima kasih telah menggunakan layanan kami</p>
-            <p>FixTrack © <?php echo date('Y'); ?> - Semua Hak Dilindungi</p>
-        </div>
-
-        <!-- Print Button -->
-        <button class="print-button" onclick="window.print()">Cetak Struk</button>
+<body class="bg-gray-100 p-5 print:bg-white print:p-0">
+  <div class="max-w-2xl mx-auto bg-white p-10 rounded-lg shadow-md print:shadow-none">
+    <!-- Header -->
+    <div class="text-center border-b-4 border-gray-800 pb-4 mb-6">
+      <h1 class="text-2xl font-bold">STRUK LAYANAN PERBAIKAN</h1>
+      <p class="text-xs text-gray-600">FixTrack Service Center</p>
+      <p class="text-xs text-gray-600">Tanggal: <?php echo date('d/m/Y H:i'); ?></p>
     </div>
 
-    <script>
-        // Auto print jika parameter autoprint=1
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('autoprint') === '1') {
-            window.addEventListener('load', function() {
-                window.print();
-            });
-        }
-    </script>
+    <!-- Info Pelanggan -->
+    <div class="mb-5">
+      <div class="flex justify-between mb-2 text-sm">
+        <span class="font-bold">Pelanggan:</span>
+        <span><?php echo $customerName ?: '(Tidak ada)'; ?></span>
+      </div>
+      <div class="flex justify-between mb-2 text-sm">
+        <span class="font-bold">Barang:</span>
+        <span><?php echo $itemName ?: '(Tidak ada)'; ?></span>
+      </div>
+      <div class="flex justify-between text-sm">
+        <span class="font-bold">No. Servis:</span>
+        <span>#<?php echo str_pad($serviceId, 3, '0', STR_PAD_LEFT); ?></span>
+      </div>
+    </div>
+
+    <!-- Diagnosa -->
+    <div class="border-t-2 border-b-2 border-gray-800 py-3 mb-5">
+      <h3 class="font-bold text-sm mb-2">Deskripsi Diagnosa:</h3>
+      <p class="text-xs leading-relaxed text-gray-700 mb-2"><?php echo $diagnosisDesc ?: 'Tidak ada deskripsi diagnosa'; ?></p>
+      <?php if ($additionalDetails): ?>
+        <h3 class="font-bold text-sm mb-2">Catatan Tambahan:</h3>
+        <p class="text-xs leading-relaxed text-gray-700"><?php echo $additionalDetails; ?></p>
+      <?php endif; ?>
+    </div>
+
+    <!-- Komponen & Biaya -->
+    <div class="mb-5">
+      <h3 class="font-bold text-sm mb-3">Komponen & Biaya:</h3>
+      <?php if (!empty($components) && count($components) > 0): ?>
+        <table class="w-full text-xs">
+          <thead class="border-b border-gray-600">
+            <tr>
+              <th class="text-left py-2 font-bold">Nama Komponen</th>
+              <th class="text-right py-2 font-bold">Harga</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php foreach ($components as $comp): ?>
+              <tr class="border-b border-gray-300">
+                <td class="py-1"><?php echo htmlspecialchars($comp['name'] ?? 'Komponen'); ?></td>
+                <td class="text-right py-1"><?php echo formatCurrency($comp['cost'] ?? 0); ?></td>
+              </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      <?php else: ?>
+        <div class="text-center py-2 text-gray-400 italic text-xs">Tidak ada komponen</div>
+      <?php endif; ?>
+    </div>
+
+    <!-- Ringkasan Biaya -->
+    <div class="mt-4 text-xs">
+      <div class="flex justify-between mb-1">
+        <span>Total Komponen:</span>
+        <span><?php echo formatCurrency($componentTotal); ?></span>
+      </div>
+      <div class="flex justify-between mb-2">
+        <span>Biaya Jasa:</span>
+        <span><?php echo formatCurrency($laborCost); ?></span>
+      </div>
+      <div class="flex justify-between border-t-2 border-gray-800 pt-2 font-bold text-sm">
+        <span>TOTAL KESELURUHAN:</span>
+        <span><?php echo formatCurrency($total); ?></span>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center mt-6 pt-5 border-t border-gray-300 text-xs text-gray-600">
+      <p>Terima kasih telah menggunakan layanan kami</p>
+      <p>FixTrack © <?php echo date('Y'); ?> - Semua Hak Dilindungi</p>
+    </div>
+
+    <!-- Print Button -->
+    <button onclick="window.print()" class="print-button block mx-auto mt-5 px-8 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium cursor-pointer">Cetak Struk</button>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('autoprint') === '1') {
+      window.addEventListener('load', () => window.print());
+    }
+  </script>
 </body>
 </html>
