@@ -220,7 +220,7 @@
             <td>#<?= $transaction['id'] ?></td>
             <td><?= date('d/m/Y H:i', strtotime($transaction['created_at'])) ?></td>
             <td><?= htmlspecialchars($transaction['cashier_name']) ?></td>
-            <td style="font-size: 12px;"><?= htmlspecialchars($transaction['products']) ?></td>
+            <td><?= htmlspecialchars($transaction['products']) ?></td>
             <td class="text-right"><strong>Rp <?= number_format($transaction['total_amount'], 0, ',', '.') ?></strong></td>
           </tr>
         <?php endforeach; ?>
