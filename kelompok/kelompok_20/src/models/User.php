@@ -102,7 +102,81 @@ final class User
         return (int) $stmt->fetchColumn();
     }
 
-    
+    /**
+     * Menyimpan token reset password ke tabel password_resets.
+     * @param string $email Email pengguna.
+     * @param string $token Token unik yang dibuat.
+     * @param string $expiry Waktu kadaluarsa token.
+     * @return bool True jika berhasil disimpan.
+     */
+    public function saveResetToken(string $email, string $token, string $expiry): bool
+    {
+        // Hapus token lama untuk email yang sama (opsional, tapi disarankan)
+        $this->db->prepare("DELETE FROM password_resets WHERE email = :email")
+                 ->execute([':email' => $email]);
+
+        $sql = "INSERT INTO password_resets (email, token, created_at) VALUES (:email, :token, :created_at)";
+        $stmt = $this->db->prepare($sql);
+
+        return $stmt->execute([
+            ':email' => $email,
+            ':token' => $token,
+            ':created_at' => $expiry 
+        ]);
+    }
+
+    /**
+     * Mencari token reset password yang valid (belum kadaluarsa).
+     * @param string $email Email pengguna.
+     * @param string $token Token dari URL.
+     * @return array|false Data token jika valid, false jika tidak ditemukan atau kadaluarsa.
+     */
+    public function findResetToken(string $email, string $token): array|false
+    {
+        $sql = "SELECT * FROM password_resets WHERE email = :email AND token = :token AND created_at > NOW() LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            ':email' => $email,
+            ':token' => $token
+        ]);
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Memperbarui password pengguna dan menghapus token reset yang sudah digunakan.
+     * @param string $email Email pengguna.
+     * @param string $hashedPassword Password baru yang sudah di-hash.
+     * @param string $token Token reset yang harus dihapus.
+     * @return bool True jika berhasil diperbarui.
+     */
+    public function updatePasswordAndDestroyToken(string $email, string $hashedPassword, string $token): bool
+    {
+        try {
+            $this->db->beginTransaction();
+
+            $sqlUser = "UPDATE users SET password = :password, updated_at = NOW() WHERE email = :email";
+            $stmtUser = $this->db->prepare($sqlUser);
+            $stmtUser->execute([
+                ':password' => $hashedPassword,
+                ':email' => $email
+            ]);
+            
+            $sqlToken = "DELETE FROM password_resets WHERE email = :email AND token = :token";
+            $stmtToken = $this->db->prepare($sqlToken);
+            $stmtToken->execute([
+                ':email' => $email,
+                ':token' => $token
+            ]);
+
+            $this->db->commit();
+            return true;
+        } catch (PDOException $e) {
+            $this->db->rollBack();
+            return false;
+        }
+    }
+
     public function update(int $id, array $data): bool
     {
         $fields = [];
