@@ -1,44 +1,18 @@
 <?php
 session_start();
+require_once 'config.php';
 
-// Jika sudah login, redirect ke halaman yang sesuai berdasarkan role
+// Jika sudah login, redirect ke halaman success
 if (isset($_SESSION['user_id'])) {
-    $role = $_SESSION['role'] ?? 'patient';
-    switch ($role) {
-        case 'admin':
-            header('Location: ../admin/dashboard.php');
-            break;
-        case 'doctor':
-            header('Location: ../doctor/dashboard.php');
-            break;
-        case 'patient':
-            header('Location: ../patient/dashboard.php');
-            break;
-        default:
-            header('Location: ../index.php');
-    }
+    header('Location: login_success.php');
     exit();
 }
 
 $error = '';
 $success = '';
 
-// TODO: INTEGRASI DATABASE
-// Nanti ganti dummy data ini dengan INSERT ke database
-// Query: INSERT INTO users (nama, email, password_hash, role, created_at) VALUES (?, ?, ?, ?, NOW())
-// Password: $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-// Cek email exists: SELECT COUNT(*) FROM users WHERE email = ?
-
-// DUMMY DATA - Simulasi registrasi tanpa database (HAPUS setelah integrasi database)
-$dummyUsers = [
-    'admin@rs.com',
-    'doctor@rs.com',
-    'patient@rs.com'
-];
-
-// Proses registrasi
+// Proses registrasi dengan DATABASE
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Ambil data dari form
     $nama = trim($_POST['nama'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
@@ -57,28 +31,87 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (!in_array($role, ['admin', 'dokter', 'pasien'])) {
         $error = 'Role tidak valid';
     } else {
-        // Cek apakah email sudah terdaftar (dummy - nanti ganti dengan query database)
-        if (in_array($email, $dummyUsers)) {
+        $conn = getDBConnection();
+        
+        // Cek apakah email sudah terdaftar
+        $stmt = $conn->prepare("SELECT id_user FROM users WHERE email = ? LIMIT 1");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
             $error = 'Email sudah terdaftar. Silakan gunakan email lain.';
+            $stmt->close();
         } else {
-            // TODO: Setelah integrasi database, implementasikan:
-            // $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            // $stmt = $conn->prepare("INSERT INTO users (nama, email, password_hash, role, created_at) VALUES (?, ?, ?, ?, NOW())");
-            // $stmt->bind_param("ssss", $nama, $email, $hashed_password, $role);
-            // if ($stmt->execute()) {
-            //     $success = 'Registrasi berhasil! Silakan login.';
-            // } else {
-            //     $error = 'Terjadi kesalahan. Silakan coba lagi.';
-            // }
+            $stmt->close();
             
-            // Simulasi registrasi berhasil (dummy)
-            $success = 'Registrasi berhasil! Silakan login dengan email: ' . htmlspecialchars($email);
+            // Map role ke id_role
+            $role_map = [
+                'admin' => 1,   // Admin
+                'dokter' => 2,  // Dokter
+                'pasien' => 3   // Pasien
+            ];
+            $id_role = $role_map[$role];
             
-            // Reset form
-            $nama = '';
-            $email = '';
-            $role = '';
+            // Hash password
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            
+            // Generate username dari email (sebelum @)
+            $username = explode('@', $email)[0];
+            
+            // Mulai transaksi
+            $conn->begin_transaction();
+            
+            try {
+                // Insert ke tabel users
+                $stmt = $conn->prepare("
+                    INSERT INTO users (id_role, username, password, email, is_active) 
+                    VALUES (?, ?, ?, ?, 1)
+                ");
+                $stmt->bind_param("isss", $id_role, $username, $hashed_password, $email);
+                $stmt->execute();
+                $user_id = $conn->insert_id;
+                $stmt->close();
+                
+                // Insert ke tabel doctors atau patients berdasarkan role
+                if ($role === 'dokter') {
+                    $stmt = $conn->prepare("
+                        INSERT INTO doctors (id_user, name, specialization, phone, license_no) 
+                        VALUES (?, ?, 'Umum', '-', '-')
+                    ");
+                    $stmt->bind_param("is", $user_id, $nama);
+                    $stmt->execute();
+                    $stmt->close();
+                } elseif ($role === 'pasien') {
+                    // Generate medical record number
+                    $med_record_no = 'MR' . date('Ymd') . str_pad($user_id, 4, '0', STR_PAD_LEFT);
+                    
+                    $stmt = $conn->prepare("
+                        INSERT INTO patients (id_user, name, birth_date, address, phone, med_record_no) 
+                        VALUES (?, ?, '2000-01-01', '-', '-', ?)
+                    ");
+                    $stmt->bind_param("iss", $user_id, $nama, $med_record_no);
+                    $stmt->execute();
+                    $stmt->close();
+                }
+                
+                // Commit transaksi
+                $conn->commit();
+                $success = 'Registrasi berhasil! Silakan login dengan email: ' . htmlspecialchars($email);
+                
+                // Reset form
+                $nama = '';
+                $email = '';
+                $role = '';
+                
+            } catch (Exception $e) {
+                // Rollback jika ada error
+                $conn->rollback();
+                $error = 'Terjadi kesalahan. Silakan coba lagi.';
+            }
         }
+        
+        closeDBConnection($conn);
     }
 }
 ?>

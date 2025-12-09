@@ -1,61 +1,17 @@
 <?php
 session_start();
+require_once 'config.php';
 
 // Jika sudah login, redirect ke halaman success sementara
-// TODO: Setelah dashboard dibuat, uncomment dan sesuaikan redirect ini
-// if (isset($_SESSION['user_id'])) {
-//     $role = $_SESSION['role'] ?? 'patient';
-//     switch ($role) {
-//         case 'admin':
-//             header('Location: ../admin/dashboard.php');
-//             break;
-//         case 'doctor':
-//             header('Location: ../doctor/dashboard.php');
-//             break;
-//         case 'patient':
-//             header('Location: ../patient/dashboard.php');
-//             break;
-//         default:
-//             header('Location: ../index.php');
-//     }
-//     exit();
-// }
+if (isset($_SESSION['user_id'])) {
+    header('Location: login_success.php');
+    exit();
+}
 
 $error = '';
 
-// TODO: INTEGRASI DATABASE
-// Nanti ganti dummy data ini dengan query ke database
-// Query: SELECT * FROM users WHERE email = ? AND active = 1
-// Verifikasi password: password_verify($password, $user['password_hash'])
-
-// DUMMY DATA - Array user untuk testing (HAPUS setelah integrasi database)
-$dummyUsers = [
-    [
-        'id' => 1,
-        'nama' => 'Admin System',
-        'email' => 'admin@rs.com',
-        'password' => 'admin123', // Nanti akan jadi password_hash
-        'role' => 'admin'
-    ],
-    [
-        'id' => 2,
-        'nama' => 'Dr. John Doe',
-        'email' => 'doctor@rs.com',
-        'password' => 'doctor123',
-        'role' => 'doctor'
-    ],
-    [
-        'id' => 3,
-        'nama' => 'Jane Patient',
-        'email' => 'patient@rs.com',
-        'password' => 'patient123',
-        'role' => 'patient'
-    ]
-];
-
-// Proses login
+// Proses login dengan DATABASE
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Ambil data dari form
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     
@@ -63,51 +19,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($email) || empty($password)) {
         $error = 'Email dan password harus diisi';
     } else {
-        // Cari user berdasarkan email (dummy - nanti ganti dengan query database)
-        $userFound = null;
-        foreach ($dummyUsers as $user) {
-            if ($user['email'] === $email) {
-                $userFound = $user;
-                break;
+        $conn = getDBConnection();
+        
+        // Query: JOIN users dengan roles untuk mendapatkan role_name
+        $stmt = $conn->prepare("
+            SELECT u.id_user, u.username, u.email, u.password, u.is_active, r.role_name
+            FROM users u
+            JOIN roles r ON u.id_role = r.id_role
+            WHERE u.email = ? AND u.is_active = 1
+            LIMIT 1
+        ");
+        
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            $user = $result->fetch_assoc();
+            
+            // Verifikasi password
+            if (password_verify($password, $user['password'])) {
+                // Login berhasil - simpan ke session
+                $_SESSION['user_id'] = $user['id_user'];
+                $_SESSION['username'] = $user['username'];
+                $_SESSION['email'] = $user['email'];
+                $_SESSION['role'] = $user['role_name']; // Admin, Dokter, Pasien
+                $_SESSION['login_time'] = time();
+                
+                $stmt->close();
+                closeDBConnection($conn);
+                
+                // Redirect ke halaman success sementara
+                // TODO: Setelah dashboard dibuat, uncomment dan sesuaikan:
+                // switch ($user['role_name']) {
+                //     case 'Admin':
+                //         header('Location: ../admin/dashboard.php');
+                //         break;
+                //     case 'Dokter':
+                //         header('Location: ../doctor/dashboard.php');
+                //         break;
+                //     case 'Pasien':
+                //         header('Location: ../patient/dashboard.php');
+                //         break;
+                // }
+                
+                header('Location: login_success.php');
+                exit();
+            } else {
+                $error = 'Email atau password salah';
             }
+        } else {
+            $error = 'Email atau password salah';
         }
         
-        // Verifikasi user dan password
-        if ($userFound && $userFound['password'] === $password) {
-            // TODO: Setelah integrasi database, ganti dengan:
-            // if ($userFound && password_verify($password, $userFound['password_hash'])) {
-            
-            // Login berhasil - simpan ke session
-            $_SESSION['user_id'] = $userFound['id'];
-            $_SESSION['nama'] = $userFound['nama'];
-            $_SESSION['email'] = $userFound['email'];
-            $_SESSION['role'] = $userFound['role'];
-            $_SESSION['login_time'] = time();
-            $_SESSION['login_success'] = true;
-            
-            // TODO: Setelah dashboard dibuat, uncomment redirect ini
-            // Redirect berdasarkan role
-            // switch ($userFound['role']) {
-            //     case 'admin':
-            //         header('Location: ../admin/dashboard.php');
-            //         break;
-            //     case 'doctor':
-            //         header('Location: ../doctor/dashboard.php');
-            //         break;
-            //     case 'patient':
-            //         header('Location: ../patient/dashboard.php');
-            //         break;
-            //     default:
-            //         header('Location: ../index.php');
-            // }
-            
-            // Sementara redirect ke halaman success dummy
-            header('Location: login_success.php');
-            exit();
-        } else {
-            // Login gagal
-            $error = 'Email atau password salah. Silakan coba lagi.';
-        }
+        $stmt->close();
+        closeDBConnection($conn);
     }
 }
 ?>
