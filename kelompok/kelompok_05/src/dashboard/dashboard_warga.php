@@ -120,7 +120,7 @@ require __DIR__ . '/../layouts/sidebar.php';
             <div class="card-body p-4">
                 <div class="row align-items-center">
                     <div class="col-md-2 text-center">
-                        <img src="../../uploads/profile/<?php echo isset($_SESSION['profile_photo']) ? htmlspecialchars($_SESSION['profile_photo']) : 'default.jpg'; ?>" 
+                        <img src="../uploads/profile/<?php echo isset($_SESSION['profile_photo']) ? htmlspecialchars($_SESSION['profile_photo']) : 'default.jpg'; ?>" 
                              alt="Foto Profil" 
                              style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #00308F;"
                              onerror="this.src='../../uploads/profile/default.jpg'">
