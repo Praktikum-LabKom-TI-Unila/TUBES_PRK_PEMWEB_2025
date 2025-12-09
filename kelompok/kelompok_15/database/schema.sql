@@ -73,7 +73,7 @@ CREATE INDEX idx_id_mahasiswa ON kelas_mahasiswa(id_mahasiswa);
 -- Menyimpan materi pembelajaran (PDF/Video)
 -- ============================================
 CREATE TABLE materi (
-    id_materi INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     id_kelas INT NOT NULL,
     judul VARCHAR(150) NOT NULL,
     deskripsi TEXT,
@@ -82,12 +82,15 @@ CREATE TABLE materi (
     video_url VARCHAR(255) DEFAULT NULL,
     pertemuan_ke INT NOT NULL,
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_kelas) REFERENCES kelas(id_kelas) ON DELETE CASCADE
+
+    -- Relasi ke kelas
+    FOREIGN KEY (id_kelas) REFERENCES kelas(id) ON DELETE CASCADE
 );
 
 -- Index untuk performance
 CREATE INDEX idx_id_kelas_materi ON materi(id_kelas);
-CREATE INDEX idx_pertemuan ON materi(pertemuan_ke);
+CREATE INDEX idx_pertemuan_materi ON materi(pertemuan_ke);
+
 
 -- ============================================
 -- TABEL 5: TUGAS
