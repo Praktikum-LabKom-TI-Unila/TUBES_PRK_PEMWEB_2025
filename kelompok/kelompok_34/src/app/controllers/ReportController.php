@@ -51,7 +51,8 @@ class ReportController
       'year' => $this->reportModel->getYearStats(),
       'top_products' => $this->reportModel->getTopProducts(5),
       'recent_transactions' => $this->reportModel->getRecentTransactions(10),
-      'monthly_chart' => $this->reportModel->getMonthlyChartData()
+      'monthly_chart' => $this->reportModel->getMonthlyChartData(),
+      'daily_chart' => $this->reportModel->getDailyChartData()
     ];
 
     $data = [

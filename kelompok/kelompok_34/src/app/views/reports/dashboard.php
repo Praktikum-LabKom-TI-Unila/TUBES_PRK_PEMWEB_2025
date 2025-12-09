@@ -84,14 +84,28 @@ require_once BASE_PATH . '/src/app/views/layouts/header.php';
     </div>
   </div>
 
-  <!-- Monthly Sales Chart - Full Width -->
-  <div class="glass-effect rounded-2xl p-6 mb-6">
-    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
-      <i data-lucide="trending-up" class="w-5 h-5"></i>
-      Grafik Penjualan 6 Bulan Terakhir
-    </h2>
-    <div class="bg-white/10 rounded-xl p-4">
-      <canvas id="salesChart" class="w-full" height="80"></canvas>
+<!-- Charts Section - Two Columns -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- Daily Sales Chart (7 Days) -->
+    <div class="glass-effect rounded-2xl p-6">
+      <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+        <i data-lucide="calendar-days" class="w-5 h-5"></i>
+        Grafik Harian (7 Hari Terakhir)
+      </h2>
+      <div class="bg-white/10 rounded-xl p-4">
+        <canvas id="dailyChart" class="w-full" height="180"></canvas>
+      </div>
+    </div>
+
+    <!-- Monthly Sales Chart (6 Months) -->
+    <div class="glass-effect rounded-2xl p-6">
+      <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+        <i data-lucide="trending-up" class="w-5 h-5"></i>
+        Grafik Bulanan (6 Bulan Terakhir)
+      </h2>
+      <div class="bg-white/10 rounded-xl p-4">
+        <canvas id="monthlyChart" class="w-full" height="180"></canvas>
+      </div>
     </div>
   </div>
 
@@ -141,34 +155,27 @@ require_once BASE_PATH . '/src/app/views/layouts/header.php';
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  // Prepare chart data
-  const chartData = <?= json_encode($stats['monthly_chart']) ?>;
-  const labels = chartData.map(item => {
-    const [year, month] = item.month.split('-');
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
-    return monthNames[parseInt(month) - 1] + ' ' + year;
+  // ========== DAILY CHART (7 Days) ==========
+  const dailyChartData = <?= json_encode($stats['daily_chart']) ?>;
+  const dailyLabels = dailyChartData.map(item => {
+    const date = new Date(item.date);
+    const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+    return days[date.getDay()] + ', ' + date.getDate() + '/' + (date.getMonth() + 1);
   });
-  const revenues = chartData.map(item => parseFloat(item.revenue));
+  const dailyRevenues = dailyChartData.map(item => parseFloat(item.revenue));
 
-  // Create chart
-  const ctx = document.getElementById('salesChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'line',
+  const dailyCtx = document.getElementById('dailyChart').getContext('2d');
+  new Chart(dailyCtx, {
+    type: 'bar',
     data: {
-      labels: labels,
+      labels: dailyLabels,
       datasets: [{
         label: 'Pendapatan (Rp)',
-        data: revenues,
-        borderColor: 'rgba(255, 255, 255, 0.9)',
-        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-        borderWidth: 3,
-        tension: 0.4,
-        fill: true,
-        pointBackgroundColor: 'rgba(255, 255, 255, 1)',
-        pointBorderColor: 'rgba(37, 99, 235, 1)',
-        pointBorderWidth: 2,
-        pointRadius: 5,
-        pointHoverRadius: 7
+        data: dailyRevenues,
+        backgroundColor: 'rgba(52, 211, 153, 0.7)',
+        borderColor: 'rgba(52, 211, 153, 1)',
+        borderWidth: 2,
+        borderRadius: 8
       }]
     },
     options: {
@@ -181,7 +188,7 @@ require_once BASE_PATH . '/src/app/views/layouts/header.php';
           labels: {
             color: 'white',
             font: {
-              size: 14,
+              size: 13,
               weight: 'bold'
             }
           }
@@ -207,7 +214,7 @@ require_once BASE_PATH . '/src/app/views/layouts/header.php';
           ticks: {
             color: 'white',
             font: {
-              size: 12
+              size: 11
             },
             callback: function(value) {
               return 'Rp ' + (value/1000).toLocaleString('id-ID') + 'k';
@@ -222,7 +229,98 @@ require_once BASE_PATH . '/src/app/views/layouts/header.php';
           ticks: {
             color: 'white',
             font: {
-              size: 12
+              size: 10
+            }
+          },
+          grid: {
+            display: false
+          }
+        }
+      }
+    }
+  });
+
+  // ========== MONTHLY CHART (6 Months) ==========
+  const monthlyChartData = <?= json_encode($stats['monthly_chart']) ?>;
+  const monthlyLabels = monthlyChartData.map(item => {
+    const [year, month] = item.month.split('-');
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+    return monthNames[parseInt(month) - 1] + ' ' + year;
+  });
+  const monthlyRevenues = monthlyChartData.map(item => parseFloat(item.revenue));
+
+  const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+  new Chart(monthlyCtx, {
+    type: 'line',
+    data: {
+      labels: monthlyLabels,
+      datasets: [{
+        label: 'Pendapatan (Rp)',
+        data: monthlyRevenues,
+        borderColor: 'rgba(96, 165, 250, 1)',
+        backgroundColor: 'rgba(96, 165, 250, 0.2)',
+        borderWidth: 3,
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: 'rgba(96, 165, 250, 1)',
+        pointBorderColor: 'rgba(255, 255, 255, 1)',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        pointHoverRadius: 7
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            color: 'white',
+            font: {
+              size: 13,
+              weight: 'bold'
+            }
+          }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          titleColor: 'white',
+          bodyColor: 'white',
+          borderColor: 'rgba(255, 255, 255, 0.3)',
+          borderWidth: 1,
+          padding: 12,
+          displayColors: false,
+          callbacks: {
+            label: function(context) {
+              return 'Rp ' + context.parsed.y.toLocaleString('id-ID');
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            color: 'white',
+            font: {
+              size: 11
+            },
+            callback: function(value) {
+              return 'Rp ' + (value/1000).toLocaleString('id-ID') + 'k';
+            }
+          },
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)',
+            lineWidth: 1
+          }
+        },
+        x: {
+          ticks: {
+            color: 'white',
+            font: {
+              size: 10
             }
           },
           grid: {

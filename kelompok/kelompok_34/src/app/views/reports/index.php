@@ -1,5 +1,5 @@
 <?php
-
+// File: src/app/views/reports/index.php
 require_once BASE_PATH . '/src/app/views/layouts/header.php';
 ?>
 
@@ -43,10 +43,10 @@ require_once BASE_PATH . '/src/app/views/layouts/header.php';
       
       <div>
         <label class="block text-sm font-medium mb-2">Produk</label>
-        <select name="product_id" class="w-full px-4 py-2 rounded-xl bg-white/20 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50">
-          <option value="">Semua Produk</option>
+        <select name="product_id" class="w-full px-4 py-2 rounded-xl bg-white/20 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 text-white" style="color: white;">
+          <option value="" style="background-color: #2563eb; color: white;">Semua Produk</option>
           <?php foreach ($products as $product): ?>
-            <option value="<?= $product['id'] ?>" <?= $filter['product_id'] == $product['id'] ? 'selected' : '' ?>>
+            <option value="<?= $product['id'] ?>" <?= $filter['product_id'] == $product['id'] ? 'selected' : '' ?> style="background-color: #1e3a8a; color: white;">
               <?= htmlspecialchars($product['name']) ?>
             </option>
           <?php endforeach; ?>

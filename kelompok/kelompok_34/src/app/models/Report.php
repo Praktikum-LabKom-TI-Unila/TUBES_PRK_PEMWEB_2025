@@ -152,4 +152,45 @@ class Report
     $stmt = $this->db->query($sql);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
+
+  // Get daily sales data for chart (last 7 days)
+  public function getDailyChartData()
+  {
+    $sql = "SELECT 
+              DATE(created_at) as date,
+              COUNT(id) as transactions,
+              COALESCE(SUM(total_amount), 0) as revenue
+            FROM transactions
+            WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+            GROUP BY DATE(created_at)
+            ORDER BY date ASC";
+    
+    $stmt = $this->db->query($sql);
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Fill missing dates with zero values
+    $data = [];
+    for ($i = 6; $i >= 0; $i--) {
+      $date = date('Y-m-d', strtotime("-$i days"));
+      $found = false;
+      
+      foreach ($results as $row) {
+        if ($row['date'] === $date) {
+          $data[] = $row;
+          $found = true;
+          break;
+        }
+      }
+      
+      if (!$found) {
+        $data[] = [
+          'date' => $date,
+          'transactions' => 0,
+          'revenue' => 0
+        ];
+      }
+    }
+    
+    return $data;
+  }
 }
