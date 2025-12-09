@@ -18,35 +18,34 @@
 </head>
 
 <body>
-
-<!-- Header -->
-<header class="sticky top-0 z-40 w-full bg-white shadow-sm border-b border-gray-200 px-6 py-4">
-  <div class="flex justify-between items-center">
-    <div class="flex items-center gap-3">
-      <div class="bg-blue-600 text-white p-2 rounded-lg">
-        <i class="fas fa-tools"></i>
+  <!-- Header -->
+  <header class="sticky top-0 z-40 w-full bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+    <div class="flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <div class="bg-blue-600 text-white p-2 rounded-lg">
+          <i class="fas fa-tools"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-gray-800">FixTrack <span class="text-blue-600 font-normal">Teknisi</span></h1>
+        </div>
       </div>
-      <div>
-        <h1 class="text-xl font-bold text-gray-800">FixTrack <span class="text-blue-600 font-normal">Teknisi</span></h1>
+      <div class="flex items-center gap-4">
+        <span class="text-gray-600 text-sm">Halo, Teknisi</span>
+        <a href="profile.html" class="text-blue-600 hover:text-blue-700 flex items-center gap-1 text-sm font-medium">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          Profile
+        </a>
+        <a href="login.html" class="text-red-600 hover:text-red-700 flex items-center gap-1 text-sm font-medium">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          Logout
+        </a>
       </div>
     </div>
-
-    <div class="flex items-center gap-4">
-      <span class="text-gray-600 text-sm">Halo, Teknisi</span>
-
-      <!-- tombol profil -->
-      <a href="../profile/profile.php" class="text-blue-600 hover:text-blue-700 flex items-center gap-1 text-sm font-medium">
-        <i class="fas fa-user"></i> Profil
-      </a>
-
-      <!-- tombol logout -->
-      <a href="../login.php" class="text-red-600 hover:text-red-700 flex items-center gap-1 text-sm font-medium">
-        <i class="fas fa-sign-out-alt"></i> Logout
-      </a>
-    </div>
-  </div>
-</header>
-
+  </header>
 
   <!-- Main Content -->
   <main class="p-6 space-y-6">
@@ -135,22 +134,27 @@
 
       <!-- Search & Filter -->
       <div class="px-6 py-4 border-b border-gray-200">
-        <div class="flex flex-wrap gap-3">
-          <input 
-            type="text" 
-            id="searchInput"
-            placeholder="Cari nama pelanggan..."
-            class="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
-          />
-          <select id="statusFilter" class="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
-            <option value="">Semua Status</option>
-            <option value="1">Diterima admin</option>
-            <option value="2">Dikerjakan oleh teknisi</option>
-            <option value="3">Selesai dikerjakan</option>
-            <option value="4">Barang sudah dapat diambil</option>
-          </select>
-          <button onclick="filterData()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition">
-            Cari
+        <div class="flex flex-wrap gap-3 justify-between items-center">
+          <div class="flex flex-wrap gap-3 flex-1">
+            <input 
+              type="text" 
+              id="searchInput"
+              placeholder="Cari nama pelanggan..."
+              class="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
+            />
+            <select id="statusFilter" class="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
+              <option value="">Semua Status</option>
+              <option value="1">Diterima admin</option>
+              <option value="2">Dikerjakan oleh teknisi</option>
+              <option value="3">Selesai dikerjakan</option>
+              <option value="4">Barang sudah dapat diambil</option>
+            </select>
+            <button onclick="filterData()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition">
+              Cari
+            </button>
+          </div>
+          <button type="button" onclick="openAddServiceModal()" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition whitespace-nowrap">
+            + Tambah Service
           </button>
         </div>
       </div>
@@ -182,9 +186,15 @@
                 </select>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 total-cost">Rp 0</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm">
+              <td class="px-6 py-4 whitespace-nowrap text-sm flex gap-2">
                 <button type="button" onclick="openDiagnosaModal(1, 'Rudi', 'TV LED')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition">
                   Diagnosa
+                </button>
+                <button type="button" onclick="editService(1)" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition">
+                  Edit
+                </button>
+                <button type="button" onclick="deleteService(1)" class="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition">
+                  Hapus
                 </button>
               </td>
             </tr>
@@ -201,9 +211,15 @@
                 </select>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 total-cost">Rp 0</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm">
+              <td class="px-6 py-4 whitespace-nowrap text-sm flex gap-2">
                 <button type="button" onclick="openDiagnosaModal(2, 'Budi', 'Kulkas')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition">
                   Diagnosa
+                </button>
+                <button type="button" onclick="editService(2)" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition">
+                  Edit
+                </button>
+                <button type="button" onclick="deleteService(2)" class="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition">
+                  Hapus
                 </button>
               </td>
             </tr>
@@ -220,9 +236,15 @@
                 </select>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 total-cost">Rp 0</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm">
+              <td class="px-6 py-4 whitespace-nowrap text-sm flex gap-2">
                 <button type="button" onclick="openDiagnosaModal(3, 'Agus', 'HP Samsung')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition">
                   Diagnosa
+                </button>
+                <button type="button" onclick="editService(3)" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition">
+                  Edit
+                </button>
+                <button type="button" onclick="deleteService(3)" class="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition">
+                  Hapus
                 </button>
               </td>
             </tr>
@@ -239,9 +261,15 @@
                 </select>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 total-cost">Rp 0</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm">
+              <td class="px-6 py-4 whitespace-nowrap text-sm flex gap-2">
                 <button type="button" onclick="openDiagnosaModal(4, 'Siti', 'Mesin Cuci')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition">
                   Diagnosa
+                </button>
+                <button type="button" onclick="editService(4)" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition">
+                  Edit
+                </button>
+                <button type="button" onclick="deleteService(4)" class="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition">
+                  Hapus
                 </button>
               </td>
             </tr>
@@ -249,6 +277,71 @@
         </table>
         <div id="emptyState" class="hidden px-6 py-12 text-center">
           <p class="text-gray-400 text-sm">Belum ada data servis.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Tambah Service -->
+    <div id="addServiceModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+          <h2 class="text-xl font-bold text-gray-800">Tambah Service Baru</h2>
+          <button type="button" onclick="closeAddServiceModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+        </div>
+
+        <div class="p-6 space-y-4">
+          <div>
+            <label for="newCustomerName" class="block text-sm font-medium text-gray-700 mb-2">
+              Nama Pelanggan
+            </label>
+            <input 
+              type="text" 
+              id="newCustomerName" 
+              placeholder="Masukkan nama pelanggan..."
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
+            />
+          </div>
+
+          <div>
+            <label for="newItemName" class="block text-sm font-medium text-gray-700 mb-2">
+              Nama Barang
+            </label>
+            <input 
+              type="text" 
+              id="newItemName" 
+              placeholder="Masukkan nama barang..."
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
+            />
+          </div>
+
+          <div>
+            <label for="newStatus" class="block text-sm font-medium text-gray-700 mb-2">
+              Status Awal
+            </label>
+            <select id="newStatus" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
+              <option value="1">Diterima admin</option>
+              <option value="2">Dikerjakan oleh teknisi</option>
+              <option value="3">Selesai dikerjakan</option>
+              <option value="4">Barang sudah dapat diambil</option>
+            </select>
+          </div>
+
+          <div class="flex gap-3 pt-4">
+            <button 
+              type="button"
+              onclick="addNewService()" 
+              class="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg transition font-medium"
+            >
+              Tambah
+            </button>
+            <button 
+              type="button"
+              onclick="closeAddServiceModal()" 
+              class="flex-1 bg-gray-400 hover:bg-gray-500 text-white px-4 py-2.5 rounded-lg transition font-medium"
+            >
+              Batal
+            </button>
+          </div>
         </div>
       </div>
     </div>

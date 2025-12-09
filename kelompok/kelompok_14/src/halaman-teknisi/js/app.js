@@ -2,13 +2,15 @@
 // DATA MANAGEMENT
 // ============================================
 const serviceData = {
-  1: { components: [], laborCost: 0, diagnosisDesc: '', additionalDetails: '' },
-  2: { components: [], laborCost: 0, diagnosisDesc: '', additionalDetails: '' },
-  3: { components: [], laborCost: 0, diagnosisDesc: '', additionalDetails: '' },
-  4: { components: [], laborCost: 0, diagnosisDesc: '', additionalDetails: '' }
+  1: { components: [], laborCost: 0, diagnosisDesc: '', additionalDetails: '', customerName: 'Rudi', itemName: 'TV LED', status: '1' },
+  2: { components: [], laborCost: 0, diagnosisDesc: '', additionalDetails: '', customerName: 'Budi', itemName: 'Kulkas', status: '2' },
+  3: { components: [], laborCost: 0, diagnosisDesc: '', additionalDetails: '', customerName: 'Agus', itemName: 'HP Samsung', status: '3' },
+  4: { components: [], laborCost: 0, diagnosisDesc: '', additionalDetails: '', customerName: 'Siti', itemName: 'Mesin Cuci', status: '4' }
 };
 
 let currentServiceId = null;
+let isEditMode = false;
+let nextServiceId = 5;
 
 const formatter = new Intl.NumberFormat('id-ID', {
   style: 'currency',
@@ -147,6 +149,7 @@ function removeComponentField(elementId) {
 function openDiagnosaModal(serviceId, customerName, itemName) {
   const modal = document.getElementById('diagnosaModal');
   currentServiceId = serviceId;
+  isEditMode = true;
   
   // Simpan nama customer dan item untuk struk
   window.currentCustomerName = customerName;
@@ -166,15 +169,30 @@ function openDiagnosaModal(serviceId, customerName, itemName) {
   modal.classList.remove('hidden');
 }
 
+function openAddServiceModal() {
+  const modal = document.getElementById('addServiceModal');
+  isEditMode = false;
+  currentServiceId = null;
+  
+  // Reset form
+  document.getElementById('newCustomerName').value = '';
+  document.getElementById('newItemName').value = '';
+  document.getElementById('newStatus').value = '1';
+  
+  modal.classList.remove('hidden');
+}
+
+function closeAddServiceModal() {
+  document.getElementById('addServiceModal').classList.add('hidden');
+}
+
 function closeDiagnosaModal() {
   document.getElementById('diagnosaModal').classList.add('hidden');
 }
 
 function closeStrukModal() {
   document.getElementById('strukModal').classList.add('hidden');
-}
-
-// ============================================
+}// ============================================
 // SAVE FUNCTION
 // ============================================
 function saveDetails(showAlert = true) {
@@ -197,6 +215,7 @@ function saveDetails(showAlert = true) {
   });
 
   serviceData[currentServiceId] = {
+    ...serviceData[currentServiceId],
     components: newComponents,
     laborCost,
     diagnosisDesc,
@@ -209,6 +228,116 @@ function saveDetails(showAlert = true) {
   if (showAlert) {
     alert('Data berhasil disimpan!');
   }
+}
+
+// ============================================
+// ADD & EDIT SERVICE
+// ============================================
+function addNewService() {
+  const customerName = document.getElementById('newCustomerName').value.trim();
+  const itemName = document.getElementById('newItemName').value.trim();
+  const status = document.getElementById('newStatus').value;
+
+  if (!customerName || !itemName) {
+    alert('Nama pelanggan dan barang tidak boleh kosong!');
+    return;
+  }
+
+  const serviceId = nextServiceId;
+  serviceData[serviceId] = {
+    components: [],
+    laborCost: 0,
+    diagnosisDesc: '',
+    additionalDetails: '',
+    customerName: customerName,
+    itemName: itemName,
+    status: status
+  };
+
+  // Tambah row ke tabel
+  const tableBody = document.getElementById('serviceTableBody');
+  const newRow = document.createElement('tr');
+  newRow.id = `row-${serviceId}`;
+  newRow.innerHTML = `
+    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#${String(serviceId).padStart(3, '0')}</td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${customerName}</td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${itemName}</td>
+    <td class="px-6 py-4 whitespace-nowrap">
+      <select class="px-3 py-1 border border-gray-300 rounded-lg text-sm appearance-none bg-white status-select" data-id="${serviceId}" onchange="updateStatus(${serviceId}, this.value)">
+        <option value="1" ${status === '1' ? 'selected' : ''}>Diterima admin</option>
+        <option value="2" ${status === '2' ? 'selected' : ''}>Dikerjakan oleh teknisi</option>
+        <option value="3" ${status === '3' ? 'selected' : ''}>Selesai dikerjakan</option>
+        <option value="4" ${status === '4' ? 'selected' : ''}>Barang sudah dapat diambil</option>
+      </select>
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 total-cost">Rp 0</td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm flex gap-2">
+      <button type="button" onclick="openDiagnosaModal(${serviceId}, '${customerName}', '${itemName}')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition">
+        Diagnosa
+      </button>
+      <button type="button" onclick="editService(${serviceId})" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition">
+        Edit
+      </button>
+      <button type="button" onclick="deleteService(${serviceId})" class="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition">
+        Hapus
+      </button>
+    </td>
+  `;
+  
+  tableBody.appendChild(newRow);
+  nextServiceId++;
+  
+  closeAddServiceModal();
+  alert('Service baru berhasil ditambahkan!');
+}
+
+function editService(serviceId) {
+  const data = serviceData[serviceId];
+  if (!data) return;
+
+  const newCustomerName = prompt('Nama pelanggan:', data.customerName);
+  if (newCustomerName === null) return;
+
+  const newItemName = prompt('Nama barang:', data.itemName);
+  if (newItemName === null) return;
+
+  if (!newCustomerName.trim() || !newItemName.trim()) {
+    alert('Nama pelanggan dan barang tidak boleh kosong!');
+    return;
+  }
+
+  // Update data
+  serviceData[serviceId].customerName = newCustomerName.trim();
+  serviceData[serviceId].itemName = newItemName.trim();
+
+  // Update tabel
+  const row = document.getElementById(`row-${serviceId}`);
+  if (row) {
+    const cells = row.querySelectorAll('td');
+    cells[1].textContent = newCustomerName.trim();
+    cells[2].textContent = newItemName.trim();
+    
+    // Update button onclick
+    const diagnosaBtn = row.querySelector('button:nth-of-type(1)');
+    if (diagnosaBtn) {
+      diagnosaBtn.onclick = () => openDiagnosaModal(serviceId, newCustomerName.trim(), newItemName.trim());
+    }
+  }
+
+  alert('Data service berhasil diperbarui!');
+}
+
+function deleteService(serviceId) {
+  if (!confirm('Apakah Anda yakin ingin menghapus service ini?')) return;
+
+  delete serviceData[serviceId];
+  
+  const row = document.getElementById(`row-${serviceId}`);
+  if (row) {
+    row.remove();
+  }
+
+  alert('Service berhasil dihapus!');
 }
 
 function updateTableTotal(serviceId, total) {
