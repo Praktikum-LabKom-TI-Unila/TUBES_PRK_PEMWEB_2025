@@ -36,19 +36,24 @@ class PosController extends Controller
         $prodModel = $this->model('Product');
 
         try {
-            // A. Buat Struk Baru
-            $transId = $transModel->create($data);
+            // A. Buat Struk Baru (Mengirim data lengkap ke Model)
+            $transId = $transModel->create([
+                'total_final'    => $data['total_final'],
+                'payment_method' => $data['payment_method'],
+                'pay_amount'     => $data['pay_amount'],
+                'change_amount'  => $data['change_amount']
+            ]);
 
-            // B. Masukkan isi keranjang ke database
+            // B. Masukkan isi keranjang (Kode ini TETAP SAMA seperti sebelumnya)
             foreach ($data['cart'] as $item) {
                 $transModel->createDetail($transId, $item);
-                // C. Kurangi Stok (PENTING!)
                 $prodModel->reduceStock($item['id'], $item['qty']);
             }
 
             echo json_encode(['status' => 'success', 'transId' => $transId]);
         } catch (Exception $e) {
-            echo json_encode(['status' => 'error', 'message' => 'Gagal transaksi']);
+            // Tampilkan error asli biar gampang debugging
+            echo json_encode(['status' => 'error', 'message' => 'Error: ' . $e->getMessage()]);
         }
     }
 
