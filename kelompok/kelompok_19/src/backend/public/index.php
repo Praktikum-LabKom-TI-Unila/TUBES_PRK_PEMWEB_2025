@@ -5,8 +5,25 @@
  */
 
 // CORS headers for frontend
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+// Allow specific origin for credentials (cannot use * with credentials)
+$allowedOrigins = [
+    'http://127.0.0.1:5500',
+    'http://localhost:5500',
+    'http://127.0.0.1:5501',
+    'http://localhost:5501',
+    'http://127.0.0.1:8080',
+    'http://localhost:8080'
+];
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowedOrigins)) {
+    header("Access-Control-Allow-Origin: $origin");
+} else {
+    // Fallback for development
+    header("Access-Control-Allow-Origin: http://127.0.0.1:5500");
+}
+
+header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 header('Access-Control-Allow-Credentials: true');
 
@@ -87,6 +104,23 @@ $router->get('/about', function() {
 $router->get('/unauthorized', function() {
     $controller = new PageController();
     $controller->unauthorized();
+});
+
+// ==================== FILE SERVING ====================
+$router->get('/uploads/:filename', function($filename) {
+    $uploadDir = dirname(__DIR__) . '/assets/uploads/';
+    $filePath = $uploadDir . basename($filename);
+    
+    if (!file_exists($filePath)) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'File tidak ditemukan']);
+        return;
+    }
+    
+    $mimeType = mime_content_type($filePath);
+    header('Content-Type: ' . $mimeType);
+    header('Content-Length: ' . filesize($filePath));
+    readfile($filePath);
 });
 
 // ==================== AUTH ROUTES ====================
