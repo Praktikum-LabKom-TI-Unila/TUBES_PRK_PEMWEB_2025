@@ -1,6 +1,6 @@
 <?php
 /**
- * Check Admin Access
+ * Check Admin Accesfits
  */
 
 // Start session if not already started
@@ -31,7 +31,7 @@ if ($_SESSION['role'] !== 'Admin') {
 }
 
 // Include database connection
-require_once '../config/config.lokal.php';
+require_once '../config/db.php';
 
 // Get admin info
 $admin_name = $_SESSION['username'] ?? 'Admin';

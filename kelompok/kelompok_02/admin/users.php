@@ -1,6 +1,6 @@
 <?php
 require_once 'includes/check_admin.php';
-require_once '../config/config.lokal.php';
+require_once '../config/db.php';
 
 $conn = connect_db();
 
@@ -9,7 +9,7 @@ $page_title = 'Manajemen Users';
 
 // Handle Delete
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    $id = (int)$_GET['delete'];
+    $id = (int) $_GET['delete'];
     $stmt = $conn->prepare("DELETE FROM users WHERE id_user = ?");
     $stmt->bind_param("i", $id);
     if ($stmt->execute()) {
@@ -23,13 +23,13 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 
 // Handle Add/Edit
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id_user = isset($_POST['id_user']) ? (int)$_POST['id_user'] : 0;
+    $id_user = isset($_POST['id_user']) ? (int) $_POST['id_user'] : 0;
     $username = trim($_POST['username']);
     $email = trim($_POST['email']);
     $password = trim($_POST['password']);
-    $id_role = (int)$_POST['id_role'];
+    $id_role = (int) $_POST['id_role'];
     $is_active = isset($_POST['is_active']) ? 1 : 0;
-    
+
     if ($id_user > 0) {
         // Update
         if (!empty($password)) {
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare("INSERT INTO users (username, email, password, id_role, is_active) VALUES (?, ?, ?, ?, ?)");
         $stmt->bind_param("sssii", $username, $email, $hashed_password, $id_role, $is_active);
     }
-    
+
     if ($stmt->execute()) {
         $_SESSION['success'] = $id_user > 0 ? "User berhasil diupdate" : "User berhasil ditambahkan";
     } else {
@@ -83,7 +83,7 @@ if ($result) {
 // Get edit user if exists
 $edit_user = null;
 if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
-    $id = (int)$_GET['edit'];
+    $id = (int) $_GET['edit'];
     $stmt = $conn->prepare("SELECT * FROM users WHERE id_user = ?");
     $stmt->bind_param("i", $id);
     $stmt->execute();
@@ -101,17 +101,17 @@ include 'includes/header.php';
 </div>
 
 <?php if (isset($_SESSION['success'])): ?>
-<div class="alert alert-success">
-    <?= htmlspecialchars($_SESSION['success']) ?>
-    <?php unset($_SESSION['success']); ?>
-</div>
+    <div class="alert alert-success">
+        <?= htmlspecialchars($_SESSION['success']) ?>
+        <?php unset($_SESSION['success']); ?>
+    </div>
 <?php endif; ?>
 
 <?php if (isset($_SESSION['error'])): ?>
-<div class="alert alert-danger">
-    <?= htmlspecialchars($_SESSION['error']) ?>
-    <?php unset($_SESSION['error']); ?>
-</div>
+    <div class="alert alert-danger">
+        <?= htmlspecialchars($_SESSION['error']) ?>
+        <?php unset($_SESSION['error']); ?>
+    </div>
 <?php endif; ?>
 
 <div class="card">
@@ -133,26 +133,28 @@ include 'includes/header.php';
                 </thead>
                 <tbody>
                     <?php foreach ($users as $user): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($user['id_user']) ?></td>
-                        <td><?= htmlspecialchars($user['username']) ?></td>
-                        <td><?= htmlspecialchars($user['email']) ?></td>
-                        <td>
-                            <span class="badge badge-<?= $user['role_name'] === 'Admin' ? 'danger' : ($user['role_name'] === 'Dokter' ? 'primary' : 'success') ?>">
-                                <?= htmlspecialchars($user['role_name']) ?>
-                            </span>
-                        </td>
-                        <td>
-                            <span class="badge badge-<?= $user['is_active'] ? 'success' : 'secondary' ?>">
-                                <?= $user['is_active'] ? 'Active' : 'Inactive' ?>
-                            </span>
-                        </td>
-                        <td>
-                            <button class="btn btn-sm btn-warning" onclick='editUser(<?= json_encode($user) ?>)'>Edit</button>
-                            <a href="?delete=<?= $user['id_user'] ?>" class="btn btn-sm btn-danger" 
-                               onclick="return confirm('Yakin ingin menghapus user ini?')">Hapus</a>
-                        </td>
-                    </tr>
+                        <tr>
+                            <td><?= htmlspecialchars($user['id_user']) ?></td>
+                            <td><?= htmlspecialchars($user['username']) ?></td>
+                            <td><?= htmlspecialchars($user['email']) ?></td>
+                            <td>
+                                <span
+                                    class="badge badge-<?= $user['role_name'] === 'Admin' ? 'danger' : ($user['role_name'] === 'Dokter' ? 'primary' : 'success') ?>">
+                                    <?= htmlspecialchars($user['role_name']) ?>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge badge-<?= $user['is_active'] ? 'success' : 'secondary' ?>">
+                                    <?= $user['is_active'] ? 'Active' : 'Inactive' ?>
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-warning"
+                                    onclick='editUser(<?= json_encode($user) ?>)'>Edit</button>
+                                <a href="?delete=<?= $user['id_user'] ?>" class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Yakin ingin menghapus user ini?')">Hapus</a>
+                            </td>
+                        </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
@@ -170,32 +172,33 @@ include 'includes/header.php';
         <form method="POST" action="" id="userForm">
             <div class="modal-body">
                 <input type="hidden" name="id_user" id="id_user">
-                
+
                 <div class="form-group">
                     <label>Username *</label>
                     <input type="text" name="username" id="username" class="form-control" required>
                 </div>
-                
+
                 <div class="form-group">
                     <label>Email *</label>
                     <input type="email" name="email" id="email" class="form-control" required>
                 </div>
-                
+
                 <div class="form-group">
-                    <label>Password <span id="passwordNote" style="display:none;">(kosongkan jika tidak ingin mengubah)</span></label>
+                    <label>Password <span id="passwordNote" style="display:none;">(kosongkan jika tidak ingin
+                            mengubah)</span></label>
                     <input type="password" name="password" id="password" class="form-control">
                 </div>
-                
+
                 <div class="form-group">
                     <label>Role *</label>
                     <select name="id_role" id="id_role" class="form-control" required>
                         <option value="">-- Pilih Role --</option>
                         <?php foreach ($roles as $role): ?>
-                        <option value="<?= $role['id_role'] ?>"><?= htmlspecialchars($role['role_name']) ?></option>
+                            <option value="<?= $role['id_role'] ?>"><?= htmlspecialchars($role['role_name']) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                
+
                 <div class="form-group">
                     <label style="display: flex; align-items: center; gap: 8px;">
                         <input type="checkbox" name="is_active" id="is_active" style="width: auto; margin: 0;">
@@ -203,7 +206,7 @@ include 'includes/header.php';
                     </label>
                 </div>
             </div>
-            
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeModal()">Batal</button>
                 <button type="submit" class="btn btn-primary">Simpan</button>
@@ -213,42 +216,42 @@ include 'includes/header.php';
 </div>
 
 <script>
-function openModal() {
-    document.getElementById('modalTitle').textContent = 'Tambah User';
-    document.getElementById('id_user').value = '';
-    document.getElementById('username').value = '';
-    document.getElementById('email').value = '';
-    document.getElementById('password').value = '';
-    document.getElementById('id_role').value = '';
-    document.getElementById('is_active').checked = true;
-    document.getElementById('password').required = true;
-    document.getElementById('passwordNote').style.display = 'none';
-    document.getElementById('userModal').style.display = 'block';
-}
-
-function editUser(user) {
-    document.getElementById('modalTitle').textContent = 'Edit User';
-    document.getElementById('id_user').value = user.id_user;
-    document.getElementById('username').value = user.username;
-    document.getElementById('email').value = user.email;
-    document.getElementById('password').value = '';
-    document.getElementById('id_role').value = user.id_role;
-    document.getElementById('is_active').checked = user.is_active == 1;
-    document.getElementById('password').required = false;
-    document.getElementById('passwordNote').style.display = 'inline';
-    document.getElementById('userModal').style.display = 'block';
-}
-
-function closeModal() {
-    document.getElementById('userModal').style.display = 'none';
-}
-
-window.onclick = function(event) {
-    const modal = document.getElementById('userModal');
-    if (event.target === modal) {
-        closeModal();
+    function openModal() {
+        document.getElementById('modalTitle').textContent = 'Tambah User';
+        document.getElementById('id_user').value = '';
+        document.getElementById('username').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('password').value = '';
+        document.getElementById('id_role').value = '';
+        document.getElementById('is_active').checked = true;
+        document.getElementById('password').required = true;
+        document.getElementById('passwordNote').style.display = 'none';
+        document.getElementById('userModal').style.display = 'block';
     }
-}
+
+    function editUser(user) {
+        document.getElementById('modalTitle').textContent = 'Edit User';
+        document.getElementById('id_user').value = user.id_user;
+        document.getElementById('username').value = user.username;
+        document.getElementById('email').value = user.email;
+        document.getElementById('password').value = '';
+        document.getElementById('id_role').value = user.id_role;
+        document.getElementById('is_active').checked = user.is_active == 1;
+        document.getElementById('password').required = false;
+        document.getElementById('passwordNote').style.display = 'inline';
+        document.getElementById('userModal').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('userModal').style.display = 'none';
+    }
+
+    window.onclick = function (event) {
+        const modal = document.getElementById('userModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    }
 </script>
 
 <?php include 'includes/footer.php'; ?>
