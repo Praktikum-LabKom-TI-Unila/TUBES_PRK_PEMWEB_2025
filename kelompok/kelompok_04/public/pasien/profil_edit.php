@@ -135,9 +135,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
 
             <button type="submit"
-                    class="w-full bg-gradient-to-r text-white py-3 rounded-xl hover:bg-green-600 transition shadow-md"
-                    style="background-image: linear-gradient(to right, #45BC7D, #3aa668);">
-                    
+                    class="w-full bg-green-500 text-white py-3 rounded-xl hover:bg-green-600 transition shadow-md">
                 Simpan Perubahan
             </button>
         </form>

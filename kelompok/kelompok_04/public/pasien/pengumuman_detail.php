@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'pasien') {
 $id = (int) ($_GET['id'] ?? 0);
 
 if ($id <= 0) {
-    die("Artikel tidak ditemukan.");
+    die("Pengumuman tidak ditemukan.");
 }
 
 $sql = "SELECT * FROM pengumuman WHERE id_pengumuman = ? LIMIT 1";
@@ -22,7 +22,7 @@ $artikel = $res->fetch_assoc();
 $stmt->close();
 
 if (!$artikel) {
-    die("Artikel tidak ditemukan.");
+    die("Pengumuman tidak ditemukan.");
 }
 
 function getImage($id) {
@@ -57,7 +57,7 @@ function getImage($id) {
                 </svg>
             </a>
 
-            <h1 class="text-lg font-semibold text-gray-800">Detail Artikel</h1>
+            <h1 class="text-lg font-semibold text-gray-800">Detail Pengumuman</h1>
         </div>
     </div>
 

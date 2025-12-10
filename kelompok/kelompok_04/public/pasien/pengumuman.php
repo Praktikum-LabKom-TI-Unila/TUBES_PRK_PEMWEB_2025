@@ -52,14 +52,14 @@ function getImage($id) {
                 </svg>
             </a>
 
-            <h1 class="text-lg font-semibold text-gray-800">Artikel Kesehatan</h1>
+            <h1 class="text-lg font-semibold text-gray-800">Pengumuman</h1>
         </div>
     </div>
 
     <div class="px-6 py-6 max-w-2xl mx-auto space-y-6">
 
         <?php if (!$artikel): ?>
-            <p class="text-gray-500 text-center">Belum ada artikel.</p>
+            <p class="text-gray-500 text-center">Belum ada pengumuman.</p>
         <?php endif; ?>
 
         <?php foreach ($artikel as $idx => $a): ?>
