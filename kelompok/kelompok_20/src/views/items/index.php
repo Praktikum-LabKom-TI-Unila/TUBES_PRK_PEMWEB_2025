@@ -201,8 +201,14 @@
                         
                         <div class="aspect-square bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 relative overflow-hidden">
                             <?php if (!empty($item['image_path'])): ?>
+                                <?php 
+                                // Check if image_path is external URL or local path
+                                $imageSrc = (strpos($item['image_path'], 'http://') === 0 || strpos($item['image_path'], 'https://') === 0) 
+                                    ? $item['image_path'] 
+                                    : base_url('src/assets/uploads/items/' . $item['image_path']);
+                                ?>
                                 <img 
-                                    src="<?= base_url($item['image_path']) ?>" 
+                                    src="<?= $imageSrc ?>" 
                                     alt="<?= htmlspecialchars($item['title']) ?>"
                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                     onerror="this.parentElement.innerHTML='<svg class=\'w-20 h-20 text-slate-400 dark:text-slate-600 absolute inset-0 m-auto\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\'/></svg>'"
