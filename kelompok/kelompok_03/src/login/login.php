@@ -75,14 +75,10 @@ if ($_POST) {
 </head>
 <body class="min-h-screen flex items-center justify-center">
     <div class="w-full max-w-md mx-4">
-        <div class="bg-white rounded-3xl shadow-2xl p-8">
+        <div class="bg-primary rounded-3xl shadow-2xl p-8">
             <div class="flex items-center gap-4 mb-6">
-                <div class="w-12 h-12 bg-primary text-white rounded-xl flex items-center justify-center text-xl shadow-lg">
-                    <i class="fa-solid fa-layer-group"></i>
-                </div>
                 <div>
-                    <h1 class="text-2xl font-bold text-dark">Tics<span class="text-primary">Org</span></h1>
-                    <p class="text-sm text-muted">Masuk untuk mengelola sistem</p>
+                    <h1 class="text-2xl font-bold text-yellow-400">Organisasi <span class="text-white">Mahasiswa</span></h1>
                 </div>
             </div>
 
@@ -92,19 +88,26 @@ if ($_POST) {
 
             <form method="POST" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-muted mb-1">Username</label>
+                    <label class="block text-xs font-semibold text-white mb-1">Username</label>
                     <input name="username" type="text" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Masukkan username">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-muted mb-1">Password</label>
+                    <label class="block text-xs font-semibold text-white mb-1">Password</label>
                     <input name="password" type="password" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Masukkan password">
                 </div>
                 <div>
-                    <button type="submit" class="w-full bg-primary text-white font-semibold py-3 rounded-xl shadow">Masuk</button>
+                    <button type="submit" class="w-full bg-yellow-400 text-white font-semibold py-3 rounded-xl shadow">Masuk</button>
                 </div>
             </form>
 
             <p class="mt-4 text-xs text-muted text-center">Belum punya akun? Hubungi administrator.</p>
+
+            <div class="mt-6 pt-6 border-t border-white/20">
+                <a href="../index.php" class="flex items-center justify-center gap-2 w-full bg-white/20 hover:bg-white/30 text-white font-semibold py-3 rounded-xl transition-colors">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Kembali ke Beranda
+                </a>
+            </div>
         </div>
     </div>
 </body>

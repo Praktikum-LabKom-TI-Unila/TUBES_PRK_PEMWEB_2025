@@ -113,7 +113,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Departemen - Atics</title>
+    <title>Departemen - Organisasi Mahasiswa</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -154,10 +154,7 @@ try {
 
     <aside class="w-72 bg-white h-full flex flex-col py-8 px-5 z-20 shadow-xl shadow-blue-900/5">
         <div class="flex items-center gap-3 px-4 mb-10">
-            <div class="w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center text-xl shadow-lg shadow-primary/40">
-                <i class="fa-solid fa-layer-group"></i>
-            </div>
-            <div class="text-2xl font-bold text-dark tracking-tight">Atics<span class="text-primary">.Inf</span></div>
+            <div class="text-2xl font-bold text-dark tracking-tight">Organisasi<span class="text-primary"> Mahasiswa</span></div>
         </div>
 
         <nav class="flex-1 space-y-2">
