@@ -16,7 +16,7 @@ if (strpos($_SERVER['REQUEST_URI'], '/pos') !== false) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="stylesheet" href="/public/assets/css/style.css">
+  <link rel="stylesheet" href="../public/assets/css/style.css">
 </head>
 
 <body class="text-white bg-gradient-to-br from-blue-500 to-blue-600 relative min-h-screen overflow-x-hidden">
