@@ -1,12 +1,54 @@
 <?php 
 $assetPath = "../../assets/";
 include '../../layouts/header.php'; 
+
+// Koneksi database
+require_once '../../../config/database.php';
+
+// Query untuk mengambil data tutor yang sudah diverifikasi
+$query = "SELECT t.id, t.nama_lengkap as nama, t.email, t.keahlian, t.harga_per_sesi, t.rating 
+          FROM tutor t 
+          WHERE t.status = 'Aktif' 
+          ORDER BY t.rating DESC 
+          LIMIT 8";
+$result = mysqli_query($conn, $query);
+
+$tutorsData = [];
+if ($result && mysqli_num_rows($result) > 0) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        // Ambil mata pelajaran pertama dari tutor_mapel
+        $mapelQuery = "SELECT nama_mapel FROM tutor_mapel WHERE tutor_id = {$row['id']} LIMIT 1";
+        $mapelResult = mysqli_query($conn, $mapelQuery);
+        $mapelRow = mysqli_fetch_assoc($mapelResult);
+        
+        $tutorsData[] = [
+            'id' => $row['id'],
+            'nama' => $row['nama'],
+            'mapel' => $mapelRow['nama_mapel'] ?? $row['keahlian'],
+            'harga' => $row['harga_per_sesi'] ?? 100000,
+            'rating' => $row['rating'] ?? 4.5
+        ];
+    }
+}
+
+// Jika tidak ada data dari database, gunakan dummy data
+if (empty($tutorsData)) {
+    $tutorsData = [
+        ['id' => 1, 'nama' => 'Rizky Ramadhan', 'mapel' => 'Matematika', 'harga' => 350000, 'rating' => 4.9],
+        ['id' => 2, 'nama' => 'Aulia Putri', 'mapel' => 'Bahasa Inggris', 'harga' => 420000, 'rating' => 5.0],
+        ['id' => 3, 'nama' => 'Dimas Wahyu', 'mapel' => 'Fisika', 'harga' => 300000, 'rating' => 4.7],
+        ['id' => 4, 'nama' => 'Nadia Fitri', 'mapel' => 'Kimia', 'harga' => 400000, 'rating' => 4.8],
+        ['id' => 5, 'nama' => 'Farhan Akbar', 'mapel' => 'Biologi', 'harga' => 320000, 'rating' => 4.6],
+        ['id' => 6, 'nama' => 'Sinta Maharani', 'mapel' => 'Bahasa Indonesia', 'harga' => 280000, 'rating' => 4.5],
+        ['id' => 7, 'nama' => 'Adi Pratama', 'mapel' => 'Ekonomi', 'harga' => 330000, 'rating' => 4.7],
+        ['id' => 8, 'nama' => 'Maya Sari', 'mapel' => 'Sejarah', 'harga' => 260000, 'rating' => 4.4]
+    ];
+}
 ?>
 
 <main class="site-main">
-  <div class="container">
-    <!-- HERO -->
-    <section class="hero-section" role="region" aria-label="Hero">
+  <!-- HERO (Full Width) -->
+  <section class="hero-section" role="region" aria-label="Hero">
     <div class="hero-overlay">
       <div class="hero-inner">
         <div class="hero-badge">🏆 Platform #1 di Lampung</div>
@@ -20,13 +62,17 @@ include '../../layouts/header.php';
         </p>
       </div>
     </div>
-    </section>
+  </section>
 
+  <!-- CONTAINER untuk konten lainnya -->
+  <div class="container">
     <!-- SEARCH -->
     <div class="search-box" role="search" aria-label="Pencarian tutor">
       <input id="searchInput" type="text" placeholder="Cari mata pelajaran atau nama tutor..." aria-label="Cari tutor">
       <button id="btnSearch" class="btn-search" type="button">Cari Tutor</button>
-    </div>    <!-- KENAPA MEMILIH KAMI -->
+    </div>
+
+    <!-- KENAPA MEMILIH KAMI -->
     <section class="section-why" aria-label="Kenapa memilih kami">
     <div class="section-title">Kenapa Memilih ScholarBridge?</div>
     <div class="section-desc">Solusi bimbingan belajar yang mengutamakan kualitas pengajar — mahasiswa berprestasi, verifikasi dokumen, dan metode pengajaran adaptif.</div>
@@ -214,17 +260,8 @@ include '../../layouts/header.php';
 
 <!-- ======= Inline JS: render tutors + FAQ interaksi (simple) ======= -->
 <script>
-  // dummy tutors — nanti diganti fetch ke backend
-  const tutorsData = [
-    { nama: "Rizky Ramadhan", mapel: "Matematika", harga: 350000, rating: 4.9 },
-    { nama: "Aulia Putri", mapel: "Bahasa Inggris", harga: 420000, rating: 5.0 },
-    { nama: "Dimas Wahyu", mapel: "Fisika", harga: 300000, rating: 4.7 },
-    { nama: "Nadia Fitri", mapel: "Kimia", harga: 400000, rating: 4.8 },
-    { nama: "Farhan Akbar", mapel: "Biologi", harga: 320000, rating: 4.6 },
-    { nama: "Sinta Maharani", mapel: "Bahasa Indonesia", harga: 280000, rating: 4.5 },
-    { nama: "Adi Pratama", mapel: "Ekonomi", harga: 330000, rating: 4.7 },
-    { nama: "Maya Sari", mapel: "Sejarah", harga: 260000, rating: 4.4 },
-  ];
+  // Data tutors dari PHP
+  const tutorsData = <?php echo json_encode($tutorsData); ?>;
 
   // format harga
   function rupiah(n){ return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
@@ -245,7 +282,7 @@ include '../../layouts/header.php';
           <div class="rating">★ ${t.rating}</div>
           <div style="margin-left:auto" class="tutor-price">Rp ${rupiah(t.harga)}</div>
         </div>
-        <a href="detail_tutor.php?nama=${encodeURIComponent(t.nama)}&mapel=${encodeURIComponent(t.mapel)}&harga=${t.harga}&rating=${t.rating}" class="btn-detail" role="button" aria-label="Detail ${t.nama}">Detail Tutor</a>
+        <a href="detail_tutor.php?id=${t.id}&nama=${encodeURIComponent(t.nama)}&mapel=${encodeURIComponent(t.mapel)}&harga=${t.harga}&rating=${t.rating}" class="btn-detail" role="button" aria-label="Detail ${t.nama}">Detail Tutor</a>
       `;
       container.appendChild(el);
     });

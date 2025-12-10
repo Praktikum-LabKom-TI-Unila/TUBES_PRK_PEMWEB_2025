@@ -1,6 +1,6 @@
 <?php 
 if (!isset($assetPath)) {
-  $assetPath = "../../assets/";
+  $assetPath = "../../../assets/";
 }
 ?>
 
@@ -12,12 +12,7 @@ if (!isset($assetPath)) {
 
   <title>ScholarBridge</title>
 
-  <!-- Bootstrap -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet">
-
-  <!-- Icons -->
+  <!-- Bootstrap Icons -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
     rel="stylesheet">
@@ -29,27 +24,27 @@ if (!isset($assetPath)) {
 <body>
 
 <!-- NAVBAR -->
-<nav class="sb-navbar shadow-sm">
-  <div class="container d-flex align-items-center justify-content-between">
+<nav class="sb-navbar">
+  <div class="sb-nav-container">
 
-    <!-- Logo -->
-    <div class="d-flex align-items-center">
-      <img src="<?php echo $assetPath ?>img/logo.png" class="sb-logo">
-      <span class="sb-brand">ScholarBridge</span>
+    <!-- Logo/Brand -->
+    <div class="sb-brand">
+      <img src="../../../assets/img/logo.png" alt="ScholarBridge Logo" class="logo">
+      <span>ScholarBridge</span>
     </div>
 
     <!-- Menu -->
     <ul class="sb-menu">
-      <li><a href="../public/landing_page.php" class="active">Beranda</a></li>
+      <li><a href="../public/landing_page.php">Beranda</a></li>
       <li><a href="../public/search_result.php">Cari Tutor</a></li>
-      <li><a href="#">Kategori</a></li>
-      <li><a href="#">Testimoni</a></li>
+      <li><a href="#kategori">Kategori</a></li>
+      <li><a href="#testimoni">Testimoni</a></li>
     </ul>
 
-    <!-- Action -->
-    <div class="d-flex gap-2">
-      <a href="../auth/form_login.php" class="sb-login">Masuk</a>
-      <a href="../auth/form_register.php" class="sb-daftar">Daftar</a>
+    <!-- Action Buttons -->
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <a href="../auth/login.php" class="sb-login">Masuk</a>
+      <a href="../auth/register.php" class="sb-daftar">Daftar</a>
     </div>
 
   </div>

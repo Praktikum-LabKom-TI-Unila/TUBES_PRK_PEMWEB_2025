@@ -63,10 +63,22 @@ ul {
 }
 
 .container {
-  width: 90%;
-  max-width: 1200px;
+  width: 100%;
+  max-width: 1600px;
   margin: 0 auto;
-  padding: 20px 0;
+  padding: 20px 120px;
+}
+
+@media (max-width: 1200px) {
+  .container {
+    padding: 20px 80px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 20px 40px;
+  }
 }
 
 .card {
@@ -90,9 +102,9 @@ ul {
 }
 
 .sb-nav-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: auto;
-  padding: 0 20px;
+  padding: 0 30px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -108,13 +120,7 @@ ul {
   width: 45px;
   height: 45px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #fff8f5, #ffe6dc);
-  color: var(--primary);
-  font-size: 22px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  object-fit: contain;
 }
 
 .sb-brand span {
@@ -159,24 +165,29 @@ ul {
 
 .hero-section {
   width: 100%;
-  min-height: 340px;
-  margin: 30px auto;
-  border-radius: 32px;
-  background: linear-gradient(135deg, #ffe9dd 0%, #ffd4c2 50%, #ffbfa3 100%);
+  min-height: 400px;
+  margin: 30px 0;
+  border-radius: 0;
+  background-image: 
+    linear-gradient(135deg, rgba(12, 74, 96, 0.85) 0%, rgba(154, 212, 214, 0.75) 50%, rgba(247, 220, 111, 0.7) 100%),
+    url('https://images2.alphacoders.com/747/thumb-1920-747506.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.06);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.1);
 }
 
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(255,255,255,0.45);
-  backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(2px);
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 30px;
+  padding: 40px 20px;
 }
 
 .hero-inner {
@@ -186,34 +197,37 @@ ul {
 
 .hero-badge {
   display: inline-block;
-  background: #fff;
-  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 8px 18px;
   border-radius: 999px;
-  font-weight: 600;
-  color: #ff6b35;
+  font-weight: 700;
+  color: #0C4A60;
   font-size: 0.9rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .hero-title {
-  font-size: 2.6rem;
-  font-weight: 700;
+  font-size: 2.8rem;
+  font-weight: 800;
   margin: 14px 0;
-  color: #202020;
-  line-height: 1.18;
+  color: #ffffff;
+  line-height: 1.2;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .hero-sub {
-  color: #475569;
-  font-size: 1rem;
+  color: #f0f0f0;
+  font-size: 1.1rem;
   max-width: 640px;
   margin: 0 auto;
-  line-height: 1.55;
+  line-height: 1.6;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
 }
 
 .accent {
-  color: #ff6b35;
-  font-weight: 700;
+  color: #F7DC6F;
+  font-weight: 800;
+  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 /* responsive HERO */
@@ -227,15 +241,17 @@ ul {
    SEARCH BOX
 ===================================== */
 .search-box {
-  margin: -30px auto 30px;
-  max-width: 760px;
+  margin: -40px auto 50px;
+  max-width: 800px;
   background: #fff;
   border-radius: 50px;
   padding: 12px 18px;
   display: flex;
   gap: 12px;
   border: 1px solid var(--border);
-  box-shadow: var(--shadow);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  position: relative;
+  z-index: 10;
 }
 
 .search-box input {
@@ -258,7 +274,7 @@ ul {
    SECTION: KENAPA MEMILIH KAMI
 ===================================== */
 .section-why {
-  padding: 60px 0;
+  padding: 80px 0;
 }
 
 .section-title {
@@ -325,8 +341,23 @@ ul {
    SECTION: KATEGORI POPULER
 ===================================== */
 .section-category {
-  padding: 70px 0;
+  padding: 80px 120px;
   background: #fffdfc;
+  margin: 0 -120px;
+}
+
+@media (max-width: 1200px) {
+  .section-category {
+    padding: 60px 80px;
+    margin: 0 -80px;
+  }
+}
+
+@media (max-width: 768px) {
+  .section-category {
+    padding: 50px 40px;
+    margin: 0 -40px;
+  }
 }
 
 .category-grid {
@@ -373,7 +404,7 @@ ul {
    SECTION: CARA KERJA (timeline)
 ===================================== */
 .section-steps {
-  padding: 70px 0;
+  padding: 80px 0;
 }
 
 .steps {
@@ -414,11 +445,15 @@ ul {
 
 /* ========================= REKOMENDASI TUTOR ========================= */
 
+.section-rekomendasi {
+  padding: 80px 0;
+}
+
 .section-rekomendasi .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 24px;
-  margin-top: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  margin-top: 34px;
 }
 
 .tutor-card {
@@ -501,8 +536,23 @@ ul {
    SECTION: TESTIMONI (CSS only)
 ===================================== */
 .section-testimoni {
-  padding: 70px 0;
+  padding: 80px 120px;
   background: #fff6f1;
+  margin: 0 -120px;
+}
+
+@media (max-width: 1200px) {
+  .section-testimoni {
+    padding: 60px 80px;
+    margin: 0 -80px;
+  }
+}
+
+@media (max-width: 768px) {
+  .section-testimoni {
+    padding: 50px 40px;
+    margin: 0 -40px;
+  }
 }
 
 .testi-grid {
@@ -806,8 +856,23 @@ ul {
 =========================================================== */
 
 .section-faq {
-  padding: 80px 0;
+  padding: 80px 120px;
   background: #fffdfc;
+  margin: 0 -120px;
+}
+
+@media (max-width: 1200px) {
+  .section-faq {
+    padding: 60px 80px;
+    margin: 0 -80px;
+  }
+}
+
+@media (max-width: 768px) {
+  .section-faq {
+    padding: 50px 40px;
+    margin: 0 -40px;
+  }
 }
 
 .faq-item {
