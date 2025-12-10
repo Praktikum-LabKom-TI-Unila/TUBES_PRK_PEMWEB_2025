@@ -52,8 +52,7 @@ final class AuthController
             'password'        => $hashedPassword,
             'phone'           => $phone ?: null,
             'role'            => 'user',
-            // PERBAIKAN 1: Sesuaikan dengan nama kolom di DB ('status')
-            'status'          => 'active' 
+            'is_active'       => 1
         ];
 
         $registered = $this->userModel->register($userData);
@@ -99,13 +98,13 @@ final class AuthController
             return;
         }
 
-        // PERBAIKAN 2: Cek kolom 'status' (bukan is_active)
-        // Dan nilainya 'active' (bukan angka 1)
-        if ($user['status'] !== 'active') {
+        if ((int)$user['is_active'] !== 1) {
             flash('message', 'Akun Anda tidak aktif/banned. Silakan hubungi administrator.', 'error');
             redirect('index.php?page=auth&action=login');
             return;
         }
+
+        session_regenerate_id(true);
 
         $this->createSession($user);
         $this->userModel->updateLastLogin((int)$user['id']);
