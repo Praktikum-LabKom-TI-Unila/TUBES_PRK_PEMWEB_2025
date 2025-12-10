@@ -71,8 +71,14 @@
                                 <!-- Thumbnail -->
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <?php if (!empty($item['image_path'])): ?>
+                                        <?php 
+                                        // Check if image_path is external URL or local path
+                                        $imageSrc = (strpos($item['image_path'], 'http://') === 0 || strpos($item['image_path'], 'https://') === 0) 
+                                            ? $item['image_path'] 
+                                            : base_url('src/assets/uploads/items/' . $item['image_path']);
+                                        ?>
                                         <img 
-                                            src="<?= base_url('src/assets/uploads/items/' . $item['image_path']) ?>" 
+                                            src="<?= $imageSrc ?>" 
                                             alt="<?= htmlspecialchars($item['title']) ?>" 
                                             class="w-16 h-16 object-cover rounded-lg shadow-sm border-2 border-gray-200"
                                         >
