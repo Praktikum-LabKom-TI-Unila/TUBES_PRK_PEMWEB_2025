@@ -2,18 +2,10 @@
 // helpers.php
 // DB connection, JSON responses, simple JWT (HS256) helpers
 
-$config = require __DIR__ . '/config.php';
+require_once __DIR__ . '/config.php';
 
 function db() {
-    static $pdo = null;
-    global $config;
-    if ($pdo) return $pdo;
-    $conf = $config['db'];
-    $dsn = "mysql:host={$conf['host']};dbname={$conf['dbname']};charset={$conf['charset']}";
-    $pdo = new PDO($dsn, $conf['user'], $conf['pass'], [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    ]);
+    global $pdo;
     return $pdo;
 }
 
