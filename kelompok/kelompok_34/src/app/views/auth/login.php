@@ -7,7 +7,7 @@
       <h2 class="text-3xl font-bold bg-gradient-to-r from-blue-300 to-blue-300 bg-clip-text text-transparent">
         Selamat Datang
       </h2>
-      <p class="text-gray-300 text-sm mt-2">Masuk ke akun BeliLokal Anda</p>
+      <p class="text-gray-100 text-sm mt-2">Masuk ke akun <?= APP_NAME ?> Anda</p>
     </div>
 
     <?php if (!empty($error)): ?>
@@ -16,6 +16,14 @@
         <span><?= $error ?></span>
       </div>
     <?php endif; ?>
+
+    <?php if (isset($_SESSION['success'])): ?>
+      <div class="bg-green-500/40 text-green-200 p-4 mb-6 rounded-xl border border-green-400/60 text-sm flex items-start gap-3">
+        <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+        <span><?= $_SESSION['success'] ?></span>
+      </div>
+    <?php unset($_SESSION['success']);
+    endif; ?>
 
     <form method="POST" class="space-y-5">
       <div>
@@ -42,14 +50,6 @@
           required
           placeholder="Masukkan password"
           class="input-modern w-full px-4 py-3 rounded-xl text-white placeholder-gray-200 outline-none">
-      </div>
-
-      <div class="flex items-center justify-between text-sm">
-        <label class="flex items-center gap-2 text-gray-300 cursor-pointer">
-          <input type="checkbox" class="w-4 h-4 rounded border-gray-400 text-blue-500 focus:ring-blue-500">
-          <span>Ingat saya</span>
-        </label>
-        <a href="#" class="text-blue-300 hover:text-blue-200 transition">Lupa password?</a>
       </div>
 
       <button class="btn-primary w-full py-3 rounded-xl text-white font-semibold flex items-center justify-center gap-2 mt-6">

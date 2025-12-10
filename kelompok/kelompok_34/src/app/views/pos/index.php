@@ -34,14 +34,14 @@
             
             <h3 class="font-bold text-lg truncate"><?= $p['name'] ?></h3>
             <p class="text-blue-300">Rp <?= number_format($p['price'], 0, ',', '.') ?></p>
-            <p class="text-xs text-gray-400 mt-1">Stok: <?= $p['stock'] ?></p>
+            <p class="text-xs text-gray-100 mt-1">Stok: <?= $p['stock'] ?></p>
           </div>
         <?php endforeach; ?>
       </div>
     </div>
   </div>
 
-  <div class="md:w-1/3 flex flex-col">
+  <div class="lg:w-1/3 flex flex-col">
     <div class="glass-effect p-6 rounded-3xl h-full flex flex-col justify-between">
       
       <div class="flex-1 overflow-hidden flex flex-col">
@@ -103,6 +103,23 @@
     </div>
   </div>
 </div>
+
+<style>
+  .custom-scroll::-webkit-scrollbar {
+    width: 8px;
+  }
+  .custom-scroll::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+  }
+  .custom-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+  }
+  .custom-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+</style>
 
 <script>
   let cart = [];
@@ -175,14 +192,17 @@
   function addToCart(product) {
     const existing = cart.find(item => item.id == product.id);
     if (existing) {
-      if(existing.qty < product.stock) {
+      if (existing.qty < product.stock) {
         existing.qty++;
       } else {
         alert('Stok habis!'); return;
       }
     } else {
-      if(product.stock > 0) {
-        cart.push({ ...product, qty: 1 });
+      if (product.stock > 0) {
+        cart.push({
+          ...product,
+          qty: 1
+        });
       } else {
         alert('Stok habis!'); return;
       }
@@ -198,7 +218,7 @@
     let total = 0;
 
     if (cart.length === 0) {
-      container.innerHTML = '<p class="text-gray-400 text-center italic mt-10">Keranjang masih kosong</p>';
+      container.innerHTML = '<p class="text-gray-100 text-center italic mt-10">Keranjang masih kosong</p>';
       totalEl.innerText = 'Rp 0';
       document.getElementById('pay-amount').value = ''; 
       return;
