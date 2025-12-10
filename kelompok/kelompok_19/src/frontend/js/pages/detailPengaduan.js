@@ -80,64 +80,63 @@ function displayTimeline(complaint, notes) {
   var timeline = document.getElementById("timeline");
   var html = "";
 
-  // Created status
-  html += '<div class="mb-8 relative">';
+  // Created status - MENUNGGU
+  html += '<div class="mb-6 flex items-start gap-4">';
   html +=
-    '  <div class="absolute left-0 top-0 bottom-0 w-0.5 bg-gray-300 ml-3.5"></div>';
+    '  <div class="flex-shrink-0 h-4 w-4 bg-yellow-500 rounded-full border-4 border-white mt-0.5"></div>';
+  html += '  <div class="flex-1">';
   html +=
-    '  <div class="absolute -left-0.5 top-0 h-4 w-4 bg-yellow-500 rounded-full border-4 border-white"></div>';
+    '    <p class="text-sm text-gray-700 font-semibold inline-flex items-center">';
   html +=
-    '  <p class="text-sm text-gray-700 font-semibold inline-flex items-center">';
+    '      <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1 rounded mr-2">MENUNGGU</span>';
+  html += "      " + formatDateTime(complaint.created_at);
+  html += "    </p>";
   html +=
-    '    <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1 rounded mr-2">MENUNGGU</span>';
-  html += "    " + formatDateTime(complaint.created_at);
-  html += "  </p>";
-  html +=
-    '  <p class="text-gray-800 mt-2 ml-4">Pengaduan telah diterima dan menunggu verifikasi</p>';
+    '    <p class="text-gray-800 mt-2">Pengaduan telah diterima dan menunggu verifikasi</p>';
+  html += "  </div>";
   html += "</div>";
 
   // Process notes
   if (notes && notes.length > 0) {
     for (var i = 0; i < notes.length; i++) {
       var note = notes[i];
-      var noteStatusBg =
-        note.status === "SELESAI" ? "bg-green-500" : "bg-blue-600";
-      var noteStatusText =
-        note.status === "SELESAI"
-          ? "text-green-800 bg-green-100"
-          : "text-blue-800 bg-blue-100";
+      var status = note.status || "DIPROSES";
 
-      var isLast = i === notes.length - 1 && complaint.status !== "SELESAI";
-      var lineClass = isLast
-        ? ""
-        : "bg-" + (note.status === "SELESAI" ? "green" : "blue") + "-600";
-
-      html += '<div class="mb-8 relative">';
-      if (!isLast) {
-        html +=
-          '  <div class="absolute left-0 top-0 bottom-0 w-0.5 ' +
-          lineClass +
-          ' ml-3.5"></div>';
+      var dotColor, badgeBg, badgeText;
+      if (status === "SELESAI") {
+        dotColor = "bg-green-500";
+        badgeBg = "bg-green-100";
+        badgeText = "text-green-800";
+      } else {
+        dotColor = "bg-blue-600";
+        badgeBg = "bg-blue-100";
+        badgeText = "text-blue-800";
       }
+
+      html += '<div class="mb-6 flex items-start gap-4">';
       html +=
-        '  <div class="absolute -left-0.5 top-0 h-4 w-4 ' +
-        noteStatusBg +
-        ' rounded-full border-4 border-white"></div>';
+        '  <div class="flex-shrink-0 h-4 w-4 ' +
+        dotColor +
+        ' rounded-full border-4 border-white mt-0.5"></div>';
+      html += '  <div class="flex-1">';
       html +=
-        '  <p class="text-sm text-gray-700 font-semibold inline-flex items-center">';
+        '    <p class="text-sm text-gray-700 font-semibold inline-flex items-center">';
       html +=
-        '    <span class="' +
-        noteStatusText +
+        '      <span class="' +
+        badgeBg +
+        " " +
+        badgeText +
         ' text-xs font-semibold px-2 py-1 rounded mr-2">' +
-        note.status +
+        status +
         "</span>";
-      html += "    " + formatDateTime(note.created_at);
-      html += "  </p>";
-      html += '  <p class="text-gray-800 mt-2 ml-4">' + note.note + "</p>";
+      html += "      " + formatDateTime(note.created_at);
+      html += "    </p>";
+      html += '    <p class="text-gray-800 mt-2">' + note.note + "</p>";
       html +=
-        '  <p class="text-gray-500 text-sm mt-1 ml-4">Oleh: ' +
+        '    <p class="text-gray-500 text-sm mt-1">Oleh: ' +
         note.petugas_name +
         "</p>";
+      html += "  </div>";
       html += "</div>";
     }
   }
@@ -145,13 +144,13 @@ function displayTimeline(complaint, notes) {
   // Status message
   if (complaint.status === "SELESAI") {
     html +=
-      '<p class="text-green-700 font-medium mt-4 border-t pt-4 ml-4 bg-green-50 p-3 rounded">✓ Pengaduan Anda telah selesai ditangani</p>';
+      '<p class="text-green-700 font-medium mt-4 border-t pt-4 bg-green-50 p-3 rounded">✓ Pengaduan Anda telah selesai ditangani</p>';
   } else if (complaint.status === "DIPROSES") {
     html +=
-      '<p class="text-blue-700 mt-4 border-t pt-4 ml-4 bg-blue-50 p-3 rounded">Pengaduan Anda sedang dalam proses penanganan. Kami akan memberikan update segera.</p>';
+      '<p class="text-blue-700 mt-4 border-t pt-4 bg-blue-50 p-3 rounded">Pengaduan Anda sedang dalam proses penanganan. Kami akan memberikan update segera.</p>';
   } else {
     html +=
-      '<p class="text-yellow-700 mt-4 border-t pt-4 ml-4 bg-yellow-50 p-3 rounded">Pengaduan Anda sedang menunggu verifikasi dari petugas terkait.</p>';
+      '<p class="text-yellow-700 mt-4 border-t pt-4 bg-yellow-50 p-3 rounded">Pengaduan Anda sedang menunggu verifikasi dari petugas terkait.</p>';
   }
 
   timeline.innerHTML = html;
