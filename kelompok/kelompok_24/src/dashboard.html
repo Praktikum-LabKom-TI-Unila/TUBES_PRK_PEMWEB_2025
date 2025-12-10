@@ -29,6 +29,20 @@
         ::-webkit-scrollbar-thumb:hover { background: #f43f5e; }
         .nav-item-clip { clip-path: polygon(0 0, 100% 0, 100% 100%, 10px 100%, 0 calc(100% - 10px)); }
         .nav-active { background: linear-gradient(90deg, rgba(244,63,94,0.1) 0%, transparent 100%); border-left: 3px solid #f43f5e; color: #f43f5e; }
+        
+        @keyframes slide-in-right {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        .animate-slide-in-right {
+            animation: slide-in-right 0.3s ease-out;
+        }
     </style>
 </head>
 <body class="bg-warkops-bg text-warkops-text font-sans h-screen w-screen flex overflow-hidden selection:bg-warkops-primary selection:text-black">
@@ -176,6 +190,7 @@
             });
         });
     </script>
+    <script src="js/components/toast.js"></script>
     <script src="js/router.js"></script>
 </body>
 </html>
