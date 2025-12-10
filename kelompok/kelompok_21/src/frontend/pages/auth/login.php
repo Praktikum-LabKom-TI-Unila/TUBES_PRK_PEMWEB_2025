@@ -40,70 +40,65 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Sistem Admin</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <style>
-        body {
-            background-color: #e9ecef;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        .login-card {
-            background: white;
-            padding: 2.5rem;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            width: 100%;
-            max-width: 400px;
-        }
-        .brand-logo {
-            font-weight: bold;
-            color: #0d6efd;
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-    </style>
+    <title>Masuk - ScholarBridge</title>
+    <link rel="stylesheet" href="../../assets/css/style.css">
 </head>
 <body>
-
-    <div class="login-card">
-        <div class="brand-logo">Admin Panel</div>
-
-        <?php if (!empty($error)): ?>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <small><?= htmlspecialchars($error) ?></small>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Logo -->
+            <div class="auth-logo">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M12 3L1 9L5 11.18V17.18L12 21L19 17.18V11.18L21 10.09V17H23V9L12 3M18.82 9L12 12.72L5.18 9L12 5.28L18.82 9M17 16L12 18.72L7 16V12.27L12 15L17 12.27V16Z"/>
+                </svg>
             </div>
-        <?php endif; ?>
 
-        <form method="POST" action="">
-            <div class="mb-3">
-                <label for="username" class="form-label text-muted small">Username</label>
-                <input type="text" class="form-control" id="username" name="username" placeholder="Masukkan username" required autofocus>
-            </div>
-            
-            <div class="mb-4">
-                <label for="password" class="form-label text-muted small">Password</label>
-                <input type="password" class="form-control" id="password" name="password" placeholder="Masukkan password" required>
-            </div>
-            
-            <button type="submit" class="btn btn-primary w-100 py-2">Masuk</button>
-        </form>
+            <h1 class="auth-title">ScholarBridge</h1>
+            <p class="auth-subtitle">Platform Bimbingan Belajar Terpercaya</p>
 
-        <div class="text-center mt-4">
-            <a href="../public/landing_page.php" class="text-decoration-none small text-secondary">
-                &larr; Kembali ke Halaman Utama
-            </a>
+            <!-- Tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab active">Masuk</button>
+                <a href="register.php" class="auth-tab">Daftar</a>
+            </div>
+
+            <!-- Error Message -->
+            <?php if (!empty($error)): ?>
+                <div class="alert alert-error">
+                    <?= htmlspecialchars($error) ?>
+                </div>
+            <?php endif; ?>
+
+            <!-- Login Form -->
+            <form method="POST" action="">
+                <div class="form-group">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-input" id="username" name="username" placeholder="Masukkan username" required autofocus>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="password-toggle">
+                        <input type="password" class="form-input" id="password" name="password" placeholder="Masukkan password" required>
+                        <span class="toggle-icon" onclick="togglePassword()">👁️</span>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-primary">Masuk</button>
+            </form>
+
+            <div class="auth-footer">
+                Belum punya akun? <a href="register.php">Daftar</a>
+            </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+        }
+    </script>
 </body>
 </html>
