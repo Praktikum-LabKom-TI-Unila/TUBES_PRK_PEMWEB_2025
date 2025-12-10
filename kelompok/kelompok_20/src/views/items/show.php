@@ -32,9 +32,15 @@ $shouldBlurImage = !empty($item['is_safe_claim']) && !$isOwner && !isAdmin();
                 <div class="relative bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border border-white/20 dark:border-slate-700/50">
                     <div class="aspect-square bg-gradient-to-br from-slate-100 via-slate-50 to-cyan-50 dark:from-slate-800 dark:via-slate-900 dark:to-slate-800 flex items-center justify-center relative overflow-hidden">
                         <?php if (!empty($item['image_path'])): ?>
+                            <?php 
+                            // Check if image_path is external URL or local path
+                            $imageSrc = (strpos($item['image_path'], 'http://') === 0 || strpos($item['image_path'], 'https://') === 0) 
+                                ? $item['image_path'] 
+                                : base_url('src/assets/uploads/items/' . $item['image_path']);
+                            ?>
                             <img 
                                 id="itemImage"
-                                src="<?= base_url($item['image_path']) ?>" 
+                                src="<?= $imageSrc ?>" 
                                 alt="<?= htmlspecialchars($item['title']) ?>"
                                 class="w-full h-full object-cover transition-all duration-300 <?= $shouldBlurImage ? 'blur-xl scale-110' : '' ?>"
                                 oncontextmenu="<?= $shouldBlurImage ? 'return false;' : '' ?>"

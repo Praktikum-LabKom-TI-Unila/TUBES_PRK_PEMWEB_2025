@@ -42,20 +42,51 @@ try {
     die("❌ Gagal Reset Data: " . $e->getMessage());
 }
 
-// 3. ISI MASTER DATA (Kategori & Lokasi)
-$categories = ['Elektronik', 'Dokumen', 'Aksesoris', 'Pakaian', 'Kunci'];
+// 3. ISI MASTER DATA (Kategori & Lokasi) - Sesuai dengan myunila_lostfound.sql
+$categories = [
+    'Elektronik',
+    'Dokumen',
+    'Pakaian',
+    'Aksesoris',
+    'Kunci',
+    'Tas & Dompet',
+    'Buku & Alat Tulis',
+    'Kendaraan',
+    'Lainnya'
+];
 foreach ($categories as $cat) {
     $stmt = $pdo->prepare("INSERT INTO categories (name, created_at) VALUES (?, NOW())");
     $stmt->execute([$cat]);
 }
-echo "✅ Kategori dummy dibuat.\n";
+echo "✅ Kategori dummy dibuat (9 kategori).\n";
 
-$locations = ['Gedung H Teknik', 'Gedung A Rektorat', 'Perpustakaan Pusat', 'GSG Unila', 'Kantin Teknik'];
+$locations = [
+    'Gedung Rektorat',
+    'Gedung Serba Guna (GSG)',
+    'Perpustakaan Pusat',
+    'Kantin Terpadu',
+    'Gedung A - FMIPA',
+    'Gedung B - Fakultas Teknik',
+    'Gedung C - FISIP',
+    'Gedung D - Fakultas Hukum',
+    'Gedung E - Fakultas Ekonomi',
+    'Gedung F - FKIP',
+    'Gedung G - Fakultas Pertanian',
+    'Gedung H - Fakultas Kedokteran',
+    "Masjid Al-Wasi'i",
+    'Lapangan Olahraga',
+    'Parkiran Motor Pusat',
+    'Parkiran Mobil Pusat',
+    'UPT Bahasa',
+    'Poliklinik Unila',
+    'Asrama Mahasiswa',
+    'Lainnya'
+];
 foreach ($locations as $loc) {
     $stmt = $pdo->prepare("INSERT INTO locations (name, created_at) VALUES (?, NOW())");
     $stmt->execute([$loc]);
 }
-echo "✅ Lokasi dummy dibuat.\n";
+echo "✅ Lokasi dummy dibuat (20 lokasi).\n";
 
 // 4. ISI DATA USER (Admin & Mahasiswa)
 // Password default: 'password123' (Dihash)
@@ -74,29 +105,32 @@ foreach ($users as $u) {
 }
 echo "✅ User dummy dibuat (Password semua: password123).\n";
 
-// Ambil ID User & Kategori buat relasi item
+// Ambil ID User untuk relasi item
 $userId = $pdo->query("SELECT id FROM users WHERE email='budi@students.unila.ac.id'")->fetchColumn();
-$catId  = $pdo->query("SELECT id FROM categories LIMIT 1")->fetchColumn();
-$locId  = $pdo->query("SELECT id FROM locations LIMIT 1")->fetchColumn();
+$userId2 = $pdo->query("SELECT id FROM users WHERE email='siti@students.unila.ac.id'")->fetchColumn();
 
-// 5. ISI DATA BARANG (ITEMS) - Skenario Lengkap
+// 5. ISI DATA BARANG (ITEMS) - Dengan Gambar Placeholder dari Unsplash
+// Format: [user_id, category_id, location_id, title, description, type, status, image_path]
 
 $items = [
-    // [Judul, Deskripsi, Tipe, Status]
-    ['Laptop ASUS ROG', 'Hilang di Gedung H, stiker Apple', 'lost', 'open'],
-    ['Dompet Kulit Hitam', 'Isi KTM dan SIM C', 'lost', 'open'],
-    ['Kunci Motor Vario', 'Gantungan boneka boba', 'found', 'open'],
-    ['Tumblr Corkcicle', 'Warna putih, ketinggalan di perpus', 'lost', 'process'],
-    ['iPhone 13 Pro', 'Layar retak dikit', 'found', 'closed'],
-    ['Jas Almamater', 'Ada nama di kerah', 'lost', 'closed'],
+    [$userId, 1, 6, 'Laptop ASUS ROG', 'Laptop gaming hilang di ruang kelas gedung teknik, warna hitam dengan stiker Apple di belakang. Kondisi masih mulus, spesifikasi i7 gen 10.', 'lost', 'open', 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=400'],
+    [$userId2, 2, 3, 'KTM dan KTP', 'Dokumen penting berupa KTM Unila dan KTP hilang di area perpustakaan pusat lantai 2. Nama tercantum: Siti Aminah. Mohon bantuannya.', 'lost', 'open', 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=400'],
+    [$userId, 6, 15, 'Dompet Kulit Coklat', 'Ditemukan dompet kulit warna coklat di parkiran motor pusat. Berisi uang tunai dan beberapa kartu. Silakan hubungi dengan menyebutkan ciri-ciri.', 'found', 'open', 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=400'],
+    [$userId2, 5, 4, 'Kunci Motor Honda Beat', 'Kunci motor Honda Beat dengan gantungan boneka karakter Rilakkuma. Hilang di area kantin terpadu sekitar jam 12 siang.', 'lost', 'open', 'https://images.unsplash.com/photo-1582139329536-e7284fece509?w=400'],
+    [$userId, 7, 3, 'Buku Catatan Biru', 'Ditemukan buku catatan berwarna biru di perpustakaan. Berisi catatan mata kuliah Kalkulus. Ada nama inisial "RD" di cover.', 'found', 'open', 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400'],
+    [$userId2, 4, 13, 'Kacamata Hitam', 'Kacamata hitam merk Ray-Ban hilang di Masjid Al-Wasi\'i setelah sholat Dzuhur. Frame hitam dengan lensa polarized.', 'lost', 'process', 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400'],
+    [$userId, 1, 2, 'Smartwatch Apple Watch', 'Ditemukan Apple Watch Series 7 warna silver di GSG setelah acara seminar. Kondisi mati baterai, ada wallpaper foto keluarga.', 'found', 'process', 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400'],
+    [$userId2, 6, 6, 'Tas Ransel Hitam', 'Tas ransel merk Eiger warna hitam hilang di gedung fakultas teknik lantai 3. Berisi laptop, buku, dan alat tulis. Sangat penting!', 'lost', 'open', 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400'],
+    [$userId, 3, 10, 'Jaket Almamater Unila', 'Ditemukan jaket almamater Unila ukuran L di FKIP. Ada name tag dengan nama "Ahmad" di bagian dalam. Warna biru khas Unila.', 'found', 'closed', 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400'],
+    [$userId2, 1, 1, 'Charger Laptop Lenovo', 'Charger laptop merk Lenovo 65W hilang di gedung rektorat ruang tunggu. Kabel warna hitam dengan adaptor kotak.', 'lost', 'closed', 'https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400'],
 ];
 
-$stmt = $pdo->prepare("INSERT INTO items (user_id, category_id, location_id, title, description, type, status, incident_date, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())");
+$stmt = $pdo->prepare("INSERT INTO items (user_id, category_id, location_id, title, description, type, status, image_path, incident_date, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())");
 
 foreach ($items as $item) {
-    $stmt->execute([$userId, $catId, $locId, $item[0], $item[1], $item[2], $item[3]]);
+    $stmt->execute([$item[0], $item[1], $item[2], $item[3], $item[4], $item[5], $item[6], $item[7]]);
 }
 
-echo "✅ Item dummy dibuat (Pending, Open, Rejected, Closed).\n";
+echo "✅ Item dummy dibuat (10 items dengan gambar dari Unsplash).\n";
 echo "🎉 SEEDING SELESAI! Silakan cek Dashboard Admin.\n";
 ?>

@@ -134,8 +134,8 @@ $oppositeLabel = $oppositeType === 'lost' ? 'Hilang' : 'Ditemukan';
                 <?php if (!empty($match['image_path'])): ?>
                 <?php 
                 $matchImageSrc = (strpos($match['image_path'], 'http://') === 0 || strpos($match['image_path'], 'https://') === 0) 
-                    ? $match['image_path']
-                    : base_url('assets/uploads/items/' . $match['image_path']);
+                    ? $match['image_path'] 
+                    : base_url('src/assets/uploads/items/' . $match['image_path']);
                 ?>
                 <img src="<?= $matchImageSrc ?>" 
                      alt="<?= htmlspecialchars($match['title']) ?>"
