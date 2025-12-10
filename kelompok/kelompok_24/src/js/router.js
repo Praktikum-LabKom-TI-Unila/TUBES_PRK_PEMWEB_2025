@@ -25,8 +25,10 @@ const routes = {
         controller: 'InventoryController'
     },
     'reports': { 
-        view: 'views/reports.html', 
-        title: 'ANALYTICS & REPORTS'
+    view: 'views/reports.html', 
+    title: 'ANALYTICS & REPORTS',
+    script: 'js/controllers/reports.js',
+    controller: 'ReportsController'
     },
     'users': { 
         view: 'views/users.html', 
