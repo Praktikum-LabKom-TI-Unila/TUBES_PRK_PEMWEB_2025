@@ -95,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     
     if (isset($_FILES['foto_profil']) && $_FILES['foto_profil']['error'] === UPLOAD_ERR_OK) {
-        $upload_dir = '../uploads/profil/';
+        $upload_dir = 'uploads/profil/';
         
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0777, true);
@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $file_name = uniqid() . '_' . time() . '.' . $ext;
         
         $target_file = $upload_dir . $file_name;
-        $db_path = '../uploads/profil/' . $file_name;
+        $db_path = 'uploads/profil/' . $file_name;
         
         $allowed = ['jpg', 'jpeg', 'png', 'gif'];
         
@@ -121,6 +121,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $stmt->bind_param("si", $db_path, $user_id);
                     
                     if ($stmt->execute()) {
+                        $success = "Foto profil berhasil diubah!";
+                        
                         $stmt = $conn->prepare("SELECT * FROM users WHERE id_user = ?");
                         $stmt->bind_param("i", $user_id);
                         $stmt->execute();
@@ -141,9 +143,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 // 
-$foto_display = 'https://ui-avatars.com/api/?name=' . urlencode($owner['nama'] ?? 'Owner') . '&background=B7A087&color=fff';
+clearstatcache();
+$foto_display = 'https://ui-avatars.com/api/?name=' . urlencode($owner['nama'] ?? 'Owner') . '&background=B7A087&color=fff&t=' . time();
 if (!empty($owner['profile_picture']) && file_exists($owner['profile_picture'])) {
-    $foto_display = $owner['profile_picture'];
+    $foto_display = $owner['profile_picture'] . '?t=' . time();
 }
 ?>
 
