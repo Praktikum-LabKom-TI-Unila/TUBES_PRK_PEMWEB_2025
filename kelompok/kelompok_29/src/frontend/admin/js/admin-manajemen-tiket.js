@@ -1,6 +1,5 @@
 // --- 1. DUMMY DATA LENGKAP ---
 const mockTicketsData = [
-    // Struktur data sesuai dengan kebutuhan tabel
     { id: "TKT-001", pelapor: "Ahmad Wijaya", email: "ahmad.wijaya@email.com", judul: "Jalan Berlubang di Jl. Sudirman", kategori: "Jalan Raya", status: "Dalam Proses", lokasi: "Jl. Sudirman No. 45, Jakarta Pusat", petugas: "Budi Santoso" },
     { id: "TKT-002", pelapor: "Siti Nurhaliza", email: "siti.nur@email.com", judul: "Lampu Jalan Mati di Perumahan Griya Asri", kategori: "Penerangan Jalan", status: "Selesai", lokasi: "Perumahan Griya Asri Blok C, Tangerang", petugas: "Andi Pratama" },
     { id: "TKT-003", pelapor: "Ahmad Wijaya", email: "ahmad.wijaya@email.com", judul: "Saluran Air Tersumbat", kategori: "Drainase", status: "Diajukan", lokasi: "Jl. Melati No. 12, Bekasi", petugas: null },
@@ -20,21 +19,22 @@ const statusSlugs = [
 ];
 
 let currentFilterStatus = 'all'; 
+let currentSearchQuery = '';
 
 // --- 2. FUNGSI UTILITAS ---
-
 function getStatusBadgeHtml(status) {
-    let className = '';
+    let classes = 'inline-block px-3 py-1 text-xs font-semibold rounded-full ';
     const cleanStatus = status.toLowerCase().replace(/ /g, '_');
     
-    if (cleanStatus.includes('proses')) className = 'badge-proses';
-    else if (cleanStatus.includes('selesai')) className = 'badge-selesai';
-    else if (cleanStatus.includes('diverifikasi')) className = 'badge-diverifikasi';
-    else if (cleanStatus.includes('ditugaskan')) className = 'badge-ditugaskan';
-    else if (cleanStatus.includes('diajukan')) className = 'badge-diajukan';
-    else if (cleanStatus.includes('menunggu_validasi')) className = 'badge-validasi';
+    // Mapping Status ke Tailwind Classes
+    if (cleanStatus.includes('proses')) classes += 'bg-yellow-100 text-yellow-700'; // Dalam Proses
+    else if (cleanStatus.includes('selesai')) classes += 'bg-green-100 text-green-700'; // Selesai
+    else if (cleanStatus.includes('diverifikasi')) classes += 'bg-indigo-100 text-indigo-700'; // Diverifikasi
+    else if (cleanStatus.includes('ditugaskan')) classes += 'bg-orange-100 text-orange-700'; // Ditugaskan
+    else if (cleanStatus.includes('diajukan')) classes += 'bg-blue-100 text-blue-700'; // Diajukan
+    else if (cleanStatus.includes('validasi')) classes += 'bg-red-100 text-red-700'; // Menunggu Validasi
     
-    return `<span class="badge-status ${className}">${status}</span>`;
+    return `<span class="${classes}">${status}</span>`;
 }
 
 // --- 3. FUNGSI RENDERING ---
@@ -44,33 +44,38 @@ function renderStatusTabs() {
     tabsContainer.innerHTML = '';
 
     statusSlugs.forEach(tab => {
+        const isActive = tab.slug === currentFilterStatus;
+        const classes = isActive 
+            ? 'bg-blue-600 text-white border-blue-600' 
+            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50';
+            
         const button = document.createElement('button');
-        button.className = 'tab-button' + (tab.slug === currentFilterStatus ? ' active' : '');
+        button.className = `tab-button px-4 py-2 rounded-lg border transition-colors whitespace-nowrap text-sm ${classes}`;
         button.textContent = `${tab.label} (${tab.count})`;
         
         button.addEventListener('click', () => {
-             // Mengganti filter status saat tombol diklik
              currentFilterStatus = tab.slug;
-             document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-             button.classList.add('active');
              filterAndRenderTable();
+             renderStatusTabs(); // Re-render untuk update class active
         });
         tabsContainer.appendChild(button);
     });
 }
 
 function filterAndRenderTable() {
-    let filteredTickets = mockTicketsData;
+    let filteredTickets = mockTicketsData.filter(ticket => {
+        const matchesStatus = currentFilterStatus === 'all' || 
+                              ticket.status.toLowerCase().replace(/ /g, '_') === currentFilterStatus.toLowerCase().replace(/ /g, '_');
+        
+        const matchesSearch = ticket.title.toLowerCase().includes(currentSearchQuery) ||
+                              ticket.id.toLowerCase().includes(currentSearchQuery) ||
+                              ticket.pelapor.toLowerCase().includes(currentSearchQuery);
 
-    if (currentFilterStatus !== 'all') {
-        filteredTickets = mockTicketsData.filter(ticket => 
-            ticket.status.toLowerCase() === currentFilterStatus.toLowerCase()
-        );
-    }
+        return matchesStatus && matchesSearch;
+    });
     
     renderTicketTable(filteredTickets);
-    // Tampilkan/sembunyikan empty state
-    document.getElementById('empty-state').style.display = filteredTickets.length === 0 ? 'block' : 'none';
+    document.getElementById('empty-state').classList.toggle('hidden', filteredTickets.length > 0);
 }
 
 
@@ -79,45 +84,45 @@ function renderTicketTable(tickets) {
     tbody.innerHTML = '';
     
     tickets.forEach(ticket => {
-        const row = tbody.insertRow();
+        const row = tbody.createElement('tr');
+        row.className = 'hover:bg-gray-50 transition-colors';
         const statusHtml = getStatusBadgeHtml(ticket.status);
         
-        // Logika Tombol Aksi: Assign jika belum ditugaskan, View jika sudah
         const isAssignable = ticket.status === 'Diajukan' || ticket.status === 'Diverifikasi Admin';
         
-        const actionHtml = isAssignable ?
-            `<a href="#" class="action-assign" onclick="return false;">➕ Assign</a>` :
-            `<a href="admin-detail-tiket.php?id=${ticket.id}" class="btn-view-detail">👁️</a>`;
-
-
         const petugasDisplay = ticket.petugas ? 
-            `<p>${ticket.petugas}</p>` : 
-            `<a href="#" class="action-assign">➕ Assign</a>`;
+            `<p class="text-gray-900">${ticket.petugas}</p>` : 
+            `<a href="#" class="text-blue-600 hover:underline flex items-center gap-1 text-sm"><i class="material-icons text-base">person_add</i> Assign</a>`;
+
+        const actionButton = `<a href="admin-detail-tiket.php?id=${ticket.id}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Lihat Detail"><i class="material-icons text-xl">visibility</i></a>`;
 
 
         row.innerHTML = `
-            <td><span class="ticket-id">#${ticket.id}</span></td>
-            <td>
-                <p>${ticket.pelapor}</p>
-                <small>${ticket.email}</small>
+            <td class="px-4 py-3"><span class="text-blue-600 font-medium">#${ticket.id}</span></td>
+            <td class="px-4 py-3">
+                <p class="text-gray-900">${ticket.pelapor}</p>
+                <p class="text-gray-500 text-sm">${ticket.email}</p>
             </td>
-            <td>
-                <p>${ticket.judul}</p>
-                <span class="badge-kategori">${ticket.kategori}</span>
+            <td class="px-4 py-3">
+                <p class="text-gray-900 mb-1">${ticket.judul}</p>
+                <span class="badge-kategori inline-block px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">${ticket.kategori}</span>
             </td>
-            <td>${statusHtml}</td>
-            <td><p>${ticket.lokasi}</p></td>
-            <td>${petugasDisplay}</td>
-            <td class="text-center">
-                <a href="admin-detail-tiket.php?id=${ticket.id}" class="btn-view-detail">
-                    ${isAssignable ? '➕' : '👁️'}
-                </a>
-            </td>
+            <td class="px-4 py-3">${statusHtml}</td>
+            <td class="px-4 py-3"><p class="text-gray-600 max-w-xs truncate">${ticket.lokasi}</p></td>
+            <td class="px-4 py-3">${petugasDisplay}</td>
+            <td class="px-4 py-3 text-center">${actionButton}</td>
         `;
+        tbody.appendChild(row);
     });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     renderStatusTabs();
     filterAndRenderTable(); 
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        currentSearchQuery = e.target.value.toLowerCase();
+        filterAndRenderTable();
+        renderStatusTabs(); // Re-render untuk update total count jika Anda mengimplementasikan counting dinamis
+    });
 });
