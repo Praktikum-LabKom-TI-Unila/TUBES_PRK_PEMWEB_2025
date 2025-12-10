@@ -171,3 +171,25 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+-- 1. Tambah kolom Kategori di tabel Produk (Untuk fitur Filter & Search)
+ALTER TABLE products 
+ADD COLUMN category ENUM('makanan', 'minuman', 'snack', 'lainnya') DEFAULT 'lainnya';
+
+-- 2. Tambah kolom-kolom baru di tabel Transaksi (Untuk fitur Bayar & Diskon)
+ALTER TABLE transactions 
+ADD COLUMN payment_method VARCHAR(20) DEFAULT 'CASH', -- Bisa CASH, QRIS, TRANSFER
+ADD COLUMN total_tax DECIMAL(10,2) DEFAULT 0,         -- Simpan nominal pajak
+ADD COLUMN total_discount DECIMAL(10,2) DEFAULT 0,    -- Simpan nominal diskon
+ADD COLUMN pay_amount DECIMAL(10,2) DEFAULT 0,        -- Uang yang dibayar
+ADD COLUMN change_amount DECIMAL(10,2) DEFAULT 0;     -- Kembalian
+
+-- 3. Update Data Dummy Kategori (Supaya filternya nanti bisa langsung dites)
+UPDATE products SET category = 'makanan' WHERE name LIKE '%ayam%' OR name LIKE '%roti%' OR name LIKE '%mie%' OR name LIKE '%nasi%';
+UPDATE products SET category = 'minuman' WHERE name LIKE '%es%' OR name LIKE '%kopi%' OR name LIKE '%jus%';
+UPDATE products SET category = 'snack' WHERE name LIKE '%kentang%';
+
+ALTER TABLE transactions 
+ADD COLUMN payment_method VARCHAR(20) DEFAULT 'CASH',
+ADD COLUMN pay_amount DECIMAL(10,2) DEFAULT 0,
+ADD COLUMN change_amount DECIMAL(10,2) DEFAULT 0;

@@ -3,19 +3,24 @@
 class Transaction extends Model
 {
     // Fungsi untuk membuat Struk (Header)
+    // Fungsi untuk membuat Struk (Header) dengan Data Lengkap
     public function create($data)
     {
-        // Pastikan session user id tersedia
         $userId = $_SESSION['user']['id'];
-        $total = $data['total'];
-
-        $sql = "INSERT INTO transactions (user_id, total_amount) VALUES (:user_id, :total_amount)";
         
-        // Gunakan prepare dan execute (PDO Standar)
+        // Simpan total, metode bayar, uang bayar, dan kembalian
+        $sql = "INSERT INTO transactions 
+                (user_id, total_amount, payment_method, pay_amount, change_amount) 
+                VALUES 
+                (:user_id, :total, :method, :pay, :change)";
+        
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
             ':user_id' => $userId,
-            ':total_amount' => $total
+            ':total'   => $data['total_final'],
+            ':method'  => $data['payment_method'],
+            ':pay'     => $data['pay_amount'],
+            ':change'  => $data['change_amount']
         ]);
         
         return $this->db->lastInsertId();
