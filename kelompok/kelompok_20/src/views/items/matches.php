@@ -39,8 +39,13 @@ $oppositeLabel = $oppositeType === 'lost' ? 'Hilang' : 'Ditemukan';
         </h2>
         <div class="flex flex-col md:flex-row gap-6">
             <?php if (!empty($targetItem['image_path'])): ?>
+            <?php 
+            $targetImageSrc = (strpos($targetItem['image_path'], 'http://') === 0 || strpos($targetItem['image_path'], 'https://') === 0) 
+                ? $targetItem['image_path']
+                : base_url('assets/uploads/items/' . $targetItem['image_path']);
+            ?>
             <div class="w-full md:w-48 h-48 rounded-xl overflow-hidden flex-shrink-0">
-                <img src="<?= base_url('assets/uploads/items/' . $targetItem['image_path']) ?>" 
+                <img src="<?= $targetImageSrc ?>" 
                      alt="<?= htmlspecialchars($targetItem['title']) ?>"
                      class="w-full h-full object-cover">
             </div>
@@ -127,7 +132,12 @@ $oppositeLabel = $oppositeType === 'lost' ? 'Hilang' : 'Ditemukan';
             
             <div class="relative h-48 bg-gray-100 dark:bg-gray-700">
                 <?php if (!empty($match['image_path'])): ?>
-                <img src="<?= base_url('assets/uploads/items/' . $match['image_path']) ?>" 
+                <?php 
+                $matchImageSrc = (strpos($match['image_path'], 'http://') === 0 || strpos($match['image_path'], 'https://') === 0) 
+                    ? $match['image_path']
+                    : base_url('assets/uploads/items/' . $match['image_path']);
+                ?>
+                <img src="<?= $matchImageSrc ?>" 
                      alt="<?= htmlspecialchars($match['title']) ?>"
                      class="w-full h-full object-cover">
                 <?php else: ?>

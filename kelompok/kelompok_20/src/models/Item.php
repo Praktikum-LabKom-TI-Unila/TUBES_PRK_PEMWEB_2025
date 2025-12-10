@@ -25,8 +25,8 @@ final class Item
 
         $stmt = $this->db->prepare($sql);
 
-        // UPDATE: Default status diubah dari 'open' menjadi 'pending'
-        // agar postingan baru masuk moderasi dulu.
+        // POST-MODERATION: Default status 'open' agar postingan langsung tayang.
+        // Admin dapat mengubah status manual jika diperlukan (process/closed).
         $result = $stmt->execute([
             'user_id'           => $data['user_id'],
             'category_id'       => $data['category_id'],
@@ -36,7 +36,7 @@ final class Item
             'type'              => $data['type'],
             'incident_date'     => $data['incident_date'],
             'image_path'        => $data['image_path'] ?? null,
-            'status'            => $data['status'] ?? 'pending', 
+            'status'            => $data['status'] ?? 'open', 
             'is_safe_claim'     => $data['is_safe_claim'] ?? 0,
             'security_question' => $data['security_question'] ?? null,
             'security_answer'   => $data['security_answer'] ?? null
@@ -364,21 +364,35 @@ final class Item
         ];
     }
 
-    public function getPendingItems(): array
+    public function getAllForAdmin(int $limit = 20, int $offset = 0): array
     {
         $sql = "SELECT 
                     i.*,
                     u.name AS user_name,
+                    u.identity_number AS user_identity,
+                    u.avatar AS user_avatar,
                     c.name AS category_name,
                     l.name AS location_name
                 FROM items i
                 JOIN users u ON i.user_id = u.id
                 JOIN categories c ON i.category_id = c.id
                 JOIN locations l ON i.location_id = l.id
-                WHERE i.status = 'pending' AND i.deleted_at IS NULL
-                ORDER BY i.created_at DESC";
+                WHERE i.deleted_at IS NULL
+                ORDER BY i.created_at DESC
+                LIMIT :limit OFFSET :offset";
 
-        $stmt = $this->db->query($sql);
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function countAllForAdmin(): int
+    {
+        $sql = "SELECT COUNT(*) FROM items WHERE deleted_at IS NULL";
+        $stmt = $this->db->query($sql);
+        return (int) $stmt->fetchColumn();
     }
 }

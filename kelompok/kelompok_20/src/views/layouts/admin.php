@@ -95,10 +95,17 @@
 
         </nav>
 
-        <div class="p-4 border-t border-gray-700 bg-slate-900">
+        <div class="p-4 border-t border-gray-700 bg-slate-900 space-y-2">
+          <a
+            href="<?= base_url('index.php?page=home') ?>"
+            class="flex items-center text-sm font-medium text-gray-400 hover:text-cyan-400 transition px-4 py-2 rounded-md hover:bg-gray-800"
+          >
+            <i class="fa-solid fa-arrow-right-from-bracket mr-3"></i>
+            Ke Mode User
+          </a>
           <a
             href="<?= base_url('index.php?page=auth&action=logout') ?>"
-            class="flex items-center text-sm font-medium text-gray-400 hover:text-red-400 transition"
+            class="flex items-center text-sm font-medium text-gray-400 hover:text-red-400 transition px-4 py-2 rounded-md hover:bg-gray-800"
           >
             <i class="fa-solid fa-right-from-bracket mr-3"></i>
             Logout
