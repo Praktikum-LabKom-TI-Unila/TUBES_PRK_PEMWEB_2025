@@ -137,6 +137,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Daftar Akun
             </a>
         </div>
+        <div class="text-right">
+            <a href="forgot_password.php" class="text-[#496A9A] text-xs hover:underline">
+                Lupa Password?
+            </a>
+        </div>
+
 
         <!-- Footer -->
         <div class="text-center mt-16">
