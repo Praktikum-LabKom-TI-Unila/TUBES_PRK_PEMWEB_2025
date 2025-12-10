@@ -13,13 +13,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $alamat = $_POST['alamat'] ?? '';
     $kontak = $_POST['kontak'] ?? '';
     
-    // Validasi
     if (empty($email) || empty($password) || empty($role)) {
         header('Location: ../pages/manajemen_akun.php?error=Data wajib tidak boleh kosong');
         exit();
     }
     
-    // Cek email sudah ada
     $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
@@ -31,10 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     $stmt->close();
     
-    // Hash password
     $password_hash = password_hash($password, PASSWORD_DEFAULT);
     
-    // Insert berdasarkan role
     if ($role == 'dokter') {
         $gelar = $_POST['gelar'] ?? '';
         if (empty($nama_lengkap) || empty($gelar)) {
@@ -50,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             exit();
         }
         $stmt = $conn->prepare("INSERT INTO users (nama_lengkap, email, password, role, alamat, kontak, nama_vendor) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $nama_lengkap = $nama_vendor; // Untuk vendor, nama_lengkap = nama_vendor
+        $nama_lengkap = $nama_vendor;
         $stmt->bind_param("sssssss", $nama_lengkap, $email, $password_hash, $role, $alamat, $kontak, $nama_vendor);
     } elseif ($role == 'sekolah') {
         $nama_sekolah = $_POST['nama_sekolah'] ?? '';
@@ -60,10 +56,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             exit();
         }
         $stmt = $conn->prepare("INSERT INTO users (nama_lengkap, email, password, role, alamat, kontak, nama_sekolah, jumlah_siswa) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $nama_lengkap = $nama_sekolah; // Untuk sekolah, nama_lengkap = nama_sekolah
+        $nama_lengkap = $nama_sekolah; 
         $stmt->bind_param("sssssssi", $nama_lengkap, $email, $password_hash, $role, $alamat, $kontak, $nama_sekolah, $jumlah_siswa);
     } else {
-        // pegawai atau role lain
+        
         if (empty($nama_lengkap)) {
             header('Location: ../pages/manajemen_akun.php?error=Nama lengkap wajib diisi');
             exit();
