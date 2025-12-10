@@ -33,3 +33,4 @@ $hash = password_hash($password, PASSWORD_DEFAULT);
 $ins = $pdo->prepare("INSERT INTO pengguna (nama,email,password_hash,role,created_at,updated_at) VALUES (:nama,:email,:hash,'admin', NOW(), NOW())");
 $ins->execute(['nama'=>$nama,'email'=>$email,'hash'=>$hash]);
 echo "Admin created with id: " . $pdo->lastInsertId() . "\n";
+
