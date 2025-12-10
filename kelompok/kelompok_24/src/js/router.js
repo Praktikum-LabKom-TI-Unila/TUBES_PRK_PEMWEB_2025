@@ -9,9 +9,10 @@
 // Konfigurasi Route Mapping
 const routes = {
     'home': { 
-    view: 'views/home.html', 
-    title: 'DASHBOARD OVERVIEW',
-    script: 'js/controllers/home.js'
+        view: 'views/home.html', 
+        title: 'DASHBOARD OVERVIEW',
+        script: 'js/controllers/home.js',
+        controller: 'HomeController'
     },
     'pos': { 
         view: 'views/pos.html', 
@@ -20,7 +21,6 @@ const routes = {
     'inventory': { 
         view: 'views/inventory.html', 
         title: 'INVENTORY MANAGEMENT',
-        // Definisikan script & controller yang dipakai
         script: 'js/controllers/inventory.js',
         controller: 'InventoryController'
     },
@@ -32,14 +32,14 @@ const routes = {
         view: 'views/users.html', 
         title: 'OPERATOR ACCESS CONTROL',
         allowedRoles: ['admin'],
-        // Definisikan script & controller yang dipakai
         script: 'js/controllers/users.js',
         controller: 'UsersController'
     }
 };
 
 const controllerScripts = {
-    inventory: 'js/controllers/inventory.js',
+    home: 'js/controllers/users.js',
+    inventory: 'js/controllers/home.js',
     reports: 'js/controllers/reports.js',
     users: 'js/controllers/users.js'
 };
