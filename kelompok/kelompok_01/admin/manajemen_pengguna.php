@@ -1,19 +1,19 @@
 <?php
 include 'config.php';
 
-
+// Ambil data pengguna
 $users_result = $conn->query("SELECT * FROM users ORDER BY id_user");
 
-
+// Hitung statistik berdasarkan role
 $total_users = $users_result->num_rows;
 $owner_count = $conn->query("SELECT COUNT(*) as total FROM users WHERE role = 'owner'")->fetch_assoc()['total'];
 $admin_count = $conn->query("SELECT COUNT(*) as total FROM users WHERE role = 'admin'")->fetch_assoc()['total'];
 $kasir_count = $conn->query("SELECT COUNT(*) as total FROM users WHERE role = 'kasir'")->fetch_assoc()['total'];
 
-
+// Reset pointer untuk loop users
 $users_result->data_seek(0);
 
-
+// Tambah pengguna baru
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_user'])) {
     $username = $_POST['username'];
     $password = $_POST['password'];
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_user'])) {
     exit();
 }
 
-
+// Hapus pengguna
 if (isset($_GET['hapus'])) {
     $id_user = $_GET['hapus'];
     $check_user = $conn->query("SELECT role FROM users WHERE id_user = $id_user")->fetch_assoc();
@@ -46,7 +46,7 @@ if (isset($_GET['hapus'])) {
     exit();
 }
 
-
+// Ambil data admin untuk sidebar
 $admin_id = $_SESSION['id_user'];
 $admin = $conn->query("SELECT * FROM users WHERE id_user = $admin_id")->fetch_assoc();
 $default_avatar = 'https://ui-avatars.com/api/?name=' . urlencode($admin['nama'] ?? 'Admin');
@@ -84,7 +84,7 @@ $foto_profil = !empty($admin['profile_picture']) ? '../' . $admin['profile_pictu
     </style>
 </head>
 <body class="bg-antique-white">
-    
+    <!-- Sidebar -->
     <div class="fixed inset-y-0 left-0 w-64 sidebar shadow-xl flex flex-col justify-between">
         <div>
             <div class="flex items-center justify-center h-16 bg-pale-taupe">
@@ -136,9 +136,9 @@ $foto_profil = !empty($admin['profile_picture']) ? '../' . $admin['profile_pictu
         </div>
     </div>
 
-   
+    <!-- Main Content -->
     <div class="ml-64">
-       
+        <!-- Header -->
         <header class="bg-white shadow-sm border-b border-pale-taupe">
             <div class="flex items-center justify-between px-8 py-4">
                 <div>
@@ -153,7 +153,7 @@ $foto_profil = !empty($admin['profile_picture']) ? '../' . $admin['profile_pictu
         </header>
 
         <main class="p-8">
-           
+            <!-- Stats -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 <div class="bg-gradient-to-r from-pale-taupe to-amber-800 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-transform">
                     <div class="flex items-center justify-between">
@@ -193,7 +193,7 @@ $foto_profil = !empty($admin['profile_picture']) ? '../' . $admin['profile_pictu
                 </div>
             </div>
 
-           
+            <!-- Users Table -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
                     <div class="flex items-center justify-between">
@@ -286,7 +286,7 @@ $foto_profil = !empty($admin['profile_picture']) ? '../' . $admin['profile_pictu
         </main>
     </div>
 
-    
+    <!-- Add User Modal -->
     <div id="addModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
         <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-xl bg-white">
             <div class="flex items-center justify-between mb-6">

@@ -5,7 +5,7 @@ $admin_id = $_SESSION['id_user'];
 $admin = $conn->query("SELECT * FROM users WHERE id_user = $admin_id")->fetch_assoc();
 $foto_profil = !empty($admin['profile_picture']) ? '../' . $admin['profile_picture'] : 'https://ui-avatars.com/api/?name=' . urlencode($admin['nama'] ?? 'Admin');
 
-
+// Hak akses per role
 $permissions = [
     'owner' => [
         'name' => 'Owner',

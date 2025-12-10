@@ -1,7 +1,7 @@
 <?php
 include 'config.php';
 
-
+// Query untuk statistik dashboard
 $total_penjualan = $conn->query("SELECT SUM(total) as total FROM transaksi")->fetch_assoc()['total'] ?? 0;
 $total_transaksi = $conn->query("SELECT COUNT(*) as total FROM transaksi")->fetch_assoc()['total'] ?? 0;
 $menu_terpopuler = $conn->query("
@@ -13,7 +13,7 @@ $menu_terpopuler = $conn->query("
     LIMIT 1
 ")->fetch_assoc();
 
-
+// Data kategori penjualan
 $kategori_penjualan = $conn->query("
     SELECT k.nama_kategori, SUM(d.subtotal) as total
     FROM detail_transaksi d
@@ -22,15 +22,15 @@ $kategori_penjualan = $conn->query("
     GROUP BY k.id_kategori
 ");
 
-
+// Data transaksi terbaru
 $recent_transactions = $conn->query("SELECT * FROM transaksi ORDER BY tanggal DESC LIMIT 5");
 
-
+// Ambil data admin untuk header
 $admin_id = $_SESSION['id_user'];
 $admin_result = $conn->query("SELECT * FROM users WHERE id_user = $admin_id");
 $admin = $admin_result->fetch_assoc();
 
-
+// Path default foto profil
 $default_avatar = 'https://ui-avatars.com/api/?name=' . urlencode($admin['nama'] ?? 'Admin');
 $foto_profil = !empty($admin['profile_picture']) ? '../' . $admin['profile_picture'] : $default_avatar;
 ?>
@@ -79,7 +79,7 @@ $foto_profil = !empty($admin['profile_picture']) ? '../' . $admin['profile_pictu
     </style>
 </head>
 <body class="bg-antique-white">
-  
+    <!-- Sidebar -->
     <div class="fixed inset-y-0 left-0 w-64 sidebar shadow-xl flex flex-col justify-between">
         <div>
             <div class="flex items-center justify-center h-16 bg-pale-taupe">
@@ -131,8 +131,9 @@ $foto_profil = !empty($admin['profile_picture']) ? '../' . $admin['profile_pictu
         </div>
     </div>
 
+    <!-- Main Content -->
     <div class="ml-64">
-      
+        <!-- Header -->
         <header class="bg-white shadow-sm border-b border-pale-taupe">
             <div class="flex items-center justify-between px-8 py-4">
                 <div>
@@ -151,10 +152,10 @@ $foto_profil = !empty($admin['profile_picture']) ? '../' . $admin['profile_pictu
             </div>
         </header>
 
-       
+        <!-- Stats Grid -->
         <main class="p-8">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              
+                <!-- Total Penjualan -->
                 <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
@@ -176,7 +177,7 @@ $foto_profil = !empty($admin['profile_picture']) ? '../' . $admin['profile_pictu
                     </div>
                 </div>
 
-               
+                <!-- Total Transaksi -->
                 <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
@@ -198,7 +199,7 @@ $foto_profil = !empty($admin['profile_picture']) ? '../' . $admin['profile_pictu
                     </div>
                 </div>
 
-               
+                <!-- Menu Terpopuler -->
                 <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
@@ -221,7 +222,7 @@ $foto_profil = !empty($admin['profile_picture']) ? '../' . $admin['profile_pictu
                 </div>
             </div>
 
-           
+            <!-- Category Chart -->
             <div class="mb-8">
                 <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300">
                     <div class="flex items-center justify-between mb-6">
@@ -233,9 +234,9 @@ $foto_profil = !empty($admin['profile_picture']) ? '../' . $admin['profile_pictu
                 </div>
             </div>
 
-           
+            <!-- Recent Transactions & Quick Actions -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-               
+                <!-- Recent Transactions -->
                 <div class="lg:col-span-2 bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-lg font-semibold text-gray-800">Transaksi Terbaru</h3>
@@ -291,9 +292,9 @@ $foto_profil = !empty($admin['profile_picture']) ? '../' . $admin['profile_pictu
                     </div>
                 </div>
 
-               
+                <!-- Quick Actions & Stats -->
                 <div class="space-y-6">
-                    
+                    <!-- Quick Actions -->
                     <div class="bg-gradient-to-r from-pale-taupe to-amber-800 rounded-xl shadow-lg p-6 text-white">
                         <h3 class="text-lg font-semibold mb-4">Quick Actions</h3>
                         <div class="space-y-3">
@@ -315,7 +316,7 @@ $foto_profil = !empty($admin['profile_picture']) ? '../' . $admin['profile_pictu
                         </div>
                     </div>
 
-                    
+                    <!-- Additional Stats -->
                     <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300">
                         <h3 class="text-lg font-semibold text-gray-800 mb-4">Statistik Tambahan</h3>
                         <div class="space-y-4">
