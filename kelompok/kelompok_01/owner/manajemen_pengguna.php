@@ -1,19 +1,16 @@
 <?php
+session_start();
 include 'config.php';
 
-// Ambil data pengguna
 $users_result = $conn->query("SELECT * FROM users ORDER BY id_user");
 
-// Hitung statistik berdasarkan role
 $total_users = $users_result->num_rows;
 $owner_count = $conn->query("SELECT COUNT(*) as total FROM users WHERE role = 'owner'")->fetch_assoc()['total'];
 $admin_count = $conn->query("SELECT COUNT(*) as total FROM users WHERE role = 'admin'")->fetch_assoc()['total'];
 $kasir_count = $conn->query("SELECT COUNT(*) as total FROM users WHERE role = 'kasir'")->fetch_assoc()['total'];
 
-// Reset pointer untuk loop users
 $users_result->data_seek(0);
 
-// Tambah pengguna baru
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_user'])) {
     $username = $_POST['username'];
     $password = $_POST['password'];
@@ -21,8 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_user'])) {
     $nama = $_POST['nama'];
     $phone_number = $_POST['phone_number'] ?? NULL;
     
-    // Enkripsi password (sederhana - bisa diganti dengan password_hash() untuk keamanan lebih)
-    $hashed_password = md5($password); // Gunakan password_hash() di production
+    $hashed_password = md5($password); 
     
     $stmt = $conn->prepare("INSERT INTO users (username, password, role, nama, phone_number) VALUES (?, ?, ?, ?, ?)");
     $stmt->bind_param("sssss", $username, $hashed_password, $role, $nama, $phone_number);
@@ -36,16 +32,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_user'])) {
     exit();
 }
 
-// Hapus pengguna
 if (isset($_GET['hapus'])) {
     $id_user = $_GET['hapus'];
-    // Cek apakah user adalah owner (tidak boleh dihapus)
+
     $check_user = $conn->query("SELECT role FROM users WHERE id_user = $id_user")->fetch_assoc();
     if ($check_user['role'] != 'owner') {
         $conn->query("DELETE FROM users WHERE id_user = $id_user");
     }
     header("Location: manajemen_pengguna.php");
     exit();
+}
+
+$owner_result = $conn->query("SELECT * FROM users WHERE role = 'owner' LIMIT 1");
+$owner = $owner_result->fetch_assoc();
+
+if (!$owner) {
+    $user_result = $conn->query("SELECT * FROM users WHERE role = 'admin' LIMIT 1");
+    $owner = $user_result->fetch_assoc();
+}
+
+if (!$owner) {
+    $user_result = $conn->query("SELECT * FROM users LIMIT 1");
+    $owner = $user_result->fetch_assoc();
+}
+
+$foto_display = 'https://ui-avatars.com/api/?name=' . urlencode($owner['nama'] ?? 'Owner') . '&background=B7A087&color=fff';
+if (!empty($owner['profile_picture']) && file_exists($owner['profile_picture'])) {
+    $foto_display = $owner['profile_picture'];
 }
 ?>
 
@@ -92,7 +105,6 @@ if (isset($_GET['hapus'])) {
     </style>
 </head>
 <body class="bg-antique-white">
-    <!-- Sidebar -->
     <div class="fixed inset-y-0 left-0 w-64 sidebar shadow-xl">
         <div class="flex items-center justify-center h-16 bg-pale-taupe">
             <div class="text-white">
@@ -125,36 +137,39 @@ if (isset($_GET['hapus'])) {
         </nav>
         
         <div class="absolute bottom-0 w-full p-4 bg-pale-taupe bg-opacity-80">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <i class="fas fa-user-circle text-2xl text-white"></i>
-                </div>
-                <div class="ml-3">
-                    <p class="text-sm font-medium text-white">Owner</p>
-                    <p class="text-xs text-white opacity-90">Administrator</p>
+            <div class="flex items-center gap-3">
+                <img src="<?= $foto_display ?>" class="w-10 h-10 rounded-full border-2 border-white object-cover">
+                <div class="overflow-hidden text-white">
+                    <p class="font-bold text-sm truncate leading-tight"><?= htmlspecialchars($owner['nama'] ?? 'Owner') ?></p>
+                    <p class="text-xs opacity-90"><?= ucfirst($owner['role'] ?? 'Admin') ?></p>
+                    <a href="logout.php" class="text-xs text-red-200 hover:text-white flex items-center gap-1 mt-1 transition-colors">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="ml-64">
-        <!-- Header -->
         <header class="bg-white shadow-sm border-b border-pale-taupe">
             <div class="flex items-center justify-between px-8 py-4">
                 <div>
                     <h1 class="text-2xl font-bold text-gray-800">Manajemen Pengguna</h1>
                     <p class="text-gray-600">Kelola akses pengguna sistem</p>
                 </div>
-                <button onclick="openAddModal()" class="flex items-center px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
-                    <i class="fas fa-user-plus mr-2"></i>
-                    Tambah Pengguna
-                </button>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <p class="text-sm text-gray-600">Selamat datang</p>
+                        <p class="font-semibold text-gray-800"><?= htmlspecialchars($owner['nama'] ?? 'Owner') ?></p>
+                    </div>
+                    <a href="profil.php" class="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden border-2 border-pale-taupe">
+                        <img src="<?= $foto_display ?>" alt="Profil" class="w-full h-full object-cover">
+                    </a>
+                </div>
             </div>
         </header>
 
         <main class="p-8">
-            <!-- Stats -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 <div class="bg-gradient-to-r from-pale-taupe to-amber-800 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-transform">
                     <div class="flex items-center justify-between">
@@ -194,7 +209,6 @@ if (isset($_GET['hapus'])) {
                 </div>
             </div>
 
-            <!-- Users Table -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
                     <div class="flex items-center justify-between">
@@ -202,10 +216,11 @@ if (isset($_GET['hapus'])) {
                             <h3 class="text-lg font-semibold text-gray-800">Daftar Pengguna</h3>
                             <p class="text-sm text-gray-600">Semua pengguna yang memiliki akses ke sistem (Total: <?php echo $total_users; ?> pengguna)</p>
                         </div>
-                        <div class="text-sm text-gray-600">
-                            <button onclick="exportUsers()" class="flex items-center px-3 py-1 text-sm text-green-600 hover:text-green-800 border border-green-300 rounded-lg hover:bg-green-50 transition-colors">
-                                <i class="fas fa-file-export mr-1"></i>
-                                Export
+                        <div class="flex space-x-2">
+                    
+                            <button onclick="openAddModal()" class="flex items-center px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
+                                <i class="fas fa-user-plus mr-2"></i>
+                                Tambah Pengguna
                             </button>
                         </div>
                     </div>
@@ -331,7 +346,6 @@ if (isset($_GET['hapus'])) {
         </main>
     </div>
 
-    <!-- Add User Modal -->
     <div id="addModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
         <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-xl bg-white">
             <div class="flex items-center justify-between mb-6">
@@ -404,7 +418,7 @@ if (isset($_GET['hapus'])) {
         }
 
         function editUser(id) {
-            // Arahkan ke halaman edit atau tampilkan modal edit
+
             window.location.href = 'edit_user.php?id=' + id;
         }
 
@@ -414,14 +428,7 @@ if (isset($_GET['hapus'])) {
             }
         }
 
-        function exportUsers() {
-            const totalUsers = <?php echo $total_users; ?>;
-            const owners = <?php echo $owner_count; ?>;
-            const admins = <?php echo $admin_count; ?>;
-            const kasirs = <?php echo $kasir_count; ?>;
-            
-            alert(`Ekspor Data Pengguna:\n\nTotal Pengguna: ${totalUsers}\nOwner: ${owners}\nAdmin: ${admins}\nKasir: ${kasirs}\n\nData akan diexport dalam format CSV.`);
-        }
+
 
         function validateUserForm() {
             const nama = document.querySelector('input[name="nama"]').value;
@@ -447,7 +454,6 @@ if (isset($_GET['hapus'])) {
             return true;
         }
 
-        // Close modal when clicking outside
         window.onclick = function(event) {
             const modal = document.getElementById('addModal');
             if (event.target === modal) {
@@ -455,14 +461,12 @@ if (isset($_GET['hapus'])) {
             }
         }
 
-        // Keyboard shortcuts
         document.addEventListener('keydown', function(event) {
-            // Ctrl + U untuk tambah user baru
             if (event.ctrlKey && event.key === 'u') {
                 event.preventDefault();
                 openAddModal();
             }
-            // Escape untuk tutup modal
+
             if (event.key === 'Escape') {
                 closeAddModal();
             }
