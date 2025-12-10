@@ -103,8 +103,11 @@ async function loadDonations() {
                                 <h3 class="font-semibold mb-2">${donation.campaign_title || 'Campaign'}</h3>
                                 <p class="text-gray-600 mb-2">Nominal: <span class="font-semibold text-indigo-600">Rp ${parseInt(donation.amount).toLocaleString('id-ID')}</span></p>
                                 <p class="text-sm text-gray-500 mb-2">${new Date(donation.created_at).toLocaleString('id-ID')}</p>
-                                <p class="text-sm text-gray-600">Metode: ${donation.payment_method === 'qris' ? 'QRIS' : 'Transfer Bank'}</p>
-                                ${donation.is_anonymous ? '<p class="text-sm text-gray-600">Anonim</p>' : ''}
+                                <p class="text-sm text-gray-600 mb-1">Metode: ${donation.payment_method === 'qris' ? 'QRIS' : 'Transfer Bank'}</p>
+                                ${donation.is_anonymous ? 
+                                    '<p class="text-sm text-gray-500 italic">Donatur: <span class="text-gray-600">Anonim</span></p>' : 
+                                    (donation.donor_name ? `<p class="text-sm text-gray-600">Donatur: <span class="font-medium text-indigo-600">${donation.donor_name}</span></p>` : '<p class="text-sm text-gray-500 italic">Donatur: Tidak diketahui</p>')
+                                }
                             </div>
                             <span class="px-3 py-1 rounded-full text-sm font-medium ${statusColors[donation.status]}">
                                 ${statusText[donation.status]}
