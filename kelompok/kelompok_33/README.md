@@ -1,26 +1,85 @@
 # CleanSpot - Sistem Laporan & Pemetaan Titik Sampah Kota
+
 **Final Project Praktikum Pemrograman Web 2025**  
 Laboratorium Teknik Komputer - Universitas Lampung
 
 ---
 
-## Deskripsi Singkat
-CleanSpot adalah aplikasi web responsif untuk melaporkan dan memantau titik sampah/TPS di kota.  
-Warga dapat mengirim laporan dengan foto dan lokasi; petugas mengelola tugas pembersihan; admin memantau lewat dashboard interaktif dengan grafik dan peta real-time.
+## 👥 Anggota Kelompok 33
+- **Dimas Faqih (2317051007) - Ketua** - Dashboard (Admin, Warga, Petugas), Statistik & Peta (Chart.js, Leaflet/OpenStreetMap), UI/UX Design  
+- **Alda (2317051050)** - User Management (register, login, role-based access, profil)  
+- **Nabila (2317051023)** - Laporan Sampah (form, upload foto, CRUD, pagination)  
+- **Alyaa (2317051051)** - Penanganan (petugas): update status, assign, komentar penanganan
+
+---
+
+## 📋 Tentang Proyek
+
+### Judul
+**CleanSpot - Sistem Pelaporan dan Pemetaan Titik Sampah Berbasis Web**
+
+### Summary
+CleanSpot adalah aplikasi web responsif yang memungkinkan masyarakat untuk melaporkan dan memantau titik sampah/TPS di kota secara real-time. Sistem ini menghubungkan tiga role pengguna:
+
+- **Warga**: Membuat laporan sampah dengan foto dan lokasi GPS menggunakan peta interaktif
+- **Petugas**: Mengelola tugas pembersihan dengan sistem tracking status (Baru → Dikerjakan → Selesai)
+- **Admin**: Memantau seluruh sistem melalui dashboard analytics dengan grafik dan peta, serta mengelola pengguna dan penugasan
+
+Aplikasi ini menerapkan konsep **Smart City** untuk meningkatkan efisiensi pengelolaan kebersihan kota dan partisipasi masyarakat dalam menjaga lingkungan.
 
 **Tema:** Smart City & Environment
 
 ---
 
-## Anggota Kelompok 33
-- **Dimas Faqih (Ketua)** - Dashboard Admin, Statistik & Peta (Chart.js, Leaflet/OpenStreetMap), UI/UX Design  
-- **Alda** - User Management (register, login, role-based access, profil)  
-- **Nabila** - Laporan Sampah (form, upload foto, CRUD, pagination)  
-- **Alyaa** - Penanganan (petugas): update status, assign, komentar penanganan
+## 🚀 Cara Menjalankan Aplikasi
+
+### Prerequisites
+- PHP 8.0 atau lebih tinggi
+- MySQL 8.0+ atau MariaDB 10.5+
+- Apache web server (XAMPP/LAMP/MAMP)
+- Browser modern (Chrome, Firefox, Edge, Safari)
+
+### Langkah-langkah Instalasi
+
+1. **Clone Repository**
+   ```bash
+   git clone https://github.com/DIMFAQ/TUBES_PRK_PEMWEB_2025-KELOMPOK-33.git
+   cd TUBES_PRK_PEMWEB_2025-KELOMPOK-33/kelompok/kelompok_33
+   ```
+
+2. **Setup Database**
+   - Buka phpMyAdmin (biasanya di `http://localhost/phpmyadmin`)
+   - Buat database baru dengan nama: `cleanspot_db`
+   - Import file `db/schema.sql` ke database tersebut
+   - Database akan otomatis membuat semua tabel dan struktur yang diperlukan
+
+3. **Konfigurasi Database**
+   - Copy file `db/config.php.example` menjadi `src/config.php`
+   - Edit `src/config.php` sesuai dengan konfigurasi MySQL Anda:
+   ```php
+   define('DB_HOST', 'localhost');
+   define('DB_USER', 'root');          // Sesuaikan username MySQL
+   define('DB_PASS', '');              // Sesuaikan password MySQL
+   define('DB_NAME', 'cleanspot_db');
+   ```
+
+4. **Setup Folder Upload**
+   - Pastikan folder `src/uploads/laporan/` dan `src/uploads/bukti/` memiliki permission write (chmod 777 di Linux/Mac)
+
+5. **Seed Data (Opsional)**
+   - Buka browser dan akses: `http://localhost/TUBES_PRK_PEMWEB_2025-KELOMPOK-33/kelompok/kelompok_33/src/seed_users.php`
+   - Ini akan membuat user sample untuk testing:
+     - Admin: `admin@cleanspot.com` / `admin123`
+     - Petugas: `petugas@cleanspot.com` / `petugas123`
+     - Warga: `warga@cleanspot.com` / `warga123`
+
+6. **Akses Aplikasi**
+   - Buka browser dan akses: `http://localhost/TUBES_PRK_PEMWEB_2025-KELOMPOK-33/kelompok/kelompok_33/src/`
+   - Login dengan salah satu akun di atas atau register akun baru
 
 ---
 
-## Teknologi
+## 💻 Teknologi
 - **Frontend:** HTML5, Custom CSS (Plus Jakarta Sans), JavaScript ES6+
 - **Backend:** PHP 8.0+ (native, tanpa framework)
 - **Database:** MySQL 8.0+ / MariaDB 10.5+
@@ -239,18 +298,6 @@ Labels: "Tugas Baru" -> "Sedang Dikerjakan" -> "Selesai"
 
 ---
 
-## Contributing
-
-Project ini adalah tugas kelompok. Untuk kontribusi:
-
-1. Fork repository
-2. Create feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open Pull Request
-
----
-
 ## License
 
 Academic Project - Praktikum Pemrograman Web 2025  
@@ -262,9 +309,5 @@ Universitas Lampung
 
 **Kelompok 33**
 - Repository: [GitHub](https://github.com/DIMFAQ/TUBES_PRK_PEMWEB_2025-KELOMPOK-33)
-- Email: cleanspot33@example.com
 
 ---
-
-**Dibuat dengan ❤️ oleh Kelompok 33**  
-*Last Updated: Januari 2025*

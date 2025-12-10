@@ -1,8 +1,7 @@
-document.addEventListener('DOMContentLoaded', function() {
-    loadStatistics();
-    loadCharts();
-    loadMap();
-});
+let chartStatus = null;
+let chartKategori = null;
+let adminMap = null;
+
 async function loadStatistics() {
     try {
         const response = await fetch('../api/statistik_data.php');
@@ -26,9 +25,23 @@ async function loadCharts() {
     try {
         const response = await fetch('../api/statistik_data.php');
         const result = await response.json();
+
         if (result.success) {
             const data = result.data;
-            new Chart(document.getElementById('chart-status'), {
+
+            const statusCanvas = document.getElementById('chart-status');
+            const kategoriCanvas = document.getElementById('chart-kategori');
+
+            if (!statusCanvas || !kategoriCanvas) return;
+
+            if (chartStatus) {
+                chartStatus.destroy();
+            }
+            if (chartKategori) {
+                chartKategori.destroy();
+            }
+
+            chartStatus = new Chart(statusCanvas, {
                 type: 'doughnut',
                 data: {
                     labels: ['Baru', 'Diproses', 'Selesai'],
@@ -50,7 +63,8 @@ async function loadCharts() {
                     }
                 }
             });
-            new Chart(document.getElementById('chart-kategori'), {
+
+            chartKategori = new Chart(kategoriCanvas, {
                 type: 'pie',
                 data: {
                     labels: ['Organik', 'Non-Organik', 'Lainnya'],
@@ -78,10 +92,18 @@ async function loadCharts() {
     }
 }
 async function loadMap() {
-    const map = L.map('map').setView([-2.5, 118], 5);
+    const mapElement = document.getElementById('map');
+    if (!mapElement) return;
+
+    if (adminMap) {
+        adminMap.remove();
+    }
+
+    adminMap = L.map('map').setView([-2.5, 118], 5);
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: 'Ã‚Â© OpenStreetMap contributors'
-    }).addTo(map);
+    }).addTo(adminMap);
     try {
         const response = await fetch('../api/map-data.php');
         const result = await response.json();
@@ -99,7 +121,8 @@ async function loadMap() {
                         weight: 2,
                         opacity: 1,
                         fillOpacity: 0.8
-                    }).addTo(map);
+                    }).addTo(adminMap);
+
                     marker.bindPopup(`
                         <div style="padding: 8px;">
                             <h4 style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">${laporan.judul}</h4>
@@ -114,7 +137,7 @@ async function loadMap() {
             });
             if (markers.length > 0) {
                 const group = L.featureGroup(markers);
-                map.fitBounds(group.getBounds().pad(0.1));
+                adminMap.fitBounds(group.getBounds().pad(0.1));
             }
         }
     } catch (error) {
@@ -125,43 +148,59 @@ async function loadRecentReports() {
     try {
         const response = await fetch('../api/admin/ambil_laporan.php?limit=5');
         const result = await response.json();
-        const tbody = document.querySelector('#table-laporan-terbaru tbody');
+
+        const tbody = document.getElementById('table-laporan-terbaru');
+        if (!tbody) return;
+
         if (result.success && result.data && result.data.items && result.data.items.length > 0) {
             tbody.innerHTML = result.data.items.map(laporan => {
                 let statusClass = 'badge-warning';
                 if (laporan.status === 'selesai') statusClass = 'badge-success';
                 else if (laporan.status === 'diproses') statusClass = 'badge-info';
+
                 return `
                     <tr>
-                        <td>${laporan.judul}</td>
-                        <td>${laporan.kategori}</td>
-                        <td>${laporan.nama_pelapor}</td>
-                        <td><span class="badge ${statusClass}">${laporan.status}</span></td>
-                        <td>${new Date(laporan.created_at).toLocaleDateString('id-ID')}</td>
+                        <td class="col-id">#${laporan.id}</td>
+                        <td class="col-pelapor">${laporan.nama_pelapor}</td>
+                        <td class="col-judul">${laporan.judul}</td>
+                        <td class="col-kategori">${laporan.kategori}</td>
+                        <td class="col-status"><span class="badge ${statusClass}">${laporan.status}</span></td>
+                        <td class="col-tanggal">${new Date(laporan.created_at).toLocaleDateString('id-ID')}</td>
+                        <td class="col-aksi">
+                            <a href="detail_laporan_admin.php?id=${laporan.id}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
                     </tr>
                 `;
             }).join('');
         } else {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="5" style="text-align: center; color: #9ca3af; padding: 24px;">
-                        Tidak ada laporan
+                    <td colspan="7" class="desktop-loading" style="text-align: center; color: #9ca3af; padding: 24px;">
+                        Tidak ada laporan terbaru
+                    </td>
+                    <td colspan="3" class="mobile-loading" style="text-align: center; color: #9ca3af; padding: 24px; display: none;">
+                        Tidak ada laporan terbaru
                     </td>
                 </tr>
             `;
         }
     } catch (error) {
         console.error('Error loading recent reports:', error);
-        const tbody = document.querySelector('#table-laporan-terbaru tbody');
+        const tbody = document.getElementById('table-laporan-terbaru');
+        if (!tbody) return;
+
         tbody.innerHTML = `
             <tr>
-                <td colspan="5" style="text-align: center; color: #ef4444; padding: 24px;">
+                <td colspan="7" style="text-align: center; color: #ef4444; padding: 24px;">
                     Gagal memuat data
                 </td>
             </tr>
         `;
     }
 }
+
 document.addEventListener('DOMContentLoaded', function() {
     loadStatistics();
     loadCharts();
