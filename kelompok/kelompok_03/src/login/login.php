@@ -101,6 +101,13 @@ if ($_POST) {
             </form>
 
             <p class="mt-4 text-xs text-muted text-center">Belum punya akun? Hubungi administrator.</p>
+
+            <div class="mt-6 pt-6 border-t border-white/20">
+                <a href="../index.php" class="flex items-center justify-center gap-2 w-full bg-white/20 hover:bg-white/30 text-white font-semibold py-3 rounded-xl transition-colors">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Kembali ke Beranda
+                </a>
+            </div>
         </div>
     </div>
 </body>
