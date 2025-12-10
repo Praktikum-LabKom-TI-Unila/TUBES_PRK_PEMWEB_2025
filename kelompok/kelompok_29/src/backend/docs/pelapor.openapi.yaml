@@ -1,0 +1,1013 @@
+openapi: 3.0.3
+info:
+  title: SIPINDA Pelapor API
+  version: '1.0.0'
+  description: >-
+    Blueprint endpoint pelapor (P3–P7) untuk REST API Vanilla PHP SIPINDA.
+servers:
+  - url: /api
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ErrorDetail:
+      type: object
+      properties:
+        field:
+          type: string
+          nullable: true
+        message:
+          type: string
+        reason:
+          type: string
+          nullable: true
+      additionalProperties: false
+    BaseResponse:
+      type: object
+      required:
+        - status
+        - code
+        - message
+        - data
+        - errors
+      properties:
+        status:
+          type: string
+          description: 'success untuk respon berhasil, error bila terjadi kegagalan.'
+          enum: [success, error]
+        code:
+          type: integer
+          description: Salinan kode status HTTP.
+        message:
+          type: string
+        data:
+          type: object
+          nullable: true
+          description: Payload utama yang dikembalikan endpoint (bisa null jika error).
+        errors:
+          type: array
+          description: Daftar detail error bila ada.
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+          default: []
+    DashboardStats:
+      type: object
+      required: [total_laporan, total_diproses, total_selesai]
+      properties:
+        total_laporan:
+          type: integer
+          minimum: 0
+        total_diproses:
+          type: integer
+          minimum: 0
+        total_selesai:
+          type: integer
+          minimum: 0
+    ComplaintStatus:
+      type: string
+      enum:
+        - diajukan
+        - diverifikasi_admin
+        - ditugaskan_ke_petugas
+        - dalam_proses
+        - menunggu_validasi_admin
+        - selesai
+    ComplaintCategory:
+      type: object
+      required: [id, label]
+      properties:
+        id:
+          type: string
+          enum:
+            - Jalan_Raya
+            - Penerangan_Jalan
+            - Drainase
+            - Trotoar
+            - Taman
+            - Jembatan
+            - Rambu_Lalu_Lintas
+            - Fasilitas_Umum
+            - Lainnya
+        label:
+          type: string
+    ComplaintSummary:
+      type: object
+      required: [id, title, category, status, address, created_at]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        category:
+          type: string
+          enum:
+            - Jalan_Raya
+            - Penerangan_Jalan
+            - Drainase
+            - Trotoar
+            - Taman
+            - Jembatan
+            - Rambu_Lalu_Lintas
+            - Fasilitas_Umum
+            - Lainnya
+        status:
+          $ref: '#/components/schemas/ComplaintStatus'
+        address:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    PelaporProfile:
+      type: object
+      required: [id, full_name, email, phone, nik, address, role, created_at, updated_at]
+      properties:
+        id:
+          type: integer
+        full_name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        nik:
+          type: string
+        address:
+          type: string
+        role:
+          type: string
+        profile_photo:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    PelaporProfileUpdateRequest:
+      type: object
+      required: [full_name, email, phone, nik, address]
+      properties:
+        full_name:
+          type: string
+          maxLength: 255
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        nik:
+          type: string
+          pattern: '^\\d{16}$'
+        address:
+          type: string
+        photo:
+          type: string
+          format: binary
+          nullable: true
+          description: File JPG/PNG/WEBP maksimal 5 MB (hanya untuk multipart/form-data).
+        photo_base64:
+          type: string
+          nullable: true
+          description: 'Fallback data URI base64 (image/jpeg|png|webp) bila multipart tidak tersedia.'
+    PelaporProfileUpdateResult:
+      type: object
+      required: [id, full_name, email, phone, nik, address]
+      properties:
+        id:
+          type: integer
+        full_name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        nik:
+          type: string
+        address:
+          type: string
+        profile_photo:
+          type: string
+          nullable: true
+    ComplaintCreateRequest:
+      type: object
+      required: [category, title, description, address]
+      properties:
+        category:
+          type: string
+          enum:
+            - Jalan_Raya
+            - Penerangan_Jalan
+            - Drainase
+            - Trotoar
+            - Taman
+            - Jembatan
+            - Rambu_Lalu_Lintas
+            - Fasilitas_Umum
+            - Lainnya
+        title:
+          type: string
+        description:
+          type: string
+        address:
+          type: string
+        latitude:
+          type: number
+          format: float
+          nullable: true
+        longitude:
+          type: number
+          format: float
+          nullable: true
+        photo:
+          type: string
+          format: binary
+          nullable: true
+          description: File JPG/PNG/WEBP maksimal 5 MB (multipart).
+        photo_base64:
+          type: string
+          nullable: true
+          description: 'Fallback data URI base64 bila multipart tidak tersedia.'
+    ComplaintCreateResult:
+      type: object
+      required: [id, title, status]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        status:
+          $ref: '#/components/schemas/ComplaintStatus'
+        photo_before:
+          type: string
+          nullable: true
+    ComplaintCategoriesData:
+      type: object
+      properties:
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComplaintCategory'
+    RecentComplaintsData:
+      type: object
+      required: [limit, records]
+      properties:
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 20
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComplaintSummary'
+    ComplaintListData:
+      type: object
+      required: [page, limit, total_data, total_page, records]
+      properties:
+        page:
+          type: integer
+          minimum: 1
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 50
+        total_data:
+          type: integer
+          minimum: 0
+        total_page:
+          type: integer
+          minimum: 0
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComplaintSummary'
+    TimelineItem:
+      type: object
+      required: [id, status, note, created_at, created_by]
+      properties:
+        id:
+          type: integer
+        status:
+          $ref: '#/components/schemas/ComplaintStatus'
+        note:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        created_by:
+          type: object
+          required: [id, name]
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+    CompletionProof:
+      type: object
+      required: [id, created_at]
+      properties:
+        id:
+          type: integer
+        photo_after:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+    ComplaintDetail:
+      type: object
+      required:
+        - id
+        - title
+        - category
+        - status
+        - description
+        - address
+        - photo_before
+        - location
+        - created_at
+        - updated_at
+        - timeline
+        - completion_proofs
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        category:
+          type: string
+          enum:
+            - Jalan_Raya
+            - Penerangan_Jalan
+            - Drainase
+            - Trotoar
+            - Taman
+            - Jembatan
+            - Rambu_Lalu_Lintas
+            - Fasilitas_Umum
+            - Lainnya
+        status:
+          $ref: '#/components/schemas/ComplaintStatus'
+        description:
+          type: string
+        address:
+          type: string
+        photo_before:
+          type: string
+          nullable: true
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+              format: float
+              nullable: true
+            longitude:
+              type: number
+              format: float
+              nullable: true
+        assigned_officer:
+          type: object
+          nullable: true
+          properties:
+            officer_id:
+              type: integer
+            employee_id:
+              type: string
+            name:
+              type: string
+            department:
+              type: string
+            specialization:
+              type: string
+            status:
+              type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        timeline:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimelineItem'
+        completion_proofs:
+          type: array
+          items:
+            $ref: '#/components/schemas/CompletionProof'
+    ComplaintTimelineData:
+      type: object
+      required: [complaint_id, records]
+      properties:
+        complaint_id:
+          type: integer
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimelineItem'
+  responses:
+    BadRequestError:
+      description: Parameter tidak valid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BaseResponse'
+          examples:
+            badRequest:
+              value:
+                status: error
+                code: 400
+                message: Parameter tidak valid.
+                data: null
+                errors:
+                  - field: id
+                    message: Parameter id tidak valid.
+    UnauthorizedError:
+      description: Token tidak valid atau kedaluwarsa.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BaseResponse'
+          examples:
+            unauthorized:
+              value:
+                status: error
+                code: 401
+                message: Token tidak valid atau kedaluwarsa.
+                data: null
+                errors: []
+    NotFoundError:
+      description: Data tidak ditemukan.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BaseResponse'
+          examples:
+            notFound:
+              value:
+                status: error
+                code: 404
+                message: Data tidak ditemukan.
+                data: null
+                errors: []
+    ConflictError:
+      description: Data bertentangan (duplikasi).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BaseResponse'
+          examples:
+            conflict:
+              value:
+                status: error
+                code: 409
+                message: Data sudah digunakan oleh entitas lain.
+                data: null
+                errors:
+                  - field: email
+                    message: Email sudah digunakan pengguna lain.
+    ValidationError:
+      description: Validasi gagal.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BaseResponse'
+          examples:
+            validation:
+              value:
+                status: error
+                code: 422
+                message: Validasi gagal.
+                data: null
+                errors:
+                  - field: category
+                    message: Kategori tidak dikenal.
+    ServerError:
+      description: Terjadi kesalahan pada server.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BaseResponse'
+          examples:
+            server:
+              value:
+                status: error
+                code: 500
+                message: Terjadi kesalahan pada server.
+                data: null
+                errors: []
+paths:
+  /pelapor/dashboard/stats:
+    get:
+      tags: [Dashboard]
+      summary: API-P3-01 Statistik ringkasan
+      description: Mengembalikan total pengaduan pelapor beserta status proses dan selesai.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Ringkasan berhasil diambil.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/DashboardStats'
+              examples:
+                success:
+                  value:
+                    status: success
+                    code: 200
+                    message: Ringkasan pelapor berhasil diambil.
+                    data:
+                      total_laporan: 12
+                      total_diproses: 4
+                      total_selesai: 6
+                    errors: []
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /pelapor/complaints/recent:
+    get:
+      tags: [Dashboard]
+      summary: API-P3-02 Daftar pengaduan terbaru
+      description: Mengambil n pengaduan terbaru milik pelapor saat ini.
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: limit
+          description: Jumlah data terbaru yang dikembalikan.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+            default: 5
+      responses:
+        '200':
+          description: Daftar pengaduan terbaru.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/RecentComplaintsData'
+              examples:
+                success:
+                  value:
+                    status: success
+                    code: 200
+                    message: Daftar pengaduan terbaru.
+                    data:
+                      limit: 5
+                      records:
+                        - id: 14
+                          title: Lampu jalan mati
+                          category: Penerangan_Jalan
+                          status: ditugaskan_ke_petugas
+                          address: Jl. Melati No.10
+                          created_at: '2025-12-01T09:15:00Z'
+                        - id: 15
+                          title: Aspal retak
+                          category: Jalan_Raya
+                          status: diajukan
+                          address: Jl. Kenanga No.5
+                          created_at: '2025-12-02T07:30:00Z'
+                    errors: []
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /pelapor/profile:
+    get:
+      tags: [Profile]
+      summary: API-P4-01 Profil pelapor
+      description: Mengambil data profil lengkap pengguna pelapor.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Profil pelapor ditemukan.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PelaporProfile'
+              examples:
+                success:
+                  value:
+                    status: success
+                    code: 200
+                    message: Profil pelapor.
+                    data:
+                      id: 7
+                      full_name: Warga Baru
+                      email: warga@example.com
+                      phone: '081200011122'
+                      nik: '3271010101010001'
+                      address: Jl. Merdeka No. 1
+                      role: pelapor
+                      profile_photo: uploads/profile_photos/upload_abc.jpg
+                      created_at: '2025-01-01T09:00:00Z'
+                      updated_at: '2025-01-10T09:00:00Z'
+                    errors: []
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    put:
+      tags: [Profile]
+      summary: API-P4-02 Update profil pelapor
+      description: Perbarui profil pelapor menggunakan multipart/form-data (disarankan) atau JSON fallback (mengirim photo_base64).
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: header
+          name: X-HTTP-Method-Override
+          required: false
+          schema:
+            type: string
+            enum: [PUT]
+          description: Opsional. Saat klien hanya bisa mengirim POST multipart, sertakan header ini agar router memperlakukannya sebagai PUT.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PelaporProfileUpdateRequest'
+            example:
+              full_name: Warga Baru
+              email: warga@example.com
+              phone: '081200011122'
+              nik: '3271010101010001'
+              address: Jl. Merdeka No. 1
+              photo: '(binary image)'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PelaporProfileUpdateRequest'
+            example:
+              full_name: Warga Baru
+              email: warga@example.com
+              phone: '081200011122'
+              nik: '3271010101010001'
+              address: Jl. Merdeka No. 1
+              photo_base64: 'data:image/jpeg;base64,/9j/4AAQ...'
+      responses:
+        '200':
+          description: Profil berhasil diperbarui.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PelaporProfileUpdateResult'
+              examples:
+                success:
+                  value:
+                    status: success
+                    code: 200
+                    message: Profil berhasil diperbarui.
+                    data:
+                      id: 7
+                      full_name: Warga Baru
+                      email: warga@example.com
+                      phone: '081200011122'
+                      nik: '3271010101010001'
+                      address: Jl. Merdeka No. 1
+                      profile_photo: uploads/profile_photos/profile_7.webp
+                    errors: []
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /complaints/categories:
+    get:
+      tags: [Complaints]
+      summary: API-P5-01 Daftar kategori
+      description: Mengambil daftar kategori pengaduan statis yang didukung aplikasi.
+      responses:
+        '200':
+          description: Berhasil mengambil daftar kategori.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ComplaintCategoriesData'
+              examples:
+                success:
+                  value:
+                    status: success
+                    code: 200
+                    message: Daftar kategori pengaduan.
+                    data:
+                      records:
+                        - id: Jalan_Raya
+                          label: Kerusakan Jalan Raya
+                        - id: Drainase
+                          label: Drainase
+                    errors: []
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /complaints:
+    post:
+      tags: [Complaints]
+      summary: API-P5-02 Buat pengaduan baru
+      description: Membuat pengaduan baru milik pelapor yang sedang login.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ComplaintCreateRequest'
+            example:
+              category: Jalan_Raya
+              title: Aspal berlubang
+              description: Jalan depan rumah berlubang besar.
+              address: Jl. Sudirman No. 5
+              latitude: -6.1234
+              longitude: 106.9876
+              photo: '(binary image)'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComplaintCreateRequest'
+            example:
+              category: Drainase
+              title: Saluran mampet
+              description: Air tergenang saat hujan.
+              address: Jl. Kenanga No. 3
+              photo_base64: 'data:image/jpeg;base64,/9j/4AAQ...'
+      responses:
+        '201':
+          description: Pengaduan berhasil dibuat.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ComplaintCreateResult'
+              examples:
+                success:
+                  value:
+                    status: success
+                    code: 201
+                    message: Pengaduan berhasil dibuat.
+                    data:
+                      id: 25
+                      title: Aspal berlubang
+                      status: diajukan
+                      photo_before: uploads/complaints/complaint_25.webp
+                    errors: []
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /pelapor/complaints:
+    get:
+      tags: [Complaints]
+      summary: API-P6-01/02 List pengaduan pelapor
+      description: Menampilkan daftar pengaduan pelapor dengan dukungan pagination dan filter status.
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          description: Halaman aktif (>=1).
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - in: query
+          name: limit
+          description: Jumlah data per halaman (1-50).
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+        - in: query
+          name: status
+          description: Filter status pengaduan.
+          schema:
+            $ref: '#/components/schemas/ComplaintStatus'
+      responses:
+        '200':
+          description: Daftar pengaduan ditemukan.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ComplaintListData'
+              examples:
+                success:
+                  value:
+                    status: success
+                    code: 200
+                    message: Daftar pengaduan.
+                    data:
+                      page: 1
+                      limit: 10
+                      total_data: 23
+                      total_page: 3
+                      records:
+                        - id: 10
+                          title: Lampu jalan mati
+                          category: Penerangan_Jalan
+                          status: ditugaskan_ke_petugas
+                          address: Jl. Melati No.10
+                          created_at: '2025-12-01T09:15:00Z'
+                        - id: 9
+                          title: Saluran mampet
+                          category: Drainase
+                          status: diajukan
+                          address: Jl. Dahlia No.9
+                          created_at: '2025-11-29T14:00:00Z'
+                    errors: []
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /pelapor/complaints/{id}:
+    get:
+      tags: [Complaints]
+      summary: API-P7-01 Detail pengaduan
+      description: Mengambil detail lengkap satu pengaduan milik pelapor.
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID pengaduan yang ingin dilihat.
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Detail pengaduan ditemukan.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ComplaintDetail'
+              examples:
+                success:
+                  value:
+                    status: success
+                    code: 200
+                    message: Detail pengaduan.
+                    data:
+                      id: 10
+                      title: Lampu jalan mati
+                      category: Penerangan_Jalan
+                      status: ditugaskan_ke_petugas
+                      description: Lampu padam sejak 3 hari lalu.
+                      address: Jl. Melati No.10
+                      photo_before: uploads/complaints/complaint_10.webp
+                      location:
+                        latitude: -6.1801
+                        longitude: 106.8283
+                      assigned_officer:
+                        officer_id: 4
+                        employee_id: PGT-4021
+                        name: Budi Santoso
+                        department: Dinas Penerangan
+                        specialization: Kelistrikan
+                        status: aktif
+                      created_at: '2025-11-30T12:00:00Z'
+                      updated_at: '2025-12-01T08:00:00Z'
+                      timeline:
+                        - id: 31
+                          status: diajukan
+                          note: Pelapor mengajukan laporan melalui aplikasi.
+                          created_at: '2025-11-30T12:00:00Z'
+                          created_by:
+                            id: 7
+                            name: Warga Baru
+                        - id: 32
+                          status: ditugaskan_ke_petugas
+                          note: Admin menugaskan petugas.
+                          created_at: '2025-12-01T07:45:00Z'
+                          created_by:
+                            id: 1
+                            name: Admin Kota
+                      completion_proofs:
+                        - id: 11
+                          photo_after: uploads/complaints/complaint_10_after.webp
+                          notes: Bukti pengerjaan lapangan.
+                          created_at: '2025-12-02T14:00:00Z'
+                    errors: []
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /pelapor/complaints/{id}/timeline:
+    get:
+      tags: [Complaints]
+      summary: API-P7-02 Timeline pengaduan
+      description: Mengambil timeline progres pengaduan milik pelapor.
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID pengaduan.
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Timeline berhasil diambil.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ComplaintTimelineData'
+              examples:
+                success:
+                  value:
+                    status: success
+                    code: 200
+                    message: Timeline pengaduan.
+                    data:
+                      complaint_id: 10
+                      records:
+                        - id: 31
+                          status: diajukan
+                          note: Pelapor mengajukan laporan melalui aplikasi.
+                          created_at: '2025-11-30T12:00:00Z'
+                          created_by:
+                            id: 7
+                            name: Warga Baru
+                        - id: 32
+                          status: ditugaskan_ke_petugas
+                          note: Admin menugaskan petugas.
+                          created_at: '2025-12-01T07:45:00Z'
+                          created_by:
+                            id: 1
+                            name: Admin Kota
+                    errors: []
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'

@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS `sipinda`.`users` (
   `phone` VARCHAR(50) NULL DEFAULT NULL,
   `nik` VARCHAR(20) NULL DEFAULT NULL,
   `address` TEXT NULL DEFAULT NULL,
+  `profile_photo` VARCHAR(255) NULL DEFAULT NULL,
   `role` ENUM('warga', 'admin', 'petugas') NOT NULL DEFAULT 'warga',
   `created_at` TIMESTAMP NULL DEFAULT NULL,
   `updated_at` TIMESTAMP NULL DEFAULT NULL,
