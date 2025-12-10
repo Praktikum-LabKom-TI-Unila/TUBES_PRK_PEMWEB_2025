@@ -1,6 +1,109 @@
 <?php
 require_once __DIR__ . '/response.php';
 
+function hydrate_streamed_multipart_if_needed(): void
+{
+    $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+    $contentType = $_SERVER['HTTP_CONTENT_TYPE'] ?? $_SERVER['CONTENT_TYPE'] ?? '';
+
+    if ($contentType === '' || stripos($contentType, 'multipart/form-data') === false) {
+        return;
+    }
+
+    if (!in_array($method, ['PUT', 'PATCH', 'DELETE'], true)) {
+        return;
+    }
+
+    if (!empty($_FILES)) {
+        return;
+    }
+
+    if (!preg_match('/boundary=(.*)$/', $contentType, $matches)) {
+        return;
+    }
+
+    $boundary = trim($matches[1], "\"' ");
+    if ($boundary === '') {
+        return;
+    }
+
+    $rawData = file_get_contents('php://input');
+    if ($rawData === false || $rawData === '') {
+        return;
+    }
+
+    $delimiter = '--' . $boundary;
+    $parts = explode($delimiter, $rawData);
+
+    foreach ($parts as $part) {
+        if ($part === '' || $part === "--") {
+            continue;
+        }
+
+        $part = ltrim($part, "\r\n");
+        if ($part === '' || $part === '--') {
+            continue;
+        }
+
+        $separatorPosition = strpos($part, "\r\n\r\n");
+        if ($separatorPosition === false) {
+            continue;
+        }
+
+        $rawHeaders = substr($part, 0, $separatorPosition);
+        $body = substr($part, $separatorPosition + 4);
+
+        if (substr($body, -2) === "\r\n") {
+            $body = substr($body, 0, -2);
+        }
+
+        $headerLines = explode("\r\n", $rawHeaders);
+        $headers = [];
+        foreach ($headerLines as $line) {
+            if (strpos($line, ':') === false) {
+                continue;
+            }
+            [$headerName, $headerValue] = explode(':', $line, 2);
+            $headers[strtolower(trim($headerName))] = trim($headerValue);
+        }
+
+        $contentDisposition = $headers['content-disposition'] ?? '';
+        if (!preg_match('/name="([^"]+)"/', $contentDisposition, $nameMatch)) {
+            continue;
+        }
+
+        $fieldName = $nameMatch[1];
+
+        if (preg_match('/filename="([^"]*)"/', $contentDisposition, $filenameMatch)) {
+            $filename = $filenameMatch[1];
+            if ($filename === '') {
+                continue;
+            }
+
+            $tmpPath = tempnam(sys_get_temp_dir(), 'sipinda_put_');
+            if ($tmpPath === false) {
+                continue;
+            }
+
+            if (file_put_contents($tmpPath, $body) === false) {
+                @unlink($tmpPath);
+                continue;
+            }
+
+            $_FILES[$fieldName] = [
+                'name' => $filename,
+                'type' => $headers['content-type'] ?? 'application/octet-stream',
+                'tmp_name' => $tmpPath,
+                'size' => strlen($body),
+                'error' => UPLOAD_ERR_OK,
+                'is_stream_upload' => true,
+            ];
+        } else {
+            $_POST[$fieldName] = $body;
+        }
+    }
+}
+
 function save_base64_image(?string $payload, string $subDirectory, array $allowedMime = ['image/jpeg', 'image/png', 'image/webp']): ?string
 {
     if ($payload === null || $payload === '') {

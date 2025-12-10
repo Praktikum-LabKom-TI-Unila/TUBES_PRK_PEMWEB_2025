@@ -3,15 +3,20 @@ info:
   title: SIPINDA Admin API
   version: '1.0.0'
   description: >-
-    Blueprint endpoint Admin (A2 Dashboard & A3 Manajemen Tiket) untuk REST API
-    Vanilla PHP SIPINDA.
+    Blueprint endpoint Admin (Dashboard A2, Manajemen Tiket A3-A4, Petugas A5-A7,
+    dan Profil A8) untuk REST API Vanilla PHP SIPINDA.
 servers:
   - url: /api
 security:
-  - BearerAuth: []
+  - bearerAuth: []
+tags:
+  - name: Dashboard Admin
+  - name: Admin Tickets
+  - name: Admin Officers
+  - name: Admin Profile
 components:
   securitySchemes:
-    BearerAuth:
+    bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
@@ -27,6 +32,7 @@ components:
           nullable: true
         message:
           type: string
+          nullable: true
       additionalProperties: false
     BaseResponse:
       type: object
@@ -55,6 +61,7 @@ components:
         - ditugaskan_ke_petugas
         - dalam_proses
         - menunggu_validasi_admin
+        - ditolak_admin
         - selesai
     DashboardStatsData:
       type: object
@@ -62,16 +69,12 @@ components:
       properties:
         total:
           type: integer
-          minimum: 0
         baru:
           type: integer
-          minimum: 0
         in_progress:
           type: integer
-          minimum: 0
         finished:
           type: integer
-          minimum: 0
     DashboardStatsResponse:
       allOf:
         - $ref: '#/components/schemas/BaseResponse'
@@ -100,24 +103,21 @@ components:
         activity_time:
           type: string
           format: date-time
-    RecentActivitiesData:
-      type: object
-      required: [limit, records]
-      properties:
-        limit:
-          type: integer
-          minimum: 1
-        records:
-          type: array
-          items:
-            $ref: '#/components/schemas/ActivityRecord'
     RecentActivitiesResponse:
       allOf:
         - $ref: '#/components/schemas/BaseResponse'
         - type: object
           properties:
             data:
-              $ref: '#/components/schemas/RecentActivitiesData'
+              type: object
+              required: [limit, records]
+              properties:
+                limit:
+                  type: integer
+                records:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ActivityRecord'
     TicketReporter:
       type: object
       required: [id, name, email]
@@ -128,6 +128,9 @@ components:
           type: string
         email:
           type: string
+        phone:
+          type: string
+          nullable: true
     TicketRecord:
       type: object
       required: [id, title, status, category, address, reporter, created_at]
@@ -151,57 +154,38 @@ components:
           type: string
           format: date-time
           nullable: true
-    TicketListData:
-      type: object
-      required: [page, limit, total_data, total_page, filters, records]
-      properties:
-        page:
-          type: integer
-          minimum: 1
-        limit:
-          type: integer
-          minimum: 1
-          maximum: 50
-        total_data:
-          type: integer
-          minimum: 0
-        total_page:
-          type: integer
-          minimum: 0
-        filters:
-          type: object
-          properties:
-            status:
-              $ref: '#/components/schemas/ComplaintStatus'
-            search:
-              type: string
-              nullable: true
-          additionalProperties: false
-        records:
-          type: array
-          items:
-            $ref: '#/components/schemas/TicketRecord'
     TicketListResponse:
       allOf:
         - $ref: '#/components/schemas/BaseResponse'
         - type: object
           properties:
             data:
-              $ref: '#/components/schemas/TicketListData'
-    TicketLocation:
-      type: object
-      properties:
-        latitude:
-          type: number
-          format: float
-          nullable: true
-        longitude:
-          type: number
-          format: float
-          nullable: true
+              type: object
+              required: [page, limit, total_data, total_page, filters, records]
+              properties:
+                page:
+                  type: integer
+                limit:
+                  type: integer
+                total_data:
+                  type: integer
+                total_page:
+                  type: integer
+                filters:
+                  type: object
+                  properties:
+                    status:
+                      $ref: '#/components/schemas/ComplaintStatus'
+                    search:
+                      type: string
+                      nullable: true
+                records:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/TicketRecord'
     TicketTimelineItem:
       type: object
-      required: [id, status, note, created_at, created_by]
+      required: [id, status, created_at, created_by]
       properties:
         id:
           type: integer
@@ -243,96 +227,81 @@ components:
               type: integer
             name:
               type: string
-    TicketDetail:
-      type: object
-      required: [id, title, description, category, status, address, created_at]
-      properties:
-        id:
-          type: integer
-        title:
-          type: string
-        description:
-          type: string
-        category:
-          type: string
-        status:
-          $ref: '#/components/schemas/ComplaintStatus'
-        address:
-          type: string
-        photo_before:
-          type: string
-          nullable: true
-        photo_after:
-          type: string
-          nullable: true
-        location:
-          $ref: '#/components/schemas/TicketLocation'
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-          nullable: true
-    TicketDetailData:
-      type: object
-      required: [ticket, reporter, timeline, completion_proofs]
-      properties:
-        ticket:
-          $ref: '#/components/schemas/TicketDetail'
-        reporter:
-          $ref: '#/components/schemas/TicketReporter'
-        officer:
-          type: object
-          nullable: true
-          properties:
-            id:
-              type: integer
-            employee_id:
-              type: string
-            name:
-              type: string
-            email:
-              type: string
-            department:
-              type: string
-            specialization:
-              type: string
-        timeline:
-          type: array
-          items:
-            $ref: '#/components/schemas/TicketTimelineItem'
-        completion_proofs:
-          type: array
-          items:
-            $ref: '#/components/schemas/CompletionProofItem'
     TicketDetailResponse:
       allOf:
         - $ref: '#/components/schemas/BaseResponse'
         - type: object
           properties:
             data:
-              $ref: '#/components/schemas/TicketDetailData'
-    OfficerAvailabilityRecord:
-      type: object
-      required: [id, employee_id, name, email, department, specialization, active_tasks, capacity_left]
-      properties:
-        id:
-          type: integer
-        employee_id:
-          type: string
-        name:
-          type: string
-        email:
-          type: string
-        department:
-          type: string
-        specialization:
-          type: string
-        active_tasks:
-          type: integer
-        capacity_left:
-          type: integer
+              type: object
+              required: [ticket, reporter, timeline, completion_proofs]
+              properties:
+                ticket:
+                  type: object
+                  required: [id, title, category, status, address, created_at]
+                  properties:
+                    id:
+                      type: integer
+                    title:
+                      type: string
+                    description:
+                      type: string
+                    category:
+                      type: string
+                    status:
+                      $ref: '#/components/schemas/ComplaintStatus'
+                    address:
+                      type: string
+                    photo_before:
+                      type: string
+                      nullable: true
+                    photo_after:
+                      type: string
+                      nullable: true
+                    location:
+                      type: object
+                      properties:
+                        latitude:
+                          type: number
+                          format: float
+                          nullable: true
+                        longitude:
+                          type: number
+                          format: float
+                          nullable: true
+                    created_at:
+                      type: string
+                      format: date-time
+                    updated_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                reporter:
+                  $ref: '#/components/schemas/TicketReporter'
+                officer:
+                  type: object
+                  nullable: true
+                  properties:
+                    id:
+                      type: integer
+                    employee_id:
+                      type: string
+                    name:
+                      type: string
+                    email:
+                      type: string
+                    department:
+                      type: string
+                    specialization:
+                      type: string
+                timeline:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/TicketTimelineItem'
+                completion_proofs:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/CompletionProofItem'
     OfficerAvailabilityResponse:
       allOf:
         - $ref: '#/components/schemas/BaseResponse'
@@ -347,7 +316,239 @@ components:
                 records:
                   type: array
                   items:
-                    $ref: '#/components/schemas/OfficerAvailabilityRecord'
+                    type: object
+                    required: [id, employee_id, name, email, department, specialization, active_tasks, capacity_left]
+                    properties:
+                      id:
+                        type: integer
+                      employee_id:
+                        type: string
+                      name:
+                        type: string
+                      email:
+                        type: string
+                      department:
+                        type: string
+                      specialization:
+                        type: string
+                      active_tasks:
+                        type: integer
+                      capacity_left:
+                        type: integer
+    OfficerCreateRequest:
+      type: object
+      required: [full_name, email, password, phone, address, specialization]
+      properties:
+        full_name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        phone:
+          type: string
+        address:
+          type: string
+        specialization:
+          type: string
+          enum: [Jalan_Raya, Penerangan_Jalan, Drainase, Trotoar, Taman, Jembatan, Rambu_Lalu_Lintas, Fasilitas_Umum, Lainnya]
+        department:
+          type: string
+        officer_status:
+          type: string
+          enum: [tersedia, sibuk]
+        employee_id:
+          type: string
+          description: Jika kosong akan digenerate otomatis (contoh OFF-0009).
+    OfficerListResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              required: [page, limit, total_data, total_page, filters, records]
+              properties:
+                page:
+                  type: integer
+                limit:
+                  type: integer
+                total_data:
+                  type: integer
+                total_page:
+                  type: integer
+                filters:
+                  type: object
+                  properties:
+                    status:
+                      type: string
+                      enum: [tersedia, sibuk]
+                records:
+                  type: array
+                  items:
+                    type: object
+                    required: [id, employee_id, name, email, phone, department, specialization, status, active_tasks, completed_tasks]
+                    properties:
+                      id:
+                        type: integer
+                      employee_id:
+                        type: string
+                      name:
+                        type: string
+                      email:
+                        type: string
+                      phone:
+                        type: string
+                      department:
+                        type: string
+                      specialization:
+                        type: string
+                      status:
+                        type: string
+                        enum: [tersedia, sibuk]
+                      active_tasks:
+                        type: integer
+                      completed_tasks:
+                        type: integer
+    OfficerDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              required: [officer, statistics]
+              properties:
+                officer:
+                  type: object
+                  required: [id, employee_id, name, email, phone, department, specialization, status]
+                  properties:
+                    id:
+                      type: integer
+                    employee_id:
+                      type: string
+                    name:
+                      type: string
+                    email:
+                      type: string
+                    phone:
+                      type: string
+                    address:
+                      type: string
+                      nullable: true
+                    department:
+                      type: string
+                    specialization:
+                      type: string
+                    status:
+                      type: string
+                    profile_photo:
+                      type: string
+                      nullable: true
+                    created_at:
+                      type: string
+                      format: date-time
+                    updated_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                statistics:
+                  type: object
+                  required: [total_tasks, active_tasks, finished_tasks]
+                  properties:
+                    total_tasks:
+                      type: integer
+                    active_tasks:
+                      type: integer
+                    finished_tasks:
+                      type: integer
+    OfficerTasksResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              required: [page, limit, total_data, total_page, records]
+              properties:
+                page:
+                  type: integer
+                limit:
+                  type: integer
+                total_data:
+                  type: integer
+                total_page:
+                  type: integer
+                records:
+                  type: array
+                  items:
+                    type: object
+                    required: [task_id, complaint_id, title, status, category, started_at]
+                    properties:
+                      task_id:
+                        type: integer
+                      complaint_id:
+                        type: integer
+                      title:
+                        type: string
+                      status:
+                        $ref: '#/components/schemas/ComplaintStatus'
+                      category:
+                        type: string
+                      address:
+                        type: string
+                        nullable: true
+                      started_at:
+                        type: string
+                        format: date-time
+    AdminProfileResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              required: [id, full_name, email, role]
+              properties:
+                id:
+                  type: integer
+                full_name:
+                  type: string
+                email:
+                  type: string
+                role:
+                  type: string
+                phone:
+                  type: string
+                  nullable: true
+                address:
+                  type: string
+                  nullable: true
+                profile_photo:
+                  type: string
+                  nullable: true
+    AdminProfileUpdateRequest:
+      type: object
+      required: [full_name, email, phone]
+      properties:
+        full_name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        password:
+          type: string
+          minLength: 8
+        confirm_password:
+          type: string
+        photo_base64:
+          type: string
+          description: Base64 data URI alternatif jika tidak memakai multipart.
     AssignOfficerRequest:
       type: object
       required: [officer_id]
@@ -369,10 +570,9 @@ components:
 paths:
   /admin/dashboard/stats:
     get:
-      operationId: api-a2-01-dashboard-stats
+      tags: [Dashboard Admin]
       summary: API-A2-01 Statistik Dashboard Admin
       description: Hitung total laporan berdasarkan status terbaru.
-      tags: [Dashboard Admin]
       responses:
         '200':
           description: Statistik berhasil dikembalikan.
@@ -380,125 +580,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DashboardStatsResponse'
-              examples:
-                sukses:
-                  value:
-                    status: success
-                    code: 200
-                    message: Statistik dashboard admin berhasil diambil.
-                    data:
-                      total: 120
-                      baru: 15
-                      in_progress: 42
-                      finished: 63
-                    errors: []
         '401':
           description: Token tidak valid.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BaseResponse'
-              examples:
-                unauthorized:
-                  value:
-                    status: error
-                    code: 401
-                    message: Token tidak dikenali.
-                    data: []
-                    errors:
-                      - reason: missing_token
-        '500':
-          description: Kesalahan server saat query statistik.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BaseResponse'
-              examples:
-                server_error:
-                  value:
-                    status: error
-                    code: 500
-                    message: Gagal memuat statistik dashboard.
-                    data: []
-                    errors:
-                      - reason: db_error
   /admin/dashboard/recent-activities:
     get:
-      operationId: api-a2-02-dashboard-recent
-      summary: API-A2-02 Aktivitas Laporan Terbaru
-      description: Ambil riwayat aktivitas 10 laporan terbaru (dapat ubah limit).
       tags: [Dashboard Admin]
+      summary: API-A2-02 Aktivitas terbaru
+      description: Ambil 10 aktivitas tiket terakhir untuk menunjukkan progres terbaru.
       parameters:
         - in: query
           name: limit
           schema:
             type: integer
-            minimum: 1
-            maximum: 25
             default: 10
-          description: Jumlah aktivitas yang ingin ditampilkan.
+            minimum: 1
+            maximum: 20
       responses:
         '200':
-          description: Daftar aktivitas berhasil dikembalikan.
+          description: Aktivitas berhasil dikembalikan.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RecentActivitiesResponse'
-              examples:
-                sukses:
-                  value:
-                    status: success
-                    code: 200
-                    message: Aktivitas terbaru berhasil diambil.
-                    data:
-                      limit: 10
-                      records:
-                        - complaint_id: 87
-                          title: Lampu jalan padam
-                          status: dalam_proses
-                          reporter:
-                            name: Adi Pranata
-                            email: adi@mail.com
-                          activity_time: '2025-01-12T09:21:00Z'
-                    errors: []
         '401':
           description: Token tidak valid.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BaseResponse'
-              examples:
-                unauthorized:
-                  value:
-                    status: error
-                    code: 401
-                    message: Token tidak dikenali.
-                    data: []
-                    errors:
-                      - reason: missing_token
-        '500':
-          description: Kesalahan server saat query aktivitas.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BaseResponse'
-              examples:
-                server_error:
-                  value:
-                    status: error
-                    code: 500
-                    message: Gagal memuat aktivitas terbaru.
-                    data: []
-                    errors:
-                      - reason: db_error
   /admin/tickets:
     get:
-      operationId: api-a3-01-ticket-list
-      summary: API-A3-01/02/03 Daftar, Filter, & Pencarian Tiket
-      description: >-
-        Mengambil daftar pengaduan dengan dukungan pagination, filter status,
-        dan pencarian kata kunci (menggantikan endpoint search terpisah).
-      tags: [Tickets]
+      tags: [Admin Tickets]
+      summary: API-A3-01 Daftar tiket
+      description: Listing tiket dengan pagination, filter status, dan pencarian kata kunci.
       parameters:
         - in: query
           name: page
@@ -506,127 +624,78 @@ paths:
             type: integer
             minimum: 1
             default: 1
-          description: Nomor halaman.
         - in: query
           name: limit
           schema:
             type: integer
             minimum: 1
             maximum: 50
-            default: 15
-          description: Jumlah data per halaman.
+            default: 10
         - in: query
           name: status
           schema:
             $ref: '#/components/schemas/ComplaintStatus'
-          description: Filter status (6 status alur valid).
+          description: Filter status tiket.
         - in: query
           name: search
           schema:
             type: string
-          description: Kata kunci untuk mencari judul, nama/email pelapor, atau ID tiket.
+          description: Cari berdasarkan judul/alamat/nama pelapor.
       responses:
         '200':
-          description: Daftar tiket sesuai filter/pagination.
+          description: Daftar tiket ditemukan.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TicketListResponse'
-              examples:
-                sukses:
-                  value:
-                    status: success
-                    code: 200
-                    message: Daftar tiket berhasil dimuat.
-                    data:
-                      page: 1
-                      limit: 15
-                      total_data: 120
-                      total_page: 8
-                      filters:
-                        status: dalam_proses
-                        search: lampu
-                      records:
-                        - id: 32
-                          title: Jalan berlubang besar
-                          status: dalam_proses
-                          category: Jalan_Raya
-                          address: 'Jl. Kenanga No. 2'
-                          reporter:
-                            id: 7
-                            name: Riska Dewi
-                            email: riska@mail.com
-                          created_at: '2025-01-10T07:30:00Z'
-                          updated_at: '2025-01-12T14:11:00Z'
-                    errors: []
-        '422':
-          description: Status filter tidak valid.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BaseResponse'
-              examples:
-                invalid_status:
-                  value:
-                    status: error
-                    code: 422
-                    message: Status tidak valid.
-                    data: []
-                    errors:
-                      - field: status
-                        reason: invalid_status
-                        message: Status tidak dikenali.
-                empty_search:
-                  value:
-                    status: error
-                    code: 422
-                    message: Parameter pencarian tidak boleh kosong.
-                    data: []
-                    errors:
-                      - field: search
-                        reason: empty_search
-                        message: Kata kunci wajib diisi.
-        '404':
-          description: Tidak ada tiket yang cocok untuk kata kunci tertentu.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BaseResponse'
-              examples:
-                not_found:
-                  value:
-                    status: error
-                    code: 404
-                    message: Tiket tidak ditemukan.
-                    data: []
-                    errors:
-                      - field: search
-                        reason: no_match
         '401':
           description: Token tidak valid.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BaseResponse'
-        '500':
-          description: Kesalahan server saat query daftar tiket.
+  /admin/tickets/search:
+    get:
+      tags: [Admin Tickets]
+      summary: API-A3-03 Cari tiket
+      description: Endpoint pencarian cepat (parameter sama dengan /admin/tickets).
+      parameters:
+        - in: query
+          name: status
+          schema:
+            $ref: '#/components/schemas/ComplaintStatus'
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Hasil pencarian tiket.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BaseResponse'
+                $ref: '#/components/schemas/TicketListResponse'
   /admin/tickets/{id}:
     get:
-      operationId: api-a4-01-ticket-detail
-      summary: API-A4-01 Detail Tiket
-      description: Ambil informasi lengkap tiket, pelapor, penugasan, timeline, dan bukti penyelesaian.
       tags: [Admin Tickets]
+      summary: API-A4-01 Detail tiket
+      description: Ambil informasi tiket lengkap termasuk timeline dan bukti penyelesaian.
       parameters:
         - in: path
           name: id
           required: true
           schema:
             type: integer
-          description: ID tiket pengaduan.
       responses:
         '200':
           description: Detail tiket ditemukan.
@@ -634,66 +703,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TicketDetailResponse'
-              examples:
-                sukses:
-                  value:
-                    status: success
-                    code: 200
-                    message: Detail tiket berhasil diambil.
-                    data:
-                      ticket:
-                        id: 42
-                        title: Lampu jalan padam
-                        description: Lampu utama kawasan rusak
-                        category: Penerangan_Jalan
-                        status: menunggu_validasi_admin
-                        address: 'Jl. Kenanga No. 2'
-                        photo_before: uploads/complaints/photo.jpg
-                        photo_after: null
-                        location:
-                          latitude: -6.2
-                          longitude: 106.8
-                        created_at: '2025-01-10T09:00:00Z'
-                        updated_at: '2025-01-15T11:00:00Z'
-                      reporter:
-                        id: 7
-                        name: Riska Dewi
-                        email: riska@mail.com
-                        phone: '08123456789'
-                      officer:
-                        id: 3
-                        employee_id: OFF-003
-                        name: Dedi Pratama
-                        email: dedi@pemkot.go.id
-                        department: PUPR
-                        specialization: Penerangan_Jalan
-                      timeline: []
-                      completion_proofs: []
-                    errors: []
         '404':
           description: Tiket tidak ditemukan.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BaseResponse'
-        '400':
-          description: ID tidak valid.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BaseResponse'
-        '500':
-          description: Kesalahan server.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BaseResponse'
   /admin/tickets/{id}/verify:
     post:
-      operationId: api-a4-02-ticket-verify
-      summary: API-A4-02 Verifikasi Tiket
-      description: Ubah status tiket dari diajukan menjadi diverifikasi_admin dan simpan log status.
       tags: [Admin Tickets]
+      summary: API-A4-02 Verifikasi tiket
+      description: Mengubah status dari diajukan menjadi diverifikasi_admin.
       parameters:
         - in: path
           name: id
@@ -707,40 +727,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BaseResponse'
-              examples:
-                sukses:
-                  value:
-                    status: success
-                    code: 200
-                    message: Status tiket diperbarui menjadi diverifikasi.
-                    data:
-                      ticket_id: 42
-                      status: diverifikasi_admin
-                    errors: []
         '409':
-          description: Status tiket tidak diajukan.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BaseResponse'
-        '404':
-          description: Tiket tidak ditemukan.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BaseResponse'
-        '500':
-          description: Kesalahan server.
+          description: Status tidak mendukung verifikasi.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BaseResponse'
   /admin/tickets/{id}/reject:
     post:
-      operationId: api-a4-03-ticket-reject
-      summary: API-A4-03 Tolak Tiket
-      description: Tandai tiket sebagai ditolak_admin dengan alasan opsional (wajib bila diisi).
       tags: [Admin Tickets]
+      summary: API-A4-03 Tolak tiket
+      description: Menandai tiket sebagai ditolak_admin dengan alasan wajib.
       parameters:
         - in: path
           name: id
@@ -753,10 +750,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/RejectTicketRequest'
-            examples:
-              default:
-                value:
-                  reason: Laporan tidak lengkap (foto kabur).
       responses:
         '200':
           description: Tiket berhasil ditolak.
@@ -765,35 +758,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/BaseResponse'
         '422':
-          description: Alasan kosong.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BaseResponse'
-        '409':
-          description: Status tidak mendukung penolakan.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BaseResponse'
-        '404':
-          description: Tiket tidak ditemukan.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BaseResponse'
-        '500':
-          description: Kesalahan server.
+          description: Validasi alasan gagal.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BaseResponse'
   /admin/officers/available:
     get:
-      operationId: api-a4-04-officer-available
-      summary: API-A4-04 Daftar Petugas Tersedia
-      description: Ambil daftar petugas dengan status tersedia dan jumlah tiket aktif di bawah kapasitas.
       tags: [Admin Tickets]
+      summary: API-A4-04 Daftar petugas tersedia
+      description: Ambil petugas dengan status tersedia dan slot tugas tersisa.
       responses:
         '200':
           description: Daftar petugas tersedia.
@@ -801,18 +775,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OfficerAvailabilityResponse'
-        '500':
-          description: Kesalahan server.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BaseResponse'
   /admin/tickets/{id}/assign-officer:
     post:
-      operationId: api-a4-05-assign-officer
-      summary: API-A4-05 Penugasan Petugas
-      description: Tunjuk petugas untuk tiket berstatus diverifikasi_admin dan ubah status menjadi ditugaskan_ke_petugas.
       tags: [Admin Tickets]
+      summary: API-A4-05 Penugasan petugas
+      description: Menetapkan petugas dan ubah status menjadi ditugaskan_ke_petugas.
       parameters:
         - in: path
           name: id
@@ -825,10 +792,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AssignOfficerRequest'
-            examples:
-              default:
-                value:
-                  officer_id: 5
       responses:
         '200':
           description: Petugas berhasil ditugaskan.
@@ -837,35 +800,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/BaseResponse'
         '409':
-          description: Status tiket belum diverifikasi atau petugas penuh.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BaseResponse'
-        '404':
-          description: Tiket atau petugas tidak ditemukan.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BaseResponse'
-        '422':
-          description: officer_id tidak valid.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BaseResponse'
-        '500':
-          description: Kesalahan server.
+          description: Status tiket tidak valid atau petugas penuh.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BaseResponse'
   /admin/tickets/{id}/proof:
     get:
-      operationId: api-a4-06-proof
-      summary: API-A4-06 Bukti Penyelesaian
-      description: Menampilkan daftar foto/catatan bukti dari petugas ketika status minimal menunggu_validasi_admin.
       tags: [Admin Tickets]
+      summary: API-A4-06 Lihat bukti penyelesaian
+      description: Menampilkan bukti foto/notes ketika petugas mengajukan validasi.
       parameters:
         - in: path
           name: id
@@ -874,35 +818,22 @@ paths:
             type: integer
       responses:
         '200':
-          description: Bukti tersedia.
+          description: Bukti penyelesaian dikembalikan.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BaseResponse'
+                $ref: '#/components/schemas/TicketDetailResponse'
         '404':
-          description: Bukti belum diunggah.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BaseResponse'
-        '409':
-          description: Status tiket belum memasuki validasi.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BaseResponse'
-        '500':
-          description: Kesalahan server.
+          description: Tiket tidak ditemukan atau belum punya bukti.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BaseResponse'
   /admin/tickets/{id}/validate:
     post:
-      operationId: api-a4-07-validate
-      summary: API-A4-07 Validasi Penyelesaian
-      description: Mengubah status tiket dari menunggu_validasi_admin menjadi selesai dan menutup penugasan.
       tags: [Admin Tickets]
+      summary: API-A4-07 Validasi penyelesaian tiket
+      description: Mengubah status menjadi selesai setelah bukti disetujui.
       parameters:
         - in: path
           name: id
@@ -915,31 +846,198 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ValidateTicketRequest'
-            examples:
-              default:
-                value:
-                  note: Validasi lapangan selesai.
       responses:
         '200':
-          description: Tiket diselesaikan.
+          description: Tiket selesai divalidasi.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BaseResponse'
         '409':
-          description: Status tiket belum menunggu validasi.
+          description: Status tiket belum menunggu validasi admin.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BaseResponse'
+  /admin/officers/create:
+    post:
+      tags: [Admin Officers]
+      summary: API-A5-01 Buat akun petugas
+      description: Admin membuat akun baru untuk petugas.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfficerCreateRequest'
+      responses:
+        '201':
+          description: Petugas berhasil dibuat.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+        '409':
+          description: Email atau telepon sudah dipakai.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+        '422':
+          description: Validasi payload gagal.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+  /admin/officers:
+    get:
+      tags: [Admin Officers]
+      summary: API-A6-01 Daftar petugas
+      description: Tampilkan seluruh petugas beserta status dan statistik tugas.
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+            maximum: 50
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [tersedia, sibuk]
+      responses:
+        '200':
+          description: Daftar petugas dikembalikan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OfficerListResponse'
+  /admin/officers/{id}:
+    get:
+      tags: [Admin Officers]
+      summary: API-A6-02 Detail petugas
+      description: Menampilkan profil petugas dan statistik tugas.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detail petugas dikembalikan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OfficerDetailResponse'
         '404':
-          description: Tiket tidak ditemukan.
+          description: Petugas tidak ditemukan.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BaseResponse'
-        '500':
-          description: Kesalahan server.
+  /admin/officers/{id}/tasks:
+    get:
+      tags: [Admin Officers]
+      summary: API-A6-03 Daftar tugas petugas
+      description: Menampilkan assignment aktif petugas dengan pagination.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Tugas aktif dikembalikan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OfficerTasksResponse'
+        '404':
+          description: Petugas tidak ditemukan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+  /admin/profile:
+    get:
+      tags: [Admin Profile]
+      summary: API-A8-01 Profil admin
+      description: Mengambil data admin dari token.
+      responses:
+        '200':
+          description: Profil dikembalikan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProfileResponse'
+        '401':
+          description: Token tidak valid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+    put:
+      tags: [Admin Profile]
+      summary: API-A8-02 Update profil admin
+      description: Perbarui nama, email, telepon, password opsional, dan foto profil (JSON ataupun multipart).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProfileUpdateRequest'
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                email:
+                  type: string
+                phone:
+                  type: string
+                address:
+                  type: string
+                password:
+                  type: string
+                confirm_password:
+                  type: string
+                photo:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Profil berhasil diperbarui.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProfileResponse'
+        '409':
+          description: Email atau telepon sudah digunakan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+        '422':
+          description: Validasi payload gagal.
           content:
             application/json:
               schema:

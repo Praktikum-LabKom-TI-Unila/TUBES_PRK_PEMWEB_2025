@@ -1,5 +1,7 @@
 <?php
+
 $routes = [
+    // Auth
     [
         'method' => 'POST',
         'path' => 'auth/login',
@@ -15,51 +17,8 @@ $routes = [
         'path' => 'auth/logout',
         'controller' => __DIR__ . '/../controllers/auth/logout.php',
     ],
-    [
-        'method' => 'GET',
-        'path' => 'pelapor/dashboard/stats',
-        'controller' => __DIR__ . '/../controllers/pelapor/dashboard/stats.php',
-    ],
-    [
-        'method' => 'GET',
-        'path' => 'pelapor/complaints/recent',
-        'controller' => __DIR__ . '/../controllers/pelapor/complaints/recent.php',
-    ],
-    [
-        'method' => 'GET',
-        'path' => 'pelapor/profile',
-        'controller' => __DIR__ . '/../controllers/pelapor/profile/show.php',
-    ],
-    [
-        'method' => 'PUT',
-        'path' => 'pelapor/profile',
-        'controller' => __DIR__ . '/../controllers/pelapor/profile/update.php',
-    ],
-    [
-        'method' => 'GET',
-        'path' => 'complaints/categories',
-        'controller' => __DIR__ . '/../controllers/complaints/categories.php',
-    ],
-    [
-        'method' => 'POST',
-        'path' => 'complaints',
-        'controller' => __DIR__ . '/../controllers/complaints/store.php',
-    ],
-    [
-        'method' => 'GET',
-        'path' => 'pelapor/complaints',
-        'controller' => __DIR__ . '/../controllers/pelapor/complaints/index.php',
-    ],
-    [
-        'method' => 'GET',
-        'path' => 'pelapor/complaints/{id}',
-        'controller' => __DIR__ . '/../controllers/pelapor/complaints/show.php',
-    ],
-    [
-        'method' => 'GET',
-        'path' => 'pelapor/complaints/{id}/timeline',
-        'controller' => __DIR__ . '/../controllers/pelapor/complaints/timeline.php',
-    ],
+
+    // Admin dashboard & tickets
     [
         'method' => 'GET',
         'path' => 'admin/dashboard/stats',
@@ -74,6 +33,11 @@ $routes = [
         'method' => 'GET',
         'path' => 'admin/tickets',
         'controller' => __DIR__ . '/../controllers/admin/tickets/index.php',
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'admin/tickets/search',
+        'controller' => __DIR__ . '/../controllers/admin/tickets/search.php',
     ],
     [
         'method' => 'GET',
@@ -110,11 +74,93 @@ $routes = [
         'path' => 'admin/tickets/{id}/validate',
         'controller' => __DIR__ . '/../controllers/admin/tickets/validate.php',
     ],
+
+    // Admin officer management
+    [
+        'method' => 'POST',
+        'path' => 'admin/officers/create',
+        'controller' => __DIR__ . '/../controllers/admin/officers/create.php',
+    ],
     [
         'method' => 'GET',
-        'path' => 'admin/tickets/search',
-        'controller' => __DIR__ . '/../controllers/admin/tickets/search.php',
+        'path' => 'admin/officers',
+        'controller' => __DIR__ . '/../controllers/admin/officers/index.php',
     ],
+    [
+        'method' => 'GET',
+        'path' => 'admin/officers/{id}',
+        'controller' => __DIR__ . '/../controllers/admin/officers/show.php',
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'admin/officers/{id}/tasks',
+        'controller' => __DIR__ . '/../controllers/admin/officers/tasks.php',
+    ],
+
+    // Admin profile
+    [
+        'method' => 'GET',
+        'path' => 'admin/profile',
+        'controller' => __DIR__ . '/../controllers/admin/profile/show.php',
+    ],
+    [
+        'method' => 'PUT',
+        'path' => 'admin/profile',
+        'controller' => __DIR__ . '/../controllers/admin/profile/update.php',
+    ],
+
+    // Pelapor dashboard & profile
+    [
+        'method' => 'GET',
+        'path' => 'pelapor/dashboard/stats',
+        'controller' => __DIR__ . '/../controllers/pelapor/dashboard/stats.php',
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'pelapor/complaints/recent',
+        'controller' => __DIR__ . '/../controllers/pelapor/complaints/recent.php',
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'pelapor/profile',
+        'controller' => __DIR__ . '/../controllers/pelapor/profile/show.php',
+    ],
+    [
+        'method' => 'PUT',
+        'path' => 'pelapor/profile',
+        'controller' => __DIR__ . '/../controllers/pelapor/profile/update.php',
+    ],
+
+    // Pelapor complaints
+    [
+        'method' => 'GET',
+        'path' => 'pelapor/complaints',
+        'controller' => __DIR__ . '/../controllers/pelapor/complaints/index.php',
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'pelapor/complaints/{id}',
+        'controller' => __DIR__ . '/../controllers/pelapor/complaints/show.php',
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'pelapor/complaints/{id}/timeline',
+        'controller' => __DIR__ . '/../controllers/pelapor/complaints/timeline.php',
+    ],
+
+    // Complaints submission and meta
+    [
+        'method' => 'GET',
+        'path' => 'complaints/categories',
+        'controller' => __DIR__ . '/../controllers/complaints/categories.php',
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'complaints',
+        'controller' => __DIR__ . '/../controllers/complaints/store.php',
+    ],
+
+    // Utility
     [
         'method' => 'GET',
         'path' => 'health',
