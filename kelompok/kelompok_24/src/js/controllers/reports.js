@@ -184,45 +184,63 @@ window.ReportsController = {
         this.dom.valBestUnit.textContent = `${metrics.best_seller_units || 0} sold`;
     },
 
-    renderChart(data = {}) {
-        const box = this.dom.chartBody;
-        box.innerHTML = "";
+	renderChart(dailyData) {
+		const container = this.dom.chartBody;
+		if (!container) return;
 
-        const arr = Object.entries(data).map(([date, val]) => ({ date, val }));
+		container.innerHTML = ''; // Clear chart
 
-        if (arr.length === 0) {
-            box.innerHTML = `<div class="text-xs text-warkops-muted w-full text-center">NO DATA</div>`;
-            return;
-        }
+		// Convert object to array & sort by date
+		const dataArr = Object.entries(dailyData || {})
+			.map(([date, val]) => ({ date, val: Number(val) }))
+			.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-        const max = Math.max(...arr.map(a => a.val));
+		if (dataArr.length === 0) {
+			container.innerHTML = `
+				<div class="w-full text-center text-xs text-warkops-muted mt-5">
+					NO DATA
+				</div>
+			`;
+			return;
+		}
 
-        arr.forEach(d => {
-            const height = (d.val / max) * 100;
-            const day = new Date(d.date).toLocaleDateString("id-ID", { weekday: "short" });
+		// Get max for height scaling
+		const maxVal = Math.max(...dataArr.map(d => d.val), 1);
 
-            const el = `
-                <div class="flex-1 flex flex-col items-center justify-end group relative">
-                    <div class="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition">
-                        <div class="bg-black text-[10px] px-2 py-1 border border-white/10 text-white">
-                            Rp ${d.val.toLocaleString()}<br>
-                            ${d.date}
-                        </div>
-                    </div>
+		dataArr.forEach(d => {
+			const heightPct = (d.val / maxVal) * 100;
+			const dayLabel = new Date(d.date).toLocaleDateString('id-ID', { weekday: 'short' });
+			const valFormatted = d.val.toLocaleString();
 
-                    <div class="w-full bg-warkops-primary/30 group-hover:bg-warkops-primary transition-all"
-                         style="height:${Math.max(height, 5)}%">
-                    </div>
+			const barHtml = `
+				<div class="flex-1 flex flex-col items-center justify-end h-full group relative cursor-crosshair">
 
-                    <div class="mt-1 text-[9px] text-warkops-muted group-hover:text-white">
-                        ${day}
-                    </div>
-                </div>
-            `;
+					<!-- Tooltip -->
+					<div class="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none">
+						<div class="bg-black border border-white/20 px-2 py-1 text-[10px] text-white whitespace-nowrap shadow-lg">
+							<span class="text-warkops-secondary font-bold">Rp ${valFormatted}</span>
+							<br><span class="text-gray-500">${d.date}</span>
+						</div>
+					</div>
 
-            box.insertAdjacentHTML("beforeend", el);
-        });
-    },
+					<!-- The Bar -->
+					<div class="w-full mx-1 bg-warkops-primary/30 border-t border-warkops-primary 
+								group-hover:bg-warkops-primary/70 transition-all relative"
+						style="height: ${Math.max(heightPct, 5)}%;">
+					</div>
+
+					<!-- Label -->
+					<div class="mt-2 text-[9px] font-mono text-warkops-muted uppercase group-hover:text-white transition-colors">
+						${dayLabel}
+					</div>
+
+				</div>
+			`;
+
+			container.insertAdjacentHTML('beforeend', barHtml);
+		});
+	},
+
 
     renderHistory(list = []) {
         const tbody = this.dom.history;
