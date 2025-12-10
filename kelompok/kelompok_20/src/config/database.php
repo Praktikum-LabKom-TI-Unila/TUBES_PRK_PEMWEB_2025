@@ -5,7 +5,7 @@ declare(strict_types=1);
 final class Database
 {
     private const DB_HOST = 'localhost';
-    private const DB_NAME = 'tubes_test';
+    private const DB_NAME = 'myunila_lostfound';
     private const DB_USER = 'root';
     private const DB_PASS = '';
     private const DB_CHARSET = 'utf8mb4';
