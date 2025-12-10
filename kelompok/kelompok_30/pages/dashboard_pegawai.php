@@ -8,7 +8,6 @@ require_once __DIR__ . '/../config/database.php';
 
 $conn = koneksiDatabase();
 
-// Statistik
 $menu_pending = $conn->query("SELECT COUNT(*) as total FROM menu WHERE status = 'pending'")->fetch_assoc()['total'];
 $menu_disetujui = $conn->query("SELECT COUNT(*) as total FROM menu WHERE status = 'disetujui'")->fetch_assoc()['total'];
 $pengiriman_hari_ini = $conn->query("SELECT COUNT(*) as total FROM pengiriman WHERE tanggal_pengiriman = CURDATE()")->fetch_assoc()['total'];

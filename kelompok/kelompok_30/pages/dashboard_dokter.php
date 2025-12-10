@@ -8,7 +8,6 @@ require_once __DIR__ . '/../config/database.php';
 
 $conn = koneksiDatabase();
 
-// Statistik
 $menu_pending = $conn->query("SELECT COUNT(*) as total FROM menu WHERE status = 'pending'")->fetch_assoc()['total'];
 $menu_disetujui = $conn->query("SELECT COUNT(*) as total FROM menu WHERE status = 'disetujui' AND dokter_id = " . $_SESSION['user_id'])->fetch_assoc()['total'];
 $menu_ditolak = $conn->query("SELECT COUNT(*) as total FROM menu WHERE status = 'ditolak' AND dokter_id = " . $_SESSION['user_id'])->fetch_assoc()['total'];
