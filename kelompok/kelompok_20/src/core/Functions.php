@@ -178,3 +178,10 @@ function truncate(string $text, int $length = 100): string
 
     return substr($text, 0, $length) . '...';
 }
+
+function view(string $viewName, array $data = []): void
+{
+    extract($data); 
+    
+    require_once __DIR__ . '/../views/' . $viewName . '.php'; 
+}

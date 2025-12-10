@@ -74,6 +74,80 @@ final class User
         return $this->findByIdentityNumber($identityNumber) !== false;
     }
 
+    // --- START: FUNGSI RESET PASSWORD YANG STABIL ---
+
+    public function saveResetToken(string $email, string $token): bool
+    {
+        try {
+            // Hapus token lama untuk email yang sama
+            $this->db->prepare("DELETE FROM password_resets WHERE email = :email")
+                     ->execute([':email' => $email]);
+
+            $sql = "INSERT INTO password_resets (email, token, created_at) VALUES (:email, :token, NOW())";
+            $stmt = $this->db->prepare($sql);
+
+            return $stmt->execute([
+                ':email' => $email,
+                ':token' => $token,
+            ]);
+        } catch (PDOException $e) {
+            error_log('DB Error saveResetToken: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function findValidResetToken(string $email, string $token): array|false
+    {
+        try {
+            // Cek apakah token cocok DAN dibuat kurang dari 1 jam yang lalu
+            $sql = "SELECT * FROM password_resets 
+                    WHERE email = :email 
+                    AND token = :token 
+                    AND created_at >= DATE_SUB(NOW(), INTERVAL 1 HOUR) 
+                    LIMIT 1";
+            
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([
+                ':email' => $email,
+                ':token' => $token
+            ]);
+
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log('DB Error findValidResetToken: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function updatePassword(string $email, string $hashedPassword): bool
+    {
+        try {
+            $sql = "UPDATE users SET password = :password, updated_at = NOW() WHERE email = :email";
+            $stmt = $this->db->prepare($sql);
+            return $stmt->execute([
+                ':password' => $hashedPassword,
+                ':email' => $email
+            ]);
+        } catch (PDOException $e) {
+            error_log('DB Error updatePassword: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function deleteResetToken(string $token): bool
+    {
+        try {
+            $sql = "DELETE FROM password_resets WHERE token = :token";
+            $stmt = $this->db->prepare($sql);
+            return $stmt->execute([':token' => $token]);
+        } catch (PDOException $e) {
+            error_log('DB Error deleteResetToken: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    // --- END: FUNGSI RESET PASSWORD YANG STABIL ---
+
     
     public function getAll(int $limit = 20, int $offset = 0): array
     {
@@ -114,7 +188,6 @@ final class User
         return (int) $stmt->fetchColumn();
     }
 
-    
     public function update(int $id, array $data): bool
     {
         $fields = [];

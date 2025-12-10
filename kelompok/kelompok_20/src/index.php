@@ -9,6 +9,8 @@ ini_set('display_errors', '1');
 
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/core/Functions.php';
+require_once __DIR__ . '/core/DatabaseSetup.php'; 
+setupPasswordResetsTable();
 
 $page = $_GET['page'] ?? 'home';
 $action = $_GET['action'] ?? 'index';
@@ -116,36 +118,49 @@ try {
             break;
             
         case 'auth':
+            require_once __DIR__ . '/controllers/AuthController.php';
+            $authController = new AuthController();
+            
             if ($isPostRequest) {
-                require_once __DIR__ . '/controllers/AuthController.php';
-                $authController = new AuthController();
-
-                if ($action === 'login') {
-                    $authController->login();
-                } elseif ($action === 'register') {
-                    $authController->register();
-                }
-                exit;
+                match ($action) {
+                    'login'           => $authController->login(),
+                    'register'        => $authController->register(),
+                    'sendResetLink'   => $authController->sendResetLink(),
+                    'resetPassword'   => $authController->resetPassword(),
+                    default           => throw new Exception('Action not found for POST')
+                };
             }
 
-            if ($action === 'login') {
-                if (isLoggedIn()) {
-                    redirect('index.php?page=home');
+            if (!isLoggedIn()) {
+                switch ($action) {
+                    case 'login':
+                        $pageTitle = 'Login - myUnila Lost & Found';
+                        require_once __DIR__ . '/views/auth/login.php';
+                        break;
+                    case 'register':
+                        $pageTitle = 'Daftar - myUnila Lost & Found';
+                        require_once __DIR__ . '/views/auth/register.php';
+                        break;
+                    case 'forgotPasswordForm':
+                        $pageTitle = 'Lupa Password - myUnila';
+                        $authController->forgotPasswordForm(); 
+                        break;
+                    case 'resetPasswordForm':
+                        $pageTitle = 'Reset Password - myUnila';
+                        $authController->resetPasswordForm(); 
+                        break;
+                    case 'logout':
+                        $authController->logout();
+                        break;
+                    default:
+                        throw new Exception('Action not found');
                 }
-                $pageTitle = 'Login - myUnila Lost & Found';
-                require_once __DIR__ . '/views/auth/login.php';
-            } elseif ($action === 'register') {
-                if (isLoggedIn()) {
-                    redirect('index.php?page=home');
-                }
-                $pageTitle = 'Daftar - myUnila Lost & Found';
-                require_once __DIR__ . '/views/auth/register.php';
-            } elseif ($action === 'logout') {
-                require_once __DIR__ . '/controllers/AuthController.php';
-                $authController = new AuthController();
-                $authController->logout();
             } else {
-                throw new Exception('Action not found');
+                if ($action === 'logout') {
+                    $authController->logout();
+                } else {
+                    redirect('index.php?page=home');
+                }
             }
             break;
             

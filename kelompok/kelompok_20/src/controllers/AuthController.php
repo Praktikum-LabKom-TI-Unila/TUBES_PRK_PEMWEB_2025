@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../core/Emailer.php';
 
 final class AuthController
 {
@@ -142,7 +143,122 @@ final class AuthController
         flash('message', 'Anda telah berhasil logout.', 'success');
         redirect('index.php?page=home');
     }
+    
+    public function forgotPasswordForm(): void
+    {
+        view('auth/forgot_password'); 
+    }
 
+    public function sendResetLink(): void
+    {
+        $email = clean($_POST['email'] ?? '');
+
+        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            flash('message', 'Format email tidak valid.', 'error');
+            redirect('index.php?page=auth&action=forgotPasswordForm');
+            return;
+        }
+
+        $user = $this->userModel->findByEmail($email);
+        
+        // Keamanan: Hanya proses reset jika user ditemukan dan aktif.
+        // Frontend tetap diberi pesan sukses agar tidak membocorkan informasi email terdaftar.
+        if ($user && (int)$user['is_active'] === 1) {
+            
+            $token = bin2hex(random_bytes(32)); 
+            
+            // 1. Simpan Token
+            if ($this->userModel->saveResetToken($email, $token)) {
+                
+                // 2. Bangun Link Verifikasi
+                $resetLink = base_url("index.php?page=auth&action=resetPasswordForm&email=" . urlencode($email) . "&token={$token}");
+                
+                // 3. Kirim Email
+                $emailer = new Emailer();
+                $emailSent = $emailer->sendResetPasswordEmail($email, $user['name'], $resetLink);
+                
+                if (!$emailSent) {
+                    error_log("Failed to send reset email for: " . $email);
+                    // Kita biarkan sukses di frontend
+                }
+            } else {
+                 error_log("Database failed to save token for: " . $email);
+            }
+        }
+        
+        // Tampilkan pesan sukses umum
+        flash('message', 'Link reset password telah dikirim ke email Anda. Periksa kotak masuk.', 'success');
+        redirect('index.php?page=auth&action=forgotPasswordForm');
+    }
+
+    public function resetPasswordForm(): void
+    {
+        $token = $_GET['token'] ?? '';
+        $email = clean($_GET['email'] ?? '');
+
+        if (empty($token) || empty($email)) {
+            flash('message', 'Link reset tidak valid atau hilang.', 'error');
+            redirect('index.php?page=auth&action=login');
+            return;
+        }
+
+        // Menggunakan findValidResetToken (memeriksa kadaluarsa 1 jam)
+        $tokenData = $this->userModel->findValidResetToken($email, $token); 
+
+        if ($tokenData === false) {
+            flash('message', 'Token reset tidak valid atau sudah kadaluarsa (lebih dari 1 jam). Silakan minta link reset baru.', 'error');
+            redirect('index.php?page=auth&action=forgotPasswordForm');
+            return;
+        }
+        
+        view('auth/reset_password', ['email' => $email, 'token' => $token]);
+    }
+
+    public function resetPassword(): void
+    {
+        $token    = $_POST['token'] ?? '';
+        $email    = clean($_POST['email'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $confirm  = $_POST['password_confirmation'] ?? '';
+
+    
+        if (empty($token) || empty($email) || empty($password) || empty($confirm)) {
+            flash('message', 'Semua field wajib diisi.', 'error');
+            redirect("index.php?page=auth&action=resetPasswordForm&token={$token}&email={$email}");
+            return;
+        }
+
+        if ($password !== $confirm || strlen($password) < 6) {
+            flash('message', 'Password minimal 6 karakter dan harus cocok dengan konfirmasi.', 'error');
+            redirect("index.php?page=auth&action=resetPasswordForm&token={$token}&email={$email}");
+            return;
+        }
+        
+
+        $tokenData = $this->userModel->findValidResetToken($email, $token);
+
+        if ($tokenData === false) {
+            flash('message', 'Token tidak valid atau kadaluarsa. Silakan minta link reset baru.', 'error');
+            redirect('index.php?page=auth&action=forgotPasswordForm');
+            return;
+        }
+        
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        
+        if ($this->userModel->updatePassword($email, $hashedPassword)) {
+
+            $this->userModel->deleteResetToken($token);
+            
+            flash('message', 'Password berhasil direset! Silakan login.', 'success');
+            redirect('index.php?page=auth&action=login');
+            return;
+        } else {
+            flash('message', 'Gagal memperbarui password. Silakan coba lagi.', 'error');
+            redirect('index.php?page=auth&action=forgotPasswordForm');
+            return;
+        }
+    }
+    
     private function createSession(array $user): void
     {
         session_regenerate_id(true);
