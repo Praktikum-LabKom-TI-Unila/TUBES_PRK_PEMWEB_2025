@@ -217,6 +217,7 @@ $pengumuman_list = $pengumuman_stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil Anggota - <?= htmlspecialchars($user['nama'] ?? '') ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root{ --primary: #0466c8; --muted:#94a3b8; --bg:#f4f7fe; --text:#1f2937 }
         *{box-sizing:border-box;margin:0;padding:0}
@@ -268,7 +269,15 @@ $pengumuman_list = $pengumuman_stmt->fetchAll(PDO::FETCH_ASSOC);
 <body>
     <div class="container">
         <header>
-            <h1>Profil Anggota</h1>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+                <div style="display:flex;align-items:center;gap:12px">
+                    <a href="../../index.php" style="color:#fff;text-decoration:none;font-size:14px;display:flex;align-items:center;gap:6px;padding:8px 12px;background:rgba(255,255,255,0.2);border-radius:8px;transition:background 0.2s;hover:background 0.3s">
+                        <i class="fa-solid fa-arrow-left" style="font-size:16px"></i>
+                        Kembali
+                    </a>
+                    <h1>Profil Anggota</h1>
+                </div>
+            </div>
         </header>
         <div class="content">
 

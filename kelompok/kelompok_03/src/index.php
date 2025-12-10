@@ -56,16 +56,7 @@ $anggota_nama = $_SESSION['anggota_nama'] ?? '';
 // Get user initials for profile circle (max 2 chars)
 $userDisplay = '';
 if ($isLoggedIn) {
-  if ($role === 'admin' && !empty($username)) {
     $userDisplay = strtoupper(substr($username, 0, 2));
-  } elseif (!empty($anggota_nama)) {
-    $names = explode(' ', trim($anggota_nama));
-    if (count($names) > 1) {
-      $userDisplay = strtoupper(substr($names[0], 0, 1) . substr($names[count($names)-1], 0, 1));
-    } else {
-      $userDisplay = strtoupper(substr($names[0], 0, 2));
-    }
-  }
 }
 
 // Mock organization identity (can be replaced by DB-driven settings later)
@@ -276,8 +267,8 @@ if ($detailId > 0) {
             <?php endif; ?>
           </div>
           <a href="login/logout.php" class="ml-2 bg-red-500 px-3 py-2 rounded-md text-white">Keluar</a>
-          <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-blue-700 font-bold text-sm">
-            <?= htmlspecialchars($userDisplay) ?>
+          <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-blue-700 text-lg">
+            <i class="fa-solid fa-user"></i>
           </div>
         <?php endif; ?>
       </div>
