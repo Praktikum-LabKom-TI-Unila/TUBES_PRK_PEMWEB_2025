@@ -72,8 +72,10 @@ Halaman Admin (Melihat data pemilih):
 
 
 Halaman Admin (Grafik Dari Hasil pemilih):
+
 <img width="521" height="244" alt="image" src="https://github.com/user-attachments/assets/04374224-56ae-43c3-bf48-4986c13f3759" />
 
 <img width="523" height="262" alt="image" src="https://github.com/user-attachments/assets/c97e2984-1b26-4429-8f5a-a195dc460440" />
+
 
 
