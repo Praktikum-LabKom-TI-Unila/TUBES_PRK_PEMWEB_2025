@@ -92,7 +92,7 @@ include '../includes/navbar_dashboard.php';
                                         <?php if ($t['status'] == 'pending'): ?>
                                             <p class="text-orange-600 font-semibold mt-1">
                                                 <i class="fas fa-exclamation-triangle mr-1"></i>
-                                                Batas Pengambilan: Jam <?= date('H:i', strtotime($t['created_at']) + 3600) ?>
+                                                Batas Pengambilan: Jam <?= date('H:i', strtotime($t['created_at']) + 1800) ?>
                                             </p>
                                         <?php endif; ?>
 
@@ -136,14 +136,12 @@ include '../includes/navbar_dashboard.php';
         });
     }
 
-    // PERBAIKAN FILTER
     document.getElementById('filterStatus').addEventListener('change', function() {
         const selected = this.value;
         const tickets = document.querySelectorAll('#ticketsList > div');
 
         tickets.forEach(ticket => {
 
-            // Ambil badge status (lebih aman, tidak bergantung urutan class)
             const statusSpan = ticket.querySelector('span[class*="rounded-full"]');
             if (!statusSpan) return;
 

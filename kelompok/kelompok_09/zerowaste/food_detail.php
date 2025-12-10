@@ -1,15 +1,12 @@
 <?php 
 session_start();
 
-// 1. SET TIMEZONE (Wajib di paling atas biar jam tidak selisih 7 jam)
 date_default_timezone_set('Asia/Jakarta');
 
-// 2. INCLUDE FILE (Perbaikan Path: Hapus tanda "../")
-require_once 'config/database.php'; // Ganti include jadi require_once biar aman
+require_once 'config/database.php';
 include 'includes/header.php';
 include 'includes/navbar.php';
 
-// Validasi ID
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     echo "<script>alert('Makanan tidak ditemukan!'); window.location='catalog.php';</script>";
     exit();
@@ -17,7 +14,6 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $id = intval($_GET['id']); 
 
-// Query Data
 $query = "SELECT fs.*, u.nama_lengkap as donatur, u.no_hp 
           FROM food_stocks fs 
           JOIN users u ON fs.donatur_id = u.id 
@@ -26,7 +22,6 @@ $query = "SELECT fs.*, u.nama_lengkap as donatur, u.no_hp
 $result = mysqli_query($conn, $query);
 $data = mysqli_fetch_assoc($result);
 
-// Cek Data Ada/Tidak
 if (!$data) {
     echo "<div class='container mx-auto py-20 text-center'>
             <h2 class='text-2xl font-bold text-gray-700'>Makanan tidak ditemukan atau sudah dihapus :(</h2>
@@ -36,9 +31,8 @@ if (!$data) {
     exit();
 }
 
-// --- LOGIC WAKTU (SUDAH FIX TIMEZONE) ---
 $batas = new DateTime($data['batas_waktu']);
-$sekarang = new DateTime(); // Ini sudah ikut Asia/Jakarta karena setting di atas
+$sekarang = new DateTime();
 
 if ($sekarang > $batas) {
     $sisa_waktu = 'Sudah Berakhir';
@@ -48,7 +42,6 @@ if ($sekarang > $batas) {
     $is_expired = false;
     $interval = $sekarang->diff($batas);
     
-    // Logic Tampilan (Hari/Jam/Menit)
     if ($interval->d > 0) {
         $sisa_waktu = $interval->d . ' Hari lagi';
         $warna_waktu = 'text-green-600';

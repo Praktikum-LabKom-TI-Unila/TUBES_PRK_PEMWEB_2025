@@ -131,7 +131,7 @@ include '../includes/navbar_dashboard.php';
                                         </div>
                                         <p class="text-sm text-orange-600 font-semibold mt-1">
                                             <i class="fas fa-exclamation-triangle mr-1"></i>
-                                            Ambil Sebelum Pukul: <?= date('H:i', strtotime($t['created_at']) + 3600) ?>
+                                            Ambil Sebelum Pukul: <?= date('H:i', strtotime($t['created_at']) + 1800) ?>
                                         </p>
                                     </div>
                                     <div class="flex items-center gap-2">

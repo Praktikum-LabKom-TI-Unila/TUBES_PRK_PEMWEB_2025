@@ -90,7 +90,6 @@ include '../includes/navbar_dashboard.php';
     <div class="flex flex-col w-full md:ml-64 transition-all duration-300">
         <main class="flex-grow p-4 sm:p-6 lg:p-8">
             <div class="max-w-7xl mx-auto">
-                <!-- Header Section -->
                 <div class="mb-6 sm:mb-8">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div class="flex items-center gap-3">
@@ -323,7 +322,6 @@ include '../includes/navbar_dashboard.php';
                         </table>
                     </div>
 
-                    <!-- Pagination -->
                     <?php if ($total_pages > 1): ?>
                         <div class="bg-gray-50 px-4 py-4 sm:px-6 border-t border-gray-200">
                             <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -520,7 +518,6 @@ document.getElementById('editModal').addEventListener('click', function(e) {
     }
 });
 
-// Close modal on ESC key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeEditModal();

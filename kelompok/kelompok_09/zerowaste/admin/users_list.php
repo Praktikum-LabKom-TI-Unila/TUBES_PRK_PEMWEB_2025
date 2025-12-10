@@ -49,12 +49,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Get search and filter parameters
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 $role_filter = isset($_GET['role']) ? mysqli_real_escape_string($conn, $_GET['role']) : '';
 $status_filter = isset($_GET['status']) ? mysqli_real_escape_string($conn, $_GET['status']) : '';
 
-// Build query with filters
 $query = "SELECT * FROM users WHERE deleted_at IS NULL";
 
 if (!empty($search)) {
@@ -82,7 +80,6 @@ include '../includes/navbar_dashboard.php';
     <div class="flex flex-col w-full md:ml-64">
         <main class="flex-grow p-6">
             
-            <!-- Header -->
             <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
                 <h1 class="text-2xl font-bold mb-2">
                     <i class="fas fa-users-cog mr-2 text-green-600"></i>
@@ -91,7 +88,6 @@ include '../includes/navbar_dashboard.php';
                 <p class="text-gray-600">Manajemen user sistem ZeroWaste</p>
             </div>
 
-            <!-- Alert Messages -->
             <?php if (isset($_SESSION['success'])): ?>
                 <div class="mb-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg">
                     <div class="flex items-center">
@@ -112,11 +108,9 @@ include '../includes/navbar_dashboard.php';
                 <?php unset($_SESSION['error']); ?>
             <?php endif; ?>
 
-            <!-- Search and Filter Section -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 p-6">
                 <form method="GET" class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <!-- Search Input -->
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                 <i class="fas fa-search mr-1"></i>Pencarian
@@ -130,7 +124,6 @@ include '../includes/navbar_dashboard.php';
                             >
                         </div>
 
-                        <!-- Role Filter -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                 <i class="fas fa-user-tag mr-1"></i>Role
@@ -146,7 +139,6 @@ include '../includes/navbar_dashboard.php';
                             </select>
                         </div>
 
-                        <!-- Status Filter -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                 <i class="fas fa-toggle-on mr-1"></i>Status
@@ -162,7 +154,6 @@ include '../includes/navbar_dashboard.php';
                         </div>
                     </div>
 
-                    <!-- Action Buttons -->
                     <div class="flex gap-2">
                         <button 
                             type="submit" 
@@ -182,7 +173,6 @@ include '../includes/navbar_dashboard.php';
                 </form>
             </div>
 
-            <!-- User Table -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
                     <h2 class="text-lg font-semibold text-gray-800">

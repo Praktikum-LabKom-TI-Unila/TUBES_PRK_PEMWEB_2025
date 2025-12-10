@@ -24,7 +24,13 @@ if (!$claim) {
 }
 
 
-$update_stock = $conn->prepare("UPDATE food_stocks SET stok_tersedia = stok_tersedia + 1 WHERE id = ?");
+$update_stock = $conn->prepare("
+    UPDATE food_stocks 
+    SET stok_tersedia = stok_tersedia + 1, 
+        status = IF(batas_waktu > NOW(), 'tersedia', status) 
+    WHERE id = ?
+");
+
 $update_stock->bind_param("i", $claim['food_id']);
 $update_stock->execute();
 

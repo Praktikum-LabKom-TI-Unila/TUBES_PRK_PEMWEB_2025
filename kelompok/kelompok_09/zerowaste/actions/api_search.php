@@ -1,15 +1,12 @@
 <?php
-// 1. HEADER ANTI-CACHE (PENTING: Biar browser gak simpen data lama)
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
 require '../config/database.php';
 
-// 2. SET TIMEZONE (Wajib di file ini juga)
 date_default_timezone_set('Asia/Jakarta');
 
-// --- LOGIC SEARCH ---
 $q = isset($_GET['q']) ? mysqli_real_escape_string($conn, $_GET['q']) : '';
 $jenis = isset($_GET['jenis']) ? $_GET['jenis'] : '';
 $cat = isset($_GET['cat']) ? $_GET['cat'] : []; 
@@ -44,9 +41,8 @@ if(mysqli_num_rows($result) > 0):
     while($row = mysqli_fetch_assoc($result)):
         
         $batas = new DateTime($row['batas_waktu']);
-        $sekarang = new DateTime(); // Sudah ikut Asia/Jakarta
+        $sekarang = new DateTime(); 
         
-        // --- LOGIC WAKTU LENGKAP ---
         if ($sekarang > $batas) {
             $sisa_waktu = 'Expired';
             $warna_waktu = 'text-gray-400';

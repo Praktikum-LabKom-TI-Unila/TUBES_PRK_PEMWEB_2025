@@ -167,7 +167,6 @@ include '../includes/navbar_dashboard.php';
                     </div>
                 </div>
 
-                <!-- Daily Transaction Log -->
                 <div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
                     <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
                         <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
