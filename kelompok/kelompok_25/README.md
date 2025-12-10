@@ -63,10 +63,66 @@ kelompok_25/
 	```
 4. Buka `http://localhost:8000` di browser.
 
+## Backend Features Completed
+
+### ✅ Reports & Analytics (P1 - High Priority)
+- **Models**: `ReportHelper.php` - Complete analytics engine
+- **Controllers**: `ReportsApiController.php` - 9 API endpoints
+- **Features**:
+  - Inventory summary dashboard
+  - Transaction summary with date filters
+  - Low stock alerts
+  - Material trend analysis (chart data)
+  - Category distribution (pie chart)
+  - Supplier performance ranking
+  - Stock movement detail tracking
+  - Top materials by value/quantity/usage
+  - Stock value by category
+
+### ✅ Activity Logs (P2 - Medium Priority)
+- **Models**: `ActivityLog.php` - Complete logging system
+- **Controllers**: `ActivityLogsApiController.php` - 6 API endpoints
+- **Helpers**: `ActivityLogger.php` - Convenient logging methods
+- **Features**:
+  - Comprehensive activity tracking
+  - User activity history
+  - Action-based filtering
+  - Entity-specific logs
+  - Recent activities dashboard
+  - Automatic cleanup for old logs
+  - Security event logging
+
+### 🔧 Integration Features
+- **Validation**: `ReportValidation.php` - Input validation & sanitization
+- **Testing**: `reports_api.http` - Complete API test suite
+- **Documentation**: `API_DOCUMENTATION.md` - Full API reference
+- **Routes**: Updated `api.php` with all new endpoints
+
+### 📊 API Endpoints Summary
+**Reports (9 endpoints):**
+- `GET /api/reports/inventory` - Dashboard summary
+- `GET /api/reports/transactions` - Transaction analytics
+- `GET /api/reports/low-stock` - Stock alerts
+- `GET /api/reports/material-trend/{id}` - Trend data
+- `GET /api/reports/category-distribution` - Category stats
+- `GET /api/reports/supplier-performance` - Supplier ranking
+- `GET /api/reports/stock-movement/{id}` - Movement history
+- `GET /api/reports/top-materials` - Top performers
+- `GET /api/reports/stock-value-by-category` - Value analysis
+
+**Activity Logs (6 endpoints):**
+- `GET /api/activity-logs` - Paginated logs with filters
+- `GET /api/activity-logs/user/{id}` - User activity
+- `GET /api/activity-logs/action/{action}` - Action-based logs
+- `GET /api/activity-logs/entity/{type}/{id}` - Entity logs
+- `GET /api/activity-logs/recent` - Recent activities
+- `POST /api/activity-logs/cleanup` - Admin cleanup
+
 ## Pengembangan Lanjutan
 - Tambahkan halaman baru dengan membuat folder view (`views/<fitur>/index.php`) dan mapping route di `routes/web.php`.
 - Integrasikan data nyata dengan membuat model & controller API, kemudian panggil via AJAX dari `public/assets/js/modules/<fitur>.js`.
 - Gunakan Tailwind CDN saat prototyping; pindah ke build pipeline (`npm run build`) jika perlu optimisasi produksi.
+- **Next**: Integrate frontend with new API endpoints for reports and activity logs
 
 ---
 Kelompok 25 – Sistem Informasi Manajemen Stok Bahan Baku
