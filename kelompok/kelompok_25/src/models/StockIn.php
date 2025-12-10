@@ -11,6 +11,49 @@ class StockIn extends Model
 {
     protected $table = 'stock_in';
     protected $primaryKey = 'id';
+    protected $dateColumnName;
+
+    /**
+     * Resolve the column used to store transaction dates (transaction_date or legacy txn_date).
+     * Fallback to created_at when neither column exists.
+     */
+    protected function getDateColumnName()
+    {
+        if ($this->dateColumnName === null) {
+            $candidates = ['transaction_date', 'txn_date'];
+
+            foreach ($candidates as $candidate) {
+                $sql = "SHOW COLUMNS FROM {$this->table} LIKE '" . $candidate . "'";
+                $stmt = $this->db->query($sql);
+                if ($stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $this->dateColumnName = $candidate;
+                    break;
+                }
+            }
+
+            if ($this->dateColumnName === null) {
+                $this->dateColumnName = 'created_at';
+            }
+        }
+
+        return $this->dateColumnName;
+    }
+
+    protected function getDateColumnExpression($alias = null)
+    {
+        $column = $this->getDateColumnName();
+        return $alias ? "{$alias}.{$column}" : $column;
+    }
+
+    protected function getSelectDateAlias($alias = 'si')
+    {
+        $column = $this->getDateColumnName();
+        if ($column === 'transaction_date') {
+            return '';
+        }
+
+        return ", {$alias}.{$column} as transaction_date";
+    }
 
     /**
      * Get all stock in transactions with pagination and filters
@@ -20,6 +63,8 @@ class StockIn extends Model
         $offset = ($page - 1) * $perPage;
         $where = ['1=1'];
         $params = [];
+        $dateColumnExpr = $this->getDateColumnExpression('si');
+        $dateSelectAlias = $this->getSelectDateAlias('si');
 
         // Filter by material
         if (!empty($filters['material_id'])) {
@@ -35,12 +80,12 @@ class StockIn extends Model
 
         // Filter by date range
         if (!empty($filters['date_from'])) {
-            $where[] = 'DATE(si.transaction_date) >= ?';
+            $where[] = "DATE({$dateColumnExpr}) >= ?";
             $params[] = $filters['date_from'];
         }
 
         if (!empty($filters['date_to'])) {
-            $where[] = 'DATE(si.transaction_date) <= ?';
+            $where[] = "DATE({$dateColumnExpr}) <= ?";
             $params[] = $filters['date_to'];
         }
 
@@ -54,18 +99,23 @@ class StockIn extends Model
         $params[] = $perPage;
         $params[] = $offset;
 
+        $orderClause = "ORDER BY {$dateColumnExpr} DESC";
+        if ($this->getDateColumnName() !== 'created_at') {
+            $orderClause .= ', si.created_at DESC';
+        }
+
         $sql = "SELECT si.*, 
-                       m.code as material_code,
-                       m.name as material_name,
-                       m.unit as material_unit,
-                       s.name as supplier_name,
-                       u.name as user_name
+                   m.code as material_code,
+                   m.name as material_name,
+                   m.unit as unit,
+                   s.name as supplier_name,
+                   u.name as user_name{$dateSelectAlias}
                 FROM {$this->table} si
                 LEFT JOIN materials m ON si.material_id = m.id
                 LEFT JOIN suppliers s ON si.supplier_id = s.id
-                LEFT JOIN users u ON si.user_id = u.id
+            LEFT JOIN users u ON si.created_by = u.id
                 WHERE {$whereClause}
-                ORDER BY si.transaction_date DESC, si.created_at DESC
+                {$orderClause}
                 LIMIT ? OFFSET ?";
         
         $stmt = $this->query($sql, $params);
@@ -79,6 +129,7 @@ class StockIn extends Model
     {
         $where = ['1=1'];
         $params = [];
+        $dateColumn = $this->getDateColumnName();
 
         if (!empty($filters['material_id'])) {
             $where[] = 'material_id = ?';
@@ -91,12 +142,12 @@ class StockIn extends Model
         }
 
         if (!empty($filters['date_from'])) {
-            $where[] = 'DATE(transaction_date) >= ?';
+            $where[] = "DATE({$dateColumn}) >= ?";
             $params[] = $filters['date_from'];
         }
 
         if (!empty($filters['date_to'])) {
-            $where[] = 'DATE(transaction_date) <= ?';
+            $where[] = "DATE({$dateColumn}) <= ?";
             $params[] = $filters['date_to'];
         }
 
@@ -118,20 +169,22 @@ class StockIn extends Model
      */
     public function findById($id)
     {
+        $dateSelectAlias = $this->getSelectDateAlias('si');
+
         $sql = "SELECT si.*, 
-                       m.code as material_code,
-                       m.name as material_name,
-                       m.unit as material_unit,
-                       m.current_stock,
-                       s.name as supplier_name,
-                       s.contact_person as supplier_contact,
-                       s.phone as supplier_phone,
-                       u.name as user_name,
-                       u.email as user_email
+                   m.code as material_code,
+                   m.name as material_name,
+                   m.unit as unit,
+                   m.current_stock,
+                   s.name as supplier_name,
+                   s.contact_person as supplier_contact,
+                   s.phone as supplier_phone,
+                   u.name as user_name,
+                   u.email as user_email{$dateSelectAlias}
                 FROM {$this->table} si
                 LEFT JOIN materials m ON si.material_id = m.id
                 LEFT JOIN suppliers s ON si.supplier_id = s.id
-                LEFT JOIN users u ON si.user_id = u.id
+                LEFT JOIN users u ON si.created_by = u.id
                 WHERE si.id = ?";
         
         $stmt = $this->query($sql, [$id]);
@@ -153,23 +206,53 @@ class StockIn extends Model
      */
     public function create($data)
     {
-        $sql = "INSERT INTO {$this->table} 
-                (reference_number, material_id, supplier_id, quantity, unit_price, 
-                 total_price, transaction_date, invoice_number, notes, user_id, created_at) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
-        
-        $stmt = $this->query($sql, [
+        $dateColumnName = $this->getDateColumnName();
+
+        $columns = [
+            'reference_number',
+            'material_id',
+            'supplier_id',
+            'quantity',
+            'unit_price',
+            'total_price'
+        ];
+        $placeholders = array_fill(0, count($columns), '?');
+        $values = [
             $data['reference_number'],
             $data['material_id'],
             $data['supplier_id'],
             $data['quantity'],
             $data['unit_price'],
-            $data['total_price'],
-            $data['transaction_date'],
-            $data['invoice_number'] ?? null,
-            $data['notes'] ?? null,
-            $data['user_id']
-        ]);
+            $data['total_price']
+        ];
+
+        if (in_array($dateColumnName, ['transaction_date', 'txn_date'], true)) {
+            $columns[] = $dateColumnName;
+            $placeholders[] = '?';
+            $values[] = $data['transaction_date'];
+        }
+
+        // Map notes/invoice_number to actual 'note' column
+        $columns[] = 'note';
+        $placeholders[] = '?';
+        $values[] = $data['notes'] ?? $data['invoice_number'] ?? null;
+
+        $columns[] = 'created_by';
+        $placeholders[] = '?';
+        $values[] = $data['created_by'];
+
+        $createdAtValue = date('Y-m-d H:i:s');
+        if ($dateColumnName === 'created_at' && !empty($data['transaction_date'])) {
+            $createdAtValue = $data['transaction_date'] . ' 00:00:00';
+        }
+
+        $columns[] = 'created_at';
+        $placeholders[] = '?';
+        $values[] = $createdAtValue;
+
+        $sql = "INSERT INTO {$this->table} (" . implode(', ', $columns) . ") VALUES (" . implode(', ', $placeholders) . ")";
+        
+        $stmt = $this->query($sql, $values);
 
         return $this->db->lastInsertId();
     }
@@ -182,13 +265,32 @@ class StockIn extends Model
         $fields = [];
         $values = [];
 
-        $allowedFields = ['supplier_id', 'transaction_date', 'invoice_number', 'notes'];
+        $allowedFields = ['supplier_id', 'transaction_date', 'note'];
+        $dateColumnName = $this->getDateColumnName();
 
         foreach ($allowedFields as $field) {
             if (isset($data[$field])) {
+                if ($field === 'transaction_date') {
+                    $targetColumn = $this->getDateColumnName();
+                    if ($targetColumn === 'created_at') {
+                        $fields[] = "{$targetColumn} = ?";
+                        $values[] = $data[$field] . ' 00:00:00';
+                    } else {
+                        $fields[] = "{$targetColumn} = ?";
+                        $values[] = $data[$field];
+                    }
+                    continue;
+                }
+
                 $fields[] = "$field = ?";
                 $values[] = $data[$field];
             }
+        }
+
+        // Also support notes/invoice_number mapping to note
+        if (isset($data['notes']) || isset($data['invoice_number'])) {
+            $fields[] = "note = ?";
+            $values[] = $data['notes'] ?? $data['invoice_number'] ?? null;
         }
 
         if (empty($fields)) {
@@ -219,15 +321,22 @@ class StockIn extends Model
     public function getByMaterial($materialId, $page = 1, $perPage = 20)
     {
         $offset = ($page - 1) * $perPage;
+        $dateColumnExpr = $this->getDateColumnExpression('si');
+        $dateSelectAlias = $this->getSelectDateAlias('si');
+
+        $orderClause = "ORDER BY {$dateColumnExpr} DESC";
+        if ($this->getDateColumnName() !== 'created_at') {
+            $orderClause .= ', si.created_at DESC';
+        }
         
         $sql = "SELECT si.*, 
                        s.name as supplier_name,
-                       u.name as user_name
+                       u.name as user_name{$dateSelectAlias}
                 FROM {$this->table} si
                 LEFT JOIN suppliers s ON si.supplier_id = s.id
-                LEFT JOIN users u ON si.user_id = u.id
+                LEFT JOIN users u ON si.created_by = u.id
                 WHERE si.material_id = ?
-                ORDER BY si.transaction_date DESC
+                {$orderClause}
                 LIMIT ? OFFSET ?";
         
         $stmt = $this->query($sql, [$materialId, $perPage, $offset]);
@@ -240,17 +349,24 @@ class StockIn extends Model
     public function getBySupplier($supplierId, $page = 1, $perPage = 20)
     {
         $offset = ($page - 1) * $perPage;
+        $dateColumnExpr = $this->getDateColumnExpression('si');
+        $dateSelectAlias = $this->getSelectDateAlias('si');
+
+        $orderClause = "ORDER BY {$dateColumnExpr} DESC";
+        if ($this->getDateColumnName() !== 'created_at') {
+            $orderClause .= ', si.created_at DESC';
+        }
         
         $sql = "SELECT si.*, 
                        m.code as material_code,
                        m.name as material_name,
                        m.unit as material_unit,
-                       u.name as user_name
+                       u.name as user_name{$dateSelectAlias}
                 FROM {$this->table} si
                 LEFT JOIN materials m ON si.material_id = m.id
-                LEFT JOIN users u ON si.user_id = u.id
+                LEFT JOIN users u ON si.created_by = u.id
                 WHERE si.supplier_id = ?
-                ORDER BY si.transaction_date DESC
+                {$orderClause}
                 LIMIT ? OFFSET ?";
         
         $stmt = $this->query($sql, [$supplierId, $perPage, $offset]);
@@ -263,18 +379,25 @@ class StockIn extends Model
     public function getByDateRange($dateFrom, $dateTo, $page = 1, $perPage = 20)
     {
         $offset = ($page - 1) * $perPage;
+        $dateColumnExpr = $this->getDateColumnExpression('si');
+        $dateSelectAlias = $this->getSelectDateAlias('si');
+
+        $orderClause = "ORDER BY {$dateColumnExpr} DESC";
+        if ($this->getDateColumnName() !== 'created_at') {
+            $orderClause .= ', si.created_at DESC';
+        }
         
         $sql = "SELECT si.*, 
                        m.code as material_code,
                        m.name as material_name,
                        s.name as supplier_name,
-                       u.name as user_name
+                       u.name as user_name{$dateSelectAlias}
                 FROM {$this->table} si
                 LEFT JOIN materials m ON si.material_id = m.id
                 LEFT JOIN suppliers s ON si.supplier_id = s.id
-                LEFT JOIN users u ON si.user_id = u.id
-                WHERE DATE(si.transaction_date) BETWEEN ? AND ?
-                ORDER BY si.transaction_date DESC
+                LEFT JOIN users u ON si.created_by = u.id
+                WHERE DATE({$dateColumnExpr}) BETWEEN ? AND ?
+                {$orderClause}
                 LIMIT ? OFFSET ?";
         
         $stmt = $this->query($sql, [$dateFrom, $dateTo, $perPage, $offset]);
@@ -286,17 +409,19 @@ class StockIn extends Model
      */
     public function getToday()
     {
+        $dateColumnExpr = $this->getDateColumnExpression('si');
+        $dateSelectAlias = $this->getSelectDateAlias('si');
         $sql = "SELECT si.*, 
                        m.code as material_code,
                        m.name as material_name,
                        m.unit as material_unit,
                        s.name as supplier_name,
-                       u.name as user_name
+                       u.name as user_name{$dateSelectAlias}
                 FROM {$this->table} si
                 LEFT JOIN materials m ON si.material_id = m.id
                 LEFT JOIN suppliers s ON si.supplier_id = s.id
-                LEFT JOIN users u ON si.user_id = u.id
-                WHERE DATE(si.transaction_date) = CURDATE()
+                LEFT JOIN users u ON si.created_by = u.id
+                WHERE DATE({$dateColumnExpr}) = CURDATE()
                 ORDER BY si.created_at DESC";
         
         $stmt = $this->query($sql);
@@ -356,9 +481,10 @@ class StockIn extends Model
     {
         $where = '1=1';
         $params = [];
+        $dateColumn = $this->getDateColumnName();
 
         if ($dateFrom && $dateTo) {
-            $where = 'DATE(transaction_date) BETWEEN ? AND ?';
+            $where = "DATE({$dateColumn}) BETWEEN ? AND ?";
             $params = [$dateFrom, $dateTo];
         }
 
@@ -383,9 +509,10 @@ class StockIn extends Model
     {
         $where = '1=1';
         $params = [];
+        $dateColumnExpr = $this->getDateColumnExpression('si');
 
         if ($dateFrom && $dateTo) {
-            $where = 'DATE(si.transaction_date) BETWEEN ? AND ?';
+            $where = "DATE({$dateColumnExpr}) BETWEEN ? AND ?";
             $params = [$dateFrom, $dateTo];
         }
 
@@ -417,9 +544,10 @@ class StockIn extends Model
     {
         $where = '1=1';
         $params = [];
+        $dateColumnExpr = $this->getDateColumnExpression('si');
 
         if ($dateFrom && $dateTo) {
-            $where = 'DATE(si.transaction_date) BETWEEN ? AND ?';
+            $where = "DATE({$dateColumnExpr}) BETWEEN ? AND ?";
             $params = [$dateFrom, $dateTo];
         }
 
@@ -447,14 +575,15 @@ class StockIn extends Model
      */
     public function getMonthlySummary($year)
     {
+        $dateColumn = $this->getDateColumnName();
         $sql = "SELECT 
-                    MONTH(transaction_date) as month,
+                    MONTH({$dateColumn}) as month,
                     COUNT(*) as total_transactions,
                     SUM(quantity) as total_quantity,
                     SUM(total_price) as total_value
                 FROM {$this->table}
-                WHERE YEAR(transaction_date) = ?
-                GROUP BY MONTH(transaction_date)
+                WHERE YEAR({$dateColumn}) = ?
+                GROUP BY MONTH({$dateColumn})
                 ORDER BY month";
         
         $stmt = $this->query($sql, [$year]);
@@ -468,6 +597,7 @@ class StockIn extends Model
     {
         $where = ['1=1'];
         $params = [];
+        $dateColumn = $this->getDateColumnName();
 
         if ($materialId) {
             $where[] = 'material_id = ?';
@@ -475,7 +605,7 @@ class StockIn extends Model
         }
 
         if ($dateFrom && $dateTo) {
-            $where[] = 'DATE(transaction_date) BETWEEN ? AND ?';
+            $where[] = "DATE({$dateColumn}) BETWEEN ? AND ?";
             $params[] = $dateFrom;
             $params[] = $dateTo;
         }

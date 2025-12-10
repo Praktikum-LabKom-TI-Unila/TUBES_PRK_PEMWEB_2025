@@ -26,6 +26,22 @@ class Router
     }
 
     /**
+     * Add PUT route
+     */
+    public function put($path, $callback)
+    {
+        $this->addRoute('PUT', $path, $callback);
+    }
+
+    /**
+     * Add DELETE route
+     */
+    public function delete($path, $callback)
+    {
+        $this->addRoute('DELETE', $path, $callback);
+    }
+
+    /**
      * Add route
      */
     private function addRoute($method, $path, $callback)

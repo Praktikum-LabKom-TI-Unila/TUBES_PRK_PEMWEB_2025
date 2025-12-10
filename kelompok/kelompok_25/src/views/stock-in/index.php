@@ -174,7 +174,20 @@
 </div>
 
 <!-- TOAST CONTAINER -->
-<div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
+<div id="toast" class="hidden fixed top-4 right-4 z-50 max-w-sm w-full">
+    <div class="flex gap-3 rounded-xl bg-white shadow-lg border border-slate-200 p-4">
+        <div id="toastIcon" class="mt-0.5"></div>
+        <div class="flex-1">
+            <p id="toastTitle" class="font-semibold text-slate-800"></p>
+            <p id="toastMessage" class="text-sm text-slate-600 mt-1"></p>
+        </div>
+        <button onclick="Toast.hide()" class="text-slate-400 hover:text-slate-600">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>
+</div>
 
 <script src="/assets/js/utils/api.js"></script>
 <script src="/assets/js/utils/toast.js"></script>

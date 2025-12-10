@@ -274,4 +274,40 @@ class StockAdjustment
             'totals' => $totals
         ];
     }
+
+    /**
+     * Delete stock adjustment (soft delete or hard delete based on business logic)
+     */
+    public function delete(int $id): bool
+    {
+        try {
+            $this->db->beginTransaction();
+
+            // Get the adjustment details first
+            $adjustment = $this->findById($id);
+            if (!$adjustment) {
+                $this->db->rollBack();
+                return false;
+            }
+
+            // Reverse the adjustment: restore original stock (current_stock)
+            $stmt = $this->db->prepare("
+                UPDATE materials 
+                SET current_stock = current_stock - ? 
+                WHERE id = ?
+            ");
+            $stmt->execute([$adjustment['difference'], $adjustment['material_id']]);
+
+            // Delete the adjustment record
+            $stmt = $this->db->prepare("DELETE FROM stock_adjustments WHERE id = ?");
+            $stmt->execute([$id]);
+
+            $this->db->commit();
+            return true;
+
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+    }
 }

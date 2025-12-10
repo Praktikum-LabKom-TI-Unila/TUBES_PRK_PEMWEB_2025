@@ -398,4 +398,40 @@ class StockOut
             'by_day' => $byDay
         ];
     }
+
+    /**
+     * Delete stock out transaction and restore material stock
+     */
+    public function delete(int $id): bool
+    {
+        try {
+            $this->db->beginTransaction();
+
+            // Get the transaction details first
+            $stockOut = $this->findById($id);
+            if (!$stockOut) {
+                $this->db->rollBack();
+                return false;
+            }
+
+            // Restore the material stock (reverse the stock out)
+            $stmt = $this->db->prepare("
+                UPDATE materials 
+                SET current_stock = current_stock + ? 
+                WHERE id = ?
+            ");
+            $stmt->execute([$stockOut['quantity'], $stockOut['material_id']]);
+
+            // Delete the stock out record
+            $stmt = $this->db->prepare("DELETE FROM stock_out WHERE id = ?");
+            $stmt->execute([$id]);
+
+            $this->db->commit();
+            return true;
+
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+    }
 }

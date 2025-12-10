@@ -55,8 +55,8 @@ $router->get('/api/stock-in/top-suppliers', 'api/StockInApiController@topSupplie
 $router->get('/api/stock-in/monthly/{year}', 'api/StockInApiController@monthly');
 $router->get('/api/stock-in/{id}', 'api/StockInApiController@show');
 $router->post('/api/stock-in', 'api/StockInApiController@store');
-$router->post('/api/stock-in/{id}', 'api/StockInApiController@update');
-$router->post('/api/stock-in/{id}/delete', 'api/StockInApiController@destroy');
+$router->put('/api/stock-in/{id}', 'api/StockInApiController@update');
+$router->delete('/api/stock-in/{id}', 'api/StockInApiController@destroy');
 
 // Stock Adjustment API routes
 $router->get('/api/stock-adjustments', 'api/StockAdjustmentApiController@index');
@@ -66,6 +66,7 @@ $router->get('/api/stock-adjustments/material/{id}', 'api/StockAdjustmentApiCont
 $router->get('/api/stock-adjustments/reason/{reason}', 'api/StockAdjustmentApiController@reason');
 $router->get('/api/stock-adjustments/{id}', 'api/StockAdjustmentApiController@show');
 $router->post('/api/stock-adjustments', 'api/StockAdjustmentApiController@store');
+$router->delete('/api/stock-adjustments/{id}', 'api/StockAdjustmentApiController@destroy');
 
 // Stock Out API routes
 $router->get('/api/stock-out', 'api/StockOutApiController@index');
@@ -75,6 +76,7 @@ $router->get('/api/stock-out/material/{id}', 'api/StockOutApiController@material
 $router->get('/api/stock-out/usage/{type}', 'api/StockOutApiController@usage');
 $router->get('/api/stock-out/{id}', 'api/StockOutApiController@show');
 $router->post('/api/stock-out', 'api/StockOutApiController@store');
+$router->delete('/api/stock-out/{id}', 'api/StockOutApiController@destroy');
 
 // Reports API routes
 $router->get('/api/reports/stock', function() {

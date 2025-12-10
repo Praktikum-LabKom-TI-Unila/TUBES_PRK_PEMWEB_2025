@@ -48,7 +48,7 @@ class StockAdjustmentApiController extends Controller
 
             $result = $this->model->getAll($page, $perPage, $filters);
 
-            Response::success('Data stock adjustment berhasil diambil', $result);
+            Response::success('Data retrieved successfully', $result);
 
         } catch (Exception $e) {
             Response::error('Gagal mengambil data stock adjustment: ' . $e->getMessage(), [], 500);
@@ -74,7 +74,7 @@ class StockAdjustmentApiController extends Controller
                 return;
             }
 
-            Response::success('Detail stock adjustment', ['data' => $adjustment]);
+            Response::success('Detail retrieved successfully', $adjustment);
 
         } catch (Exception $e) {
             Response::error('Gagal mengambil detail: ' . $e->getMessage(), [], 500);
@@ -230,6 +230,39 @@ class StockAdjustmentApiController extends Controller
 
         } catch (Exception $e) {
             Response::error('Gagal mengambil laporan: ' . $e->getMessage(), [], 500);
+        }
+    }
+
+    /**
+     * DELETE /api/stock-adjustments/:id
+     * Delete stock adjustment
+     */
+    public function destroy($id)
+    {
+        try {
+            if (!is_numeric($id) || $id < 1) {
+                Response::error('ID tidak valid', [], 400);
+                return;
+            }
+
+            $adjustment = $this->model->findById($id);
+
+            if (!$adjustment) {
+                Response::notFound('Stock adjustment tidak ditemukan');
+                return;
+            }
+
+            $deleted = $this->model->delete($id);
+
+            if ($deleted) {
+                $this->logActivity('delete', 'stock_adjustment', $id, "Deleted stock adjustment: {$adjustment['reference_number']}");
+                Response::success('Stock adjustment berhasil dihapus', []);
+            } else {
+                Response::error('Gagal menghapus stock adjustment', [], 500);
+            }
+
+        } catch (Exception $e) {
+            Response::error('Gagal menghapus stock adjustment: ' . $e->getMessage(), [], 500);
         }
     }
 

@@ -47,11 +47,15 @@ class StockInApiController extends Controller
             if (isset($_GET['supplier_id'])) {
                 $filters['supplier_id'] = (int)$_GET['supplier_id'];
             }
-            if (isset($_GET['date_from'])) {
-                $filters['date_from'] = $_GET['date_from'];
+            // Support both start_date/end_date (from JS) and date_from/date_to
+            if (isset($_GET['start_date']) || isset($_GET['date_from'])) {
+                $filters['date_from'] = $_GET['start_date'] ?? $_GET['date_from'];
             }
-            if (isset($_GET['date_to'])) {
-                $filters['date_to'] = $_GET['date_to'];
+            if (isset($_GET['end_date']) || isset($_GET['date_to'])) {
+                $filters['date_to'] = $_GET['end_date'] ?? $_GET['date_to'];
+            }
+            if (isset($_GET['search'])) {
+                $filters['search'] = $_GET['search'];
             }
             if (isset($_GET['reference_number'])) {
                 $filters['reference_number'] = $_GET['reference_number'];
@@ -62,14 +66,12 @@ class StockInApiController extends Controller
 
             $this->logActivity('view', 'stock_in', null, 'Viewed stock in transactions');
 
-            Response::success([
-                'transactions' => $transactions,
-                'pagination' => [
-                    'total' => (int)$total,
-                    'per_page' => $perPage,
-                    'current_page' => $page,
-                    'total_pages' => ceil($total / $perPage)
-                ]
+            Response::success('Data retrieved successfully', [
+                'data' => $transactions,
+                'current_page' => $page,
+                'per_page' => $perPage,
+                'total' => (int)$total,
+                'last_page' => ceil($total / $perPage)
             ]);
 
         } catch (Exception $e) {
@@ -87,13 +89,13 @@ class StockInApiController extends Controller
             $transaction = $this->stockInModel->findById($id);
 
             if (!$transaction) {
-                Response::error('Transaction not found', 404);
+                Response::error('Transaction not found', [], 404);
                 return;
             }
 
             $this->logActivity('view', 'stock_in', $id, "Viewed stock in: {$transaction['reference_number']}");
 
-            Response::success(['transaction' => $transaction]);
+            Response::success('Detail retrieved successfully', $transaction);
 
         } catch (Exception $e) {
             Response::error('Failed to fetch transaction: ' . $e->getMessage(), 500);
@@ -150,8 +152,8 @@ class StockInApiController extends Controller
             // Calculate total price
             $data['total_price'] = $data['quantity'] * $data['unit_price'];
 
-            // Add user ID
-            $data['user_id'] = Auth::id();
+            // Add creator user ID
+            $data['created_by'] = Auth::id();
 
             // Begin transaction
             $this->stockInModel->beginTransaction();
@@ -183,10 +185,7 @@ class StockInApiController extends Controller
                 $this->logActivity('create', 'stock_in', $transactionId, 
                     "Created stock in: {$data['reference_number']} - {$material['name']} ({$data['quantity']} {$material['unit']})");
 
-                Response::success([
-                    'message' => 'Stock in transaction created successfully',
-                    'transaction' => $transaction
-                ], 201);
+                Response::created('Stock in transaction created successfully', $transaction);
 
             } catch (Exception $e) {
                 $this->stockInModel->rollback();
@@ -215,13 +214,18 @@ class StockInApiController extends Controller
             $data = json_decode(file_get_contents('php://input'), true);
 
             // Only allow updating certain fields (not quantity or material)
-            $allowedFields = ['supplier_id', 'transaction_date', 'invoice_number', 'notes'];
+            $allowedFields = ['supplier_id', 'transaction_date', 'note'];
             $updateData = [];
 
             foreach ($allowedFields as $field) {
                 if (isset($data[$field])) {
                     $updateData[$field] = $data[$field];
                 }
+            }
+            
+            // Map notes/invoice_number to note for backward compatibility
+            if (isset($data['notes']) || isset($data['invoice_number'])) {
+                $updateData['note'] = $data['notes'] ?? $data['invoice_number'] ?? null;
             }
 
             if (empty($updateData)) {

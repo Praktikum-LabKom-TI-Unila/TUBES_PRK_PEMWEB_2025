@@ -180,7 +180,7 @@ const StockInModule = {
             }
         } catch (error) {
             console.error('Load stock ins error:', error);
-            ToastManager.show('Gagal memuat data stok masuk: ' + error.message, 'error');
+            Toast.error('Gagal memuat data stok masuk: ' + error.message);
         }
     },
 
@@ -349,23 +349,23 @@ const StockInModule = {
 
         // Validation
         if (!formData.material_id) {
-            ToastManager.show('Pilih material terlebih dahulu', 'error');
+            Toast.error('Pilih material terlebih dahulu');
             return;
         }
         if (!formData.supplier_id) {
-            ToastManager.show('Pilih supplier terlebih dahulu', 'error');
+            Toast.error('Pilih supplier terlebih dahulu');
             return;
         }
         if (!formData.quantity || formData.quantity <= 0) {
-            ToastManager.show('Jumlah harus lebih dari 0', 'error');
+            Toast.error('Jumlah harus lebih dari 0');
             return;
         }
         if (!formData.unit_price || formData.unit_price < 0) {
-            ToastManager.show('Harga satuan tidak valid', 'error');
+            Toast.error('Harga satuan tidak valid');
             return;
         }
         if (!formData.transaction_date) {
-            ToastManager.show('Tanggal transaksi harus diisi', 'error');
+            Toast.error('Tanggal transaksi harus diisi');
             return;
         }
 
@@ -373,14 +373,14 @@ const StockInModule = {
             const response = await ApiClient.post('/stock-in', formData);
             
             if (response.success) {
-                ToastManager.show('Stok masuk berhasil ditambahkan', 'success');
+                Toast.success('Stok masuk berhasil ditambahkan');
                 this.hideModal();
                 this.loadStockIns();
                 this.loadMaterials(); // Reload to update stock display
             }
         } catch (error) {
             console.error('Submit error:', error);
-            ToastManager.show('Gagal menambahkan stok masuk: ' + error.message, 'error');
+            Toast.error('Gagal menambahkan stok masuk: ' + error.message);
         }
     },
 
@@ -455,7 +455,7 @@ const StockInModule = {
             }
         } catch (error) {
             console.error('View detail error:', error);
-            ToastManager.show('Gagal memuat detail: ' + error.message, 'error');
+            Toast.error('Gagal memuat detail: ' + error.message);
         }
     },
 
@@ -471,13 +471,13 @@ const StockInModule = {
             const response = await ApiClient.delete(`/stock-in/${id}`);
             
             if (response.success) {
-                ToastManager.show('Stok masuk berhasil dihapus', 'success');
+                Toast.success('Stok masuk berhasil dihapus');
                 this.loadStockIns();
                 this.loadMaterials(); // Reload to update stock display
             }
         } catch (error) {
             console.error('Delete error:', error);
-            ToastManager.show('Gagal menghapus stok masuk: ' + error.message, 'error');
+            Toast.error('Gagal menghapus stok masuk: ' + error.message);
         }
     },
 

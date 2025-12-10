@@ -48,7 +48,7 @@ class StockOutApiController extends Controller
 
             $result = $this->model->getAll($page, $perPage, $filters);
 
-            Response::success('Data stock out berhasil diambil', $result);
+            Response::success('Data retrieved successfully', $result);
 
         } catch (Exception $e) {
             Response::error('Gagal mengambil data stock out', [], 500);
@@ -74,7 +74,7 @@ class StockOutApiController extends Controller
                 return;
             }
 
-            Response::success('Detail stock out', ['data' => $stockOut]);
+            Response::success('Detail retrieved successfully', $stockOut);
 
         } catch (Exception $e) {
             Response::error('Gagal mengambil detail', [], 500);
@@ -218,6 +218,39 @@ class StockOutApiController extends Controller
 
         } catch (Exception $e) {
             Response::error('Gagal mengambil laporan', [], 500);
+        }
+    }
+
+    /**
+     * DELETE /api/stock-out/:id
+     * Delete stock out transaction and reverse stock
+     */
+    public function destroy($id)
+    {
+        try {
+            if (!is_numeric($id) || $id < 1) {
+                Response::error('ID tidak valid', [], 400);
+                return;
+            }
+
+            $stockOut = $this->model->findById($id);
+
+            if (!$stockOut) {
+                Response::notFound('Stock out tidak ditemukan');
+                return;
+            }
+
+            $deleted = $this->model->delete($id);
+
+            if ($deleted) {
+                $this->logActivity('delete', 'stock_out', $id, "Deleted stock out: {$stockOut['reference_number']}");
+                Response::success('Stock out berhasil dihapus', []);
+            } else {
+                Response::error('Gagal menghapus stock out', [], 500);
+            }
+
+        } catch (Exception $e) {
+            Response::error('Gagal menghapus stock out: ' . $e->getMessage(), [], 500);
         }
     }
 
