@@ -8,20 +8,15 @@
     <link rel="stylesheet" href="../assets/css/style.css">
     <style>
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
         @keyframes slideIn {
-            from { transform: translateX(-20px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
-        .animate-slide-in { animation: slideIn 0.6s ease-out; }
-        .animate-float { animation: float 3s ease-in-out infinite; }
+        .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+        .animate-slideIn { animation: slideIn 0.4s ease-out; }
         
         /* Drag & Drop Styles */
         .drag-area {
@@ -61,35 +56,52 @@
 <body class="bg-gradient-to-br from-pink-200 via-purple-200 to-pink-300 min-h-screen">
 
     <!-- Navbar -->
-    <nav class="bg-white/95 backdrop-blur-lg border-b border-pink-200 sticky top-0 z-50 shadow-lg">
+    <nav class="bg-white/95 backdrop-blur-lg border-b border-pink-200 sticky top-0 z-40 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <!-- Logo -->
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h1 class="text-lg font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">KelasOnline</h1>
-                        <p class="text-xs text-gray-600">Kelola Materi</p>
-                    </div>
+                <!-- Logo & Title -->
+                <div class="flex items-center gap-4">
+                    <a href="dashboard-dosen.php" class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-lg font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">KelasOnline</h1>
+                            <p class="text-xs text-gray-600">Kelola Materi</p>
+                        </div>
+                    </a>
                 </div>
 
-                <!-- Right Menu -->
+                <!-- User Menu -->
                 <div class="flex items-center gap-4">
-                    <button class="p-2 text-gray-600 hover:text-pink-600 hover:bg-pink-50 rounded-xl transition-colors">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                    <button class="relative p-2 text-gray-600 hover:text-pink-600 hover:bg-pink-50 rounded-xl transition-colors">
+                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                         </svg>
+                        <span class="absolute top-1 right-1 w-2 h-2 bg-pink-500 rounded-full animate-pulse"></span>
                     </button>
-                    
-                    <div class="relative">
-                        <button class="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg hover:shadow-xl transition-shadow">
+
+                    <div class="flex items-center gap-3 pl-3 border-l border-pink-200">
+                        <div class="text-right">
+                            <p class="text-sm font-semibold text-gray-900">Dr. Budi Santoso</p>
+                            <p class="text-xs text-gray-600">Dosen</p>
+                        </div>
+                        <button class="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
                             BS
                         </button>
                     </div>
+
+                    <a href="login.html" class="p-2 text-gray-600 hover:text-pink-600 hover:bg-pink-50 rounded-xl transition-colors">
+                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                    </a>
                 </div>
             </div>
         </div>
@@ -98,18 +110,20 @@
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
+        <!-- Back Button -->
+        <a href="dashboard-dosen.php" class="inline-flex items-center gap-2 text-gray-700 hover:text-pink-600 font-semibold mb-6 transition-colors">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Kembali ke Dashboard
+        </a>
+
         <!-- Header -->
-        <div class="mb-8 animate-fade-in">
-            <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-3">
-                    <a href="dashboard-dosen.php" class="p-2 hover:bg-white rounded-lg transition-colors">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                        </svg>
-                    </a>
-                    <h2 class="text-3xl font-bold bg-gradient-to-r from-blue-950 via-blue-800 to-blue-600 bg-clip-text text-transparent">
-                        Pemrograman Web 2025
-                    </h2>
+        <div class="bg-white rounded-3xl shadow-2xl p-8 mb-8 hover:shadow-2xl transition-all duration-300 animate-fadeIn">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-2">Kelola Materi</h2>
+                    <p class="text-gray-600">Pemrograman Web • Kelas A • Semester Ganjil 2024/2025</p>
                 </div>
                 <button onclick="openTambahMateriModal()" class="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -118,86 +132,91 @@
                     Tambah Materi
                 </button>
             </div>
-            <p class="text-gray-600 ml-14">Kelola materi pembelajaran untuk kelas Anda</p>
         </div>
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 animate-slide-in">
-            <div class="bg-white rounded-xl p-6 shadow-lg border-2 border-pink-100 hover:shadow-xl transition-shadow">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-600 text-sm font-medium mb-1">Total Materi</p>
-                        <h3 class="text-3xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">24</h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-3xl p-6 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 animate-slideIn overflow-hidden relative">
+                <div class="absolute -top-6 -right-6 w-32 h-32 bg-gradient-to-br from-pink-200 to-purple-200 rounded-full opacity-50"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-16 h-16 bg-gradient-to-br from-pink-400 to-pink-600 rounded-2xl flex items-center justify-center shadow-xl transform rotate-6">
+                            <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                            </svg>
+                        </div>
                     </div>
-                    <div class="w-10 h-10 bg-gradient-to-br from-pink-100 to-purple-200 rounded-lg flex items-center justify-center shadow-sm">
-                        <svg class="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                    </div>
+                    <h3 class="text-4xl font-black text-gray-900 mb-1">24</h3>
+                    <p class="text-sm font-bold text-gray-600">Total Materi</p>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl p-6 shadow-lg border-2 border-purple-100 hover:shadow-xl transition-shadow">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-600 text-sm font-medium mb-1">PDF Files</p>
-                        <h3 class="text-3xl font-bold text-purple-600">18</h3>
+            <div class="bg-white rounded-3xl p-6 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 animate-slideIn overflow-hidden relative" style="animation-delay: 0.1s;">
+                <div class="absolute -top-6 -right-6 w-32 h-32 bg-gradient-to-br from-red-200 to-orange-200 rounded-full opacity-50"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-16 h-16 bg-gradient-to-br from-red-400 to-red-600 rounded-2xl flex items-center justify-center shadow-xl transform -rotate-6">
+                            <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <path d="M14 2v6h6"></path>
+                            </svg>
+                        </div>
                     </div>
-                    <div class="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center shadow-sm">
-                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                        </svg>
-                    </div>
+                    <h3 class="text-4xl font-black text-gray-900 mb-1">18</h3>
+                    <p class="text-sm font-bold text-gray-600">PDF Files</p>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl p-6 shadow-lg border-2 border-red-100 hover:shadow-xl transition-shadow">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-600 text-sm font-medium mb-1">Video Links</p>
-                        <h3 class="text-3xl font-bold text-red-600">6</h3>
+            <div class="bg-white rounded-3xl p-6 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 animate-slideIn overflow-hidden relative" style="animation-delay: 0.2s;">
+                <div class="absolute -top-6 -right-6 w-32 h-32 bg-gradient-to-br from-blue-200 to-cyan-200 rounded-full opacity-50"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center shadow-xl transform rotate-12">
+                            <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
                     </div>
-                    <div class="w-10 h-10 bg-gradient-to-br from-red-100 to-red-200 rounded-lg flex items-center justify-center shadow-sm">
-                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                        </svg>
-                    </div>
+                    <h3 class="text-4xl font-black text-gray-900 mb-1">6</h3>
+                    <p class="text-sm font-bold text-gray-600">Video Links</p>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl p-6 shadow-lg border-2 border-green-100 hover:shadow-xl transition-shadow">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-600 text-sm font-medium mb-1">Pertemuan</p>
-                        <h3 class="text-3xl font-bold text-green-600">14</h3>
+            <div class="bg-white rounded-3xl p-6 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 animate-slideIn overflow-hidden relative" style="animation-delay: 0.3s;">
+                <div class="absolute -top-6 -right-6 w-32 h-32 bg-gradient-to-br from-green-200 to-teal-200 rounded-full opacity-50"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center shadow-xl transform -rotate-12">
+                            <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
                     </div>
-                    <div class="w-10 h-10 bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center shadow-sm">
-                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                    </div>
+                    <h3 class="text-4xl font-black text-gray-900 mb-1">14</h3>
+                    <p class="text-sm font-bold text-gray-600">Pertemuan</p>
                 </div>
             </div>
         </div>
 
         <!-- Filter & Search -->
-        <div class="bg-white rounded-xl p-6 shadow-lg border-2 border-blue-100 mb-8">
+        <div class="bg-white rounded-2xl p-6 shadow-xl mb-8">
             <div class="flex flex-col md:flex-row gap-4">
                 <div class="flex-1">
                     <div class="relative">
-                        <input type="text" id="searchMateri" placeholder="Cari materi..." class="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                        <input type="text" id="searchMateri" placeholder="Cari materi..." class="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-pink-500/10 focus:border-pink-500 transition-all duration-300">
                         <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
                     </div>
                 </div>
-                <select class="px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                <select class="px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-pink-500/10 focus:border-pink-500 transition-all duration-300">
                     <option value="">Semua Pertemuan</option>
                     <option value="1">Pertemuan 1</option>
                     <option value="2">Pertemuan 2</option>
                     <option value="3">Pertemuan 3</option>
                 </select>
-                <select class="px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                <select class="px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-pink-500/10 focus:border-pink-500 transition-all duration-300">
                     <option value="">Semua Tipe</option>
                     <option value="pdf">PDF</option>
                     <option value="video">Video</option>
@@ -209,7 +228,7 @@
         <div class="space-y-6">
             
             <!-- Pertemuan 1 -->
-            <div class="bg-white rounded-xl shadow-lg border-2 border-pink-100 overflow-hidden animate-fade-in">
+            <div class="bg-white rounded-2xl shadow-2xl overflow-hidden animate-fadeIn">
                 <div class="bg-gradient-to-r from-pink-50 to-purple-50 px-6 py-4 border-b-2 border-pink-100">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
@@ -354,7 +373,7 @@
             </div>
 
             <!-- Pertemuan 2 -->
-            <div class="bg-white rounded-xl shadow-lg border-2 border-purple-100 overflow-hidden animate-fade-in" style="animation-delay: 0.1s;">
+            <div class="bg-white rounded-2xl shadow-2xl overflow-hidden animate-fadeIn" style="animation-delay: 0.1s;">
                 <div class="bg-gradient-to-r from-purple-50 to-pink-50 px-6 py-4 border-b-2 border-purple-100">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
@@ -422,7 +441,7 @@
 
     <!-- Modal Tambah Materi -->
     <div id="modalTambahMateri" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-fade-in">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-fadeIn">
             <!-- Modal Header -->
             <div class="sticky top-0 bg-gradient-to-r from-pink-500 via-purple-500 to-purple-600 px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -446,19 +465,19 @@
                 <!-- Judul Materi -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Judul Materi</label>
-                    <input type="text" id="judulMateri" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all" placeholder="Masukkan judul materi">
+                    <input type="text" id="judulMateri" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-pink-500/10 focus:border-pink-500 transition-all duration-300" placeholder="Masukkan judul materi">
                 </div>
 
                 <!-- Deskripsi -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Deskripsi</label>
-                    <textarea id="deskripsiMateri" rows="3" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all resize-none" placeholder="Deskripsikan materi pembelajaran"></textarea>
+                    <textarea id="deskripsiMateri" rows="3" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-pink-500/10 focus:border-pink-500 transition-all duration-300 resize-none" placeholder="Deskripsikan materi pembelajaran"></textarea>
                 </div>
 
                 <!-- Pertemuan -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Pertemuan Ke</label>
-                    <select id="pertemuanMateri" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all">
+                    <select id="pertemuanMateri" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-pink-500/10 focus:border-pink-500 transition-all duration-300">
                         <option value="">Pilih Pertemuan</option>
                         <option value="1">Pertemuan 1</option>
                         <option value="2">Pertemuan 2</option>
@@ -549,7 +568,7 @@
                     <div id="videoLinkArea" class="hidden space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Link Video (YouTube/Google Drive)</label>
-                            <input type="url" id="videoLink" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all" placeholder="https://youtube.com/watch?v=...">
+                            <input type="url" id="videoLink" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all duration-300" placeholder="https://youtube.com/watch?v=...">
                             <p class="text-xs text-gray-500 mt-2">Paste link video dari YouTube atau Google Drive</p>
                         </div>
                         
@@ -582,10 +601,10 @@
 
                 <!-- Action Buttons -->
                 <div class="flex gap-3 pt-4 border-t-2 border-gray-100">
-                    <button type="button" onclick="closeTambahMateriModal()" class="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors">
+                    <button type="button" onclick="closeTambahMateriModal()" class="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-300">
                         Batal
                     </button>
-                    <button type="submit" class="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5">
+                    <button type="submit" class="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
                         </svg>
@@ -597,7 +616,7 @@
     </div>
 
     <!-- Toast Notification -->
-    <div id="toast" class="hidden fixed bottom-8 right-8 bg-white rounded-lg shadow-2xl border-2 border-green-200 p-4 animate-fade-in z-50">
+    <div id="toast" class="hidden fixed bottom-4 right-4 bg-white border-2 border-green-500 rounded-xl shadow-2xl p-4 z-50 max-w-sm">
         <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
                 <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
