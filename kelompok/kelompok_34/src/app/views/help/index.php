@@ -23,7 +23,7 @@
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
 
     <!-- Panduan Penjual -->
-    <a href="<?= BASE_URL ?>/help/sellerGuide" class="glass-effect p-6 rounded-2xl hover:scale-105 transition-transform group">
+    <a href="<?= BASE_URL ?>/help/seller-guide" class="glass-effect p-6 rounded-2xl hover:scale-105 transition-transform group">
       <div class="bg-gradient-to-br from-green-400/30 to-teal-500/30 p-4 rounded-xl mb-4 inline-block">
         <i data-lucide="shopping-cart" class="w-10 h-10"></i>
       </div>
@@ -36,7 +36,7 @@
     </a>
 
     <!-- Panduan Admin -->
-    <a href="<?= BASE_URL ?>/help/adminGuide" class="glass-effect p-6 rounded-2xl hover:scale-105 transition-transform group">
+    <a href="<?= BASE_URL ?>/help/admin-guide" class="glass-effect p-6 rounded-2xl hover:scale-105 transition-transform group">
       <div class="bg-gradient-to-br from-blue-400/30 to-blue-600/30 p-4 rounded-xl mb-4 inline-block">
         <i data-lucide="shield-check" class="w-10 h-10"></i>
       </div>

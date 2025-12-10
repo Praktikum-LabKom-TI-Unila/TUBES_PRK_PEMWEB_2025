@@ -2,6 +2,11 @@
 
 class HelpController extends Controller
 {
+  public function __construct()
+  {
+    requireAuth();
+  }
+
   public function index()
   {
     $data['title'] = 'Pusat Bantuan - ' . APP_NAME;

@@ -17,7 +17,9 @@ function isSeller()
 
 function requireAuth()
 {
-  session_start();
+  if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+  }
   if (!isAuthenticated()) {
     header("Location: " . BASE_URL . "/auth/login");
     exit;
@@ -26,7 +28,9 @@ function requireAuth()
 
 function requireAdmin($baseRedirect = "/home", $message = null)
 {
-  session_start();
+  if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+  }
   if (!isAdmin()) {
     if ($message) {
       $_SESSION['error'] = $message;
@@ -38,7 +42,9 @@ function requireAdmin($baseRedirect = "/home", $message = null)
 
 function requireSeller()
 {
-  session_start();
+  if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+  }
   if (!isSeller()) {
     header("Location: " . BASE_URL . "/home");
     exit;
