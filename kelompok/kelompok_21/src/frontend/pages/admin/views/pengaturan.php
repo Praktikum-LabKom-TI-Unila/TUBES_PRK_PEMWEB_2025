@@ -1,50 +1,65 @@
-<h2 class="mb-4">Pengaturan Akun</h2>
+<div class="mb-4">
+    <h2 class="mb-1 fw-bold" style="color: #0C4A60;"><i class="fas fa-cog me-2"></i>Pengaturan Akun</h2>
+    <p class="text-muted mb-0">Kelola informasi profil dan keamanan akun Anda</p>
+</div>
 
-<div class="row">
+<div class="row g-4">
     <div class="col-md-4 mb-3">
-        <div class="card border-0 shadow-sm text-center p-4">
+        <div class="card border-0 shadow-sm text-center p-4" style="border-top: 4px solid #0C4A60; border-radius: 12px;">
             <div class="mb-3">
-                <img src="https://ui-avatars.com/api/?name=Admin+Panel&size=128" class="rounded-circle img-thumbnail shadow-sm">
+                <div class="position-relative d-inline-block">
+                    <img src="https://ui-avatars.com/api/?name=<?= urlencode($_SESSION['user_name'] ?? 'Admin') ?>&size=128&background=0C4A60&color=fff" class="rounded-circle shadow">
+                    <div class="position-absolute bottom-0 end-0 bg-success rounded-circle p-1" style="width: 30px; height: 30px;">
+                        <i class="fas fa-check text-white"></i>
+                    </div>
+                </div>
             </div>
-            <h5><?= htmlspecialchars($_SESSION['user_name'] ?? 'Super Admin') ?></h5>
-            <p class="text-muted">Administrator</p>
-            <button class="btn btn-outline-primary btn-sm rounded-pill px-4">Upload Foto Baru</button>
+            <h5 class="fw-bold" style="color: #0C4A60;"><?= htmlspecialchars($_SESSION['user_name'] ?? 'Super Admin') ?></h5>
+            <p class="mb-1"><span class="badge rounded-pill" style="background: linear-gradient(135deg, #9AD4D6 0%, #B5E5E7 100%); color: #0C4A60;">Administrator</span></p>
+            <p class="text-muted small mb-3"><?= htmlspecialchars($_SESSION['user_email'] ?? 'admin@scholarbridge.com') ?></p>
+            <button class="btn btn-sm rounded-pill px-4 shadow-sm" disabled style="background: linear-gradient(135deg, rgba(247, 220, 111, 0.3) 0%, rgba(249, 231, 159, 0.3) 100%); color: #856404; border: 1px dashed #F7DC6F;">
+                <i class="fas fa-camera me-1"></i>Upload Foto Baru
+            </button>
+            <small class="text-muted d-block mt-2">(Fitur akan datang)</small>
         </div>
     </div>
 
     <div class="col-md-8">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white py-3">
-                <h5 class="mb-0 fw-bold">Edit Informasi</h5>
+        <div class="card border-0 shadow-sm" style="border-left: 4px solid #9AD4D6; border-radius: 12px;">
+            <div class="card-header py-3" style="background: linear-gradient(135deg, rgba(154, 212, 214, 0.15) 0%, rgba(181, 229, 231, 0.15) 100%);">
+                <h5 class="mb-0 fw-bold" style="color: #0C4A60;"><i class="fas fa-user-edit me-2"></i>Edit Informasi</h5>
             </div>
             <div class="card-body p-4">
                 <form onsubmit="event.preventDefault(); showToast('Profil berhasil disimpan!');">
                     <div class="mb-3">
-                        <label class="form-label">Nama Lengkap</label>
-                        <input type="text" class="form-control" value="<?= htmlspecialchars($_SESSION['user_name'] ?? 'Admin') ?>">
+                        <label class="form-label fw-bold" style="color: #0C4A60;">Nama Lengkap</label>
+                        <input type="text" class="form-control border-0 shadow-sm" value="<?= htmlspecialchars($_SESSION['user_name'] ?? 'Admin') ?>" style="background: #f8f9fa;">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Email Address</label>
-                        <input type="email" class="form-control" value="admin@scholarbridge.com">
+                        <label class="form-label fw-bold" style="color: #0C4A60;">Email Address</label>
+                        <input type="email" class="form-control border-0 shadow-sm" value="<?= htmlspecialchars($_SESSION['user_email'] ?? 'admin@scholarbridge.com') ?>" readonly style="background: linear-gradient(135deg, rgba(247, 220, 111, 0.1) 0%, rgba(249, 231, 159, 0.1) 100%);">
+                        <small class="text-muted"><i class="fas fa-lock me-1"></i>Email tidak dapat diubah</small>
                     </div>
                     
                     <hr class="my-4">
-                    <h6 class="fw-bold mb-3">Ganti Password</h6>
+                    <h6 class="fw-bold mb-3" style="color: #0C4A60;"><i class="fas fa-key me-2"></i>Ganti Password</h6>
                     
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Password Baru</label>
-                            <input type="password" class="form-control">
+                            <input type="password" class="form-control border-0 shadow-sm" style="background: #f8f9fa;">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Konfirmasi Password</label>
-                            <input type="password" class="form-control">
+                            <input type="password" class="form-control border-0 shadow-sm" style="background: #f8f9fa;">
                         </div>
                     </div>
 
-                    <div class="mt-3 text-end">
-                        <button type="button" class="btn btn-light me-2">Batal</button>
-                        <button type="submit" class="btn btn-primary px-4">Simpan Perubahan</button>
+                    <div class="mt-4 text-end">
+                        <button type="button" class="btn btn-light me-2 shadow-sm">Batal</button>
+                        <button type="submit" class="btn btn-primary px-4 shadow-sm" style="background: linear-gradient(135deg, #0C4A60 0%, #0A5A70 100%); border: none;">
+                            <i class="fas fa-save me-2"></i>Simpan Perubahan
+                        </button>
                     </div>
                 </form>
             </div>

@@ -10,36 +10,43 @@ $query = "SELECT * FROM siswa ORDER BY id DESC";
 $result = mysqli_query($conn, $query);
 ?>
 
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Data Siswa (Murid)</h1>
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
+    <div>
+        <h2 class="mb-1 fw-bold" style="color: #0C4A60;"><i class="fas fa-user-graduate me-2"></i>Data Siswa (Murid)</h2>
+        <p class="text-muted mb-0">Kelola data siswa yang terdaftar</p>
+    </div>
     <div class="btn-toolbar mb-2 mb-md-0">
-        <div class="btn-group me-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.print()">Export Data</button>
-        </div>
-        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalSiswa">
-            <i class="fas fa-plus me-1"></i> Tambah Siswa
+        <button type="button" class="btn btn-sm rounded-pill shadow-sm" onclick="window.print()" 
+                style="background: linear-gradient(135deg, #0C4A60 0%, #0A5A70 100%); color: white; border: none;">
+            <i class="fas fa-download me-1"></i>Export Data
         </button>
     </div>
 </div>
 
-<div class="row mb-3 no-print">
+<div class="row mb-4 no-print g-3">
     <div class="col-md-3">
-        <select id="filterJenjang" class="form-select bg-light border-0" onchange="filterSiswa()">
-            <option value="">Semua Jenjang</option>
-            <option value="SD">SD</option>
-            <option value="SMP">SMP</option>
-            <option value="SMA">SMA</option>
+        <select id="filterJenjang" class="form-select border-0 shadow-sm" onchange="filterSiswa()" 
+                style="background: linear-gradient(135deg, rgba(154, 212, 214, 0.15) 0%, rgba(181, 229, 231, 0.15) 100%);">
+            <option value="">🎓 Semua Jenjang</option>
+            <option value="SD">📚 SD</option>
+            <option value="SMP">📖 SMP</option>
+            <option value="SMA">🎯 SMA</option>
         </select>
     </div>
     <div class="col-md-6">
-        <input type="text" id="searchSiswa" class="form-control bg-light border-0" placeholder="Cari nama siswa..." onkeyup="filterSiswa()">
+        <div class="input-group">
+            <span class="input-group-text border-0 shadow-sm" style="background: linear-gradient(135deg, #0C4A60 0%, #0A5A70 100%); color: white;">
+                <i class="fas fa-search"></i>
+            </span>
+            <input type="text" id="searchSiswa" class="form-control border-0 shadow-sm" placeholder="Cari nama atau email siswa..." onkeyup="filterSiswa()">
+        </div>
     </div>
 </div>
 
-<div class="card shadow-sm border-0">
+<div class="card shadow border-0" style="border-left: 5px solid #0C4A60 !important; border-radius: 12px;">
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0" id="tableSiswa">
-            <thead class="bg-light">
+            <thead style="background: linear-gradient(135deg, #9AD4D6 0%, #B5E5E7 100%); color: #0C4A60;">
                 <tr>
                     <th class="ps-4">Nama Siswa</th>
                     <th>Jenjang</th>
@@ -147,21 +154,24 @@ $result = mysqli_query($conn, $query);
     function filterSiswa() {
         let keyword = document.getElementById('searchSiswa').value.toLowerCase();
         let jenjang = document.getElementById('filterJenjang').value;
-        let rows = document.querySelectorAll('#tableSiswa tbody tr');
+        let table = document.getElementById('tableSiswa');
+        let rows = table.getElementsByTagName('tr');
 
-        rows.forEach(row => {
+        for (let i = 1; i < rows.length; i++) {
+            let row = rows[i];
             let namaEl = row.querySelector('.nama-col');
             let jgEl = row.querySelector('.jenjang-col');
 
             if (namaEl && jgEl) {
                 let nama = namaEl.textContent.toLowerCase();
-                let jg = jgEl.textContent;
+                let jg = jgEl.textContent.trim();
+                let email = row.querySelector('.text-muted') ? row.querySelector('.text-muted').textContent.toLowerCase() : '';
                 
-                let matchName = nama.includes(keyword);
+                let matchSearch = nama.includes(keyword) || email.includes(keyword);
                 let matchJenjang = jenjang === "" || jg === jenjang;
                 
-                row.style.display = (matchName && matchJenjang) ? "" : "none";
+                row.style.display = (matchSearch && matchJenjang) ? "" : "none";
             }
-        });
+        }
     }
 </script>
