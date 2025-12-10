@@ -4,7 +4,7 @@ require '../config/config.php';
 
 if (isset($_SESSION['login'])) {
     if ($_SESSION['role'] == 'admin') {
-        header("Location: ../dashboard/dashboard_admin.php");
+        header("Location: ../admin/dashboard/index.php");
     } else {
         header("Location: ../dashboard/dashboard_warga.php");
     }
@@ -30,7 +30,7 @@ if (isset($_POST['login'])) {
             $_SESSION['profile_photo'] = $row['profile_photo'] ?? 'default.jpg'; // Simpan foto profil ke session
 
             if ($row['role'] == 'admin') {
-                header("Location: ../dashboard/dashboard_admin.php");
+                header("Location: ../admin/dashboard/dashboard_admin.php");
             } else {
                 header("Location: ../dashboard/dashboard_warga.php");
             }
