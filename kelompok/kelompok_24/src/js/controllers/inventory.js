@@ -33,7 +33,7 @@
      */
     async function loadControllerScripts() {
         const scripts = [
-            'js/controllers/menu.js',
+            'js/controllers/items.js',
             'js/controllers/ingredients.js',
             'js/controllers/recipes.js'
         ];
