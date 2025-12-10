@@ -7,6 +7,11 @@ $routes = [
     ],
     [
         'method' => 'POST',
+        'path' => 'auth/register',
+        'controller' => __DIR__ . '/../controllers/auth/register.php',
+    ],
+    [
+        'method' => 'POST',
         'path' => 'auth/logout',
         'controller' => __DIR__ . '/../controllers/auth/logout.php',
     ],
@@ -69,6 +74,41 @@ $routes = [
         'method' => 'GET',
         'path' => 'admin/tickets',
         'controller' => __DIR__ . '/../controllers/admin/tickets/index.php',
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'admin/tickets/{id}',
+        'controller' => __DIR__ . '/../controllers/admin/tickets/show.php',
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'admin/tickets/{id}/verify',
+        'controller' => __DIR__ . '/../controllers/admin/tickets/verify.php',
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'admin/tickets/{id}/reject',
+        'controller' => __DIR__ . '/../controllers/admin/tickets/reject.php',
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'admin/officers/available',
+        'controller' => __DIR__ . '/../controllers/admin/officers/available.php',
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'admin/tickets/{id}/assign-officer',
+        'controller' => __DIR__ . '/../controllers/admin/tickets/assign_officer.php',
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'admin/tickets/{id}/proof',
+        'controller' => __DIR__ . '/../controllers/admin/tickets/proof.php',
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'admin/tickets/{id}/validate',
+        'controller' => __DIR__ . '/../controllers/admin/tickets/validate.php',
     ],
     [
         'method' => 'GET',
