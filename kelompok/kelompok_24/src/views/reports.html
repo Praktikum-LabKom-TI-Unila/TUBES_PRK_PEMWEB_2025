@@ -1,103 +1,159 @@
-<div class="p-6 w-full text-warkops-text font-sans space-y-8">
+<!-- src/views/reports.html -->
+<div class="space-y-8 animate-fade-in relative">
 
-    <!-- HEADER -->
-    <div>
-        <h1 class="text-3xl font-display tracking-wide text-warkops-primary">
-            Reports & Analytics
-        </h1>
-        <p class="text-warkops-muted text-sm">
-            Sales metrics, weekly revenue chart, and transaction history.
-        </p>
+    <!-- Decorative Background Watermark -->
+    <div class="absolute top-0 right-0 p-4 opacity-20 pointer-events-none select-none">
+        <h1 class="text-6xl font-display font-black text-transparent stroke-white stroke-2" style="-webkit-text-stroke: 1px rgba(255,255,255,0.1);">ANALYTICS</h1>
     </div>
 
-    <!-- FILTERS -->
-    <section class="bg-warkops-panel p-4 rounded-xl border border-white/5 space-y-4">
-
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-
-            <select id="filter-range" class="px-3 py-2 rounded bg-warkops-surface border border-warkops-muted">
-                <option value="today">Today</option>
-                <option value="7d" selected>Last 7 Days</option>
-                <option value="30d">Last 30 Days</option>
-                <option value="custom">Custom</option>
-            </select>
-
-            <input type="date" id="filter-start-date"
-                   class="px-3 py-2 rounded bg-warkops-surface border border-warkops-muted">
-
-            <input type="date" id="filter-end-date"
-                   class="px-3 py-2 rounded bg-warkops-surface border border-warkops-muted">
-
-            <select id="filter-operator"
-                    class="px-3 py-2 rounded bg-warkops-surface border border-warkops-muted"></select>
-
-            <select id="filter-limit"
-                    class="px-3 py-2 rounded bg-warkops-surface border border-warkops-muted">
-                <option value="10">10 Rows</option>
-                <option value="20">20 Rows</option>
-                <option value="30">30 Rows</option>
-                <option value="50">50 Rows</option>
-            </select>
-
+    <!-- HEADER -->
+    <div class="relative z-10 border-b border-white/5 pb-6">
+        <div class="flex items-center gap-3">
+            <div class="w-1 h-8 bg-warkops-primary"></div>
+            <div>
+                <h1 class="text-2xl font-display font-bold tracking-tight text-white uppercase">
+                    Operational Reports
+                </h1>
+                <p class="text-xs font-mono text-warkops-muted tracking-wider">
+                    DATA_VISUALIZATION // METRICS_V2
+                </p>
+            </div>
         </div>
+    </div>
 
-        <button id="filter-apply"
-                class="px-4 py-2 rounded bg-warkops-primary text-warkops-dark font-bold">
-            Apply Filter
-        </button>
+    <!-- FILTERS PANEL -->
+    <section class="bg-warkops-panel border border-white/10 p-5 relative overflow-hidden group">
+        <!-- Tech Decoration -->
+        <div class="absolute top-0 right-0 w-4 h-4 border-t border-r border-warkops-secondary"></div>
+        <div class="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-warkops-secondary"></div>
 
+        <div class="flex flex-col md:flex-row gap-4 items-end">
+            <!-- Range Selector -->
+            <div class="flex-1 w-full space-y-1">
+                <label class="text-[10px] font-mono text-warkops-secondary uppercase">Time Range</label>
+                <select id="filter-range" class="w-full bg-black/30 border border-white/10 text-white text-xs px-3 py-2.5 focus:border-warkops-primary focus:outline-none transition-colors font-mono">
+                    <option value="today">Hari Ini (Realtime)</option>
+                    <option value="7d" selected>7 Hari Terakhir</option>
+                    <option value="30d">30 Hari Terakhir</option>
+                    <option value="custom">-- Custom Range --</option>
+                </select>
+            </div>
+
+            <!-- Date Inputs (Hidden by default logic in JS, but styled here) -->
+            <div class="flex-1 w-full space-y-1">
+                <label class="text-[10px] font-mono text-warkops-secondary uppercase">Start Date</label>
+                <input type="date" id="filter-start-date" class="w-full bg-black/30 border border-white/10 text-white text-xs px-3 py-2 focus:border-warkops-primary focus:outline-none font-mono placeholder-white/20">
+            </div>
+
+            <div class="flex-1 w-full space-y-1">
+                <label class="text-[10px] font-mono text-warkops-secondary uppercase">End Date</label>
+                <input type="date" id="filter-end-date" class="w-full bg-black/30 border border-white/10 text-white text-xs px-3 py-2 focus:border-warkops-primary focus:outline-none font-mono">
+            </div>
+
+            <!-- Operator Select -->
+            <div class="flex-1 w-full space-y-1">
+                <label class="text-[10px] font-mono text-warkops-secondary uppercase">Operator</label>
+                <select id="filter-operator" class="w-full bg-black/30 border border-white/10 text-white text-xs px-3 py-2.5 focus:border-warkops-primary focus:outline-none font-mono">
+                    <!-- Populated by JS -->
+                    <option value="all">ALL UNITS</option>
+                </select>
+            </div>
+
+            <!-- Action Button -->
+            <button id="filter-apply" class="h-[38px] px-6 bg-warkops-primary text-black font-bold text-xs uppercase tracking-wider hover:bg-white transition-all flex items-center gap-2 group/btn">
+                <span>APPLY</span>
+                <svg class="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </button>
+        </div>
     </section>
 
-    <!-- METRICS -->
-    <section id="metrics" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-
-        <div class="bg-warkops-panel p-4 rounded-lg">
-            <div class="text-xs">Total Revenue</div>
-            <div class="total-revenue text-2xl mt-1">Rp 0</div>
+    <!-- METRICS CARDS -->
+    <section id="metrics" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- Revenue -->
+        <div class="bg-warkops-panel border border-white/5 p-4 relative overflow-hidden hover:border-white/20 transition-colors group">
+            <div class="absolute -right-2 -bottom-2 text-6xl text-white/5 font-display font-black group-hover:text-warkops-secondary/10 transition-colors">¥</div>
+            <div class="text-[10px] font-mono text-warkops-muted uppercase tracking-widest mb-2">Total Revenue</div>
+            <!-- ID Added for JS -->
+            <div id="val-revenue" class="text-2xl font-display font-bold text-white">Loading...</div>
+            <div class="w-8 h-1 bg-warkops-secondary mt-3"></div>
         </div>
 
-        <div class="bg-warkops-panel p-4 rounded-lg">
-            <div class="text-xs">Total Transactions</div>
-            <div class="total-transactions text-2xl mt-1">0</div>
+        <!-- Transactions -->
+        <div class="bg-warkops-panel border border-white/5 p-4 relative overflow-hidden hover:border-white/20 transition-colors group">
+            <div class="absolute -right-2 -bottom-2 text-6xl text-white/5 font-display font-black group-hover:text-warkops-primary/10 transition-colors">#</div>
+            <div class="text-[10px] font-mono text-warkops-muted uppercase tracking-widest mb-2">Total Trx</div>
+            <!-- ID Added for JS -->
+            <div id="val-transactions" class="text-2xl font-display font-bold text-white">--</div>
+            <div class="w-8 h-1 bg-warkops-primary mt-3"></div>
         </div>
 
-        <div class="bg-warkops-panel p-4 rounded-lg">
-            <div class="text-xs">Best Seller</div>
-            <div class="best-seller-name text-lg mt-1">-</div>
-            <div class="best-seller-units text-xs">0 sold</div>
-        </div>
-
-        <div class="bg-warkops-panel p-4 rounded-lg">
-            <div class="text-xs">Profit Margin</div>
-            <div class="profit-margin text-2xl mt-1">0%</div>
+        <!-- Best Seller -->
+        <div class="bg-warkops-panel border border-white/5 p-4 relative overflow-hidden hover:border-white/20 transition-colors lg:col-span-2">
+            <div class="flex justify-between items-start">
+                <div>
+                    <div class="text-[10px] font-mono text-warkops-muted uppercase tracking-widest mb-2">Top Performer</div>
+                    <!-- ID Added for JS -->
+                    <div id="val-best-seller" class="text-xl font-display font-bold text-white truncate max-w-[200px] md:max-w-xs">--</div>
+                    <div id="val-best-unit" class="text-xs text-warkops-secondary font-mono mt-1">-- sold</div>
+                </div>
+                <div class="p-2 border border-white/10 bg-white/5">
+                    <svg class="w-5 h-5 text-warkops-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                </div>
+            </div>
         </div>
 
     </section>
 
     <!-- WEEKLY CHART -->
-    <section id="weekly-chart" class="bg-warkops-panel p-4 rounded-xl border border-white/5">
-        <h3 class="text-xs uppercase font-mono tracking-wider mb-3">Weekly Revenue</h3>
-        <div class="chart-body relative h-40"></div>
+    <section class="bg-warkops-panel p-6 border border-white/5 relative">
+        <div class="flex justify-between items-end mb-6">
+            <div>
+                <h3 class="font-display font-bold text-white tracking-tight">REVENUE TREND</h3>
+                <p class="text-[10px] font-mono text-warkops-muted">Daily performance visualization</p>
+            </div>
+            <div class="flex gap-2">
+                <span class="w-2 h-2 bg-warkops-primary"></span>
+                <span class="text-[9px] font-mono text-white/50">Sales Vol.</span>
+            </div>
+        </div>
+        
+        <!-- Chart Container with Grid Background -->
+        <div class="relative h-56 border-l border-b border-white/10 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDIwIDIwIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiIHN0cm9rZS13aWR0aD0iMSI+PHBhdGggZD0iTTAgMjBoMjBWMEgwIi8+PC9zdmc+')]">
+            <div id="chart-body" class="absolute inset-0 flex items-end justify-between px-4 pb-0">
+                <!-- JS will inject bars/lines here -->
+                <div class="w-full h-full flex items-center justify-center text-xs text-warkops-muted font-mono animate-pulse">
+                    INITIALIZING CHART SYSTEM...
+                </div>
+            </div>
+        </div>
     </section>
 
     <!-- TRANSACTION HISTORY -->
-    <section class="bg-warkops-panel p-4 rounded-xl border border-white/5">
-        <h3 class="text-xs uppercase font-mono tracking-wider mb-3">Transaction History</h3>
+    <section class="bg-warkops-panel border border-white/5">
+        <div class="p-4 border-b border-white/5 flex justify-between items-center bg-black/20">
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider font-display">Recent Activity Log</h3>
+            <div class="text-[10px] font-mono text-warkops-muted">LIVE FEED</div>
+        </div>
 
-        <table id="history-table" class="w-full text-left text-sm">
-            <thead>
-                <tr>
-                    <th>Trx ID</th>
-                    <th>Date</th>
-                    <th>Operator</th>
-                    <th>Items</th>
-                    <th>Total</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm font-mono">
+                <thead class="text-[10px] uppercase text-warkops-muted bg-white/5">
+                    <tr>
+                        <th class="py-3 px-4 font-bold">#TRX ID</th>
+                        <th class="py-3 px-4 font-bold">Date/Time</th>
+                        <th class="py-3 px-4 font-bold">Operator</th>
+                        <th class="py-3 px-4 font-bold">Items Summary</th>
+                        <th class="py-3 px-4 font-bold text-right">Total</th>
+                        <th class="py-3 px-4 font-bold text-center">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="history-table-body" class="divide-y divide-white/5 text-white/80">
+                    <!-- JS will inject rows -->
+                    <tr><td colspan="6" class="py-8 text-center text-xs text-warkops-muted">Loading data...</td></tr>
+                </tbody>
+            </table>
+        </div>
     </section>
 
 </div>
