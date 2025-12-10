@@ -3,7 +3,6 @@
 /**
  * src/js/router.js
  * Core Navigation Logic untuk WarkOps (Single Page Application)
- * Menangani loading view, script controller, dan security role.
  */
 
 // Konfigurasi Route Mapping
@@ -16,7 +15,9 @@ const routes = {
     },
     'pos': { 
         view: 'views/pos.html', 
-        title: 'POINT OF SALES TERMINAL'
+        title: 'POINT OF SALES TERMINAL',
+        script: 'js/controllers/pos.js',
+        controller: 'PosController'
     },
     'inventory': { 
         view: 'views/inventory.html', 
@@ -25,10 +26,10 @@ const routes = {
         controller: 'InventoryController'
     },
     'reports': { 
-    view: 'views/reports.html', 
-    title: 'ANALYTICS & REPORTS',
-    script: 'js/controllers/reports.js',
-    controller: 'ReportsController'
+        view: 'views/reports.html', 
+        title: 'ANALYTICS & REPORTS',
+        script: 'js/controllers/reports.js',
+        controller: 'ReportsController'
     },
     'users': { 
         view: 'views/users.html', 
@@ -39,21 +40,8 @@ const routes = {
     }
 };
 
-const controllerScripts = {
-    home: 'js/controllers/users.js',
-    inventory: 'js/controllers/home.js',
-    reports: 'js/controllers/reports.js',
-    users: 'js/controllers/users.js'
-};
-
-const controllerInits = {
-    inventory: () => window.InventoryController && typeof window.InventoryController.init === 'function' && window.InventoryController.init(),
-    reports: () => window.ReportsController && typeof window.ReportsController.init === 'function' && window.ReportsController.init()
-};
-
 async function loadScript(src) {
     return new Promise((resolve, reject) => {
-        // Cek jika script sudah ada
         const old = document.querySelector(`script[src="${src}"]`);
         if (old) old.remove(); 
 
@@ -65,9 +53,6 @@ async function loadScript(src) {
     });
 }
 
-/**
- * Fungsi Utama: Load konten berdasarkan Hash URL
- */
 async function loadContent() {
     let hash = window.location.hash.substring(1);
 
@@ -79,13 +64,12 @@ async function loadContent() {
     const route = routes[hash];
     const contentDiv = document.getElementById('content');
 
-    // 1. Cek Route
     if (!route) {
         renderError(contentDiv, '404', 'MODULE NOT FOUND');
         return;
     }
 
-    // 2. Security Check (Role Guard)
+    // Role Guard
     const currentUser = Auth.getUser();
     if (route.allowedRoles && currentUser) {
         if (!route.allowedRoles.includes(currentUser.role)) {
@@ -94,11 +78,10 @@ async function loadContent() {
         }
     }
 
-    // 3. Update UI
+    // Update UI
     document.getElementById('page-title').innerText = route.title;
     updateSidebar(hash);
 
-    // 4. Fetch Content HTML
     try {
         // Loading State
         contentDiv.innerHTML = `
@@ -114,19 +97,15 @@ async function loadContent() {
         const html = await response.text();
         contentDiv.innerHTML = html;
 
-        // 5. Load & Init Controller (LOGIC BARU)
+        // Load & Init Controller
         if (route.script) {
             await loadScript(route.script);
             
-            // Cek apakah controller terdaftar di window (Global Object) dan punya fungsi init()
+            // Auto-Initialize Controller
             if (route.controller && window[route.controller] && typeof window[route.controller].init === 'function') {
                 console.log(`Initializing ${route.controller}...`);
                 window[route.controller].init();
             }
-        }
-
-        if (controllerInits[hash]) {
-            controllerInits[hash]();
         }
 
     } catch (error) {
