@@ -24,11 +24,14 @@ function requireAuth()
   }
 }
 
-function requireAdmin()
+function requireAdmin($baseRedirect = "/home", $message = null)
 {
   session_start();
   if (!isAdmin()) {
-    header("Location: " . BASE_URL . "/home");
+    if ($message) {
+      $_SESSION['error'] = $message;
+    }
+    header("Location: " . BASE_URL . $baseRedirect);
     exit;
   }
 }

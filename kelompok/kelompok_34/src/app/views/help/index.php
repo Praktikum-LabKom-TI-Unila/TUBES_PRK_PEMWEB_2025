@@ -4,6 +4,14 @@
 <div class="max-w-6xl mx-auto">
   <!-- Header -->
   <div class="glass-effect p-8 rounded-3xl mb-8 text-center">
+    <?php if (isset($_SESSION['error'])): ?>
+      <div class="bg-red-500/20 text-red-200 p-4 mb-6 rounded-xl border border-red-400/40 text-sm flex items-start gap-3">
+        <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+        <span><?= $_SESSION['error'] ?></span>
+      </div>
+    <?php unset($_SESSION['error']);
+    endif; ?>
+
     <div class="inline-block p-4 bg-gradient-to-br from-blue-400 to-blue-600 rounded-3xl mb-4">
       <i data-lucide="help-circle" class="w-16 h-16"></i>
     </div>
@@ -13,7 +21,7 @@
 
   <!-- Quick Links -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-    
+
     <!-- Panduan Penjual -->
     <a href="<?= BASE_URL ?>/help/sellerGuide" class="glass-effect p-6 rounded-2xl hover:scale-105 transition-transform group">
       <div class="bg-gradient-to-br from-green-400/30 to-teal-500/30 p-4 rounded-xl mb-4 inline-block">
@@ -63,7 +71,7 @@
       </div>
       <h2 class="text-2xl font-bold">Video Tutorial</h2>
     </div>
-    
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div class="bg-white/10 p-6 rounded-xl hover:bg-white/15 transition-all">
         <div class="bg-gradient-to-br from-blue-500/30 to-purple-500/30 rounded-xl aspect-video mb-4 flex items-center justify-center">

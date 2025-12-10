@@ -16,15 +16,7 @@ class HelpController extends Controller
 
   public function adminGuide()
   {
-    requireAuth();
-    session_start();
-    
-    if ($_SESSION['user']['role'] !== 'admin') {
-      $_SESSION['error'] = 'Akses ditolak! Hanya admin yang bisa melihat panduan admin.';
-      header("Location: " . BASE_URL . "/help");
-      exit;
-    }
-
+    requireAdmin("/help", 'Akses ditolak! Hanya admin yang bisa melihat panduan admin.');
     $data['title'] = 'Panduan Admin - ' . APP_NAME;
     $this->view('help/admin-guide', $data);
   }
