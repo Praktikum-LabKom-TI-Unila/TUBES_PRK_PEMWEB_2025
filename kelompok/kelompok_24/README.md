@@ -64,13 +64,14 @@ Ikuti langkah-langkah ini untuk menjalankan WarkOps di lokal komputer Anda:
 4.  Import file SQL yang ada di folder ini: `database.sql`.
 
 ### 2. Konfigurasi Koneksi
-1.  Buka file `src/api/db.php`.
+1.  Buka file `src/api/config.php`.
 2.  Pastikan konfigurasi sesuai dengan XAMPP Anda:
     ```php
-    $host = 'localhost';
-    $db   = 'tubes_pemweb';
-    $user = 'root';
-    $pass = ''; // Sesuaikan jika ada password
+    define('DB_HOST', 'localhost');
+    define('DB_NAME', 'warkops_db');
+    define('DB_USER', 'root');
+    define('DB_PASS', '');
+    define('DB_CHARSET', 'utf8mb4');
     ```
 
 ### 3. Menjalankan Aplikasi
@@ -82,9 +83,8 @@ Ikuti langkah-langkah ini untuk menjalankan WarkOps di lokal komputer Anda:
     ```
     *(Catatan: Browser harus terhubung ke Internet untuk memuat Tailwind CSS via CDN).*
 
-3.  **Login Default:**
-    * **Username:** `KASIR_01`
-    * **Password:** `admin123` (atau cek di tabel `users` database)
+3.  **Login :**
+    Untuk login silahkan cek docs/initial_seeding.md
 
 ---
 
@@ -104,7 +104,7 @@ Ikuti langkah-langkah ini untuk menjalankan WarkOps di lokal komputer Anda:
 
 ```text
 kelompok_24/
-├── database.sql           # File Database SQL
+├── db.sql           # File Database SQL
 ├── erd.jpg                # Diagram Relasi Entitas
 ├── README.md              # Dokumentasi ini
 └── src/
