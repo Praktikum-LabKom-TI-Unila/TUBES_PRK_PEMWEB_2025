@@ -1,5 +1,6 @@
 # Ignore VSCode editor settings
 .vscode/
+**/.vscode/
 
 # Ignore composer vendor directory
 vendor/
