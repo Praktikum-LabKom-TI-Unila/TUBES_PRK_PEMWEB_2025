@@ -30,9 +30,6 @@ final class AdminController
         $totalUsers = $this->userModel->countAll();
         $itemStats = $this->itemModel->getStats();
         $totalVerifiedClaims = $this->claimModel->countVerified();
-        
-        // --- AMBIL DATA PENDING UNTUK MODERASI ---
-        $pendingItems = $this->itemModel->getPendingItems();
 
         $stats = [
             'total_users' => $totalUsers,
@@ -295,42 +292,6 @@ final class AdminController
         }
 
         redirect('index.php?page=admin&action=users');
-    }
-
-    public function approveItem(): void
-    {
-        if (!isAdmin()) {
-            flash('message', 'Akses ditolak.', 'error');
-            redirect('index.php?page=home');
-            return;
-        }
-
-        $id = (int) ($_GET['id'] ?? 0);
-       
-        if ($id > 0 && $this->itemModel->updateStatus($id, 'open')) {
-            flash('message', 'Postingan berhasil disetujui dan kini tampil di publik.', 'success');
-        } else {
-            flash('message', 'Gagal menyetujui postingan.', 'error');
-        }
-        redirect('index.php?page=admin&action=dashboard');
-    }
-
-    public function rejectItem(): void
-    {
-        if (!isAdmin()) {
-            flash('message', 'Akses ditolak.', 'error');
-            redirect('index.php?page=home');
-            return;
-        }
-
-        $id = (int) ($_GET['id'] ?? 0);
-    
-        if ($id > 0 && $this->itemModel->updateStatus($id, 'rejected')) {
-            flash('message', 'Postingan telah ditolak.', 'success');
-        } else {
-            flash('message', 'Gagal menolak postingan.', 'error');
-        }
-        redirect('index.php?page=admin&action=dashboard');
     }
 
     private function isAjaxRequest(): bool

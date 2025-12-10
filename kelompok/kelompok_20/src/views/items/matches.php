@@ -40,12 +40,12 @@ $oppositeLabel = $oppositeType === 'lost' ? 'Hilang' : 'Ditemukan';
         <div class="flex flex-col md:flex-row gap-6">
             <?php if (!empty($targetItem['image_path'])): ?>
             <?php 
-            $imageSrc = (strpos($targetItem['image_path'], 'http://') === 0 || strpos($targetItem['image_path'], 'https://') === 0) 
-                ? $targetItem['image_path'] 
-                : base_url('src/assets/uploads/items/' . $targetItem['image_path']);
+            $targetImageSrc = (strpos($targetItem['image_path'], 'http://') === 0 || strpos($targetItem['image_path'], 'https://') === 0) 
+                ? $targetItem['image_path']
+                : base_url('assets/uploads/items/' . $targetItem['image_path']);
             ?>
             <div class="w-full md:w-48 h-48 rounded-xl overflow-hidden flex-shrink-0">
-                <img src="<?= $imageSrc ?>" 
+                <img src="<?= $targetImageSrc ?>" 
                      alt="<?= htmlspecialchars($targetItem['title']) ?>"
                      class="w-full h-full object-cover">
             </div>
