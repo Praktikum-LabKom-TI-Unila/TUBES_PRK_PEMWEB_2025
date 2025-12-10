@@ -4,92 +4,156 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Petugas - CleanSpot</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
-<body class="bg-gray-100">
+<body>
 <?php
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../fungsi_helper.php';
-
 cek_login();
 cek_role(['petugas']);
-
 $nama = $_SESSION['nama'] ?? 'Petugas';
+$initial = strtoupper(substr($nama, 0, 1));
 ?>
-
-    <!-- Navigation -->
-    <nav class="bg-blue-600 text-white shadow-lg">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-4">
-                <h1 class="text-2xl font-bold">CleanSpot Petugas</h1>
-                <span class="text-blue-200">Dashboard</span>
-            </div>
-            <div class="flex items-center space-x-4">
-                <span>Halo, <?= htmlspecialchars($nama) ?></span>
-                <a href="../auth/logout.php" class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded">Logout</a>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    <!-- Sidebar -->
+    <div class="sidebar petugas">
+        <button class="sidebar-close">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="fas fa-leaf"></i>
+                <span>CleanSpot</span>
             </div>
         </div>
-    </nav>
-
-    <!-- Menu -->
-    <div class="bg-white shadow">
-        <div class="container mx-auto px-4">
-            <div class="flex space-x-6 text-sm">
-                <a href="beranda_petugas.php" class="py-3 border-b-2 border-blue-600 text-blue-600 font-semibold">Dashboard</a>
-                <a href="tugas_saya.php" class="py-3 hover:text-blue-600">Tugas Saya</a>
+        <nav class="sidebar-nav">
+            <a href="beranda_petugas.php" class="sidebar-item active">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="tugas_saya.php" class="sidebar-item">
+                <i class="fas fa-tasks"></i>
+                <span>Tugas Saya</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <div class="user-avatar"><?= $initial ?></div>
+                <div class="user-info">
+                    <h4><?= htmlspecialchars($nama) ?></h4>
+                    <p>Petugas</p>
+                </div>
             </div>
+            <a href="../auth/logout.php" class="logout-btn" title="Keluar">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
         </div>
     </div>
-
     <!-- Main Content -->
-    <div class="container mx-auto px-4 py-6">
-        <!-- Statistik Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6" id="stats-cards">
-            <div class="bg-white p-6 rounded-lg shadow">
-                <div class="text-gray-600 text-sm">Tugas Ditugaskan</div>
-                <div class="text-3xl font-bold text-yellow-600" id="stat-ditugaskan">-</div>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow">
-                <div class="text-gray-600 text-sm">Tugas Diterima</div>
-                <div class="text-3xl font-bold text-blue-600" id="stat-diterima">-</div>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow">
-                <div class="text-gray-600 text-sm">Sedang Dikerjakan</div>
-                <div class="text-3xl font-bold text-orange-600" id="stat-dikerjakan">-</div>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow">
-                <div class="text-gray-600 text-sm">Selesai</div>
-                <div class="text-3xl font-bold text-green-600" id="stat-selesai">-</div>
+    <div class="main-content">
+        <!-- Top Navigation -->
+        <div class="top-nav">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Cari tugas...">
             </div>
         </div>
-
-        <!-- Tugas Terbaru -->
-        <div class="bg-white rounded-lg shadow">
-            <div class="p-6 border-b">
-                <h2 class="text-lg font-semibold">Tugas Terbaru</h2>
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <h1>Dashboard Petugas</h1>
+            <p>Selamat datang, Petugas Kebersihan! Kelola tugas pembersihan Anda.</p>
+        </div>
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div>
+                        <div class="stat-label">Tugas Baru</div>
+                        <div class="stat-value" id="stat-ditugaskan">-</div>
+                    </div>
+                    <div class="stat-icon yellow">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                </div>
             </div>
-            <div class="overflow-x-auto">
-                <table class="min-w-full">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Laporan</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prioritas</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200" id="table-tugas">
-                        <tr>
-                            <td colspan="6" class="px-6 py-4 text-center text-gray-500">Memuat data...</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div>
+                        <div class="stat-label">Sedang Dikerjakan</div>
+                        <div class="stat-value" id="stat-dikerjakan">-</div>
+                    </div>
+                    <div class="stat-icon orange">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                </div>
             </div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div>
+                        <div class="stat-label">Selesai</div>
+                        <div class="stat-value" id="stat-selesai">-</div>
+                    </div>
+                    <div class="stat-icon green">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Map Section -->
+        <div class="chart-card" style="margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+                <h3 style="margin: 0;">Peta Lokasi Tugas</h3>
+                <div style="display: flex; gap: 12px; font-size: 12px; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <div style="width: 12px; height: 12px; background: #f59e0b; border-radius: 50%;"></div>
+                        <span>Tugas Baru</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <div style="width: 12px; height: 12px; background: #3b82f6; border-radius: 50%;"></div>
+                        <span>Dikerjakan</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <div style="width: 12px; height: 12px; background: #10b981; border-radius: 50%;"></div>
+                        <span>Selesai</span>
+                    </div>
+                </div>
+            </div>
+            <div id="map" style="height: 400px; border-radius: 8px; overflow: hidden;"></div>
+        </div>
+        <!-- Recent Tasks Table -->
+        <div class="table-card">
+            <div class="table-header">
+                <h3>Tugas Terbaru</h3>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Laporan</th>
+                        <th>Kategori</th>
+                        <th>Status</th>
+                        <th>Deskripsi</th>
+                        <th>Ditugaskan</th>
+                    </tr>
+                </thead>
+                <tbody id="table-tugas">
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: var(--gray-600);">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 12px;"></i>
+                            <div>Memuat data...</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
-
     <script src="../aset/js/petugas_dashboard.js"></script>
+    <script src="../assets/js/mobile-menu.js"></script>
 </body>
 </html>

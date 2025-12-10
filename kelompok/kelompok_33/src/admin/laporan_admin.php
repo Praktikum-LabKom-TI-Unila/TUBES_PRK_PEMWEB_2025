@@ -4,139 +4,167 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Laporan - CleanSpot Admin</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 </head>
-<body class="bg-gray-100">
+<body>
 <?php
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../fungsi_helper.php';
-
 cek_login();
 cek_role(['admin']);
-
 $nama_admin = $_SESSION['nama'] ?? 'Admin';
+$initial = strtoupper(substr($nama_admin, 0, 1));
 ?>
-
-    <!-- Navigation -->
-    <nav class="bg-green-600 text-white shadow-lg">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-4">
-                <h1 class="text-2xl font-bold">CleanSpot Admin</h1>
-                <span class="text-green-200">Kelola Laporan</span>
-            </div>
-            <div class="flex items-center space-x-4">
-                <span>Halo, <?= htmlspecialchars($nama_admin) ?></span>
-                <a href="../auth/logout.php" class="bg-green-700 hover:bg-green-800 px-4 py-2 rounded">Logout</a>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <button class="sidebar-close">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="fas fa-leaf"></i>
+                <span>CleanSpot</span>
             </div>
         </div>
-    </nav>
-
-    <!-- Menu -->
-    <div class="bg-white shadow">
-        <div class="container mx-auto px-4">
-            <div class="flex space-x-6 text-sm">
-                <a href="beranda_admin.php" class="py-3 hover:text-green-600">Dashboard</a>
-                <a href="laporan_admin.php" class="py-3 border-b-2 border-green-600 text-green-600 font-semibold">Laporan</a>
-                <a href="kelola_pengguna.php" class="py-3 hover:text-green-600">Pengguna</a>
-                <a href="log_aktivitas.php" class="py-3 hover:text-green-600">Log Aktivitas</a>
+        <nav class="sidebar-nav">
+            <a href="beranda_admin.php" class="sidebar-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="laporan_admin.php" class="sidebar-item active">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Laporan</span>
+            </a>
+            <a href="pengguna_admin.php" class="sidebar-item">
+                <i class="fas fa-users"></i>
+                <span>Kelola Pengguna</span>
+            </a>
+            <a href="log_admin.php" class="sidebar-item">
+                <i class="fas fa-history"></i>
+                <span>Log Aktivitas</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <div class="user-avatar"><?= $initial ?></div>
+                <div class="user-info">
+                    <h4><?= htmlspecialchars($nama_admin) ?></h4>
+                    <p>Admin</p>
+                </div>
             </div>
+            <a href="../auth/logout.php" class="logout-btn" title="Keluar">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
         </div>
     </div>
-
     <!-- Main Content -->
-    <div class="container mx-auto px-4 py-6">
-        <!-- Filter -->
-        <div class="bg-white p-4 rounded-lg shadow mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                    <select id="filter-status" class="w-full border border-gray-300 rounded px-3 py-2">
+    <div class="main-content">
+        <!-- Top Navigation -->
+        <div class="top-nav">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="filter-search" placeholder="Cari laporan...">
+            </div>
+        </div>
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <h1>Kelola Laporan</h1>
+            <p>Kelola semua laporan sampah dari warga</p>
+        </div>
+        <!-- Filter Section -->
+        <div class="chart-card" style="margin-bottom: 24px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Status</label>
+                    <select id="filter-status" class="form-select">
                         <option value="">Semua Status</option>
                         <option value="baru">Baru</option>
                         <option value="diproses">Diproses</option>
                         <option value="selesai">Selesai</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
-                    <select id="filter-kategori" class="w-full border border-gray-300 rounded px-3 py-2">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Kategori</label>
+                    <select id="filter-kategori" class="form-select">
                         <option value="">Semua Kategori</option>
                         <option value="organik">Organik</option>
                         <option value="non-organik">Non-Organik</option>
                         <option value="lainnya">Lainnya</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Cari</label>
-                    <input type="text" id="filter-search" class="w-full border border-gray-300 rounded px-3 py-2" placeholder="Judul atau pelapor...">
-                </div>
-                <div class="flex items-end">
-                    <button onclick="loadLaporan(1)" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Filter</button>
+                <div class="form-group" style="margin-bottom: 0; display: flex; align-items: flex-end;">
+                    <button onclick="loadLaporan(1)" class="btn btn-primary w-full">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
                 </div>
             </div>
         </div>
-
         <!-- Table -->
-        <div class="bg-white rounded-lg shadow overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+        <div class="table-card">
+            <div class="table-header">
+                <h3>Daftar Laporan</h3>
+            </div>
+            <table>
+                <thead>
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Judul</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pelapor</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kategori</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
+                        <th>ID</th>
+                        <th>Judul</th>
+                        <th>Pelapor</th>
+                        <th>Kategori</th>
+                        <th>Status</th>
+                        <th>Tanggal</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200" id="table-body">
+                <tbody id="table-body">
                     <tr>
-                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">Memuat data...</td>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: var(--gray-600);">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 12px;"></i>
+                            <div>Memuat data...</div>
+                        </td>
                     </tr>
                 </tbody>
             </table>
-        </div>
-
-        <!-- Pagination -->
-        <div class="mt-4 flex justify-between items-center" id="pagination">
-            <div class="text-sm text-gray-600" id="pagination-info"></div>
-            <div class="flex space-x-2" id="pagination-buttons"></div>
+            <!-- Pagination -->
+            <div style="padding: 20px 24px; border-top: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center;">
+                <div id="pagination-info" style="font-size: 14px; color: var(--gray-600);"></div>
+                <div id="pagination-buttons" style="display: flex; gap: 8px;"></div>
+            </div>
         </div>
     </div>
-
     <!-- Modal Assign Petugas -->
-    <div id="modal-assign" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 class="text-lg font-bold mb-4">Tugaskan ke Petugas</h3>
+    <div id="modal-assign" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+        <div class="chart-card" style="max-width: 500px; width: 90%; margin: 20px;">
+            <h3 style="margin-bottom: 20px;">Tugaskan ke Petugas</h3>
             <form id="form-assign" onsubmit="submitAssign(event)">
                 <input type="hidden" id="assign-laporan-id">
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Petugas</label>
-                    <select id="assign-petugas" class="w-full border border-gray-300 rounded px-3 py-2" required>
+                <div class="form-group">
+                    <label class="form-label">Pilih Petugas</label>
+                    <select id="assign-petugas" class="form-select" required>
                         <option value="">-- Pilih Petugas --</option>
                     </select>
                 </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Prioritas</label>
-                    <select id="assign-prioritas" class="w-full border border-gray-300 rounded px-3 py-2" required>
-                        <option value="sedang">Sedang</option>
-                        <option value="tinggi">Tinggi</option>
-                        <option value="rendah">Rendah</option>
-                    </select>
+                <div class="form-group">
+                    <label class="form-label">Catatan</label>
+                    <textarea id="assign-catatan" class="form-textarea" rows="3"></textarea>
                 </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
-                    <textarea id="assign-catatan" class="w-full border border-gray-300 rounded px-3 py-2" rows="3"></textarea>
-                </div>
-                <div class="flex space-x-2">
-                    <button type="submit" class="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Tugaskan</button>
-                    <button type="button" onclick="closeModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">Batal</button>
+                <div style="display: flex; gap: 12px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        <i class="fas fa-check"></i> Tugaskan
+                    </button>
+                    <button type="button" onclick="closeModal()" class="btn btn-secondary" style="flex: 1;">
+                        <i class="fas fa-times"></i> Batal
+                    </button>
                 </div>
             </form>
         </div>
     </div>
-
     <script src="../aset/js/admin_laporan.js"></script>
+    <script src="../assets/js/mobile-menu.js"></script>
 </body>
 </html>

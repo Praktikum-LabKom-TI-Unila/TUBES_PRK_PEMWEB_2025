@@ -1,12 +1,8 @@
 <?php
-// api/statistik_data.php - Data untuk chart dashboard
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../fungsi_helper.php';
-
 header('Content-Type: application/json');
-
 try {
-    // Statistik per status
     $stmt_status = $pdo->query("
         SELECT status, COUNT(*) as jumlah 
         FROM laporan 
@@ -16,8 +12,6 @@ try {
     while ($row = $stmt_status->fetch()) {
         $data_status[$row['status']] = (int)$row['jumlah'];
     }
-    
-    // Statistik per kategori
     $stmt_kategori = $pdo->query("
         SELECT kategori, COUNT(*) as jumlah 
         FROM laporan 
@@ -27,8 +21,6 @@ try {
     while ($row = $stmt_kategori->fetch()) {
         $data_kategori[$row['kategori']] = (int)$row['jumlah'];
     }
-    
-    // Laporan per bulan (12 bulan terakhir)
     $stmt_bulan = $pdo->query("
         SELECT 
             DATE_FORMAT(created_at, '%Y-%m') as bulan,
@@ -39,8 +31,6 @@ try {
         ORDER BY bulan ASC
     ");
     $data_bulan = $stmt_bulan->fetchAll(PDO::FETCH_ASSOC);
-    
-    // Total statistik
     $stmt_total = $pdo->query("
         SELECT 
             COUNT(*) as total_laporan,
@@ -50,7 +40,6 @@ try {
         FROM laporan
     ");
     $total = $stmt_total->fetch();
-    
     json_response([
         'success' => true,
         'data' => [
@@ -68,7 +57,6 @@ try {
             'total' => $total
         ]
     ]);
-    
 } catch (Exception $e) {
     json_response([
         'success' => false,

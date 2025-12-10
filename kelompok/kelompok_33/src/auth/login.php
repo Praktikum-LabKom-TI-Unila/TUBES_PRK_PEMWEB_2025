@@ -1,14 +1,11 @@
 <?php
 require_once __DIR__ . '/../config.php';
-
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = $_POST["email"] ?? "";
     $password = $_POST["password"] ?? "";
-
     $stmt = $pdo->prepare("SELECT * FROM pengguna WHERE email = :e LIMIT 1");
     $stmt->execute([":e" => $email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
     if ($user && password_verify($password, $user["password_hash"])) {
         $_SESSION["user_id"] = $user["id"];
         $_SESSION["nama"] = $user["nama"];
@@ -27,5 +24,4 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   <input type="password" name="password"><br>
   <button type="submit">Login</button>
 </form>
-
 <?php if (!empty($error)) echo "<p style='color:red;'>$error</p>"; ?>

@@ -4,95 +4,173 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Admin - CleanSpot</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
-<body class="bg-gray-100">
+<body>
 <?php
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../fungsi_helper.php';
-
 cek_login();
 cek_role(['admin']);
-
 $nama_admin = $_SESSION['nama'] ?? 'Admin';
+$initial = strtoupper(substr($nama_admin, 0, 1));
 ?>
-
-    <!-- Navigation -->
-    <nav class="bg-green-600 text-white shadow-lg">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-4">
-                <h1 class="text-2xl font-bold">CleanSpot Admin</h1>
-                <span class="text-green-200">Dashboard</span>
-            </div>
-            <div class="flex items-center space-x-4">
-                <span>Halo, <?= htmlspecialchars($nama_admin) ?></span>
-                <a href="../auth/logout.php" class="bg-green-700 hover:bg-green-800 px-4 py-2 rounded">Logout</a>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <button class="sidebar-close">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="fas fa-leaf"></i>
+                <span>CleanSpot</span>
             </div>
         </div>
-    </nav>
-
-    <!-- Menu -->
-    <div class="bg-white shadow">
-        <div class="container mx-auto px-4">
-            <div class="flex space-x-6 text-sm">
-                <a href="beranda_admin.php" class="py-3 border-b-2 border-green-600 text-green-600 font-semibold">Dashboard</a>
-                <a href="laporan_admin.php" class="py-3 hover:text-green-600">Laporan</a>
-                <a href="kelola_pengguna.php" class="py-3 hover:text-green-600">Pengguna</a>
-                <a href="log_aktivitas.php" class="py-3 hover:text-green-600">Log Aktivitas</a>
+        <nav class="sidebar-nav">
+            <a href="beranda_admin.php" class="sidebar-item active">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="laporan_admin.php" class="sidebar-item">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Laporan</span>
+            </a>
+            <a href="pengguna_admin.php" class="sidebar-item">
+                <i class="fas fa-users"></i>
+                <span>Kelola Pengguna</span>
+            </a>
+            <a href="log_admin.php" class="sidebar-item">
+                <i class="fas fa-history"></i>
+                <span>Log Aktivitas</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <div class="user-avatar"><?= $initial ?></div>
+                <div class="user-info">
+                    <div class="user-name"><?= htmlspecialchars($nama_admin) ?></div>
+                    <div class="user-role">Administrator</div>
+                </div>
             </div>
+            <a href="../auth/logout.php" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
         </div>
     </div>
-
     <!-- Main Content -->
-    <div class="container mx-auto px-4 py-6">
-        <!-- Statistik Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6" id="stats-cards">
-            <div class="bg-white p-6 rounded-lg shadow">
-                <div class="text-gray-600 text-sm">Total Laporan</div>
-                <div class="text-3xl font-bold text-green-600" id="total-laporan">-</div>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow">
-                <div class="text-gray-600 text-sm">Total Petugas</div>
-                <div class="text-3xl font-bold text-blue-600" id="total-petugas">-</div>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow">
-                <div class="text-gray-600 text-sm">Total Pelapor</div>
-                <div class="text-3xl font-bold text-purple-600" id="total-pelapor">-</div>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow">
-                <div class="text-gray-600 text-sm">Total Penugasan</div>
-                <div class="text-3xl font-bold text-orange-600" id="total-penugasan">-</div>
+    <div class="main-content">
+        <!-- Top Navigation -->
+        <div class="top-nav">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Cari laporan, petugas, atau warga...">
             </div>
         </div>
-
-        <!-- Charts -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h3 class="text-lg font-semibold mb-4">Laporan per Status</h3>
-                <canvas id="chart-status"></canvas>
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <h1>Dashboard Admin</h1>
+            <p>Ringkasan data sistem CleanSpot</p>
+        </div>
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div>
+                        <div class="stat-label">Total Laporan</div>
+                        <div class="stat-value" id="total-laporan">-</div>
+                    </div>
+                    <div class="stat-icon blue">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                </div>
             </div>
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h3 class="text-lg font-semibold mb-4">Laporan per Kategori</h3>
-                <canvas id="chart-kategori"></canvas>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div>
+                        <div class="stat-label">Laporan Baru</div>
+                        <div class="stat-value" id="laporan-baru">-</div>
+                    </div>
+                    <div class="stat-icon yellow">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div>
+                        <div class="stat-label">Diproses</div>
+                        <div class="stat-value" id="laporan-diproses">-</div>
+                    </div>
+                    <div class="stat-icon orange">
+                        <i class="fas fa-spinner"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div>
+                        <div class="stat-label">Selesai</div>
+                        <div class="stat-value" id="laporan-selesai">-</div>
+                    </div>
+                    <div class="stat-icon green">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
             </div>
         </div>
-
-        <!-- Trend Chart -->
-        <div class="bg-white p-6 rounded-lg shadow mb-6">
-            <h3 class="text-lg font-semibold mb-4">Trend Laporan 12 Bulan Terakhir</h3>
-            <canvas id="chart-trend"></canvas>
+        <!-- Charts Row -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+            <div class="chart-card">
+                <h3>Laporan per Kategori</h3>
+                <canvas id="chart-kategori" style="max-height: 300px;"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Status Laporan</h3>
+                <canvas id="chart-status" style="max-height: 300px;"></canvas>
+            </div>
         </div>
-
         <!-- Map -->
-        <div class="bg-white p-6 rounded-lg shadow">
-            <h3 class="text-lg font-semibold mb-4">Peta Laporan</h3>
-            <div id="map" class="h-96 rounded"></div>
+        <div class="chart-card" style="margin-bottom: 24px;">
+            <h3>Peta Lokasi Laporan</h3>
+            <div id="map" style="height: 400px; border-radius: 12px; overflow: hidden;"></div>
+        </div>
+        <!-- Recent Reports Table -->
+        <div class="table-card">
+            <div class="table-header">
+                <h3>Laporan Terbaru</h3>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Pelapor</th>
+                        <th>Judul</th>
+                        <th>Kategori</th>
+                        <th>Status</th>
+                        <th>Tanggal</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="table-laporan-terbaru">
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: var(--gray-600);">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 12px;"></i>
+                            <div>Memuat data...</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
-
     <script src="../aset/js/admin_dashboard.js"></script>
+    <script src="../assets/js/mobile-menu.js"></script>
 </body>
 </html>

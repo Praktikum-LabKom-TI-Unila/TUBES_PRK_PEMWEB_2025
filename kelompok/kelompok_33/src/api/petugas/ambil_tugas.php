@@ -1,56 +1,37 @@
 <?php
-// api/petugas/ambil_tugas.php - Daftar tugas untuk petugas
 require_once __DIR__ . '/../../config.php';
 require_once __DIR__ . '/../../fungsi_helper.php';
-
 cek_login();
 cek_role(['petugas']);
-
 header('Content-Type: application/json');
-
 try {
     $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
     $per_page = 20;
     $offset = ($page - 1) * $per_page;
-    
     $status_penugasan = $_GET['status'] ?? '';
-    $prioritas = $_GET['prioritas'] ?? '';
-    
     $where = ["pg.petugas_id = :petugas_id"];
     $params = [':petugas_id' => $_SESSION['pengguna_id']];
-    
     if ($status_penugasan) {
         $where[] = "pg.status_penugasan = :status";
         $params[':status'] = $status_penugasan;
     }
-    
-    if ($prioritas) {
-        $where[] = "pg.prioritas = :prioritas";
-        $params[':prioritas'] = $prioritas;
-    }
-    
     $where_clause = 'WHERE ' . implode(' AND ', $where);
-    
-    // Hitung total
     $stmt = $pdo->prepare("
         SELECT COUNT(*) FROM penugasan pg $where_clause
     ");
     $stmt->execute($params);
     $total = $stmt->fetchColumn();
-    
-    // Ambil data
     $stmt = $pdo->prepare("
         SELECT 
             pg.id,
             pg.laporan_id,
-            pg.prioritas,
             pg.status_penugasan,
-            pg.catatan_admin,
-            pg.created_at as tanggal_penugasan,
-            pg.accepted_at,
-            pg.started_at,
-            pg.completed_at,
-            l.judul,
+            pg.catatan_petugas,
+            pg.assigned_at,
+            pg.mulai_pada,
+            pg.selesai_pada,
+            l.judul as judul_laporan,
+            l.deskripsi,
             l.kategori,
             l.status as status_laporan,
             l.alamat,
@@ -63,15 +44,12 @@ try {
         JOIN pengguna p ON l.pengguna_id = p.id
         $where_clause
         ORDER BY 
-            FIELD(pg.status_penugasan, 'ditugaskan', 'diterima', 'sedang_dikerjakan', 'selesai'),
-            FIELD(pg.prioritas, 'tinggi', 'sedang', 'rendah'),
-            pg.created_at DESC
+            FIELD(pg.status_penugasan, 'ditugaskan', 'dikerjakan', 'selesai'),
+            pg.assigned_at DESC
         LIMIT $per_page OFFSET $offset
     ");
-    
     $stmt->execute($params);
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
     json_response([
         'success' => true,
         'data' => $data,
@@ -82,7 +60,6 @@ try {
             'total_pages' => ceil($total / $per_page)
         ]
     ]);
-    
 } catch (Exception $e) {
     json_response([
         'success' => false,

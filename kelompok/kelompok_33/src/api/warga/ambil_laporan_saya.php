@@ -1,42 +1,29 @@
 <?php
-// api/warga/ambil_laporan_saya.php - Daftar laporan milik warga
 require_once __DIR__ . '/../../config.php';
 require_once __DIR__ . '/../../fungsi_helper.php';
-
 cek_login();
 cek_role(['warga']);
-
 header('Content-Type: application/json');
-
 try {
     $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
     $per_page = 20;
     $offset = ($page - 1) * $per_page;
-    
     $status = $_GET['status'] ?? '';
     $kategori = $_GET['kategori'] ?? '';
-    
     $where = ["l.pengguna_id = :pengguna_id"];
     $params = [':pengguna_id' => $_SESSION['pengguna_id']];
-    
     if ($status) {
         $where[] = "l.status = :status";
         $params[':status'] = $status;
     }
-    
     if ($kategori) {
         $where[] = "l.kategori = :kategori";
         $params[':kategori'] = $kategori;
     }
-    
     $where_clause = 'WHERE ' . implode(' AND ', $where);
-    
-    // Hitung total
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM laporan l $where_clause");
     $stmt->execute($params);
     $total = $stmt->fetchColumn();
-    
-    // Ambil data
     $stmt = $pdo->prepare("
         SELECT 
             l.id,
@@ -57,10 +44,8 @@ try {
         ORDER BY l.created_at DESC
         LIMIT $per_page OFFSET $offset
     ");
-    
     $stmt->execute($params);
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
     json_response([
         'success' => true,
         'data' => $data,
@@ -71,7 +56,6 @@ try {
             'total_pages' => ceil($total / $per_page)
         ]
     ]);
-    
 } catch (Exception $e) {
     json_response([
         'success' => false,

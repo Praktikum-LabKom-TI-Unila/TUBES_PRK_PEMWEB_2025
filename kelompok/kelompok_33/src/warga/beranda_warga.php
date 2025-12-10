@@ -4,97 +4,142 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Warga - CleanSpot</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 </head>
-<body class="bg-gray-100">
+<body>
 <?php
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../fungsi_helper.php';
-
 cek_login();
 cek_role(['warga']);
-
 $nama = $_SESSION['nama'] ?? 'Warga';
+$initial = strtoupper(substr($nama, 0, 1));
 ?>
-
-    <!-- Navigation -->
-    <nav class="bg-purple-600 text-white shadow-lg">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-4">
-                <h1 class="text-2xl font-bold">CleanSpot</h1>
-                <span class="text-purple-200">Dashboard Warga</span>
-            </div>
-            <div class="flex items-center space-x-4">
-                <span>Halo, <?= htmlspecialchars($nama) ?></span>
-                <a href="../auth/logout.php" class="bg-purple-700 hover:bg-purple-800 px-4 py-2 rounded">Logout</a>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Menu -->
-    <div class="bg-white shadow">
-        <div class="container mx-auto px-4">
-            <div class="flex space-x-6 text-sm">
-                <a href="beranda_warga.php" class="py-3 border-b-2 border-purple-600 text-purple-600 font-semibold">Dashboard</a>
-                <a href="buat_laporan.php" class="py-3 hover:text-purple-600">Buat Laporan</a>
-                <a href="laporan_saya.php" class="py-3 hover:text-purple-600">Laporan Saya</a>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    <!-- Sidebar -->
+    <div class="sidebar warga">
+        <button class="sidebar-close">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="fas fa-leaf"></i>
+                <span>CleanSpot</span>
             </div>
         </div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="container mx-auto px-4 py-6">
-        <!-- Statistik Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6" id="stats-cards">
-            <div class="bg-white p-6 rounded-lg shadow">
-                <div class="text-gray-600 text-sm">Total Laporan Saya</div>
-                <div class="text-3xl font-bold text-purple-600" id="stat-total">-</div>
+        <nav class="sidebar-nav">
+            <a href="beranda_warga.php" class="sidebar-item active">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="buat_laporan.php" class="sidebar-item">
+                <i class="fas fa-plus-circle"></i>
+                <span>Buat Laporan</span>
+            </a>
+            <a href="laporan_saya.php" class="sidebar-item">
+                <i class="fas fa-file-alt"></i>
+                <span>Laporan Saya</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <div class="user-avatar"><?= $initial ?></div>
+                <div class="user-info">
+                    <h4><?= htmlspecialchars($nama) ?></h4>
+                    <p>Warga</p>
+                </div>
             </div>
-            <div class="bg-white p-6 rounded-lg shadow">
-                <div class="text-gray-600 text-sm">Sedang Diproses</div>
-                <div class="text-3xl font-bold text-blue-600" id="stat-diproses">-</div>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow">
-                <div class="text-gray-600 text-sm">Selesai</div>
-                <div class="text-3xl font-bold text-green-600" id="stat-selesai">-</div>
-            </div>
-        </div>
-
-        <!-- Quick Action -->
-        <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-lg shadow mb-6">
-            <h2 class="text-xl font-bold mb-2">Laporkan Sampah Sekarang!</h2>
-            <p class="mb-4">Bantu bersihkan lingkungan dengan melaporkan sampah di sekitar Anda.</p>
-            <a href="buat_laporan.php" class="inline-block bg-white text-purple-600 font-semibold px-6 py-2 rounded hover:bg-gray-100 transition">
-                Buat Laporan Baru
+            <a href="../auth/logout.php" class="logout-btn" title="Keluar">
+                <i class="fas fa-sign-out-alt"></i>
             </a>
         </div>
-
-        <!-- Laporan Terbaru -->
-        <div class="bg-white rounded-lg shadow">
-            <div class="p-6 border-b">
-                <h2 class="text-lg font-semibold">Laporan Terbaru Saya</h2>
+    </div>
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="dashboard-header">
+            <h1>Dashboard Warga</h1>
+            <p>Selamat datang, <?= htmlspecialchars($nama) ?>! Laporkan sampah di sekitar Anda.</p>
+        </div>
+        <div style="text-align: right; margin-bottom: 24px;">
+            <a href="buat_laporan.php" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Buat Laporan Baru
+            </a>
+        </div>
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div>
+                        <div class="stat-label">Total Laporan Saya</div>
+                        <div class="stat-value" id="stat-total">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                    </div>
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #ddd6fe 0%, #c4b5fd 100%); color: #8b5cf6;">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                </div>
             </div>
-            <div class="overflow-x-auto">
-                <table class="min-w-full">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Judul</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kategori</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200" id="table-laporan">
-                        <tr>
-                            <td colspan="5" class="px-6 py-4 text-center text-gray-500">Memuat data...</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div>
+                        <div class="stat-label">Sedang Diproses</div>
+                        <div class="stat-value" id="stat-diproses">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                    </div>
+                    <div class="stat-icon orange">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div>
+                        <div class="stat-label">Selesai</div>
+                        <div class="stat-value" id="stat-selesai">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                    </div>
+                    <div class="stat-icon green">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
             </div>
         </div>
+        <!-- Recent Reports Table -->
+        <div class="table-card">
+            <div class="table-header">
+                <h3>Laporan Terbaru Saya</h3>
+                <a href="laporan_saya.php" class="btn btn-secondary">
+                    Lihat Semua <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Judul</th>
+                        <th>Kategori</th>
+                        <th>Status</th>
+                        <th>Tanggal</th>
+                    </tr>
+                </thead>
+                <tbody id="table-laporan">
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 48px; color: #9ca3af;">
+                            <i class="fas fa-spinner fa-spin fa-2x"></i>
+                            <p style="margin-top: 16px;">Memuat data...</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
-
     <script src="../aset/js/warga_dashboard.js"></script>
+    <script src="../assets/js/mobile-menu.js"></script>
 </body>
 </html>

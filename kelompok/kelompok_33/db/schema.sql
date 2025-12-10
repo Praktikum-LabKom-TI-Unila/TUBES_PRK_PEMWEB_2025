@@ -1,5 +1,4 @@
--- MySQL Database Schema
--- Language: MySQL
+-- Skema Database untuk Aplikasi CleanSpot
 
 CREATE DATABASE IF NOT EXISTS cleanspot_db
   CHARACTER SET utf8mb4
@@ -64,9 +63,9 @@ CREATE TABLE penugasan (
   laporan_id INT UNSIGNED NOT NULL,
   petugas_id INT UNSIGNED NOT NULL,
   status_penugasan ENUM('ditugaskan','dikerjakan','selesai') NOT NULL DEFAULT 'ditugaskan',
-  mulai_pada TIMESTAMP NULL DEFAULT NULL,
-  selesai_pada TIMESTAMP NULL DEFAULT NULL,
-  catatan_petugas TEXT DEFAULT NULL,
+  mulai_pada TIMESTAMP NULL,
+  selesai_pada TIMESTAMP NULL,
+  catatan_petugas TEXT,
   assigned_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT fk_penugasan_laporan FOREIGN KEY (laporan_id) REFERENCES laporan(id) ON DELETE CASCADE,
@@ -100,7 +99,7 @@ CREATE TABLE bukti_penanganan (
   penugasan_id INT UNSIGNED NOT NULL,
   nama_file VARCHAR(255) NOT NULL,
   path_file VARCHAR(500) NOT NULL,
-  keterangan TEXT DEFAULT NULL,
+  keterangan TEXT,
   diunggah_pada TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_bukti_penugasan FOREIGN KEY (penugasan_id) REFERENCES penugasan(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -112,7 +111,7 @@ CREATE TABLE log_aktivitas (
   aksi VARCHAR(100) NOT NULL,
   target_tipe VARCHAR(50) DEFAULT NULL,
   target_id INT UNSIGNED DEFAULT NULL,
-  detail TEXT DEFAULT NULL,
+  detail TEXT,
   dibuat_pada TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_log_pengguna FOREIGN KEY (pengguna_id) REFERENCES pengguna(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
