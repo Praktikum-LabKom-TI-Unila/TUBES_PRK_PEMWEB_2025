@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once __DIR__ . '/../database/db.php';
+require_once('../database/db.php');
 
 $isLoggedIn = isset($_SESSION['user_id']);
 $role       = $_SESSION['role'] ?? 'guest';
@@ -201,7 +201,7 @@ $msg = $_GET['msg'] ?? '';
     </div>
 </nav>
 
-<!-- Hero Section with Dark Blue Background and Animations -->
+<!-- Hero Section -->
 <section class="relative min-h-screen flex items-center justify-center px-4 pt-32 pb-20 overflow-hidden hero-pattern">
     <div class="absolute inset-0 overflow-hidden">
         <div class="absolute top-20 left-20 w-96 h-96 bg-gradient-to-r from-purple-300/20 to-pink-300/20 rounded-full blur-3xl animate-float"></div>
@@ -449,7 +449,7 @@ $msg = $_GET['msg'] ?? '';
     </div>
 </footer>
 
-<!-- Additional Information for Group Members -->
+<!-- Group Members -->
 <section class="py-8 bg-gray-100">
     <div class="max-w-7xl mx-auto text-center">
         <p class="text-gray-600 text-sm">
