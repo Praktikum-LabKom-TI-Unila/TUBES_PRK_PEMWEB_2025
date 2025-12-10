@@ -9,8 +9,9 @@
 // Konfigurasi Route Mapping
 const routes = {
     'home': { 
-        view: 'views/home.html', 
-        title: 'DASHBOARD OVERVIEW'
+    view: 'views/home.html', 
+    title: 'DASHBOARD OVERVIEW',
+    script: 'js/controllers/home.js'
     },
     'pos': { 
         view: 'views/pos.html', 
