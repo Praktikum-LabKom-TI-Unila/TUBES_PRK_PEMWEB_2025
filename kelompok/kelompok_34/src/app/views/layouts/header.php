@@ -89,12 +89,6 @@ if (strpos($_SERVER['REQUEST_URI'], '/pos') !== false) {
 
           <?php else: ?>
             <li>
-              <a href="<?= BASE_URL ?>/help" class="nav-link hover:text-blue-200 transition flex items-center gap-2">
-                <i data-lucide="help-circle" class="w-4 h-4"></i>
-                Bantuan
-              </a>
-            </li>
-            <li>
               <a href="<?= BASE_URL ?>/auth/login" class="nav-link hover:text-blue-200 transition flex items-center gap-2">
                 <i data-lucide="log-in" class="w-4 h-4"></i>
                 Login
