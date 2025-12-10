@@ -7,11 +7,6 @@ $routes = [
     ],
     [
         'method' => 'POST',
-        'path' => 'auth/register',
-        'controller' => __DIR__ . '/../controllers/auth/register.php',
-    ],
-    [
-        'method' => 'POST',
         'path' => 'auth/logout',
         'controller' => __DIR__ . '/../controllers/auth/logout.php',
     ],
@@ -59,6 +54,26 @@ $routes = [
         'method' => 'GET',
         'path' => 'pelapor/complaints/{id}/timeline',
         'controller' => __DIR__ . '/../controllers/pelapor/complaints/timeline.php',
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'admin/dashboard/stats',
+        'controller' => __DIR__ . '/../controllers/admin/dashboard/stats.php',
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'admin/dashboard/recent-activities',
+        'controller' => __DIR__ . '/../controllers/admin/dashboard/recent_activities.php',
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'admin/tickets',
+        'controller' => __DIR__ . '/../controllers/admin/tickets/index.php',
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'admin/tickets/search',
+        'controller' => __DIR__ . '/../controllers/admin/tickets/search.php',
     ],
     [
         'method' => 'GET',

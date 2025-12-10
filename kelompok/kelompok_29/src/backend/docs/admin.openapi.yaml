@@ -1,0 +1,438 @@
+openapi: 3.0.3
+info:
+  title: SIPINDA Admin API
+  version: '1.0.0'
+  description: >-
+    Blueprint endpoint Admin (A2 Dashboard & A3 Manajemen Tiket) untuk REST API
+    Vanilla PHP SIPINDA.
+servers:
+  - url: /api
+security:
+  - BearerAuth: []
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ErrorDetail:
+      type: object
+      properties:
+        field:
+          type: string
+          nullable: true
+        reason:
+          type: string
+          nullable: true
+        message:
+          type: string
+      additionalProperties: false
+    BaseResponse:
+      type: object
+      required: [status, code, message, data, errors]
+      properties:
+        status:
+          type: string
+          enum: [success, error]
+        code:
+          type: integer
+        message:
+          type: string
+        data:
+          type: object
+          nullable: true
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+          default: []
+    ComplaintStatus:
+      type: string
+      enum:
+        - diajukan
+        - diverifikasi_admin
+        - ditugaskan_ke_petugas
+        - dalam_proses
+        - menunggu_validasi_admin
+        - selesai
+    DashboardStatsData:
+      type: object
+      required: [total, baru, in_progress, finished]
+      properties:
+        total:
+          type: integer
+          minimum: 0
+        baru:
+          type: integer
+          minimum: 0
+        in_progress:
+          type: integer
+          minimum: 0
+        finished:
+          type: integer
+          minimum: 0
+    DashboardStatsResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/DashboardStatsData'
+    ActivityRecord:
+      type: object
+      required: [complaint_id, title, status, reporter, activity_time]
+      properties:
+        complaint_id:
+          type: integer
+        title:
+          type: string
+        status:
+          $ref: '#/components/schemas/ComplaintStatus'
+        reporter:
+          type: object
+          required: [name, email]
+          properties:
+            name:
+              type: string
+            email:
+              type: string
+        activity_time:
+          type: string
+          format: date-time
+    RecentActivitiesData:
+      type: object
+      required: [limit, records]
+      properties:
+        limit:
+          type: integer
+          minimum: 1
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActivityRecord'
+    RecentActivitiesResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/RecentActivitiesData'
+    TicketReporter:
+      type: object
+      required: [id, name, email]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+    TicketRecord:
+      type: object
+      required: [id, title, status, category, address, reporter, created_at]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        status:
+          $ref: '#/components/schemas/ComplaintStatus'
+        category:
+          type: string
+        address:
+          type: string
+        reporter:
+          $ref: '#/components/schemas/TicketReporter'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+    TicketListData:
+      type: object
+      required: [page, limit, total_data, total_page, filters, records]
+      properties:
+        page:
+          type: integer
+          minimum: 1
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 50
+        total_data:
+          type: integer
+          minimum: 0
+        total_page:
+          type: integer
+          minimum: 0
+        filters:
+          type: object
+          properties:
+            status:
+              $ref: '#/components/schemas/ComplaintStatus'
+            search:
+              type: string
+              nullable: true
+          additionalProperties: false
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/TicketRecord'
+    TicketListResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/TicketListData'
+paths:
+  /admin/dashboard/stats:
+    get:
+      operationId: api-a2-01-dashboard-stats
+      summary: API-A2-01 Statistik Dashboard Admin
+      description: Hitung total laporan berdasarkan status terbaru.
+      tags: [Dashboard Admin]
+      responses:
+        '200':
+          description: Statistik berhasil dikembalikan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardStatsResponse'
+              examples:
+                sukses:
+                  value:
+                    status: success
+                    code: 200
+                    message: Statistik dashboard admin berhasil diambil.
+                    data:
+                      total: 120
+                      baru: 15
+                      in_progress: 42
+                      finished: 63
+                    errors: []
+        '401':
+          description: Token tidak valid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+              examples:
+                unauthorized:
+                  value:
+                    status: error
+                    code: 401
+                    message: Token tidak dikenali.
+                    data: []
+                    errors:
+                      - reason: missing_token
+        '500':
+          description: Kesalahan server saat query statistik.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+              examples:
+                server_error:
+                  value:
+                    status: error
+                    code: 500
+                    message: Gagal memuat statistik dashboard.
+                    data: []
+                    errors:
+                      - reason: db_error
+  /admin/dashboard/recent-activities:
+    get:
+      operationId: api-a2-02-dashboard-recent
+      summary: API-A2-02 Aktivitas Laporan Terbaru
+      description: Ambil riwayat aktivitas 10 laporan terbaru (dapat ubah limit).
+      tags: [Dashboard Admin]
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 25
+            default: 10
+          description: Jumlah aktivitas yang ingin ditampilkan.
+      responses:
+        '200':
+          description: Daftar aktivitas berhasil dikembalikan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecentActivitiesResponse'
+              examples:
+                sukses:
+                  value:
+                    status: success
+                    code: 200
+                    message: Aktivitas terbaru berhasil diambil.
+                    data:
+                      limit: 10
+                      records:
+                        - complaint_id: 87
+                          title: Lampu jalan padam
+                          status: dalam_proses
+                          reporter:
+                            name: Adi Pranata
+                            email: adi@mail.com
+                          activity_time: '2025-01-12T09:21:00Z'
+                    errors: []
+        '401':
+          description: Token tidak valid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+              examples:
+                unauthorized:
+                  value:
+                    status: error
+                    code: 401
+                    message: Token tidak dikenali.
+                    data: []
+                    errors:
+                      - reason: missing_token
+        '500':
+          description: Kesalahan server saat query aktivitas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+              examples:
+                server_error:
+                  value:
+                    status: error
+                    code: 500
+                    message: Gagal memuat aktivitas terbaru.
+                    data: []
+                    errors:
+                      - reason: db_error
+  /admin/tickets:
+    get:
+      operationId: api-a3-01-ticket-list
+      summary: API-A3-01/02/03 Daftar, Filter, & Pencarian Tiket
+      description: >-
+        Mengambil daftar pengaduan dengan dukungan pagination, filter status,
+        dan pencarian kata kunci (menggantikan endpoint search terpisah).
+      tags: [Tickets]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Nomor halaman.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 15
+          description: Jumlah data per halaman.
+        - in: query
+          name: status
+          schema:
+            $ref: '#/components/schemas/ComplaintStatus'
+          description: Filter status (6 status alur valid).
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Kata kunci untuk mencari judul, nama/email pelapor, atau ID tiket.
+      responses:
+        '200':
+          description: Daftar tiket sesuai filter/pagination.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketListResponse'
+              examples:
+                sukses:
+                  value:
+                    status: success
+                    code: 200
+                    message: Daftar tiket berhasil dimuat.
+                    data:
+                      page: 1
+                      limit: 15
+                      total_data: 120
+                      total_page: 8
+                      filters:
+                        status: dalam_proses
+                        search: lampu
+                      records:
+                        - id: 32
+                          title: Jalan berlubang besar
+                          status: dalam_proses
+                          category: Jalan_Raya
+                          address: 'Jl. Kenanga No. 2'
+                          reporter:
+                            id: 7
+                            name: Riska Dewi
+                            email: riska@mail.com
+                          created_at: '2025-01-10T07:30:00Z'
+                          updated_at: '2025-01-12T14:11:00Z'
+                    errors: []
+        '422':
+          description: Status filter tidak valid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+              examples:
+                invalid_status:
+                  value:
+                    status: error
+                    code: 422
+                    message: Status tidak valid.
+                    data: []
+                    errors:
+                      - field: status
+                        reason: invalid_status
+                        message: Status tidak dikenali.
+                empty_search:
+                  value:
+                    status: error
+                    code: 422
+                    message: Parameter pencarian tidak boleh kosong.
+                    data: []
+                    errors:
+                      - field: search
+                        reason: empty_search
+                        message: Kata kunci wajib diisi.
+        '404':
+          description: Tidak ada tiket yang cocok untuk kata kunci tertentu.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+              examples:
+                not_found:
+                  value:
+                    status: error
+                    code: 404
+                    message: Tiket tidak ditemukan.
+                    data: []
+                    errors:
+                      - field: search
+                        reason: no_match
+        '401':
+          description: Token tidak valid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+        '500':
+          description: Kesalahan server saat query daftar tiket.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
