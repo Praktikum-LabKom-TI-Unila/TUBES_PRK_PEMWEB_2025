@@ -15,7 +15,7 @@ $offset = ($page - 1) * $limit;
 
 
 $filter_action = isset($_GET['action']) ? trim($_GET['action']) : '';
-$filter_user = isset($_GET['user']) ? (int)$_GET['user'] : 0;
+$filter_user = isset($_GET['user']) ? trim($_GET['user']) : '';
 
 
 $where = [];
@@ -28,15 +28,17 @@ if (!empty($filter_action)) {
     $types .= 's';
 }
 
-if ($filter_user > 0) {
-    $where[] = "al.user_id = ?";
-    $params[] = $filter_user;
-    $types .= 'i';
+if (!empty($filter_user)) {
+    $where[] = "(u.nama_lengkap LIKE ? OR u.username LIKE ?)";
+    $search_term = '%' . $filter_user . '%';
+    $params[] = $search_term;
+    $params[] = $search_term;
+    $types .= 'ss';
 }
 
 $where_sql = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
 
-$count_query = "SELECT COUNT(*) as total FROM activity_logs al $where_sql";
+$count_query = "SELECT COUNT(*) as total FROM activity_logs al JOIN users u ON al.user_id = u.id $where_sql";
 if (!empty($params)) {
     $stmt = mysqli_prepare($conn, $count_query);
     mysqli_stmt_bind_param($stmt, $types, ...$params);
@@ -68,9 +70,6 @@ $logs = mysqli_stmt_get_result($stmt);
 
 $actions_result = mysqli_query($conn, "SELECT DISTINCT action FROM activity_logs ORDER BY action");
 
-
-$users_result = mysqli_query($conn, "SELECT id, nama_lengkap FROM users WHERE deleted_at IS NULL ORDER BY nama_lengkap");
-
 include '../includes/header.php';
 include '../includes/navbar_dashboard.php';
 ?>
@@ -90,7 +89,7 @@ include '../includes/navbar_dashboard.php';
                         </h1>
                         <p class="text-gray-600">Riwayat aktivitas sistem ZeroWaste</p>
                     </div>
-                    </div>
+                </div>
             </div>
 
             <?php if (isset($_SESSION['success'])): ?>
@@ -134,16 +133,15 @@ include '../includes/navbar_dashboard.php';
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-user mr-1"></i>Filter User
+                            <i class="fas fa-user mr-1"></i>Cari User
                         </label>
-                        <select name="user" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition">
-                            <option value="0">-- Semua User --</option>
-                            <?php while ($u = mysqli_fetch_assoc($users_result)): ?>
-                                <option value="<?= $u['id'] ?>" <?= $filter_user === $u['id'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($u['nama_lengkap']) ?>
-                                </option>
-                            <?php endwhile; ?>
-                        </select>
+                        <input 
+                            type="text" 
+                            name="user" 
+                            value="<?= htmlspecialchars($filter_user) ?>"
+                            placeholder="Cari nama atau username..." 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                        >
                     </div>
                     
                     <div class="flex items-end space-x-2">
@@ -196,7 +194,7 @@ include '../includes/navbar_dashboard.php';
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-36">
                                     <i class="fas fa-network-wired mr-1"></i>IP
                                 </th>
-                                </tr>
+                            </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             <?php if (mysqli_num_rows($logs) > 0): ?>
@@ -235,7 +233,7 @@ include '../includes/navbar_dashboard.php';
                                             <?= htmlspecialchars($log['ip_address']) ?>
                                         </code>
                                     </td>
-                                    </tr>
+                                </tr>
                                 <?php endwhile; ?>
                             <?php else: ?>
                                 <tr>
@@ -257,7 +255,7 @@ include '../includes/navbar_dashboard.php';
                     <div class="flex space-x-2">
                         <?php if ($page > 1): ?>
                             <a 
-                                href="?page=<?= $page - 1 ?><?= $filter_action ? '&action=' . urlencode($filter_action) : '' ?><?= $filter_user ? '&user=' . $filter_user : '' ?>" 
+                                href="?page=<?= $page - 1 ?><?= $filter_action ? '&action=' . urlencode($filter_action) : '' ?><?= $filter_user ? '&user=' . urlencode($filter_user) : '' ?>" 
                                 class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-semibold"
                             >
                                 <i class="fas fa-chevron-left mr-2"></i>Prev
@@ -266,7 +264,7 @@ include '../includes/navbar_dashboard.php';
                         
                         <?php if ($page < $total_pages): ?>
                             <a 
-                                href="?page=<?= $page + 1 ?><?= $filter_action ? '&action=' . urlencode($filter_action) : '' ?><?= $filter_user ? '&user=' . $filter_user : '' ?>" 
+                                href="?page=<?= $page + 1 ?><?= $filter_action ? '&action=' . urlencode($filter_action) : '' ?><?= $filter_user ? '&user=' . urlencode($filter_user) : '' ?>" 
                                 class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-semibold"
                             >
                                 Next<i class="fas fa-chevron-right ml-2"></i>
@@ -301,5 +299,4 @@ include '../includes/navbar_dashboard.php';
             sidebar.classList.toggle('-translate-x-full');
         });
     }
-    
 </script>
