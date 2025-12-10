@@ -4,7 +4,7 @@ function loadDashboard() {
   apiGet("/mahasiswa/dashboard")
     .then((response) => {
       console.log("Dashboard response:", response); // Debug
-      
+
       if (response.success && response.data) {
         const data = response.data;
 
@@ -14,10 +14,13 @@ function loadDashboard() {
         }
 
         // Update statistics
-        document.getElementById("totalCount").textContent = data.stats.total || 0;
+        document.getElementById("totalCount").textContent =
+          data.stats.total || 0;
         document.getElementById("prosesCount").textContent =
-          (parseInt(data.stats.menunggu) || 0) + (parseInt(data.stats.diproses) || 0);
-        document.getElementById("selesaiCount").textContent = data.stats.selesai || 0;
+          (parseInt(data.stats.menunggu) || 0) +
+          (parseInt(data.stats.diproses) || 0);
+        document.getElementById("selesaiCount").textContent =
+          data.stats.selesai || 0;
 
         // Load recent complaints
         if (data.recent_complaints) {
