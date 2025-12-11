@@ -1,13 +1,24 @@
 <?php
 session_start();
-include 'config.php';
+include '../config.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'siswa') {
-    header("Location: login.php");
+    header("Location: ../auth/login.php");
     exit();
 }
 
 $user_id = $_SESSION['user_id'];
+$result_riwayat = mysqli_query($conn, "SELECT ru.*, u.judul, mp.nama as mata_pelajaran 
+                  FROM riwayat_ujian ru 
+                  JOIN ujian u ON ru.ujian_id = u.id 
+                  JOIN mata_pelajaran mp ON u.mata_pelajaran_id = mp.id 
+                  WHERE ru.user_id = '$user_id' 
+                  ORDER BY ru.created_at DESC");
+$total_riwayat = mysqli_num_rows($result_riwayat);
+
+$stats = mysqli_fetch_assoc(mysqli_query($conn, "SELECT 
+    AVG(skor) as avg_skor, MAX(skor) as max_skor 
+    FROM riwayat_ujian WHERE user_id = '$user_id'"));
 
 $nama_kelas_display = '—';
 if (!empty($_SESSION['kelas'])) {
@@ -19,9 +30,11 @@ if (!empty($_SESSION['kelas'])) {
             $nama_kelas_display = $row['nama'];
         }
     } else {
+        // jika di session sudah berupa nama kelas langsung (mis. "XII IPA 1")
         $nama_kelas_display = $sess_kelas;
     }
 
+    // tambahkan prefix 'Kelas ' jika belum ada
     if (stripos($nama_kelas_display, 'kelas') === false) {
         $nama_kelas_display = 'Kelas ' . $nama_kelas_display;
     }
@@ -78,6 +91,7 @@ if (!empty($_SESSION['kelas'])) {
         
         .layout { display: flex; min-height: 100vh; }
         
+        /* Sidebar - sama dengan dashboard */
         .sidebar {
             width: 280px;
             background: var(--bg-secondary);
@@ -216,6 +230,7 @@ if (!empty($_SESSION['kelas'])) {
         
         .toggle-switch.active::after { transform: translateX(24px); }
         
+        /* Main */
         .main {
             flex: 1;
             margin-left: 280px;
@@ -229,6 +244,7 @@ if (!empty($_SESSION['kelas'])) {
         .header h1 { font-size: 1.75rem; font-weight: 800; margin-bottom: 0.25rem; }
         .header p { color: var(--text-secondary); }
         
+        /* Stats */
         .stats-section {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -278,6 +294,7 @@ if (!empty($_SESSION['kelas'])) {
         .stat-value { font-size: 1.75rem; font-weight: 800; margin-bottom: 0.25rem; }
         .stat-label { font-size: 0.8rem; color: var(--text-secondary); }
         
+        /* Filter */
         .filter-section {
             display: flex;
             align-items: center;
@@ -316,6 +333,7 @@ if (!empty($_SESSION['kelas'])) {
             cursor: pointer;
         }
         
+        /* Table */
         .table-wrapper {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -375,6 +393,16 @@ if (!empty($_SESSION['kelas'])) {
         
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(99,102,241,0.4); }
         
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .toggle-btn { left: 1rem; }
+            .main { margin-left: 0; padding: 1.5rem; }
+            .stats-section { grid-template-columns: 1fr; }
+            .filter-section { flex-direction: column; align-items: stretch; }
+            .search-box { min-width: 100%; }
+        }
+
         .modal {
     display: none;
     position: fixed;
@@ -554,16 +582,6 @@ if (!empty($_SESSION['kelas'])) {
     font-size: 0.75rem;
 }
 
-@media (max-width: 768px) {
-    .sidebar { transform: translateX(-100%); }
-    .sidebar.open { transform: translateX(0); }
-    .toggle-btn { left: 1rem; }
-    .main { margin-left: 0; padding: 1.5rem; }
-    .stats-section { grid-template-columns: 1fr; }
-    .filter-section { flex-direction: column; align-items: stretch; }
-    .search-box { min-width: 100%; }
-}
-
 @media (max-width: 640px) {
     .modal-content { padding: 1.5rem; }
     .modal-actions { flex-direction: column; }
@@ -592,7 +610,7 @@ if (!empty($_SESSION['kelas'])) {
                 <a href="riwayat_siswa.php" class="nav-item active"><span>◫</span> Riwayat Ujian</a>
                 <div class="nav-label" style="margin-top: 1.5rem;">Lainnya</div>
                 <a href="profile.php" class="nav-item"><span>👤</span> Profile</a>
-                <a href="logout.php" class="nav-item"><span>↪</span> Keluar</a>
+                <a href="../auth/logout.php" class="nav-item"><span>↪</span> Keluar</a>
             </nav>
             
             <div class="theme-toggle">
@@ -613,17 +631,17 @@ if (!empty($_SESSION['kelas'])) {
             <div class="stats-section">
                 <div class="stat-card">
                     <div class="stat-icon">📝</div>
-                    <div class="stat-value">3</div>
+                    <div class="stat-value"><?php echo $total_riwayat; ?></div>
                     <div class="stat-label">Total Ujian</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">📊</div>
-                    <div class="stat-value">78</div>
+                    <div class="stat-value"><?php echo $stats['avg_skor'] ? number_format($stats['avg_skor'], 0) : '0'; ?></div>
                     <div class="stat-label">Rata-rata Skor</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">🏆</div>
-                    <div class="stat-value">95</div>
+                    <div class="stat-value"><?php echo $stats['max_skor'] ?: '0'; ?></div>
                     <div class="stat-label">Skor Tertinggi</div>
                 </div>
             </div>
@@ -632,14 +650,7 @@ if (!empty($_SESSION['kelas'])) {
                 <div class="search-box">
                     <input type="text" id="searchInput" placeholder="Cari ujian...">
                 </div>
-                <select id="filterMataPelajaran" class="filter-select">
-                    <option value="">Semua Mata Pelajaran</option>
-                    <option value="Matematika">Matematika</option>
-                    <option value="IPA">IPA</option>
-                    <option value="IPS">IPS</option>
-                    <option value="Bahasa Indonesia">Bahasa Indonesia</option>
-                    <option value="Bahasa Inggris">Bahasa Inggris</option>
-                </select>
+                
                 <select id="filterSkor" class="filter-select">
                     <option value="">Semua Skor</option>
                     <option value="90-100">90-100 (Excellent)</option>
@@ -664,114 +675,151 @@ if (!empty($_SESSION['kelas'])) {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td><strong>Matematika</strong></td>
-                            <td>Ujian Tengah Semester</td>
-                            <td>
-                                <div class="score-display">
-                                    <span class="score-value">82</span>
-                                    <div class="score-bar">
-                                        <div class="score-progress" style="width: 82%"></div>
+                        <?php if ($total_riwayat > 0): 
+                            $no = 1; 
+                            while ($r = mysqli_fetch_assoc($result_riwayat)): 
+                                $persen = ($r['jawaban_benar'] / $r['total_soal']) * 100;
+                                $status_class = $persen >= 80 ? 'status-success' : ($persen >= 60 ? 'status-warning' : 'status-error');
+                                $status_text = $persen >= 80 ? 'Excellent' : ($persen >= 60 ? 'Good' : 'Need Improvement');
+                        ?>
+                            <tr>
+                                <td><?php echo $no++; ?></td>
+                                <td><strong><?php echo $r['mata_pelajaran']; ?></strong></td>
+                                <td><?php echo $r['judul']; ?></td>
+                                <td>
+                                    <div class="score-display">
+                                        <span class="score-value"><?php echo $r['skor']; ?></span>
+                                        <div class="score-bar">
+                                            <div class="score-progress" style="width: <?php echo $persen; ?>%"></div>
+                                        </div>
                                     </div>
-                                </div>
-                            </td>
-                            <td><span class="status-badge status-success">Excellent</span></td>
-                            <td>45 menit</td>
-                            <td>10/12/2024 14:30</td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="btn-action btn-view" onclick="lihatDetail(1)">👁️ Detail</button>
-                                    <button class="btn-action btn-download" onclick="handleDownload(1, 82, 'Ujian Tengah Semester', 'Matematika', '10/12/2024', 1)">📥 Sertifikat</button>
-                                </div>
-                            </td>
-                        </tr>
-                       
+                                </td>
+                                <td><span class="status-badge <?php echo $status_class; ?>"><?php echo $status_text; ?></span></td>
+                                <td><?php echo floor($r['waktu_pengerjaan'] / 60); ?> menit</td>
+                                <td><?php echo date('d/m/Y H:i', strtotime($r['created_at'])); ?></td>
+                                <td>
+                                     <div class="action-buttons">
+        <button class="btn-action btn-view" onclick="lihatDetail(<?php echo $r['id']; ?>)">
+            👁️ Detail
+        </button>
+        <button 
+            class="btn-action btn-download" 
+            onclick="handleDownload(
+                <?php echo $r['id']; ?>, 
+                <?php echo $r['skor']; ?>, 
+                '<?php echo addslashes($r['judul']); ?>', 
+                '<?php echo addslashes($r['mata_pelajaran']); ?>', 
+                '<?php echo date('d/m/Y', strtotime($r['created_at'])); ?>',
+                <?php echo $r['ujian_id']; ?>
+            )">
+            📥 Sertifikat
+        </button>
+    </div>
+                                </td>
+                            </tr>
+                        <?php endwhile; else: ?>
+                            <tr>
+                                <td colspan="8">
+                                    <div class="empty-state">
+                                        <div>📚</div>
+                                        <h3>Belum ada riwayat ujian</h3>
+                                        <p>Mulai ujian pertama Anda dari dashboard!</p>
+                                        <a href="dashboard_siswa.php" class="btn-primary">Kembali ke Dashboard</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
-            
             <div class="modal" id="modalSuccess">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <div class="modal-icon success">🎉</div>
-                        <h3 class="modal-title">Selamat!</h3>
-                        <p class="modal-subtitle">Anda memenuhi syarat untuk mendapatkan sertifikat</p>
-                    </div>
-                    
-                    <div class="modal-body">
-                        <div class="score-display-large">
-                            <div class="score" id="modalScoreSuccess">0</div>
-                            <div class="label">Nilai Ujian Anda</div>
-                        </div>
-                        
-                        <div class="info-list">
-                            <div class="info-item">
-                                <span class="label">Ujian</span>
-                                <span class="value" id="modalUjianSuccess">-</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="label">Mata Pelajaran</span>
-                                <span class="value" id="modalMapelSuccess">-</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="label">Tanggal</span>
-                                <span class="value" id="modalTanggalSuccess">-</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="modal-actions">
-                        <button class="modal-btn modal-btn-cancel" onclick="closeModal()">✕ Tutup</button>
-                        <button class="modal-btn modal-btn-primary" onclick="downloadCertificate()">📥 Download Sertifikat</button>
-                    </div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-icon success">🎉</div>
+            <h3 class="modal-title">Selamat!</h3>
+            <p class="modal-subtitle">Anda memenuhi syarat untuk mendapatkan sertifikat</p>
+        </div>
+        
+        <div class="modal-body">
+            <div class="score-display-large">
+                <div class="score" id="modalScoreSuccess">0</div>
+                <div class="label">Nilai Ujian Anda</div>
+            </div>
+            
+            <div class="info-list">
+                <div class="info-item">
+                    <span class="label">Ujian</span>
+                    <span class="value" id="modalUjianSuccess">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Mata Pelajaran</span>
+                    <span class="value" id="modalMapelSuccess">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Tanggal</span>
+                    <span class="value" id="modalTanggalSuccess">-</span>
                 </div>
             </div>
+        </div>
+        
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-cancel" onclick="closeModal()">
+                ✕ Tutup
+            </button>
+            <button class="modal-btn modal-btn-primary" onclick="downloadCertificate()">
+                📥 Download Sertifikat
+            </button>
+        </div>
+    </div>
+</div>
 
-            <div class="modal" id="modalError">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <div class="modal-icon error">😔</div>
-                        <h3 class="modal-title">Nilai Belum Memenuhi</h3>
-                        <p class="modal-subtitle">Anda belum memenuhi syarat untuk mendapatkan sertifikat</p>
-                    </div>
-                    
-                    <div class="modal-body">
-                        <div class="score-display-large">
-                            <div class="score" id="modalScoreError" style="background: linear-gradient(135deg, #ef4444, #dc2626); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">0</div>
-                            <div class="label">Nilai Ujian Anda</div>
-                        </div>
-                        
-                        <div class="requirement-box">
-                            <p>⚠️ Nilai minimal untuk sertifikat: 70</p>
-                            <small>Silakan coba lagi untuk mendapatkan sertifikat</small>
-                        </div>
-                        
-                        <div class="info-list">
-                            <div class="info-item">
-                                <span class="label">Ujian</span>
-                                <span class="value" id="modalUjianError">-</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="label">Mata Pelajaran</span>
-                                <span class="value" id="modalMapelError">-</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="modal-actions">
-                        <button class="modal-btn modal-btn-cancel" onclick="closeModal()">✕ Tutup</button>
-                        <button class="modal-btn modal-btn-primary" onclick="retryExam()">🔄 Coba Lagi</button>
-                    </div>
+<div class="modal" id="modalError">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-icon error">😔</div>
+            <h3 class="modal-title">Nilai Belum Memenuhi</h3>
+            <p class="modal-subtitle">Anda belum memenuhi syarat untuk mendapatkan sertifikat</p>
+        </div>
+        
+        <div class="modal-body">
+            <div class="score-display-large">
+                <div class="score" id="modalScoreError" style="background: linear-gradient(135deg, #ef4444, #dc2626); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">0</div>
+                <div class="label">Nilai Ujian Anda</div>
+            </div>
+            
+            <div class="requirement-box">
+                <p>⚠️ Nilai minimal untuk sertifikat: 70</p>
+                <small>Silakan coba lagi untuk mendapatkan sertifikat</small>
+            </div>
+            
+            <div class="info-list">
+                <div class="info-item">
+                    <span class="label">Ujian</span>
+                    <span class="value" id="modalUjianError">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Mata Pelajaran</span>
+                    <span class="value" id="modalMapelError">-</span>
                 </div>
             </div>
+        </div>
+        
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-cancel" onclick="closeModal()">
+                ✕ Tutup
+            </button>
+            <button class="modal-btn modal-btn-primary" onclick="retryExam()">
+                🔄 Coba Lagi
+            </button>
+        </div>
+    </div>
+</div>
         </main>
     </div>
     
     <script>
         let currentExamId = null;
-        let currentUjianId = null;
-        
+let currentUjianId = null;
         function toggleTheme() {
             const body = document.body;
             const toggle = document.getElementById('themeToggle');
@@ -786,24 +834,25 @@ if (!empty($_SESSION['kelas'])) {
                 localStorage.setItem('theme', 'dark');
             }
         }
-        
         function handleDownload(riwayatId, skor, ujian, mapel, tanggal, ujianId) {
-            currentExamId = riwayatId;
-            currentUjianId = ujianId;
-            
-            if (skor >= 70) {
-                document.getElementById('modalScoreSuccess').textContent = skor;
-                document.getElementById('modalUjianSuccess').textContent = ujian;
-                document.getElementById('modalMapelSuccess').textContent = mapel;
-                document.getElementById('modalTanggalSuccess').textContent = tanggal;
-                document.getElementById('modalSuccess').classList.add('active');
-            } else {
-                document.getElementById('modalScoreError').textContent = skor;
-                document.getElementById('modalUjianError').textContent = ujian;
-                document.getElementById('modalMapelError').textContent = mapel;
-                document.getElementById('modalError').classList.add('active');
-            }
-        }
+    currentExamId = riwayatId;
+    currentUjianId = ujianId;
+    
+    if (skor >= 70) {
+        // Tampilkan modal success
+        document.getElementById('modalScoreSuccess').textContent = skor;
+        document.getElementById('modalUjianSuccess').textContent = ujian;
+        document.getElementById('modalMapelSuccess').textContent = mapel;
+        document.getElementById('modalTanggalSuccess').textContent = tanggal;
+        document.getElementById('modalSuccess').classList.add('active');
+    } else {
+        // Tampilkan modal error
+        document.getElementById('modalScoreError').textContent = skor;
+        document.getElementById('modalUjianError').textContent = ujian;
+        document.getElementById('modalMapelError').textContent = mapel;
+        document.getElementById('modalError').classList.add('active');
+    }
+}
 
         if (localStorage.getItem('theme') === 'dark') {
             document.body.setAttribute('data-theme', 'dark');
@@ -818,48 +867,53 @@ if (!empty($_SESSION['kelas'])) {
             window.location.href = 'detail_ujian.php?id=' + id;
         }
 
-        document.getElementById('searchInput').oninput = function() {
+      
+
+        searchInput.oninput = function() {
             const term = this.value.toLowerCase();
             [...document.querySelectorAll('#riwayatTable tbody tr')].forEach(row => {
                 row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
             });
         };
-        
         function downloadCertificate() {
-            if (currentExamId) {
-                window.open('download_sertifikat.php?id=' + currentExamId, '_blank');
-                closeModal();
-            }
-        }
+    if (currentExamId) {
+        window.open('download_sertifikat.php?id=' + currentExamId, '_blank');
+        closeModal();
+    }
+}
 
-        function retryExam() {
-            if (currentUjianId) {
-                window.location.href = 'mulai_ujian.php?ujian_id=' + currentUjianId;
-            }
-        }
+// Function untuk retry exam
+function retryExam() {
+    if (currentUjianId) {
+        window.location.href = 'mulai_ujian.php?ujian_id=' + currentUjianId;
+    }
+}
 
-        function closeModal() {
-            document.getElementById('modalSuccess').classList.remove('active');
-            document.getElementById('modalError').classList.remove('active');
-            currentExamId = null;
-            currentUjianId = null;
-        }
+// Function untuk close modal
+function closeModal() {
+    document.getElementById('modalSuccess').classList.remove('active');
+    document.getElementById('modalError').classList.remove('active');
+    currentExamId = null;
+    currentUjianId = null;
+}
 
-        document.getElementById('modalSuccess').addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
-        });
+// Close modal when clicking outside
+document.getElementById('modalSuccess').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
 
-        document.getElementById('modalError').addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
-        });
+document.getElementById('modalError').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
 
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') closeModal();
-        });
+// Close modal with ESC key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeModal();
+});
 
         function filterTable() {
-            const mp = document.getElementById('filterMataPelajaran').value;
-            const skor = document.getElementById('filterSkor').value;
+            const mp = filterMataPelajaran.value;
+            const skor = filterSkor.value;
             
             [...document.querySelectorAll('#riwayatTable tbody tr')].forEach(row => {
                 if (row.cells.length < 8) return;
@@ -881,8 +935,8 @@ if (!empty($_SESSION['kelas'])) {
             });
         }
 
-        document.getElementById('filterMataPelajaran').onchange = filterTable;
-        document.getElementById('filterSkor').onchange = filterTable;
+        filterMataPelajaran.onchange = filterTable;
+        filterSkor.onchange = filterTable;
     </script>
 </body>
 </html>

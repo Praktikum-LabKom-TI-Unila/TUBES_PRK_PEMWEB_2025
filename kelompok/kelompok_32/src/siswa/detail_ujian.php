@@ -1,9 +1,9 @@
 <?php
 session_start();
-include 'config.php';
+include '../config.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'siswa') {
-    header("Location: login.php");
+    header("Location: ../auth/login.php");
     exit();
 }
 

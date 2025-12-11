@@ -1,10 +1,10 @@
 <?php
 session_start();
-include 'config.php';
+include '../config.php';
 
 // Pastikan hanya admin yang bisa akses
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
-    header("Location: login.php");
+    header("Location: ../auth/login.php");
     exit();
 }
 
@@ -22,7 +22,7 @@ if (isset($_POST['submit'])) {
     $gambar = null;
 
     // Folder upload (pastikan sudah dibuat)
-    $targetDir = "images/";
+    $targetDir = "../images/";
 
     if (!is_dir($targetDir)) {
         mkdir($targetDir, 0777, true);
@@ -221,8 +221,8 @@ if (isset($_POST['submit'])) {
             <li><a href="daftar_ujian.php">Daftar Ujian</a></li>
             <li><a class="active" href="tambah_mata_pelajaran.php">Tambah Mata Pelajaran</a></li>
             <li><a href="tambah_soal.php">Tambah Soal</a></li>
-            <li><a href="profile.php">Profile</a></li>
-            <li><a href="logout.php">Logout</a></li>
+            <li><a href="../siswa/profile.php">Profile</a></li>
+            <li><a href="../auth/logout.php">Logout</a></li>
         </ul>
     </aside>
 
