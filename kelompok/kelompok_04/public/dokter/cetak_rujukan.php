@@ -65,7 +65,10 @@ $umur = $today->diff($lahir)->y;
         
         @media print {
             @page { margin: 2cm; }
-            body { -webkit-print-color-adjust: exact; }
+            body { 
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact; 
+            }
             .no-print { display: none; }
         }
     </style>

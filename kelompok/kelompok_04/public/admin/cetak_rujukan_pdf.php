@@ -78,7 +78,13 @@ function formatTanggalIndonesia($tanggal) {
     return $pecah[2] . ' ' . $bulan[(int)$pecah[1]] . ' ' . $pecah[0];
 }
 
-// Template HTML untuk PDF
+$logoPath = __DIR__ . '/../img/puskesmas.svg';
+$logoBase64 = '';
+if (file_exists($logoPath)) {
+    $logoContent = file_get_contents($logoPath);
+    $logoBase64 = 'data:image/svg+xml;base64,' . base64_encode($logoContent);
+}
+
 $html = '
 <!DOCTYPE html>
 <html lang="id">
@@ -106,14 +112,11 @@ $html = '
         .logo {
             width: 80px;
             height: 80px;
-            background: linear-gradient(135deg, #45BC7D 0%, #3aa668 100%);
-            border-radius: 50%;
-            text-align: center;
-            vertical-align: middle;
-            color: white;
-            font-size: 40px;
-            font-weight: bold;
-            padding-top: 15px;
+        }
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
         .kop-info {
             text-align: left;
@@ -270,12 +273,14 @@ $html = '
     </style>
 </head>
 <body>
-    <!-- Kop Surat -->
+
     <div class="kop-surat">
         <table>
             <tr>
                 <td style="width: 90px;">
-                    <div class="logo">P</div>
+                    <div class="logo">
+                        <img src="' . $logoBase64 . '" alt="Logo Puskesmas">
+                    </div>
                 </td>
                 <td class="kop-info">
                     <h1>PUSKESMAS</h1>
@@ -286,13 +291,11 @@ $html = '
         </table>
     </div>
 
-    <!-- Judul Surat -->
     <div class="judul-surat">
         <h2>Surat Rujukan</h2>
         <p>Nomor: ' . date('Y') . '/SR/' . str_pad($data['id_rujukan'], 4, '0', STR_PAD_LEFT) . '/' . date('m') . '</p>
     </div>
 
-    <!-- Isi Surat -->
     <div class="isi-surat">
         <p>Kepada Yth,</p>
         <p style="font-weight: bold; margin-left: 20px;">
@@ -303,7 +306,6 @@ $html = '
         <p>Dengan hormat,</p>
         <p>Bersama ini kami mohon bantuan pemeriksaan dan penanganan lebih lanjut terhadap pasien:</p>
 
-        <!-- Data Pasien -->
         <div class="data-pasien">
             <table>
                 <tr>
@@ -381,7 +383,7 @@ $html = '
 
         ' . ($data['resep_obat'] ? '
         <div class="hasil-pemeriksaan">
-            <h3>Terapi yang telah diberikan:</h3>
+            <h3>Penanganan yang telah diberikan:</h3>
             <div class="terapi-box">
                 ' . nl2br(htmlspecialchars($data['resep_obat'])) . '
             </div>
