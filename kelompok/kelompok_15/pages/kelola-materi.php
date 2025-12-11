@@ -6,6 +6,7 @@
     <title>Kelola Materi - KelasOnline</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/notifications.css">
     <style>
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-10px); }
