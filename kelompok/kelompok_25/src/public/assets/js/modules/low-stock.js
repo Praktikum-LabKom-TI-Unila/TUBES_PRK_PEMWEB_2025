@@ -443,7 +443,30 @@ const LowStock = (function() {
     }
 
     function exportReport() {
-        showToast('info', 'Export', 'Fitur export akan segera tersedia');
+        console.log('Export button clicked!');
+        try {
+            const params = new URLSearchParams();
+            
+            const search = document.getElementById('searchInput')?.value;
+            const categoryId = document.getElementById('categoryFilter')?.value;
+            const onlyOut = document.getElementById('onlyOutOfStock')?.checked;
+            
+            console.log('Filters:', { search, categoryId, onlyOut });
+            
+            if (search) params.append('search', search);
+            if (categoryId) params.append('category', categoryId);
+            if (onlyOut) params.append('only_out_of_stock', '1');
+            
+            const url = `/reports/low-stock/export?${params.toString()}`;
+            console.log('Export URL:', url);
+            
+            window.location.href = url;
+            
+            showToast('success', 'Export', 'File Excel sedang diunduh...');
+        } catch (error) {
+            console.error('Export error:', error);
+            showToast('error', 'Gagal', 'Gagal mengekspor data');
+        }
     }
 
     function printReorder() {

@@ -5,9 +5,9 @@
             <h1 class="text-2xl font-semibold text-slate-800 mt-1">Bahan Hampir Habis</h1>
             <p class="text-sm text-slate-500">Monitor dan kelola bahan yang perlu segera direstock</p>
         </div>
-        <button onclick="LowStock.exportReport()" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition">
+        <a href="/reports/low-stock/export" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition" id="exportButton">
             <span>⬇</span> Export Report
-        </button>
+        </a>
     </div>
 
     <!-- Summary Cards -->
@@ -223,3 +223,31 @@
 </div>
 
 <script src="/assets/js/modules/low-stock.js"></script>
+<script>
+// Update export button with filters
+document.addEventListener('DOMContentLoaded', function() {
+    function updateExportUrl() {
+        const params = new URLSearchParams();
+        const search = document.getElementById('searchInput')?.value;
+        const categoryId = document.getElementById('categoryFilter')?.value;
+        const onlyOut = document.getElementById('onlyOutOfStock')?.checked;
+        
+        if (search) params.append('search', search);
+        if (categoryId) params.append('category', categoryId);
+        if (onlyOut) params.append('only_out_of_stock', '1');
+        
+        const exportBtn = document.getElementById('exportButton');
+        if (exportBtn) {
+            exportBtn.href = `/reports/low-stock/export?${params.toString()}`;
+        }
+    }
+    
+    // Update URL when filters change
+    document.getElementById('searchInput')?.addEventListener('input', updateExportUrl);
+    document.getElementById('categoryFilter')?.addEventListener('change', updateExportUrl);
+    document.getElementById('onlyOutOfStock')?.addEventListener('change', updateExportUrl);
+    
+    // Initial update
+    updateExportUrl();
+});
+</script>

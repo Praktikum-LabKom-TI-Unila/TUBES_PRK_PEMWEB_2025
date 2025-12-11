@@ -84,6 +84,12 @@ $router->get('/reports/transactions/export', function() {
     $controller->exportCSV();
 });
 $router->get('/reports/low-stock', 'web/PageController@reportsLowStock');
+$router->get('/reports/low-stock/export', function() {
+    AuthMiddleware::check();
+    require_once ROOT_PATH . '/controllers/web/ReportController.php';
+    $controller = new ReportController();
+    $controller->exportLowStock();
+});
 $router->get('/roles', 'web/PageController@roles');
 $router->get('/users', 'web/PageController@users');
 $router->get('/profile', 'web/PageController@profile');
