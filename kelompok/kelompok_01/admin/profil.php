@@ -1,23 +1,36 @@
 <?php
+session_start();
 include '../config.php';
 
-// Ambil data admin berdasarkan session
-$user_id = $_SESSION['id_user'];
-$user_result = $conn->query("SELECT * FROM users WHERE id_user = $user_id LIMIT 1");
-$admin = $user_result->fetch_assoc();
+// Cek session dan role
+if (!isset($_SESSION['id_user'])) {
+    header("Location: ../login.php");
+    exit();
+}
 
-// Update profil jika ada data POST
+$user_id = $_SESSION['id_user'];
+
+// Ambil data admin berdasarkan session
+$stmt = $conn->prepare("SELECT * FROM users WHERE id_user = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$admin = $stmt->get_result()->fetch_assoc();
+
+// Cek role, jika bukan admin redirect ke halaman yang sesuai
+if ($admin['role'] != 'admin') {
+    header("Location: ../index.php");
+    exit();
+}
+
 $success = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Update informasi profil
     if (isset($_POST['update_profil'])) {
         $nama = $_POST['nama'];
         $username = $_POST['username'];
         $phone_number = $_POST['phone_number'] ?? '';
         
-        // Cek jika username sudah digunakan oleh user lain
         $check_username = $conn->prepare("SELECT id_user FROM users WHERE username = ? AND id_user != ?");
         $check_username->bind_param("si", $username, $user_id);
         $check_username->execute();
@@ -31,17 +44,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             if ($stmt->execute()) {
                 $success = "Profil berhasil diperbarui!";
-                $_SESSION['nama'] = $nama;
-                // Refresh data
-                $user_result = $conn->query("SELECT * FROM users WHERE id_user = $user_id LIMIT 1");
-                $admin = $user_result->fetch_assoc();
+
+                if (isset($_SESSION['nama'])) {
+                    $_SESSION['nama'] = $nama;
+                }
+                
+                $stmt = $conn->prepare("SELECT * FROM users WHERE id_user = ?");
+                $stmt->bind_param("i", $user_id);
+                $stmt->execute();
+                $admin = $stmt->get_result()->fetch_assoc();
             } else {
                 $error = "Gagal memperbarui profil!";
             }
         }
     }
     
-    // Update password
     if (isset($_POST['update_password'])) {
         $password_lama = $_POST['password_lama'];
         $password_baru = $_POST['password_baru'];
@@ -71,39 +88,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
     
-    // Handle upload foto profil
     if (isset($_FILES['foto_profil']) && $_FILES['foto_profil']['error'] === UPLOAD_ERR_OK) {
-        $upload_dir = 'uploads/profil/';
+        $upload_dir = '../uploads/profil/';
         
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0777, true);
         }
         
-        $file_name = uniqid() . '_' . basename($_FILES['foto_profil']['name']);
+        $file_info = pathinfo($_FILES['foto_profil']['name']);
+        $ext = strtolower($file_info['extension']);
+        $file_name = uniqid() . '_' . time() . '.' . $ext;
+        
         $target_file = $upload_dir . $file_name;
+        $db_path = '../uploads/profil/' . $file_name;
         
-        $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
-        $file_type = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+        $allowed = ['jpg', 'jpeg', 'png', 'gif'];
         
-        if (in_array($file_type, $allowed_types)) {
+        if (in_array($ext, $allowed)) {
             if ($_FILES['foto_profil']['size'] <= 5 * 1024 * 1024) {
                 if (move_uploaded_file($_FILES['foto_profil']['tmp_name'], $target_file)) {
                     if (!empty($admin['profile_picture']) && file_exists($admin['profile_picture'])) {
                         unlink($admin['profile_picture']);
                     }
-                    
+                
                     $stmt = $conn->prepare("UPDATE users SET profile_picture = ? WHERE id_user = ?");
-                    $stmt->bind_param("si", $target_file, $user_id);
+                    $stmt->bind_param("si", $db_path, $user_id);
                     
                     if ($stmt->execute()) {
-                        $success = "Foto profil berhasil diupload!";
-                        $user_result = $conn->query("SELECT * FROM users WHERE id_user = $user_id LIMIT 1");
-                        $admin = $user_result->fetch_assoc();
+                        $stmt = $conn->prepare("SELECT * FROM users WHERE id_user = ?");
+                        $stmt->bind_param("i", $user_id);
+                        $stmt->execute();
+                        $admin = $stmt->get_result()->fetch_assoc();
                     } else {
-                        $error = "Gagal menyimpan informasi foto profil!";
+                        $error = "Gagal menyimpan ke database: " . $conn->error;
                     }
                 } else {
-                    $error = "Gagal mengupload file!";
+                    $error = "Gagal memindahkan file upload.";
                 }
             } else {
                 $error = "Ukuran file terlalu besar! Maksimal 5MB.";
@@ -127,7 +147,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-$foto_profil = !empty($admin['profile_picture']) ? $admin['profile_picture'] : '';
+// Foto display
+$foto_display = 'https://ui-avatars.com/api/?name=' . urlencode($admin['nama'] ?? 'Admin') . '&background=B7A087&color=fff';
+if (!empty($admin['profile_picture']) && file_exists($admin['profile_picture'])) {
+    $foto_display = $admin['profile_picture'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -135,7 +159,7 @@ $foto_profil = !empty($admin['profile_picture']) ? $admin['profile_picture'] : '
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil Admin - EasyResto</title>
+    <title>Profil Saya - Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -145,383 +169,302 @@ $foto_profil = !empty($admin['profile_picture']) ? $admin['profile_picture'] : '
                     colors: {
                         'antique-white': '#F7EBDF',
                         'pale-taupe': '#B7A087',
-                        'primary': '#B7A087',
-                        'secondary': '#F7EBDF'
+                        'dark-taupe': '#8B7355',
                     }
                 }
             }
         }
     </script>
     <style>
-        .avatar-upload { position: relative; display: inline-block; }
-        .avatar-upload:hover .avatar-overlay { opacity: 1; }
-        .avatar-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(183, 160, 135, 0.7); border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; cursor: pointer; }
-        .file-input { display: none; }
-        .preview-image { object-fit: cover; border-radius: 50%; }
-        body { background-color: #F7EBDF; }
-        .sidebar { background: linear-gradient(to bottom, #B7A087, #8B7355); }
-        .card { background: white; border: 1px solid #E5D9C8; }
-        .btn-primary { background-color: #B7A087; color: white; }
-        .btn-primary:hover { background-color: #8B7355; }
-        .btn-secondary { background-color: #F7EBDF; color: #8B7355; border: 1px solid #B7A087; }
-        .btn-secondary:hover { background-color: #E5D9C8; }
-        .required:after { content: " *"; color: #ef4444; }
-        .no-photo { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #B7A087; }
-        .no-photo i { font-size: 3rem; color: white; }
+        body { 
+            background-color: #F7EBDF; 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        .sidebar { 
+            background: linear-gradient(to bottom, #B7A087, #8B7355); 
+        }
+        .btn-primary { 
+            background-color: #B7A087; 
+            color: white; 
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover { 
+            background-color: #8B7355; 
+            transform: translateY(-1px);
+        }
+        input:focus { 
+            outline: none !important; 
+            border-color: #B7A087 !important; 
+            box-shadow: 0 0 0 3px rgba(183, 160, 135, 0.1) !important; 
+        }
+        .card {
+            border: 1px solid #E5D9C8;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s ease;
+        }
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+        .photo-container {
+            transition: transform 0.3s ease;
+        }
+        .photo-container:hover {
+            transform: scale(1.02);
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .info-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .info-item:last-child {
+            border-bottom: none;
+        }
     </style>
 </head>
-<body class="bg-antique-white">
-    <!-- Sidebar -->
-    <div class="fixed inset-y-0 left-0 w-64 sidebar shadow-xl">
-        <div class="flex items-center justify-center h-16 bg-pale-taupe">
-            <div class="text-white">
-                <h1 class="text-xl font-bold">EasyResto</h1>
-                <p class="text-xs text-white opacity-90">Admin Panel</p>
+<body class="bg-antique-white h-screen flex overflow-hidden">
+
+    <div class="w-64 sidebar shadow-xl flex flex-col justify-between z-20 flex-shrink-0">
+        <div>
+            <div class="h-16 flex items-center justify-center bg-pale-taupe">
+                <div class="text-white text-center">
+                    <h1 class="text-xl font-bold">EasyResto</h1>
+                    <p class="text-xs text-white opacity-90">Admin Panel</p>
+                </div>
             </div>
+            
+            <nav class="mt-8">
+                <a href="dashboard.php" class="flex items-center px-6 py-3 text-white hover:bg-pale-taupe hover:bg-opacity-30 transition-colors">
+                    <i class="fas fa-chart-line w-6"></i>
+                    <span class="mx-3 font-medium">Dashboard</span>
+                </a>
+                <a href="manajemen_menu.php" class="flex items-center px-6 py-3 text-white hover:bg-pale-taupe hover:bg-opacity-30 transition-colors">
+                    <i class="fas fa-utensils w-6"></i>
+                    <span class="mx-3 font-medium">Manajemen Menu</span>
+                </a>
+                <a href="laporan_penjualan.php" class="flex items-center px-6 py-3 text-white hover:bg-pale-taupe hover:bg-opacity-30 transition-colors">
+                    <i class="fas fa-file-invoice-dollar w-6"></i>
+                    <span class="mx-3 font-medium">Laporan Penjualan</span>
+                </a>
+                <a href="manajemen_transaksi.php" class="flex items-center px-6 py-3 text-white hover:bg-pale-taupe hover:bg-opacity-30 transition-colors">
+                    <i class="fas fa-cash-register w-6"></i>
+                    <span class="mx-3 font-medium">Manajemen Transaksi</span>
+                </a>
+                <a href="manajemen_pengguna.php" class="flex items-center px-6 py-3 text-white hover:bg-pale-taupe hover:bg-opacity-30 transition-colors">
+                    <i class="fas fa-users w-6"></i>
+                    <span class="mx-3 font-medium">Manajemen Pengguna</span>
+                </a>
+                <a href="profil.php" class="flex items-center px-6 py-3 text-white bg-pale-taupe bg-opacity-40 border-l-4 border-white transition-all">
+                    <i class="fas fa-user-cog w-6"></i>
+                    <span class="mx-3 font-medium">Profil</span>
+                </a>
+            </nav>
         </div>
         
-        <nav class="mt-8">
-            <a href="dashboard.php" class="flex items-center px-6 py-3 text-white hover:bg-pale-taupe hover:bg-opacity-30 transition-colors">
-                <i class="fas fa-chart-line w-6"></i>
-                <span class="mx-3 font-medium">Dashboard</span>
-            </a>
-            <a href="manajemen_pengguna.php" class="flex items-center px-6 py-3 text-white hover:bg-pale-taupe hover:bg-opacity-30 transition-colors">
-                <i class="fas fa-users w-6"></i>
-                <span class="mx-3 font-medium">Manajemen Pengguna</span>
-            </a>
-            <a href="manajemen_menu.php" class="flex items-center px-6 py-3 text-white hover:bg-pale-taupe hover:bg-opacity-30 transition-colors">
-                <i class="fas fa-utensils w-6"></i>
-                <span class="mx-3 font-medium">Manajemen Menu</span>
-            </a>
-            <a href="manajemen_transaksi.php" class="flex items-center px-6 py-3 text-white hover:bg-pale-taupe hover:bg-opacity-30 transition-colors">
-                <i class="fas fa-cash-register w-6"></i>
-                <span class="mx-3 font-medium">Manajemen Transaksi</span>
-            </a>
-            <a href="laporan_penjualan.php" class="flex items-center px-6 py-3 text-white hover:bg-pale-taupe hover:bg-opacity-30 transition-colors">
-                <i class="fas fa-file-invoice-dollar w-6"></i>
-                <span class="mx-3 font-medium">Laporan Penjualan</span>
-            </a>
-            <a href="profil.php" class="flex items-center px-6 py-3 text-white bg-pale-taupe bg-opacity-40 border-l-4 border-white">
-                <i class="fas fa-user-cog w-6"></i>
-                <span class="mx-3 font-medium">Profil</span>
-            </a>
-        </nav>
-        
-        <div class="absolute bottom-0 w-full p-4 bg-pale-taupe bg-opacity-80">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <?php if (!empty($admin['profile_picture'])): ?>
-                        <img src="<?php echo $admin['profile_picture']; ?>" alt="Profil" class="w-8 h-8 rounded-full object-cover">
-                    <?php else: ?>
-                        <div class="w-8 h-8 rounded-full no-photo">
-                            <i class="fas fa-user text-white" style="font-size: 1rem;"></i>
-                        </div>
-                    <?php endif; ?>
-                </div>
-                <div class="ml-3">
-                    <p class="text-sm font-medium text-white"><?php echo htmlspecialchars($admin['nama'] ?? 'Admin'); ?></p>
-                    <p class="text-xs text-white opacity-90">Admin</p>
-                    <a href="../logout.php" class="text-xs text-red-200 hover:text-white"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        <div class="p-4 bg-pale-taupe bg-opacity-80">
+            <div class="flex items-center gap-3">
+                <img src="<?= $foto_display ?>" class="w-10 h-10 rounded-full border-2 border-white object-cover">
+                <div class="overflow-hidden text-white">
+                    <p class="font-bold text-sm truncate leading-tight"><?= htmlspecialchars($admin['nama'] ?? 'Admin') ?></p>
+                    <p class="text-xs opacity-90"><?= ucfirst($admin['role'] ?? 'Admin') ?></p>
+                    <a href="../logout.php" class="text-xs text-red-200 hover:text-white flex items-center gap-1 mt-1 transition-colors">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="ml-64">
-        <!-- Header -->
-        <header class="bg-white shadow-sm border-b border-pale-taupe">
-            <div class="flex items-center justify-between px-8 py-4">
+    <div class="flex-1 flex flex-col h-full overflow-hidden">
+        <header class="bg-white shadow-sm border-b border-[#E5D9C8] flex-shrink-0 px-8 py-4">
+            <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-800">Profil Admin</h1>
+                    <h1 class="text-2xl font-bold text-gray-800">Pengaturan Profil</h1>
                     <p class="text-gray-600">Kelola informasi akun dan pengaturan</p>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <div class="text-right">
+                    <div class="text-right hidden md:block">
                         <p class="text-sm text-gray-600">Selamat datang</p>
-                        <p class="font-semibold text-gray-800"><?php echo htmlspecialchars($admin['nama'] ?? 'Admin'); ?></p>
+                        <p class="font-semibold text-gray-800"><?= htmlspecialchars($admin['nama'] ?? 'Admin') ?></p>
                     </div>
                     <a href="profil.php" class="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden border-2 border-pale-taupe">
-                        <?php if (!empty($admin['profile_picture'])): ?>
-                            <img src="<?php echo $admin['profile_picture']; ?>" alt="Profil" class="w-full h-full object-cover">
-                        <?php else: ?>
-                            <div class="w-full h-full bg-pale-taupe flex items-center justify-center">
-                                <i class="fas fa-user text-white"></i>
-                            </div>
-                        <?php endif; ?>
+                        <img src="<?= $foto_display ?>" alt="Profil" class="w-full h-full object-cover">
                     </a>
                 </div>
             </div>
         </header>
 
-        <main class="p-8">
-            <!-- Notifikasi -->
-            <?php if (!empty($success)): ?>
-            <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center">
-                <i class="fas fa-check-circle text-green-500 text-lg mr-3"></i>
-                <div>
-                    <p class="text-green-800 font-medium">Berhasil!</p>
-                    <p class="text-green-600 text-sm"><?php echo $success; ?></p>
+        <main class="flex-1 overflow-y-auto p-6 md:p-8">
+        
+            <?php if ($success): ?>
+                <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6 flex items-center">
+                    <i class="fas fa-check-circle mr-3 text-green-500"></i>
+                    <span><?= $success ?></span>
                 </div>
-            </div>
+            <?php endif; ?>
+            <?php if ($error): ?>
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 flex items-center">
+                    <i class="fas fa-exclamation-circle mr-3 text-red-500"></i>
+                    <span><?= $error ?></span>
+                </div>
             <?php endif; ?>
 
-            <?php if (!empty($error)): ?>
-            <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center">
-                <i class="fas fa-exclamation-circle text-red-500 text-lg mr-3"></i>
-                <div>
-                    <p class="text-red-800 font-medium">Error!</p>
-                    <p class="text-red-600 text-sm"><?php echo $error; ?></p>
-                </div>
-            </div>
-            <?php endif; ?>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 auto-rows-fr">
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Kolom Kiri - Informasi Profil -->
-                <div class="lg:col-span-2 space-y-6">
-                    <!-- Card Foto Profil -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-6">Foto Profil</h3>
-                        <div class="flex flex-col md:flex-row items-center space-y-6 md:space-y-0 md:space-x-8">
-                            <div class="avatar-upload">
-                                <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
-                                    <?php if (!empty($admin['profile_picture'])): ?>
-                                        <img id="previewAvatar" src="<?php echo $admin['profile_picture']; ?>" alt="Foto Profil" class="preview-image w-full h-full">
-                                    <?php else: ?>
-                                        <div id="noPhotoPreview" class="no-photo w-full h-full">
-                                            <i class="fas fa-user"></i>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="avatar-overlay" onclick="document.getElementById('fileInput').click()">
-                                    <i class="fas fa-camera text-white text-2xl"></i>
+                <div class="lg:col-span-1 h-full">
+                    <div class="bg-white card p-6 h-full flex flex-col justify-center">
+                        <div class="text-center mb-8">
+                            <div class="relative w-36 h-36 mx-auto mb-6 group cursor-pointer photo-container" onclick="document.getElementById('fotoInput').click()">
+                                <img src="<?= $foto_display ?>" class="w-full h-full rounded-full object-cover border-4 border-[#F7EBDF] shadow-lg">
+                                <div class="absolute inset-0 bg-black bg-opacity-30 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <div class="text-center p-4">
+                                        <i class="fas fa-camera text-white text-3xl mb-2"></i>
+                                        <p class="text-white text-sm font-medium">Ganti Foto</p>
+                                    </div>
                                 </div>
                             </div>
                             
-                            <div class="flex-1">
-                                <p class="text-sm text-gray-600 mb-4">
-                                    Upload foto profil Anda. Format yang didukung: JPG, JPEG, PNG, GIF. Maksimal ukuran file: 5MB.
-                                </p>
-                                <form method="POST" enctype="multipart/form-data" id="fotoForm" class="space-y-4">
-                                    <input type="file" id="fileInput" name="foto_profil" accept="image/*" class="file-input" onchange="previewImage(this)">
-                                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
-                                        <button type="button" onclick="document.getElementById('fileInput').click()" class="btn-secondary px-4 py-2 rounded-lg font-medium flex items-center justify-center">
-                                            <i class="fas fa-upload mr-2"></i>Pilih Foto
-                                        </button>
-                                        <button type="submit" name="upload_foto" class="btn-primary px-4 py-2 rounded-lg font-medium flex items-center justify-center">
-                                            <i class="fas fa-save mr-2"></i>Upload Foto
-                                        </button>
-                                        <?php if (!empty($admin['profile_picture'])): ?>
-                                        <button type="submit" name="hapus_foto" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium flex items-center justify-center">
-                                            <i class="fas fa-trash mr-2"></i>Hapus Foto
-                                        </button>
-                                        <?php endif; ?>
+                            <form method="POST" enctype="multipart/form-data">
+                                <input type="file" name="foto_profil" id="fotoInput" class="hidden" accept="image/*" onchange="this.form.submit()">
+                            </form>
+                            
+                            <h2 class="font-bold text-xl text-gray-800 mb-1"><?= htmlspecialchars($admin['nama'] ?? 'Admin') ?></h2>
+                            <p class="text-gray-500 text-sm mb-1"><?= ucfirst($admin['role'] ?? 'Admin') ?></p>
+                            <p class="text-gray-400 text-xs mb-6">User ID: #<?= $admin['id_user'] ?? '-' ?></p>
+                            
+                            <?php if (!empty($admin['profile_picture'])): ?>
+                            <form method="POST" class="mb-4">
+                                <button type="submit" name="hapus_foto" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm w-full">
+                                    <i class="fas fa-trash mr-2"></i>Hapus Foto
+                                </button>
+                            </form>
+                            <?php endif; ?>
+                            
+                            <p class="text-xs text-gray-400">Klik foto untuk mengganti</p>
+                        </div>
+
+                        <div class="border-t border-gray-100 pt-6">
+                            <h3 class="font-bold text-gray-800 mb-4 text-lg">Informasi Akun</h3>
+                            <div class="space-y-1">
+                                <div class="info-item">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600 text-sm">Username</span>
+                                        <span class="font-medium text-gray-800"><?= htmlspecialchars($admin['username'] ?? '-') ?></span>
                                     </div>
-                                    <p id="fileName" class="text-sm text-gray-500 mt-2"></p>
-                                </form>
+                                </div>
+                                <div class="info-item">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600 text-sm">Telepon</span>
+                                        <span class="font-medium text-gray-800"><?= !empty($admin['phone_number']) ? htmlspecialchars($admin['phone_number']) : 'Belum diatur' ?></span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600 text-sm">User ID</span>
+                                        <span class="font-medium text-gray-800">#<?= $admin['id_user'] ?? '-' ?></span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600 text-sm">Status</span>
+                                        <span class="font-medium text-green-600 flex items-center">
+                                            <span class="status-dot bg-green-500"></span>Aktif
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Card Informasi Profil -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <div class="flex items-center justify-between mb-6">
-                            <h3 class="text-lg font-semibold text-gray-800">Informasi Profil</h3>
-                            <span class="px-3 py-1 bg-pale-taupe bg-opacity-20 text-gray-700 text-xs font-medium rounded-full">
-                                <i class="fas fa-user-shield mr-1"></i>Admin
-                            </span>
-                        </div>
-                        
+                <div class="lg:col-span-2 space-y-8 h-full flex flex-col">
+                    <div class="bg-white card p-6">
+                        <h3 class="font-bold text-gray-800 mb-6 text-lg flex items-center">
+                            <i class="fas fa-user-edit text-pale-taupe mr-2"></i> Edit Informasi Profil
+                        </h3>
                         <form method="POST">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2 required">Nama Lengkap</label>
-                                    <input type="text" name="nama" value="<?php echo htmlspecialchars($admin['nama'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pale-taupe focus:border-pale-taupe transition-colors" required>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
+                                    <input type="text" name="nama" value="<?= htmlspecialchars($admin['nama'] ?? '') ?>" 
+                                           class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-pale-taupe transition-colors"
+                                           placeholder="Masukkan nama lengkap" required>
                                 </div>
-                                
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2 required">Username</label>
-                                    <input type="text" name="username" value="<?php echo htmlspecialchars($admin['username'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pale-taupe focus:border-pale-taupe transition-colors" required>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                                    <input type="text" name="username" value="<?= htmlspecialchars($admin['username'] ?? '') ?>" 
+                                           class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-pale-taupe transition-colors"
+                                           placeholder="Masukkan username" required>
                                 </div>
-                                
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2 required">Nomor Telepon</label>
-                                    <input type="tel" name="phone_number" value="<?php echo htmlspecialchars($admin['phone_number'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pale-taupe focus:border-pale-taupe transition-colors" placeholder="+62 xxx xxx xxx" required>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">No. Telepon</label>
+                                    <input type="text" name="phone_number" value="<?= htmlspecialchars($admin['phone_number'] ?? '') ?>" 
+                                           class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-pale-taupe transition-colors"
+                                           placeholder="Contoh: 081234567890">
                                 </div>
-                                
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Role</label>
-                                    <input type="text" value="Admin" class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500" disabled readonly>
-                                </div>
-                                
-                                <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">User ID</label>
-                                    <input type="text" value="#<?php echo $admin['id_user'] ?? 'N/A'; ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500" disabled readonly>
+                                    <input type="text" value="<?= ucfirst($admin['role'] ?? 'Admin') ?>" 
+                                           class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 text-gray-500 cursor-not-allowed" 
+                                           disabled readonly>
                                 </div>
                             </div>
-                            
-                            <div class="mt-6 pt-6 border-t border-gray-200">
-                                <button type="submit" name="update_profil" class="btn-primary px-6 py-3 rounded-lg font-medium">
+                            <div class="mt-6 pt-5 border-t border-gray-100 flex justify-end">
+                                <button type="submit" name="update_profil" class="btn-primary px-6 py-3 rounded-lg font-semibold shadow-sm">
                                     <i class="fas fa-save mr-2"></i>Simpan Perubahan
                                 </button>
                             </div>
                         </form>
                     </div>
 
-                    <!-- Card Ubah Password -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-6">Ubah Password</h3>
-                        
+                    <div class="bg-white card p-6 mt-auto">
+                        <h3 class="font-bold text-gray-800 mb-6 text-lg flex items-center">
+                            <i class="fas fa-key text-pale-taupe mr-2"></i> Ganti Password
+                        </h3>
                         <form method="POST">
-                            <div class="space-y-4">
+                            <div class="space-y-5">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2 required">Password Lama</label>
-                                    <input type="password" name="password_lama" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pale-taupe focus:border-pale-taupe transition-colors" placeholder="Masukkan password lama" required>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Password Lama</label>
+                                    <input type="password" name="password_lama" 
+                                           class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-pale-taupe transition-colors" 
+                                           placeholder="Masukkan password lama" required>
                                 </div>
-                                
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2 required">Password Baru</label>
-                                    <input type="password" name="password_baru" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pale-taupe focus:border-pale-taupe transition-colors" placeholder="Minimal 6 karakter" required>
-                                </div>
-                                
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2 required">Konfirmasi Password Baru</label>
-                                    <input type="password" name="konfirmasi_password" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pale-taupe focus:border-pale-taupe transition-colors" placeholder="Konfirmasi password baru" required>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Password Baru</label>
+                                        <input type="password" name="password_baru" 
+                                               class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-pale-taupe transition-colors" 
+                                               placeholder="Minimal 6 karakter" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Konfirmasi Password</label>
+                                        <input type="password" name="konfirmasi_password" 
+                                               class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-pale-taupe transition-colors" 
+                                               placeholder="Konfirmasi password baru" required>
+                                    </div>
                                 </div>
                             </div>
-                            
-                            <div class="mt-6 pt-6 border-t border-gray-200">
-                                <button type="submit" name="update_password" class="btn-primary px-6 py-3 rounded-lg font-medium">
+                            <div class="mt-6 pt-5 border-t border-gray-100 flex justify-end">
+                                <button type="submit" name="update_password" class="bg-gray-800 hover:bg-gray-900 text-white px-6 py-3 rounded-lg font-semibold shadow-sm transition-all">
                                     <i class="fas fa-key mr-2"></i>Ubah Password
                                 </button>
                             </div>
                         </form>
                     </div>
                 </div>
-
-                <!-- Kolom Kanan - Statistik & Info -->
-                <div class="space-y-6">
-                    <!-- Card Profil Summary -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <div class="text-center">
-                            <div class="w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-lg mx-auto mb-4">
-                                <?php if (!empty($admin['profile_picture'])): ?>
-                                    <img src="<?php echo $admin['profile_picture']; ?>" alt="Foto Profil" class="preview-image w-full h-full">
-                                <?php else: ?>
-                                    <div class="no-photo w-full h-full">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                            <h3 class="text-lg font-semibold text-gray-800"><?php echo htmlspecialchars($admin['nama'] ?? 'Admin'); ?></h3>
-                            <p class="text-gray-600 mb-2">Admin Restoran</p>
-                            <span class="inline-flex items-center px-3 py-1 bg-pale-taupe bg-opacity-20 text-gray-700 text-sm font-medium rounded-full">
-                                <i class="fas fa-user-shield mr-1"></i>Admin Account
-                            </span>
-                        </div>
-                        
-                        <div class="mt-6 space-y-3">
-                            <div class="flex items-center justify-between py-2 border-b border-gray-100">
-                                <span class="text-gray-600">Username</span>
-                                <span id="username-display" class="font-medium"><?php echo htmlspecialchars($admin['username'] ?? '-'); ?></span>
-                            </div>
-                            <div class="flex items-center justify-between py-2 border-b border-gray-100">
-                                <span class="text-gray-600">Telepon</span>
-                                <span id="phone-display" class="font-medium"><?php echo !empty($admin['phone_number']) ? htmlspecialchars($admin['phone_number']) : 'Belum diatur'; ?></span>
-                            </div>
-                            <div class="flex items-center justify-between py-2 border-b border-gray-100">
-                                <span class="text-gray-600">User ID</span>
-                                <span id="userid-display" class="font-medium">#<?php echo $admin['id_user'] ?? '-'; ?></span>
-                            </div>
-                            <div class="flex items-center justify-between py-2">
-                                <span class="text-gray-600">Status</span>
-                                <span class="font-medium text-green-600">Aktif</span>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-6 pt-6 border-t border-gray-200">
-                            <h4 class="text-sm font-medium text-gray-700 mb-3">Informasi Akun</h4>
-                            <div class="space-y-2">
-                                <p class="text-sm text-gray-600"><i class="fas fa-calendar-alt mr-2"></i>Terdaftar: <?php echo date('d M Y'); ?></p>
-                                <p class="text-sm text-gray-600"><i class="fas fa-user-tag mr-2"></i>Hak akses: Admin</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card Aktivitas Terbaru -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Aktivitas Terbaru</h3>
-                        <div class="space-y-4">
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0 w-8 h-8 bg-pale-taupe bg-opacity-20 rounded-full flex items-center justify-center mt-1">
-                                    <i class="fas fa-user-edit text-pale-taupe text-xs"></i>
-                                </div>
-                                <div class="ml-3">
-                                    <p class="text-sm font-medium text-gray-900">Mengelola profil</p>
-                                    <p class="text-xs text-gray-500">Saat ini</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mt-1">
-                                    <i class="fas fa-chart-line text-green-600 text-xs"></i>
-                                </div>
-                                <div class="ml-3">
-                                    <p class="text-sm font-medium text-gray-900">Melihat laporan</p>
-                                    <p class="text-xs text-gray-500">Hari ini</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mt-1">
-                                    <i class="fas fa-utensils text-purple-600 text-xs"></i>
-                                </div>
-                                <div class="ml-3">
-                                    <p class="text-sm font-medium text-gray-900">Update menu</p>
-                                    <p class="text-xs text-gray-500">Kemarin</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card Quick Actions -->
-                    <div class="bg-gradient-to-r from-pale-taupe to-amber-800 rounded-xl shadow-lg p-6 text-white">
-                        <h3 class="text-lg font-semibold mb-4">Aksi Cepat</h3>
-                        <div class="space-y-3">
-                            <a href="dashboard.php" class="flex items-center p-3 bg-white bg-opacity-10 rounded-lg hover:bg-opacity-20 transition-colors">
-                                <i class="fas fa-tachometer-alt mr-3"></i>
-                                <span>Dashboard</span>
-                            </a>
-                            <a href="laporan_penjualan.php" class="flex items-center p-3 bg-white bg-opacity-10 rounded-lg hover:bg-opacity-20 transition-colors">
-                                <i class="fas fa-chart-bar mr-3"></i>
-                                <span>Laporan</span>
-                            </a>
-                            <a href="manajemen_menu.php" class="flex items-center p-3 bg-white bg-opacity-10 rounded-lg hover:bg-opacity-20 transition-colors">
-                                <i class="fas fa-cog mr-3"></i>
-                                <span>Kelola Menu</span>
-                            </a>
-                            <a href="manajemen_pengguna.php" class="flex items-center p-3 bg-white bg-opacity-10 rounded-lg hover:bg-opacity-20 transition-colors">
-                                <i class="fas fa-users mr-3"></i>
-                                <span>Kelola Pengguna</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
             </div>
+
+            <div class="h-8"></div>
         </main>
     </div>
 
     <script>
-        function previewImage(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const avatarContainer = document.querySelector('.avatar-upload > div');
-                    avatarContainer.innerHTML = `<img id="previewAvatar" src="${e.target.result}" alt="Foto Profil" class="preview-image w-full h-full">`;
-                }
-                reader.readAsDataURL(input.files[0]);
-                document.getElementById('fileName').textContent = 'File terpilih: ' + input.files[0].name;
-            }
-        }
-
         document.addEventListener('DOMContentLoaded', function() {
             const passwordInput = document.querySelector('input[name="password_baru"]');
             const confirmInput = document.querySelector('input[name="konfirmasi_password"]');
@@ -545,52 +488,15 @@ $foto_profil = !empty($admin['profile_picture']) ? $admin['profile_picture'] : '
                 passwordInput.addEventListener('input', checkPasswordMatch);
                 confirmInput.addEventListener('input', checkPasswordMatch);
             }
-        });
 
-        const forms = document.querySelectorAll('form');
-        forms.forEach(form => {
-            form.addEventListener('submit', function(e) {
-                const submitBtn = this.querySelector('button[type="submit"]');
-                if (submitBtn) {
-                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Memproses...';
-                    submitBtn.disabled = true;
-                    setTimeout(() => {
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = '<i class="fas fa-save mr-2"></i>Simpan Perubahan';
-                    }, 3000);
-                }
-            });
-        });
 
-        const hapusFotoBtn = document.querySelector('button[name="hapus_foto"]');
-        if (hapusFotoBtn) {
-            hapusFotoBtn.addEventListener('click', function(e) {
-                if (!confirm('Apakah Anda yakin ingin menghapus foto profil?\nFoto akan dihapus permanen.')) {
-                    e.preventDefault();
-                }
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const namaInput = document.querySelector('input[name="nama"]');
-            const usernameInput = document.querySelector('input[name="username"]');
-            const phoneInput = document.querySelector('input[name="phone_number"]');
             
-            if (namaInput) {
-                namaInput.addEventListener('input', function() {
-                    document.querySelector('.text-center h3').textContent = this.value || 'Admin';
-                });
-            }
-            
-            if (usernameInput) {
-                usernameInput.addEventListener('input', function() {
-                    document.getElementById('username-display').textContent = this.value || '-';
-                });
-            }
-            
-            if (phoneInput) {
-                phoneInput.addEventListener('input', function() {
-                    document.getElementById('phone-display').textContent = this.value || 'Belum diatur';
+            const logoutLink = document.querySelector('a[href="../logout.php"]');
+            if (logoutLink) {
+                logoutLink.addEventListener('click', function(e) {
+                    if (!confirm('Apakah Anda yakin ingin keluar dari sistem?')) {
+                        e.preventDefault();
+                    }
                 });
             }
         });
