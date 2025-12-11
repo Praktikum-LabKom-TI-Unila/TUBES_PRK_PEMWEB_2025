@@ -1,22 +1,28 @@
 <?php
-session_start();
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
 include '../config.php';
 
-if (!isset($_SESSION['role']) || $_SESSION['role'] != 'kasir') {
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+
+if (!isset($_SESSION['id_user'])) {
     header("Location: ../login.php");
     exit();
 }
 
-$id_user_active = $_SESSION['id_user'];
-$query_user = $conn->query("SELECT profile_picture, nama FROM users WHERE id_user = '$id_user_active'");
-$data_user = $query_user->fetch_assoc();
+$admin_id = $_SESSION['id_user'];
+$stmt = $conn->prepare("SELECT * FROM users WHERE id_user = ?");
+$stmt->bind_param("i", $admin_id);
+$stmt->execute();
+$admin = $stmt->get_result()->fetch_assoc();
 
-$nama_user = $data_user['nama'];
-$foto_db = $data_user['profile_picture'];
-
-$foto = !empty($foto_db) && file_exists('../' . $foto_db) 
-    ? '../' . $foto_db 
-    : 'https://ui-avatars.com/api/?name=' . urlencode($nama_user) . '&background=B7A087&color=fff';
+$foto_display = 'https://ui-avatars.com/api/?name=' . urlencode($admin['nama'] ?? 'Admin') . '&background=B7A087&color=fff';
+if (!empty($admin['profile_picture']) && file_exists($admin['profile_picture'])) {
+    $foto_display = $admin['profile_picture'];
+}
 
 $start_date = $_GET['start_date'] ?? date('Y-m-01');
 $end_date = $_GET['end_date'] ?? date('Y-m-t');
@@ -50,7 +56,7 @@ $avg_transaction = $summary['total_transaksi'] > 0 ? $summary['total_final'] / $
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Penjualan - Kasir</title>
+    <title>Laporan Penjualan - Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -69,72 +75,60 @@ $avg_transaction = $summary['total_transaksi'] > 0 ? $summary['total_final'] / $
         }
     </script>
     <style>
-        body { background-color: #F7EBDF; }
+        body { background-color: #F7EBDF; font-family: 'Segoe UI', system-ui, sans-serif; }
         .sidebar { background: linear-gradient(to bottom, #B7A087, #8B7355); }
         .card { background: white; border: 1px solid #E5D9C8; }
         .btn-primary { background-color: #B7A087; color: white; }
         .btn-primary:hover { background-color: #8B7355; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        .print-only { display: none; }
-        @media print {
-            .no-print { display: none !important; }
-            .print-only { display: block !important; }
-            body { background-color: white !important; }
-            .sidebar { display: none !important; }
-            .flex-1 { margin: 0 !important; overflow: visible !important; }
-            .ml-64 { margin-left: 0 !important; }
-            table { font-size: 10px !important; }
-        }
     </style>
 </head>
-<body class="bg-antique-white flex h-screen overflow-hidden font-sans text-gray-800">
+<body class="bg-antique-white h-screen flex overflow-hidden">
 
-    <div class="w-64 sidebar shadow-xl flex flex-col h-full relative z-20 flex-shrink-0 no-print">
+    <div class="w-64 sidebar shadow-xl flex flex-col justify-between z-20 flex-shrink-0">
         <div>
             <div class="h-16 flex items-center justify-center bg-pale-taupe">
                 <div class="text-white text-center">
                     <h1 class="text-xl font-bold">EasyResto</h1>
-                    <p class="text-xs text-white opacity-90">Kasir Panel</p>
+                    <p class="text-xs text-white opacity-90">Admin Panel</p>
                 </div>
             </div>
             
             <nav class="mt-8">
                 <a href="dashboard.php" class="flex items-center px-6 py-3 text-white hover:bg-pale-taupe hover:bg-opacity-30 transition-colors">
-                    <i class="fas fa-home w-6"></i>
+                    <i class="fas fa-chart-line w-6"></i>
                     <span class="mx-3 font-medium">Dashboard</span>
                 </a>
-                <a href="transaksi.php" class="flex items-center px-6 py-3 text-white hover:bg-pale-taupe hover:bg-opacity-30 transition-colors">
+                <a href="manajemen_menu.php" class="flex items-center px-6 py-3 text-white hover:bg-pale-taupe hover:bg-opacity-30 transition-colors">
+                    <i class="fas fa-utensils w-6"></i>
+                    <span class="mx-3 font-medium">Manajemen Menu</span>
+                </a>
+                <a href="laporan_penjualan.php" class="flex items-center px-6 py-3 text-white bg-pale-taupe bg-opacity-40 border-l-4 border-white transition-all">
+                    <i class="fas fa-file-invoice-dollar w-6"></i>
+                    <span class="mx-3 font-medium">Laporan Penjualan</span>
+                </a>
+                <a href="manajemen_transaksi.php" class="flex items-center px-6 py-3 text-white hover:bg-pale-taupe hover:bg-opacity-30 transition-colors">
                     <i class="fas fa-cash-register w-6"></i>
-                    <span class="mx-3 font-medium">Transaksi</span>
+                    <span class="mx-3 font-medium">Manajemen Transaksi</span>
                 </a>
-                <a href="riwayat.php" class="flex items-center px-6 py-3 text-white hover:bg-pale-taupe hover:bg-opacity-30 transition-colors">
-                    <i class="fas fa-history w-6"></i>
-                    <span class="mx-3 font-medium">Riwayat</span>
+                <a href="manajemen_pengguna.php" class="flex items-center px-6 py-3 text-white hover:bg-pale-taupe hover:bg-opacity-30 transition-colors">
+                    <i class="fas fa-users w-6"></i>
+                    <span class="mx-3 font-medium">Manajemen Pengguna</span>
                 </a>
-                <a href="laporan.php" class="flex items-center px-6 py-3 text-white bg-pale-taupe bg-opacity-40 border-l-4 border-white transition-all">
-                    <i class="fas fa-chart-line w-6"></i>
-                    <span class="mx-3 font-medium">Laporan</span>
-                </a>
-                <a href="profil_kasir.php" class="flex items-center px-6 py-3 text-white hover:bg-pale-taupe hover:bg-opacity-30 transition-colors">
+                <a href="profil.php" class="flex items-center px-6 py-3 text-white hover:bg-pale-taupe hover:bg-opacity-30 transition-colors">
                     <i class="fas fa-user-cog w-6"></i>
                     <span class="mx-3 font-medium">Profil</span>
                 </a>
             </nav>
         </div>
         
-        <div class="absolute bottom-0 w-full p-4 bg-pale-taupe bg-opacity-80">
+        <div class="p-4 bg-pale-taupe bg-opacity-80">
             <div class="flex items-center gap-3">
-                <a href="profil_kasir.php" class="shrink-0">
-                    <img src="<?= $foto ?>" class="w-10 h-10 rounded-full border-2 border-white object-cover hover:opacity-80 transition-opacity">
-                </a>
+                <img src="<?= $foto_display ?>" class="w-10 h-10 rounded-full border-2 border-white object-cover">
                 <div class="overflow-hidden text-white">
-                    <a href="profil_kasir.php" class="group block">
-                        <p class="font-bold text-sm truncate leading-tight group-hover:underline"><?= htmlspecialchars($nama_user) ?></p>
-                        <p class="text-xs opacity-90">Role: Kasir</p>
-                    </a>
-                    <a href="../logout.php" class="text-xs text-red-200 hover:text-white flex items-center gap-1 mt-1 transition-colors w-max">
+                    <p class="font-bold text-sm truncate leading-tight"><?= htmlspecialchars($admin['nama'] ?? 'Admin') ?></p>
+                    <p class="text-xs opacity-90"><?= ucfirst($admin['role'] ?? 'Admin') ?></p>
+                    <a href="../logout.php" class="text-xs text-red-200 hover:text-white flex items-center gap-1 mt-1 transition-colors">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a>
                 </div>
@@ -144,56 +138,55 @@ $avg_transaction = $summary['total_transaksi'] > 0 ? $summary['total_final'] / $
 
     <div class="flex-1 flex flex-col h-full overflow-hidden relative">
         
-        <header class="bg-white shadow-sm border-b border-pale-taupe flex-shrink-0 no-print">
-            <div class="flex items-center justify-between px-8 py-4">
-                
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-800">Laporan Penjualan</h1>
-                    <p class="text-gray-600 text-sm mt-1">Ringkasan Transaksi</p>
+        <header class="bg-white shadow-sm border-b border-[#E5D9C8] flex-shrink-0 px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Laporan Penjualan</h1>
+                <p class="text-gray-600">Detail laporan transaksi dan penjualan</p>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="text-right hidden md:block">
+                    <p class="text-sm text-gray-600">Selamat datang</p>
+                    <p class="font-semibold text-gray-800"><?= htmlspecialchars($admin['nama'] ?? 'Admin') ?></p>
                 </div>
-                
-                <div class="flex items-center space-x-4">
-                    <div class="text-right hidden sm:block">
-                        <p class="text-sm text-gray-600">Selamat datang</p>
-                        <p class="font-semibold text-gray-800"><?= htmlspecialchars($nama_user) ?></p>
-                    </div>
-                    <a href="profil_kasir.php" class="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden border-2 border-pale-taupe cursor-pointer transition-transform hover:scale-105">
-                        <img src="<?= $foto ?>" class="w-full h-full object-cover">
-                    </a>
-                </div>
-
+                <a href="profil.php" class="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden border-2 border-pale-taupe">
+                    <img src="<?= $foto_display ?>" alt="Profil" class="w-full h-full object-cover">
+                </a>
             </div>
         </header>
 
-        <main class="flex-1 overflow-y-auto p-8 scrollbar-hide">
+        <main class="flex-1 overflow-y-auto p-6 md:p-8">
             
-            <div class="card rounded-xl shadow-sm p-6 mb-8 no-print">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">Filter Laporan</h3>
+            <div class="card rounded-xl shadow-sm p-6 mb-8">
+                <div class="mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Filter Laporan</h3>
+                </div>
+                
                 <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                     <div>
                         <label class="block text-sm font-medium text-gray-600 mb-2">Tanggal Mulai</label>
                         <input type="date" name="start_date" value="<?= $start_date ?>" 
-                               class="w-full px-4 py-2 rounded-lg border border-[#E5D9C8] text-sm focus:border-pale-taupe transition-colors">
+                               class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-pale-taupe transition-colors">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-600 mb-2">Tanggal Akhir</label>
                         <input type="date" name="end_date" value="<?= $end_date ?>" 
-                               class="w-full px-4 py-2 rounded-lg border border-[#E5D9C8] text-sm focus:border-pale-taupe transition-colors">
+                               class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-pale-taupe transition-colors">
                     </div>
                     <div>
                         <button type="submit" class="w-full btn-primary px-4 py-2 rounded-lg font-medium shadow-sm transition-transform active:scale-95 text-sm">
-                            <i class="fas fa-filter mr-2"></i> Filter Data
+                            <i class="fas fa-filter mr-2"></i> Terapkan
                         </button>
                     </div>
                     <div>
-                         <a href="laporan.php" class="flex items-center justify-center w-full px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition text-sm">
+                         <a href="laporan_penjualan.php" class="flex items-center justify-center w-full px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition text-sm">
                             <i class="fas fa-redo-alt mr-2"></i> Reset
                         </a>
                     </div>
                 </form>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 no-print">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 <div class="bg-gradient-to-r from-pale-taupe to-amber-800 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-transform">
                     <div class="flex items-center justify-between">
                         <div>
@@ -232,10 +225,12 @@ $avg_transaction = $summary['total_transaksi'] > 0 ? $summary['total_final'] / $
                 </div>
             </div>
 
-            <div class="card rounded-xl shadow-sm overflow-hidden border border-[#E5D9C8] no-print">
-                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                    <h3 class="text-lg font-semibold text-gray-800">Detail Laporan Penjualan</h3>
-                    <p class="text-sm text-gray-600">Periode: <?php echo date('d M Y', strtotime($start_date)); ?> - <?php echo date('d M Y', strtotime($end_date)); ?></p>
+            <div class="card rounded-xl shadow-sm overflow-hidden border border-[#E5D9C8]">
+                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800">Detail Laporan Penjualan</h3>
+                        <p class="text-sm text-gray-600">Periode: <?php echo date('d M Y', strtotime($start_date)); ?> - <?php echo date('d M Y', strtotime($end_date)); ?></p>
+                    </div>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full whitespace-nowrap">
@@ -307,58 +302,6 @@ $avg_transaction = $summary['total_transaksi'] > 0 ? $summary['total_final'] / $
                 <?php endif; ?>
             </div>
         </main>
-    </div>
-
-    <div class="print-only p-8">
-        <div class="text-center mb-6">
-            <h1 class="text-2xl font-bold uppercase">Laporan Penjualan</h1>
-            <p class="text-sm text-gray-600 mt-1">Periode: <?= date('d M Y', strtotime($start_date)) ?> - <?= date('d M Y', strtotime($end_date)) ?></p>
-            <p class="text-xs text-gray-500">Dicetak oleh: <?= $nama_user ?> pada <?= date('d/m/Y H:i') ?></p>
-        </div>
-
-        <?php if ($result->num_rows > 0): ?>
-        <table class="w-full border-collapse border border-gray-300 text-xs mb-6">
-            <thead>
-                <tr class="bg-gray-100">
-                    <th class="border p-2">No</th>
-                    <th class="border p-2">ID</th>
-                    <th class="border p-2">Tanggal</th>
-                    <th class="border p-2">Menu</th>
-                    <th class="border p-2 text-center">Jml</th>
-                    <th class="border p-2 text-right">Subtotal</th>
-                    <th class="border p-2 text-right">Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php $result->data_seek(0); $no=1; while($row = $result->fetch_assoc()): ?>
-                <tr>
-                    <td class="border p-2 text-center"><?= $no++ ?></td>
-                    <td class="border p-2">#<?= $row['id_transaksi'] ?></td>
-                    <td class="border p-2"><?= date('d/m H:i', strtotime($row['tanggal'])) ?></td>
-                    <td class="border p-2"><?= $row['nama_menu'] ?></td>
-                    <td class="border p-2 text-center"><?= $row['jumlah'] ?></td>
-                    <td class="border p-2 text-right"><?= number_format($row['subtotal'], 0, ',', '.') ?></td>
-                    <td class="border p-2 text-right font-bold"><?= number_format($row['total_permenu'], 0, ',', '.') ?></td>
-                </tr>
-                <?php endwhile; ?>
-            </tbody>
-            <tfoot>
-                <tr class="bg-gray-50 font-bold">
-                    <td colspan="6" class="border p-2 text-right">TOTAL PENDAPATAN</td>
-                    <td class="border p-2 text-right">Rp <?= number_format($summary['total_final'] ?? 0, 0, ',', '.') ?></td>
-                </tr>
-            </tfoot>
-        </table>
-        
-        <div class="text-xs">
-            <p class="font-bold mb-1">Rangkuman:</p>
-            <ul class="list-disc pl-5">
-                <li>Total Transaksi: <?= number_format($summary['total_transaksi'] ?? 0, 0) ?></li>
-                <li>Item Terjual: <?= number_format($summary['total_item_terjual'] ?? 0, 0) ?></li>
-                <li>Rata-rata: Rp <?= number_format($avg_transaction, 0, ',', '.') ?></li>
-            </ul>
-        </div>
-        <?php endif; ?>
     </div>
 
     <script>
