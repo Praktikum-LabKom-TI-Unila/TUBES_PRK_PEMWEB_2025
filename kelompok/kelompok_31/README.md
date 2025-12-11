@@ -5,6 +5,7 @@ EduPortal adalah sistem manajemen pembelajaran akademik berbasis web yang diranc
 ## 📋 Daftar Isi
 
 - [Fitur Utama](#fitur-utama)
+- [Screenshots](#screenshots)
 - [Entity Relationship Diagram (ERD)](#entity-relationship-diagram-erd)
 - [Teknologi yang Digunakan](#teknologi-yang-digunakan)
 - [Requirements](#requirements)
@@ -19,54 +20,107 @@ EduPortal adalah sistem manajemen pembelajaran akademik berbasis web yang diranc
 ## ✨ Fitur Utama
 
 ### 👨‍💼 Admin
-- **Dashboard** - Statistik lengkap sistem (mata kuliah, dosen, mahasiswa)
-- **Kelola Mata Kuliah** - CRUD mata kuliah dengan assign dosen
-- **Kelola Pengumuman** - Buat, edit, dan hapus pengumuman
-- **User Management** - Tambah, lihat, dan hapus user (admin, dosen, mahasiswa)
-- **Export Data** - Export data ke CSV (mata kuliah, users, pengumuman, nilai)
-- **Pengaturan Sistem** - Konfigurasi sistem (nama, email, max file size, allowed extensions)
+- *Dashboard* - Statistik lengkap sistem (mata kuliah, dosen, mahasiswa)
+- *Kelola Mata Kuliah* - CRUD mata kuliah dengan assign dosen
+- *Kelola Pengumuman* - Buat, edit, dan hapus pengumuman
+- *User Management* - Tambah, lihat, dan hapus user (admin, dosen, mahasiswa)
+- *Export Data* - Export data ke CSV (mata kuliah, users, pengumuman, nilai)
+- *Pengaturan Sistem* - Konfigurasi sistem (nama, email, max file size, allowed extensions)
 
 ### 👨‍🏫 Dosen
-- **Dashboard** - Statistik mata kuliah diampu, materi, tugas, dan nilai
-- **Upload Materi** - Upload dan kelola bahan ajar digital
-- **Buat Tugas** - Buat dan distribusikan tugas kepada mahasiswa
-- **Input Nilai** - Input nilai dan feedback untuk tugas yang sudah dikumpulkan mahasiswa
+- *Dashboard* - Statistik mata kuliah diampu, materi, tugas, dan nilai
+- *Upload Materi* - Upload dan kelola bahan ajar digital
+- *Buat Tugas* - Buat dan distribusikan tugas kepada mahasiswa
+- *Input Nilai* - Input nilai dan feedback untuk tugas yang sudah dikumpulkan mahasiswa
 
 ### 👨‍🎓 Mahasiswa
-- **Dashboard** - Statistik akademik (IPS, mata kuliah, tugas, nilai)
-- **Mata Kuliah** - Lihat dan bergabung dengan mata kuliah yang tersedia
-- **Materi** - Download materi pembelajaran yang diupload dosen
-- **Tugas** - Lihat tugas dan submit jawaban
-- **Nilai** - Lihat nilai dan feedback dari dosen
+- *Dashboard* - Statistik akademik (IPS, mata kuliah, tugas, nilai)
+- *Mata Kuliah* - Lihat dan bergabung dengan mata kuliah yang tersedia
+- *Materi* - Download materi pembelajaran yang diupload dosen
+- *Tugas* - Lihat tugas dan submit jawaban
+- *Nilai* - Lihat nilai dan feedback dari dosen
+
+## 📸 Screenshots
+
+### Dashboard Admin
+<img width="1919" height="994" alt="image" src="https://github.com/user-attachments/assets/c84ecc23-d779-4bfa-8c00-0893fd11d1a5" />
+
+Dashboard admin menampilkan statistik lengkap sistem, quick actions, dan pengumuman terbaru
+
+### Dashboard Dosen
+<img width="1919" height="992" alt="image" src="https://github.com/user-attachments/assets/162933d3-fc18-4b60-9841-23f5b92bdd77" />
+
+Dashboard dosen menampilkan statistik mata kuliah diampu, materi, tugas, dan aktivitas terbaru
+
+### Dashboard Mahasiswa
+<img width="1919" height="997" alt="image" src="https://github.com/user-attachments/assets/1fa2f65c-915d-43f3-aca4-a97926909d93" />
+
+Dashboard mahasiswa menampilkan statistik akademik, tugas mendatang, dan kelas tersedia
+
+### Halaman Login
+<img width="1918" height="997" alt="image" src="https://github.com/user-attachments/assets/8dc421b7-18cc-4705-a650-e5cba521867b" />
+
+Halaman login dengan desain modern split-screen dan glassmorphism effect
+
+### Upload Materi (Dosen)
+<img width="1919" height="994" alt="image" src="https://github.com/user-attachments/assets/a84f6d2b-9d5a-4b91-a6c2-f1a5cbe30168" />
+
+Halaman upload materi untuk dosen dengan arsip materi yang sudah diupload
+
+### Buat Tugas (Dosen)
+<img width="1919" height="990" alt="image" src="https://github.com/user-attachments/assets/5592f3a6-d52c-449c-a517-764701b5d001" />
+
+Halaman buat tugas untuk dosen dengan riwayat tugas yang sudah dibuat
+
+### Input Nilai (Dosen)
+<img width="1919" height="995" alt="image" src="https://github.com/user-attachments/assets/2762f8e9-b78d-4ab1-8380-c1475bf3c20d" />
+
+Halaman input nilai untuk dosen menampilkan submission tugas dari mahasiswa
+
+### Daftar Tugas (Mahasiswa)
+<img width="1919" height="999" alt="image" src="https://github.com/user-attachments/assets/0e280410-2908-44cc-af97-f9738c5e0646" />
+
+Halaman daftar tugas mahasiswa dengan status pengumpulan dan deadline
+
+### Nilai Saya (Mahasiswa)
+<img width="1919" height="995" alt="image" src="https://github.com/user-attachments/assets/7f58ef2a-0c9f-4ba9-aa13-9b4e7cc7b495" />
+
+Halaman nilai mahasiswa menampilkan nilai dan feedback dari dosen
+
+### Kelola Mata Kuliah (Admin)
+<img width="1919" height="996" alt="image" src="https://github.com/user-attachments/assets/6d95eac5-f5ed-496a-bc34-35fad8ebe207" />
+
+Halaman CRUD mata kuliah untuk admin dengan assign dosen
 
 
-> **Catatan**: Ganti path screenshot di atas dengan path gambar yang sesuai. Simpan semua screenshot di folder `screenshots/` atau `docs/screenshots/`.
+> *Catatan*: Ganti path screenshot di atas dengan path gambar yang sesuai. Simpan semua screenshot di folder screenshots/ atau docs/screenshots/.
 
 ## 🗂 Entity Relationship Diagram (ERD)
 
+![WhatsApp Image 2025-12-11 at 21 41 21_2c8d157e](https://github.com/user-attachments/assets/6553db96-0c51-42d3-b956-150ea535be46)
 
-*Entity Relationship Diagram (ERD) sistem EduPortal*
+Entity Relationship Diagram (ERD) sistem EduPortal
 
 ### Penjelasan ERD
 
 ERD di atas menunjukkan relasi antar tabel dalam database EduPortal:
 
-- **users** - Tabel utama untuk semua user (admin, dosen, mahasiswa)
-- **mata_kuliah** - Tabel mata kuliah dengan relasi ke users (dosen_id)
-- **enrollment** - Tabel relasi many-to-many antara mahasiswa dan mata kuliah
-- **materi** - Tabel materi pembelajaran dengan relasi ke mata_kuliah dan users (uploaded_by)
-- **tugas** - Tabel tugas dengan relasi ke mata_kuliah dan users (created_by)
-- **submission** - Tabel submission tugas dengan relasi ke tugas dan users (mahasiswa_id, dinilai_oleh)
-- **nilai** - Tabel nilai dengan relasi ke mata_kuliah, users (mahasiswa_id), dan users (created_by)
-- **pengumuman** - Tabel pengumuman dengan relasi ke users (created_by)
+- *users* - Tabel utama untuk semua user (admin, dosen, mahasiswa)
+- *mata_kuliah* - Tabel mata kuliah dengan relasi ke users (dosen_id)
+- *enrollment* - Tabel relasi many-to-many antara mahasiswa dan mata kuliah
+- *materi* - Tabel materi pembelajaran dengan relasi ke mata_kuliah dan users (uploaded_by)
+- *tugas* - Tabel tugas dengan relasi ke mata_kuliah dan users (created_by)
+- *submission* - Tabel submission tugas dengan relasi ke tugas dan users (mahasiswa_id, dinilai_oleh)
+- *nilai* - Tabel nilai dengan relasi ke mata_kuliah, users (mahasiswa_id), dan users (created_by)
+- *pengumuman* - Tabel pengumuman dengan relasi ke users (created_by)
 
-> **Catatan**: Ganti path ERD di atas dengan path gambar ERD yang sesuai. Simpan file ERD di folder `docs/erd/` atau `database/erd/`.
+> *Catatan*: Ganti path ERD di atas dengan path gambar ERD yang sesuai. Simpan file ERD di folder docs/erd/ atau database/erd/.
 
 ## 🛠 Teknologi yang Digunakan
 
-- **Backend**: PHP 7.4+
-- **Database**: MySQL 5.7+
-- **Frontend**: 
+- *Backend*: PHP 7.4+
+- *Database*: MySQL 5.7+
+- *Frontend*: 
   - HTML5, CSS3
   - Bootstrap 5.3.0
   - JavaScript (Vanilla JS)
@@ -90,20 +144,20 @@ ERD di atas menunjukkan relasi antar tabel dalam database EduPortal:
 
 ### 1. Clone Repository
 
-```bash
+bash
 git clone <repository-url>
 cd kelompok_31
-```
+
 
 ### 2. Setup Database
 
 #### Opsi A: Menggunakan setup_database.sql (Recommended)
-```bash
+bash
 mysql -u root -p < database/setup_database.sql
-```
+
 
 #### Opsi B: Setup Manual
-```bash
+bash
 # 1. Buat database
 mysql -u root -p < database/schema.sql
 
@@ -114,60 +168,60 @@ mysql -u root -p < database/seed.sql
 mysql -u root -p < database/add_enrollment_table.sql
 mysql -u root -p < database/add_semester.sql
 mysql -u root -p < database/migrations/004_add_nilai_pengumuman.sql
-```
+
 
 ### 3. Konfigurasi Database
 
-Edit file `config/database.php` dan sesuaikan kredensial database:
+Edit file config/database.php dan sesuaikan kredensial database:
 
-```php
+php
 private $host = 'localhost';
 private $db_name = 'eduportal';
 private $username = 'root';
 private $password = '';
-```
+
 
 ### 4. Setup Upload Directory
 
 Pastikan folder uploads memiliki permission write:
 
-```bash
+bash
 mkdir -p uploads/materi uploads/tugas
 chmod 777 uploads/materi uploads/tugas
-```
+
 
 ### 5. Jalankan Aplikasi
 
 #### Menggunakan PHP Built-in Server:
-```bash
+bash
 php -S localhost:8000
-```
+
 
 #### Menggunakan Apache/Nginx:
 - Pastikan document root mengarah ke folder proyek
-- Akses melalui browser: `http://localhost/kelompok_31`
+- Akses melalui browser: http://localhost/kelompok_31
 
-## ⚙️ Konfigurasi
+## ⚙ Konfigurasi
 
 ### Database Configuration
-File: `config/database.php`
+File: config/database.php
 
-```php
+php
 private $host = 'localhost';        // Host database
 private $db_name = 'eduportal';     // Nama database
 private $username = 'root';          // Username database
 private $password = '';              // Password database
-```
+
 
 ### Upload Configuration
-File: `admin/pengaturan.php` (dapat diubah melalui admin panel)
+File: admin/pengaturan.php (dapat diubah melalui admin panel)
 
 - Max File Size: Default 5MB (5242880 bytes)
 - Allowed Extensions: pdf, doc, docx, txt, zip, rar
 
 ## 📁 Struktur Folder
 
-```
+
 kelompok_31/
 ├── admin/                 # Halaman admin
 │   ├── mata_kuliah.php   # CRUD mata kuliah
@@ -242,99 +296,99 @@ kelompok_31/
 ├── login.php             # Login page
 ├── logout.php            # Logout handler
 └── README.md            # This file
-```
+
 
 ## 📖 Cara Penggunaan
 
 ### Login
-1. Buka halaman login: `http://localhost/kelompok_31/login.php`
+1. Buka halaman login: http://localhost/kelompok_31/login.php
 2. Masukkan username dan password sesuai role
 3. Setelah login, akan diarahkan ke dashboard sesuai role
 
 ### Admin
-- **Kelola Mata Kuliah**: Tambah, edit, hapus mata kuliah dan assign dosen
-- **Kelola Pengumuman**: Buat pengumuman untuk semua user
-- **User Management**: Tambah user baru (admin, dosen, mahasiswa)
-- **Export Data**: Export data sistem ke CSV
-- **Pengaturan**: Konfigurasi sistem
+- *Kelola Mata Kuliah*: Tambah, edit, hapus mata kuliah dan assign dosen
+- *Kelola Pengumuman*: Buat pengumuman untuk semua user
+- *User Management*: Tambah user baru (admin, dosen, mahasiswa)
+- *Export Data*: Export data sistem ke CSV
+- *Pengaturan*: Konfigurasi sistem
 
 ### Dosen
-- **Upload Materi**: Upload file materi untuk mata kuliah yang diampu
-- **Buat Tugas**: Buat tugas dengan deadline untuk mahasiswa
-- **Input Nilai**: Berikan nilai dan feedback untuk tugas yang sudah dikumpulkan
+- *Upload Materi*: Upload file materi untuk mata kuliah yang diampu
+- *Buat Tugas*: Buat tugas dengan deadline untuk mahasiswa
+- *Input Nilai*: Berikan nilai dan feedback untuk tugas yang sudah dikumpulkan
 
 ### Mahasiswa
-- **Mata Kuliah**: Lihat dan bergabung dengan mata kuliah yang tersedia
-- **Materi**: Download materi pembelajaran
-- **Tugas**: Lihat tugas dan submit jawaban sebelum deadline
-- **Nilai**: Lihat nilai dan feedback dari dosen
+- *Mata Kuliah*: Lihat dan bergabung dengan mata kuliah yang tersedia
+- *Materi*: Download materi pembelajaran
+- *Tugas*: Lihat tugas dan submit jawaban sebelum deadline
+- *Nilai*: Lihat nilai dan feedback dari dosen
 
 ## 🔐 Default Credentials
 
 ### Admin
-- **Username**: `admin`
-- **Password**: `password`
+- *Username*: admin
+- *Password*: password
 
 ### Dosen
-- **Username**: `dosen1`, `dosen2`, `dosen3`
-- **Password**: `password`
+- *Username*: dosen1, dosen2, dosen3
+- *Password*: password
 
 ### Mahasiswa
-- **Username**: `mhs1`, `mhs2`, `mhs3`, `mhs4`, `mhs5`
-- **Password**: `password`
+- *Username*: mhs1, mhs2, mhs3, mhs4, mhs5
+- *Password*: password
 
-> **⚠️ PENTING**: Ganti password default setelah instalasi untuk keamanan!
+> *⚠ PENTING*: Ganti password default setelah instalasi untuk keamanan!
 
 ## 📡 API Documentation
 
 ### REST API
-REST API tersedia di `webservice/api.php`. Dokumentasi lengkap ada di `webservice/README.md`.
+REST API tersedia di webservice/api.php. Dokumentasi lengkap ada di webservice/README.md.
 
-**Endpoints:**
-- `GET /webservice/api.php/mata-kuliah` - List semua mata kuliah
-- `GET /webservice/api.php/mata-kuliah/{id}` - Detail mata kuliah
-- `GET /webservice/api.php/materi` - List semua materi
-- `GET /webservice/api.php/materi/{id}` - Detail materi
-- `GET /webservice/api.php/tugas` - List semua tugas
-- `GET /webservice/api.php/tugas/{id}` - Detail tugas
-- `GET /webservice/api.php/pengumuman` - List semua pengumuman
-- `GET /webservice/api.php/pengumuman/{id}` - Detail pengumuman
+*Endpoints:*
+- GET /webservice/api.php/mata-kuliah - List semua mata kuliah
+- GET /webservice/api.php/mata-kuliah/{id} - Detail mata kuliah
+- GET /webservice/api.php/materi - List semua materi
+- GET /webservice/api.php/materi/{id} - Detail materi
+- GET /webservice/api.php/tugas - List semua tugas
+- GET /webservice/api.php/tugas/{id} - Detail tugas
+- GET /webservice/api.php/pengumuman - List semua pengumuman
+- GET /webservice/api.php/pengumuman/{id} - Detail pengumuman
 
 ### Internal API
-API internal untuk frontend tersedia di folder `api/`:
-- `api/auth/login.php` - Authentication
-- `api/upload_materi.php` - Upload materi
-- `api/buat_tugas.php` - Buat tugas
-- `api/submit_tugas.php` - Submit tugas
-- `api/input_nilai.php` - Input nilai
-- `api/nilai.php` - Get nilai mahasiswa
-- `api/pengumuman_crud.php` - CRUD pengumuman
-- `api/mata_kuliah_crud.php` - CRUD mata kuliah
-- `api/users_crud.php` - User management
-- `api/enrollment.php` - Enrollment mahasiswa
+API internal untuk frontend tersedia di folder api/:
+- api/auth/login.php - Authentication
+- api/upload_materi.php - Upload materi
+- api/buat_tugas.php - Buat tugas
+- api/submit_tugas.php - Submit tugas
+- api/input_nilai.php - Input nilai
+- api/nilai.php - Get nilai mahasiswa
+- api/pengumuman_crud.php - CRUD pengumuman
+- api/mata_kuliah_crud.php - CRUD mata kuliah
+- api/users_crud.php - User management
+- api/enrollment.php - Enrollment mahasiswa
 
 ## 👥 Kontributor
 
 Proyek ini dikerjakan oleh Kelompok 31:
 
-1. **Sabilillah Irdo** (Anggota 1 - Ketua)
+1. *Sabilillah Irdo* (Anggota 1 - Ketua)
    - Login/Logout
    - Database Configuration
    - Authentication API
 
-2. **Alfikri Deo Putra** (Anggota 2)
+2. *Alfikri Deo Putra* (Anggota 2)
    - Components (Header, Navbar, Footer)
    - Dashboard (Admin, Dosen, Mahasiswa)
    - CRUD Mata Kuliah
    - Export Data & Pengaturan
 
-3. **Muhammad Zaki Zain** (Anggota 3)
+3. *Muhammad Zaki Zain* (Anggota 3)
    - Upload Materi
    - Buat Tugas
    - Daftar Materi & Tugas (Mahasiswa)
    - Submit Tugas API
 
-4. **Sony Kurniawan** (Anggota 4)
+4. *Sony Kurniawan* (Anggota 4)
    - Input Nilai (Dosen)
    - Daftar Nilai (Mahasiswa)
    - CRUD Pengumuman
@@ -348,17 +402,17 @@ Proyek ini dibuat untuk keperluan akademik (Tugas Besar Pemrograman Web 2025).
 
 ### Database Connection Error
 - Pastikan MySQL service berjalan
-- Cek kredensial di `config/database.php`
-- Pastikan database `eduportal` sudah dibuat
+- Cek kredensial di config/database.php
+- Pastikan database eduportal sudah dibuat
 
 ### Upload File Error
-- Pastikan folder `uploads/materi` dan `uploads/tugas` memiliki permission write (777)
-- Cek max file size di `admin/pengaturan.php`
+- Pastikan folder uploads/materi dan uploads/tugas memiliki permission write (777)
+- Cek max file size di admin/pengaturan.php
 - Pastikan extension file sesuai dengan yang diizinkan
 
 ### Session Error
-- Pastikan `session_start()` dipanggil sebelum menggunakan `$_SESSION`
-- Cek `php.ini` untuk konfigurasi session
+- Pastikan session_start() dipanggil sebelum menggunakan $_SESSION
+- Cek php.ini untuk konfigurasi session
 
 ### API Error
 - Cek error log PHP untuk detail error
@@ -371,5 +425,4 @@ Untuk pertanyaan atau masalah, silakan hubungi tim pengembang atau buat issue di
 
 ---
 
-**EduPortal** - Sistem Manajemen Pembelajaran Akademik © 2025
-
+*EduPortal* - Sistem Manajemen Pembelajaran Akademik © 2025
