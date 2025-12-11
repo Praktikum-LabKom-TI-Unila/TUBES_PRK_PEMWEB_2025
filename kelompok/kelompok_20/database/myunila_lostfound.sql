@@ -93,7 +93,8 @@ CREATE TABLE notifications (
     user_id INT NOT NULL,
     title VARCHAR(100) NOT NULL,
     message TEXT NOT NULL,
-    link VARCHAR(255) NULL, 
+    link VARCHAR(255) NULL,
+    type VARCHAR(50) DEFAULT 'general',
     is_read TINYINT(1) DEFAULT 0, 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
