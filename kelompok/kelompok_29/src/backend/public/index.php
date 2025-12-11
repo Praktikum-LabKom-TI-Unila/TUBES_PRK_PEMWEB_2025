@@ -206,6 +206,12 @@ $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $basePath = '/backend/public';
 $path = trim(str_replace($basePath, '', $requestUri), '/');
 
+if ($path === 'api') {
+    $path = '';
+} elseif (strpos($path, 'api/') === 0) {
+    $path = substr($path, 4);
+}
+
 foreach ($routes as $route) {
     if ($route['method'] !== $method) {
         continue;

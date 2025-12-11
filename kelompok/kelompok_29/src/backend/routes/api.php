@@ -148,6 +148,70 @@ $routes = [
         'controller' => __DIR__ . '/../controllers/pelapor/complaints/timeline.php',
     ],
 
+    // Officer dashboard & profile
+    [
+        'method' => 'GET',
+        'path' => 'officer/dashboard/stats',
+        'controller' => __DIR__ . '/../controllers/officer/dashboard/stats.php',
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'officer/profile',
+        'controller' => __DIR__ . '/../controllers/officer/profile/show.php',
+    ],
+    [
+        'method' => 'PUT',
+        'path' => 'officer/profile',
+        'controller' => __DIR__ . '/../controllers/officer/profile/update.php',
+    ],
+
+    // Officer tasks
+    [
+        'method' => 'GET',
+        'path' => 'officer/tasks/active',
+        'controller' => __DIR__ . '/../controllers/officer/tasks/active.php',
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'officer/tasks/completed',
+        'controller' => __DIR__ . '/../controllers/officer/tasks/completed.php',
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'officer/tasks/{id}',
+        'controller' => __DIR__ . '/../controllers/officer/tasks/show.php',
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'officer/tasks/{id}/timeline',
+        'controller' => __DIR__ . '/../controllers/officer/tasks/timeline.php',
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'officer/tasks/{id}/start',
+        'controller' => __DIR__ . '/../controllers/officer/tasks/start.php',
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'officer/tasks/{id}/cancel',
+        'controller' => __DIR__ . '/../controllers/officer/tasks/cancel.php',
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'officer/tasks/{id}/complete',
+        'controller' => __DIR__ . '/../controllers/officer/tasks/complete.php',
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'officer/tasks/{id}/completion-proof',
+        'controller' => __DIR__ . '/../controllers/officer/tasks/completion_proof/show.php',
+    ],
+    [
+        'method' => 'PUT',
+        'path' => 'officer/tasks/{id}/completion-proof',
+        'controller' => __DIR__ . '/../controllers/officer/tasks/completion_proof/update.php',
+    ],
+
     // Complaints submission and meta
     [
         'method' => 'GET',

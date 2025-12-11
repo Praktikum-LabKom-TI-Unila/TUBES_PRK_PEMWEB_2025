@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../../helpers/response.php';
 require_once __DIR__ . '/../../../helpers/database.php';
 require_once __DIR__ . '/../../../helpers/validation.php';
 require_once __DIR__ . '/../../../helpers/admin.php';
+require_once __DIR__ . '/../../../helpers/officer_tasks.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     response_error(405, 'Method tidak diperbolehkan.');
@@ -118,6 +119,8 @@ try {
         'detail' => $e->getMessage(),
     ]);
 }
+
+recalc_officer_status($pdo, $officerId);
 
 response_success(200, 'Petugas berhasil ditugaskan ke tiket.', [
     'ticket_id' => $ticketId,
