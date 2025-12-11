@@ -17,7 +17,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['action'])) {
         $result = loginUser($username, $password);
         
         if ($result['success']) {
-            header('Location: admin.php');
+            // Redirect berdasarkan role
+            $role = $result['role'];
+            if ($role === 'super_admin') {
+                header('Location: super_admin.php');
+            } elseif ($role === 'admin') {
+                header('Location: admin.php');
+            } elseif ($role === 'petugas') {
+                header('Location: petugas.php');
+            } else {
+                header('Location: index.html');
+            }
             exit;
         } else {
             $error = $result['message'];

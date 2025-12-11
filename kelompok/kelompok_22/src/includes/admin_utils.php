@@ -165,5 +165,104 @@ function getReportsByStatus($conn, $statuses) {
     $stmt->close();
     return [];
 }
+
+// ============================================
+// SUPER ADMIN FUNCTIONS - User Management
+// ============================================
+
+/**
+ * Change user role (only for super admin)
+ */
+function changeUserRole($user_id, $new_role, $admin_id) {
+    $conn = getDBConnection();
+    
+    // Get old role for audit
+    $stmt = $conn->prepare("SELECT role, username FROM users WHERE id = ?");
+    $stmt->bind_param('i', $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+    $old_role = $user['role'];
+    $username = $user['username'];
+    
+    // Update role
+    $stmt = $conn->prepare("UPDATE users SET role = ? WHERE id = ?");
+    $stmt->bind_param('si', $new_role, $user_id);
+    
+    if ($stmt->execute()) {
+        // Log audit
+        require_once 'auth.php';
+        logAudit($admin_id, 'role_change', 'users', $user_id, 
+                "Changed role of user '$username' from '$old_role' to '$new_role'", 
+                $old_role, $new_role);
+        return ['success' => true, 'message' => 'Role berhasil diubah'];
+    }
+    
+    return ['success' => false, 'message' => 'Gagal mengubah role: ' . $conn->error];
+}
+
+/**
+ * Toggle user active status (only for super admin)
+ */
+function toggleUserStatus($user_id, $is_active, $admin_id) {
+    $conn = getDBConnection();
+    
+    $stmt = $conn->prepare("SELECT username FROM users WHERE id = ?");
+    $stmt->bind_param('i', $user_id);
+    $stmt->execute();
+    $username = $stmt->get_result()->fetch_assoc()['username'];
+    
+    $stmt = $conn->prepare("UPDATE users SET is_active = ? WHERE id = ?");
+    $stmt->bind_param('ii', $is_active, $user_id);
+    
+    if ($stmt->execute()) {
+        require_once 'auth.php';
+        $action = $is_active ? 'activated' : 'deactivated';
+        logAudit($admin_id, 'user_management', 'users', $user_id, 
+                "User '$username' $action", !$is_active, $is_active);
+        return ['success' => true, 'message' => 'Status user berhasil diubah'];
+    }
+    
+    return ['success' => false, 'message' => 'Gagal mengubah status: ' . $conn->error];
+}
+
+// Handle POST requests for super admin actions
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    session_start();
+    require_once 'config.php';
+    require_once 'auth.php';
+    
+    header('Content-Type: application/json');
+    
+    $action = $_POST['action'];
+    $user = getUserInfo();
+    
+    // Only super admin can perform these actions
+    if (!$user || $user['role'] !== 'super_admin') {
+        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+        exit;
+    }
+    
+    switch ($action) {
+        case 'change_user_role':
+            $user_id = (int)$_POST['user_id'];
+            $new_role = $_POST['new_role'];
+            $result = changeUserRole($user_id, $new_role, $user['id']);
+            echo json_encode($result);
+            exit;
+            
+        case 'toggle_user_status':
+            $user_id = (int)$_POST['user_id'];
+            $is_active = (int)$_POST['is_active'];
+            $result = toggleUserStatus($user_id, $is_active, $user['id']);
+            echo json_encode($result);
+            exit;
+            
+        default:
+            echo json_encode(['success' => false, 'message' => 'Invalid action']);
+            exit;
+    }
+}
 ?>
+    
     

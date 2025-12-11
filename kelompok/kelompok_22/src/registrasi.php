@@ -70,11 +70,11 @@
 document.getElementById('registerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    formData.append('action', 'register_warga');
+    formData.append('action', 'register');
 
     // Validasi NIK client-side
     const nik = formData.get('nik');
-    if (nik.length !== 16 || isNaN(nik)) {
+    if (nik && (nik.length !== 16 || isNaN(nik))) {
         alert('NIK harus 16 digit angka');
         return;
     }
