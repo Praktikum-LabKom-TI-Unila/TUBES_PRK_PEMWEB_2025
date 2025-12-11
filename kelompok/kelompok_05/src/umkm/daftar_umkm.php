@@ -2,11 +2,10 @@
 session_start();
 
 if (!isset($_SESSION['login'])) {
-    header("Location: /auth/login.php");
+    header("Location: ../auth/login.php");
     exit;
 }
 
-// TARIK REQUIRE DARI DASHBOARD
 require_once "../config/config.php";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -17,7 +16,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $alamat_usaha  = trim($_POST['alamat_usaha']);
     $no_telepon    = trim($_POST['no_telepon']);
 
-    // VALIDASI KOSONG
     if ($nama_usaha == "" || $nama_pemilik == "" || $bidang_usaha == "" || 
         $alamat_usaha == "" || $no_telepon == "") {
         
@@ -25,7 +23,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit;
     }
 
-    // VALIDASI ANGKA TELEPON
     if (!ctype_digit($no_telepon)) {
         header("Location: daftar_umkm.php?error=Nomor telepon harus angka");
         exit;
@@ -36,10 +33,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit;
     }
 
-    // Placeholder user_id (nantinya dari session login)
-    $user_id = 1;
+    $user_id = $_SESSION['user_id'];
 
-    // QUERY INSERT
     $query = "INSERT INTO umkm (user_id, nama_usaha, bidang_usaha, alamat_usaha, nama_pemilik, no_telepon)
               VALUES ('$user_id', '$nama_usaha', '$bidang_usaha', '$alamat_usaha', '$nama_pemilik', '$no_telepon')";
 
@@ -69,12 +64,9 @@ require '../layouts/sidebar.php';
             <div class="alert alert-success"><?= $_GET['success']; ?></div>
         <?php } ?>
 
-        <!-- FORM -->
         <form action="" method="POST" class="mt-4">
 
             <div class="row">
-
-                <!-- KIRI -->
                 <div class="col-md-6">
 
                     <div class="mb-3">
@@ -94,7 +86,6 @@ require '../layouts/sidebar.php';
 
                 </div>
 
-                <!-- KANAN -->
                 <div class="col-md-6">
 
                     <div class="mb-3">
@@ -111,7 +102,6 @@ require '../layouts/sidebar.php';
 
             </div>
 
-            <!-- TOMBOL -->
             <div class="text-center mt-4 mb-5">
                 <button type="submit" class="btn btn-dark px-4 py-2 shadow">Daftar</button>
             </div>
@@ -123,8 +113,6 @@ require '../layouts/sidebar.php';
 
 </div>
 
-
-<!-- MODAL SUKSES -->
 <div class="modal fade" id="modalSukses" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content text-center p-4">

@@ -1,5 +1,12 @@
 <?php
-require_once "../config/config.php"; // koneksi database
+session_start();
+
+if (!isset($_SESSION['login']) || !isset($_SESSION['user_id'])) {
+    header("Location: ../auth/login.php");
+    exit;
+}
+
+require_once "../config/config.php";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
@@ -9,7 +16,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $alamat_usaha  = trim($_POST['alamat_usaha']);
     $no_telepon    = trim($_POST['no_telepon']);
 
-    // VALIDASI KOSONG
     if ($nama_usaha == "" || $nama_pemilik == "" || $bidang_usaha == "" || 
         $alamat_usaha == "" || $no_telepon == "") {
         
@@ -17,7 +23,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit;
     }
 
-    // VALIDASI ANGKA TELEPON
     if (!ctype_digit($no_telepon)) {
         header("Location: daftar_umkm.php?error=Nomor telepon harus angka");
         exit;
@@ -28,18 +33,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit;
     }
 
-    // Placeholder user_id (nantinya dari session login)
-    $user_id = 1;
+    $user_id = $_SESSION['user_id'];
 
-    // QUERY INSERT
-    $query = "INSERT INTO umkm (user_id, nama_usaha, bidang_usaha, alamat_usaha, nama_pemilik, no_telepon)
-              VALUES ('$user_id', '$nama_usaha', '$bidang_usaha', '$alamat_usaha', '$nama_pemilik', '$no_telepon')";
+    $stmt = $conn->prepare("INSERT INTO umkm (user_id, nama_usaha, bidang_usaha, alamat_usaha, nama_pemilik, no_telepon) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("isssss", $user_id, $nama_usaha, $bidang_usaha, $alamat_usaha, $nama_pemilik, $no_telepon);
 
-    if (mysqli_query($conn, $query)) {
+    if ($stmt->execute()) {
+        $stmt->close();
         header("Location: daftar_umkm.php?success=Pendaftaran UMKM berhasil!");
         exit;
     } else {
-        header("Location: daftar_umkm.php?error=Gagal menyimpan data: " . mysqli_error($conn));
+        $error_msg = $stmt->error;
+        $stmt->close();
+        header("Location: daftar_umkm.php?error=Gagal menyimpan data: " . urlencode($error_msg));
         exit;
     }
 }
