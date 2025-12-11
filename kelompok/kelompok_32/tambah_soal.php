@@ -171,6 +171,7 @@ if (isset($_SESSION['ujian_id'])) {
                 <li><a href="daftar_ujian.php">Daftar Ujian</a></li>
                 <li><a href="tambah_mata_pelajaran.php">Tambah Mata Pelajaran</a></li>
                 <li><a href="tambah_soal.php" class="active">Tambah Soal</a></li>
+                <li><a href="profile.php" class="active">Profle</a></li>
                 <li><a href="logout.php">Logout</a></li>
             </ul>
         </aside>
