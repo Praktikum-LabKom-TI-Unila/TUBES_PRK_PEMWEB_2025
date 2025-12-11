@@ -1,14 +1,25 @@
 <?php
+/**
+ * Halaman Login
+ * Menangani autentikasi user (Admin, Teknisi, Superadmin).
+ */
 session_start();
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 require_once 'config.php';
+require_once 'log_helper.php';
 
 $error = '';
 
 // Proses login
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username']);
-    $password = trim($_POST['password']);
+    // Escape input untuk mencegah SQL Injection
+    $username = $conn->real_escape_string($_POST['username']);
+    $password = $_POST['password'];
 
+    // Query user berdasarkan username
+    $sql = "SELECT * FROM users WHERE username='$username'";
     if (empty($username) || empty($password)) {
         $error = 'Username dan password wajib diisi!';
     } else {
@@ -49,6 +60,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['nama'] = $user['nama'];
                 $_SESSION['role'] = $user['role'];
 
+                // Log Activity
+                logActivity($conn, $user['id'], $user['nama'], 'Login', 'Login berhasil sebagai ' . $user['role']);
+
                 // Redirect berdasarkan role
                 if ($user['role'] === 'admin') {
                     header("Location: halaman-admin/index.php");
@@ -75,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - FixTrack</title>
+    <title>Login - RepairinBro</title>
     
     <!-- Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -111,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <img src="assets/photos/foto_komponen.jpeg" alt="Komponen Elektronik" class="absolute inset-0 w-full h-full object-cover">
         <div class="absolute inset-0 bg-primary/40 mix-blend-multiply"></div>
         <div class="absolute bottom-0 left-0 p-12 text-white z-10">
-            <h2 class="text-4xl font-bold mb-4">FixTrack System</h2>
+            <h2 class="text-4xl font-bold mb-4">RepairinBro System</h2>
             <p class="text-lg text-blue-100 max-w-md">Solusi terpercaya untuk manajemen servis elektronik Anda. Pantau status perbaikan secara real-time.</p>
         </div>
     </div>
@@ -184,7 +198,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         <!-- Copyright (HP) -->
         <div class="absolute bottom-4 text-center w-full lg:hidden">
-            <p class="text-slate-400 text-xs">&copy; 2025 FixTrack System.</p>
+            <p class="text-slate-400 text-xs">&copy; 2025 RepairinBro System.</p>
         </div>
     </div>
 

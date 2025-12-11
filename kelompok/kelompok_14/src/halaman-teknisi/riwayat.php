@@ -1,4 +1,8 @@
 <?php
+/**
+ * Riwayat Servis Teknisi
+ * Menampilkan daftar servis yang telah selesai dikerjakan oleh teknisi login.
+ */
 session_start();
 require_once '../config.php';
 
@@ -43,7 +47,7 @@ $total_omset = $conn->query("SELECT COALESCE(SUM(biaya), 0) as total FROM servis
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Riwayat Servis - FixTrack</title>
+    <title>Riwayat Servis - RepairinBro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -55,8 +59,10 @@ $total_omset = $conn->query("SELECT COALESCE(SUM(biaya), 0) as total FROM servis
     <header class="sticky top-0 z-40 bg-white shadow-sm border-b border-gray-200 px-6 py-4">
         <div class="flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <img src="../assets/photos/logo.png" alt="FixTrack" class="h-12 w-12 object-contain">
-                <h1 class="text-xl font-bold text-gray-800">FixTrack <span class="text-green-600 font-normal">Teknisi</span></h1>
+                <a href="index.php" class="bg-white p-2 rounded-lg shadow-sm border border-gray-200 text-gray-500 hover:text-green-600 transition-colors">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h1 class="text-xl font-bold text-gray-800">RepairinBro <span class="text-green-600 font-normal">Teknisi</span></h1>
             </div>
             <div class="flex items-center gap-4">
                 <span class="text-gray-600 text-sm">Halo, <?php echo htmlspecialchars($teknisi_nama); ?></span>

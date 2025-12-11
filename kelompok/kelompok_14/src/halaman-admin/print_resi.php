@@ -1,4 +1,8 @@
 <?php
+/**
+ * Cetak Resi Servis
+ * Menghasilkan tampilan cetak (Print Friendly) tanda terima servis.
+ */
 session_start();
 require_once '../config.php';
 
@@ -176,7 +180,7 @@ $biaya_items = $conn->query("SELECT * FROM biaya_item WHERE id_servis = $id ORDE
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>FixTrack</h1>
+            <h1>RepairinBro Electronic Service</h1>
             <p>Layanan Servis Elektronik</p>
         </div>
 

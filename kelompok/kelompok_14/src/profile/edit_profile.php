@@ -160,7 +160,7 @@ if (isset($user['role']) && $user['role'] === 'admin') {
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Edit Profil - FixTrack</title>
+    <title>Edit Profil - RepairinBro</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -177,8 +177,8 @@ if (isset($user['role']) && $user['role'] === 'admin') {
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center gap-4">
                     <a href="<?= $dashboard_link; ?>" class="flex items-center gap-3">
-                        <img src="../assets/photos/logo.png" alt="FixTrack" class="h-10 w-10 object-contain">
-                        <span class="font-semibold text-lg text-slate-800">FixTrack</span>
+                        <img src="../assets/photos/logo.png" alt="RepairinBro" class="h-10 w-10 object-contain">
+                        <span class="font-semibold text-lg text-slate-800">RepairinBro</span>
                     </a>
                 </div>
 

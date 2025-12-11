@@ -1,4 +1,8 @@
 <?php
+/**
+ * Dashboard Teknisi
+ * Halaman kerja teknisi: melihat antrian, update status, dan input sparepart.
+ */
 session_start();
 require_once '../config.php';
 
@@ -45,6 +49,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
         $tgl_selesai = date('Y-m-d H:i:s');
     }
     
+    // Insert sparepart jika ada
+    if (isset($_POST['nama_sparepart']) && isset($_POST['harga_sparepart'])) {
+        $nama_input = $_POST['nama_sparepart'];
+        $harga_input = $_POST['harga_sparepart'];
+        
+        // Ensure inputs are arrays (handle single case automatically if setup correctly, but here we expect arrays)
+        if (is_array($nama_input) && is_array($harga_input)) {
+            $has_inserted = false;
+            for ($i = 0; $i < count($nama_input); $i++) {
+                $nama = $conn->real_escape_string($nama_input[$i]);
+                // Hapus titik dari format ribuan sebelum simpan ke DB (misal: "25.000" -> "25000")
+                $harga_clean = str_replace('.', '', $harga_input[$i]);
+                $harga = intval($harga_clean);
+                
+                if (!empty($nama) && $harga > 0) {
+                    $conn->query("INSERT INTO biaya_item (id_servis, nama_item, harga) VALUES ($servis_id, '$nama', $harga)");
+                    $has_inserted = true;
+                }
+            }
+
+            if ($has_inserted) {
+                // Recalculate Total Biaya (Jasa + Parts)
+                $res_biaya = $conn->query("SELECT SUM(harga) as total FROM biaya_item WHERE id_servis = $servis_id")->fetch_assoc();
+                $total_biaya = $res_biaya['total'] ?? 0;
+                
+                // Update servis biaya
+                $conn->query("UPDATE servis SET biaya = $total_biaya WHERE id = $servis_id");
+            }
+        }
+    }
+
     $stmt = $conn->prepare("UPDATE servis SET status = ?, tgl_mulai = ?, tgl_selesai = ? WHERE id = ? AND id_teknisi = ?");
     $stmt->bind_param("sssii", $new_status, $tgl_mulai, $tgl_selesai, $servis_id, $teknisi_id);
     $stmt->execute();
@@ -96,7 +131,7 @@ $riwayat_list = $conn->query($query_riwayat);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Teknisi - FixTrack</title>
+    <title>Dashboard Teknisi - RepairinBro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -105,11 +140,12 @@ $riwayat_list = $conn->query($query_riwayat);
 <body class="bg-slate-100 min-h-screen">
 
     <!-- Header -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <header class="sticky top-0 z-40 bg-white shadow-sm border-b border-gray-200 px-6 py-4">
         <div class="flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <img src="../assets/photos/logo.png" alt="FixTrack" class="h-12 w-12 object-contain">
-                <h1 class="text-xl font-bold text-gray-800">FixTrack <span class="text-green-600 font-normal">Teknisi</span></h1>
+                <img src="../assets/photos/logo.png" alt="RepairinBro" class="h-12 w-12 object-contain">
+                <h1 class="text-xl font-bold text-gray-800">RepairinBro <span class="text-green-600 font-normal">Teknisi</span></h1>
             </div>
             <div class="flex items-center gap-4">
                 <span class="text-gray-600 text-sm">Halo, <?php echo htmlspecialchars($teknisi_nama); ?></span>
@@ -249,7 +285,7 @@ $riwayat_list = $conn->query($query_riwayat);
                         <tbody class="divide-y divide-gray-100">
                             <?php if ($servis_list && $servis_list->num_rows > 0): ?>
                                 <?php while($row = $servis_list->fetch_assoc()): ?>
-                                    <tr class="hover:bg-yellow-50">
+                                    <tr class="bg-white border-b border-gray-100">
                                         <td class="px-6 py-4">
                                             <div class="font-medium text-gray-800"><?php echo $row['no_resi']; ?></div>
                                             <div class="text-xs text-gray-400"><?php echo date('d M Y', strtotime($row['tgl_masuk'])); ?></div>
@@ -257,10 +293,10 @@ $riwayat_list = $conn->query($query_riwayat);
                                         <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($row['nama_pelanggan']); ?></td>
                                         <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($row['nama_barang']); ?></td>
                                         <td class="px-6 py-4">
-                                            <form method="POST" class="inline">
+                                            <form method="POST" class="inline status-form">
                                                 <input type="hidden" name="update_status" value="1">
                                                 <input type="hidden" name="servis_id" value="<?php echo $row['id']; ?>">
-                                                <select name="new_status" onchange="this.form.submit()" 
+                                                <select name="new_status" onchange="handleStatusChange(this, '<?php echo $row['status']; ?>')" 
                                                     class="px-3 py-2 text-sm border-2 rounded-lg focus:ring-2 focus:ring-yellow-500 bg-white cursor-pointer
                                                     <?php 
                                                         if ($row['status'] == 'Pengerjaan') echo 'border-yellow-500 text-yellow-700';
@@ -407,6 +443,140 @@ $riwayat_list = $conn->query($query_riwayat);
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('tab') === 'riwayat') {
                 showTab('riwayat');
+            }
+
+            // Fungsi Format Rupiah (Ribuan dengan titik)
+            function formatRupiah(input) {
+                // Hapus karakter selain angka
+                let value = input.value.replace(/[^0-9]/g, '');
+                
+                // Format dengan titik
+                if (value) {
+                    value = parseInt(value, 10).toLocaleString('id-ID');
+                }
+                
+                input.value = value;
+            }
+
+            // Fungsi Handle Status Change dengan SweetAlert
+            function handleStatusChange(select, currentStatus) {
+                const newStatus = select.value;
+                const form = select.form;
+
+                // Logika: 
+                // 1. Ke 'Menunggu Sparepart' -> Wajib Input
+                // 2. Ke 'Pengerjaan' DARI selain 'Menunggu Sparepart' -> Wajib Input (Bisa jadi ada sparepart tambahan/langsung pasang)
+                if (newStatus === 'Menunggu Sparepart' || (newStatus === 'Pengerjaan' && currentStatus !== 'Menunggu Sparepart' && currentStatus !== 'Pengerjaan')) {
+                    Swal.fire({
+                        title: 'Input Data Sparepart',
+                        width: '600px',
+                        html: `
+                            <div class="text-left">
+                                <p class="text-sm text-slate-500 mb-4">Masukkan detail sparepart yang diperlukan. Klik <b>(+) Tambah</b> untuk lebih dari satu item.</p>
+                                
+                                <div id="sparepart-container" class="space-y-3 max-h-60 overflow-y-auto p-1">
+                                    <div class="sparepart-row flex gap-2">
+                                        <input type="text" class="swal-nama w-2/3 px-3 py-2 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 outline-none text-sm" placeholder="Nama Sparepart (cth: LCD)">
+                                        <input type="text" class="swal-harga w-1/3 px-3 py-2 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 outline-none text-sm" placeholder="Harga (Rp)" oninput="formatRupiah(this)">
+                                        <button type="button" class="text-red-500 hover:text-red-700 font-bold px-2 invisible"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </div>
+
+                                <button type="button" onclick="addSparepartRow()" class="mt-3 text-sm text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1">
+                                    <i class="fas fa-plus-circle"></i> Tambah Item Lain
+                                </button>
+
+                                <div class="mt-4 pt-4 border-t border-slate-100">
+                                    <label class="flex items-center gap-2 text-slate-600 text-sm cursor-pointer select-none">
+                                        <input type="checkbox" id="swal-skip" class="rounded text-green-600 w-4 h-4 focus:ring-0">
+                                        <span>Tidak ada sparepart tambahan (Hanya Jasa)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        `,
+                        showCancelButton: true,
+                        confirmButtonText: 'Simpan & Update Status',
+                        confirmButtonColor: '#16a34a', // green-600
+                        cancelButtonText: 'Batal',
+                        cancelButtonColor: '#64748b', // slate-500
+                        didOpen: () => {
+                            // Focus ke input pertama
+                            const modal = Swal.getPopup();
+                            modal.querySelector('.swal-nama').focus();
+                        },
+                        preConfirm: () => {
+                            const skip = document.getElementById('swal-skip').checked;
+                            if (skip) return { skip: true };
+
+                            const rows = document.querySelectorAll('.sparepart-row');
+                            let data = [];
+                            let isValid = false;
+
+                            rows.forEach(row => {
+                                const nama = row.querySelector('.swal-nama').value.trim();
+                                const harga = row.querySelector('.swal-harga').value.replace(/\./g, '').trim(); // Hapus titik untuk validasi
+                                if (nama && harga && parseInt(harga) > 0) { // Check if harga is a valid number > 0
+                                    isValid = true;
+                                }
+                            });
+
+                            if (!isValid) {
+                                Swal.showValidationMessage('Harap isi minimal satu sparepart dengan harga valid atau centang "Tidak ada sparepart"');
+                                return false;
+                            }
+                            
+                            // Ambil data RAW dari input (dengan titik) biar user enak liat, tapi sebenernya backend yg harus clean.
+                            // Mari kita kirim nilai ASLI input ke backend (yg ada titiknya).
+                            // Tapi ambil data row lagi untuk return values
+                            data = [];
+                            rows.forEach(row => {
+                                const nama = row.querySelector('.swal-nama').value.trim();
+                                const harga = row.querySelector('.swal-harga').value.trim(); // Kirim dengan titik
+                                if(nama) data.push({nama, harga});
+                            });
+                            
+                            return { skip: false, items: data };
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            if (!result.value.skip) {
+                                result.value.items.forEach(item => {
+                                    const inputNama = document.createElement('input');
+                                    inputNama.type = 'hidden';
+                                    inputNama.name = 'nama_sparepart[]';
+                                    inputNama.value = item.nama;
+                                    form.appendChild(inputNama);
+
+                                    const inputHarga = document.createElement('input');
+                                    inputHarga.type = 'hidden';
+                                    inputHarga.name = 'harga_sparepart[]';
+                                    inputHarga.value = item.harga; // Dikirim string "25.000"
+                                    form.appendChild(inputHarga);
+                                });
+                            }
+                            form.submit();
+                        } else {
+                            select.value = currentStatus;
+                        }
+                    });
+                } else {
+                    form.submit();
+                }
+            }
+
+            // Fungsi Helper untuk menambah baris
+            window.addSparepartRow = function() {
+                const container = document.getElementById('sparepart-container');
+                const div = document.createElement('div');
+                div.className = 'sparepart-row flex gap-2 animate-fade-in-down'; // animate class if avail or just css
+                div.innerHTML = `
+                    <input type="text" class="swal-nama w-2/3 px-3 py-2 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 outline-none text-sm" placeholder="Nama Sparepart">
+                    <input type="text" class="swal-harga w-1/3 px-3 py-2 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 outline-none text-sm" placeholder="Harga" oninput="formatRupiah(this)">
+                    <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700 font-bold px-2"><i class="fas fa-trash"></i></button>
+                `;
+                container.appendChild(div);
+                // Auto focus ke nama baru
+                div.querySelector('.swal-nama').focus();
             }
         </script>
 

@@ -1,4 +1,8 @@
 <?php
+/**
+ * Detail Servis
+ * Menampilkan informasi lengkap servis (Pelanggan, Barang, Biaya).
+ */
 session_start();
 require_once '../config.php';
 
@@ -44,7 +48,7 @@ $status_class = $status_colors[$servis['status']] ?? 'bg-slate-100 text-slate-70
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Servis - FixTrack</title>
+    <title>Detail Servis - RepairinBro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -56,17 +60,26 @@ $status_class = $status_colors[$servis['status']] ?? 'bg-slate-100 text-slate-70
     <div class="container mx-auto px-6 py-8 max-w-5xl">
         
         <!-- Header -->
-        <div class="flex items-center gap-4 mb-8">
-            <a href="list_servis.php" class="bg-white p-3 rounded-xl shadow-sm border border-slate-200 text-slate-500 hover:text-blue-600 transition-colors">
-                <i class="fas fa-arrow-left"></i>
-            </a>
-            <div class="flex-1">
-                <h1 class="text-2xl font-bold text-slate-800">Detail Servis</h1>
-                <p class="text-slate-500 text-sm">No. Resi: <span class="font-bold text-blue-600"><?php echo $servis['no_resi']; ?></span></p>
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-4">
+                <a href="list_servis.php" class="bg-white p-3 rounded-xl shadow-sm border border-slate-200 text-slate-500 hover:text-blue-600 transition-colors">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <img src="../assets/photos/logo.png" alt="RepairinBro" class="h-16 w-16 object-contain">
+                <div>
+                    <h1 class="text-xl font-bold text-slate-800">
+                        RepairinBro <span class="text-blue-600">Admin</span>
+                    </h1>
+                    <p class="text-slate-500 text-sm">No. Resi: <span class="font-bold text-blue-600"><?php echo $servis['no_resi']; ?></span></p>
+                </div>
+                <span class="<?php echo $status_class; ?> px-4 py-2 rounded-full text-sm font-semibold">
+                    <?php echo $servis['status']; ?>
+                </span>
             </div>
-            <span class="<?php echo $status_class; ?> px-4 py-2 rounded-full text-sm font-semibold">
-                <?php echo $servis['status']; ?>
-            </span>
+            
+            <a href="print_resi.php?id=<?php echo $id; ?>" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-all">
+                <i class="fas fa-print mr-1"></i> Cetak Resi
+            </a>
         </div>
 
         <!-- Detail Card -->
@@ -134,7 +147,7 @@ $status_class = $status_colors[$servis['status']] ?? 'bg-slate-100 text-slate-70
                     </div>
                     <div>
                         <span class="text-xs text-slate-400 uppercase tracking-wide">Tanggal Keluar</span>
-                        <p class="font-semibold text-slate-700"><?php echo $servis['tgl_keluar'] ? date('d M Y, H:i', strtotime($servis['tgl_keluar'])) : '-'; ?></p>
+                        <p class="font-semibold text-slate-700"><?php echo $servis['tgl_selesai'] ? date('d M Y, H:i', strtotime($servis['tgl_selesai'])) : '-'; ?></p>
                     </div>
                     <?php if ($servis['kerusakan_fix']): ?>
                     <div class="col-span-2">

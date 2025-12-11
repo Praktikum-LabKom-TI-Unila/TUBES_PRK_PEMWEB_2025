@@ -1,4 +1,8 @@
 <?php
+/**
+ * Form Update Pengerjaan
+ * Detail servis untuk teknisi: input diagnosa, biaya jasa, dan sparepart.
+ */
 session_start();
 require_once '../config.php';
 
@@ -96,7 +100,7 @@ if ($biaya_items) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Servis - FixTrack</title>
+    <title>Update Servis - RepairinBro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -108,6 +112,10 @@ if ($biaya_items) {
         
         <!-- Header -->
         <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-3">
+                <img src="../assets/photos/logo.png" alt="RepairinBro" class="h-12 w-12 object-contain">
+                <h1 class="text-xl font-bold text-gray-800">RepairinBro <span class="text-green-600 font-normal">Teknisi</span></h1>
+            </div>
             <div class="flex items-center gap-4">
                 <a href="index.php" class="bg-white p-3 rounded-xl shadow-sm border border-slate-200 text-slate-500 hover:text-green-600 transition-colors">
                     <i class="fas fa-arrow-left"></i>

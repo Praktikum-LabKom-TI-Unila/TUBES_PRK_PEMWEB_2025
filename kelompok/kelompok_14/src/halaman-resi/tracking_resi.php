@@ -1,4 +1,8 @@
 <?php
+/**
+ * Cek Status Servis (Public)
+ * Halaman yang diakses pelanggan untuk melacak status servis menggunakan No. Resi.
+ */
 require_once '../config.php';
 
 $resi = $_GET['resi'] ?? '';
@@ -38,7 +42,7 @@ $status_color = $status_colors[$servis['status'] ?? ''] ?? 'bg-gray-500';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cek Status Servis - FixTrack</title>
+    <title>Cek Status Servis - RepairinBro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -50,8 +54,8 @@ $status_color = $status_colors[$servis['status'] ?? ''] ?? 'bg-gray-500';
     <header class="bg-white shadow-sm sticky top-0 z-50">
         <div class="px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-2">
-                <img src="../assets/photos/logo.png" alt="FixTrack" class="h-16 w-16 object-contain">
-                <span class="font-bold text-lg text-slate-800">FixTrack</span>
+                <img src="../assets/photos/logo.png" alt="RepairinBro" class="h-16 w-16 object-contain">
+                <span class="font-bold text-lg text-slate-800">RepairinBro</span>
             </div>
             <a href="../login.php" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg font-medium">
                 Login
