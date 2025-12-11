@@ -1,116 +1,162 @@
-// File: js/petugas-upload-proof.js
+const taskId = window.currentTaskId;
+const placeholderImage = 'https://placehold.co/300x200?text=Foto';
+const form = document.getElementById('uploadProofForm');
+const photoInput = document.getElementById('photoAfterInput');
+const photoPreview = document.getElementById('photoAfterPreview');
+const notesInput = document.getElementById('notes');
+const alertBox = document.getElementById('uploadAlert');
+const submitButton = document.getElementById('submitProofButton');
+const defaultButtonContent = submitButton.innerHTML;
+const editButtonContent = '<i class="material-icons text-xl">save</i> Perbarui Bukti';
 
-let selectedImage = window.taskInitialData.completionImageUrl;
-const taskId = window.taskInitialData.id;
-const imageUrlBefore = window.taskInitialData.imageUrlBefore;
+const taskTitleText = document.getElementById('taskTitleText');
+const taskCategoryText = document.getElementById('taskCategoryText');
+const taskLocationText = document.getElementById('taskLocationText');
+const taskBeforeImage = document.getElementById('taskBeforeImage');
+const taskBeforeThumbnail = document.getElementById('taskBeforeThumbnail');
 
-// --- 1. FUNGSI UTAMA RENDERING (Image Uploader dan Preview) ---
+let currentTask = null;
+let existingProof = null;
 
-function renderImageUploader() {
-    const container = document.getElementById('imagePreviewContainer');
-    let html = '';
-
-    if (selectedImage) {
-        // Render Preview
-        html = `
-            <div class="relative mb-6">
-                <img src="${selectedImage}" alt="Preview" class="w-full h-64 object-cover rounded-lg" />
-                <button
-                    type="button"
-                    onclick="handleDeleteImage()"
-                    class="absolute top-2 right-2 bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700 text-sm font-medium"
-                >
-                    Hapus
-                </button>
-            </div>
-            
-            <div class="bg-white p-4 border border-gray-200 rounded-xl mt-4">
-                <h3 class="mb-4 text-lg font-medium text-gray-700">Perbandingan Sebelum & Sesudah</h3>
-                <div class="grid md:grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-gray-700 mb-2 text-sm">Sebelum</p>
-                        <img src="${imageUrlBefore}" alt="Sebelum" class="w-full h-48 object-cover rounded-lg" />
-                    </div>
-                    <div>
-                        <p class="text-gray-700 mb-2 text-sm">Sesudah</p>
-                        <img src="${selectedImage}" alt="Sesudah" class="w-full h-48 object-cover rounded-lg" />
-                    </div>
-                </div>
-            </div>
-        `;
+function showUploadAlert(message, type = 'error') {
+    if (!alertBox) return;
+    alertBox.textContent = message;
+    alertBox.classList.remove('hidden', 'bg-red-50', 'text-red-700', 'border-red-200', 'bg-green-50', 'text-green-700', 'border-green-200');
+    if (type === 'success') {
+        alertBox.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200');
     } else {
-        // Render Uploader (Sesuai 123.jpg)
-        html = `
-            <label class="block border-2 border-dashed border-gray-300 rounded-lg p-12 text-center cursor-pointer hover:border-blue-600 hover:bg-blue-50 transition-all">
-                <i class="material-icons text-6xl text-gray-400 mx-auto mb-3">cloud_upload</i>
-                <p class="text-gray-600 font-medium mb-1">Klik untuk upload foto</p>
-                <p class="text-gray-400 text-sm">JPG, PNG (Max 5MB)</p>
-                <input
-                    type="file"
-                    accept="image/*"
-                    onchange="handleImageUpload(event)"
-                    class="hidden"
-                />
-            </label>
-            <p class="text-gray-600 text-xs mt-2">JPG, PNG (Max 5MB)</p>
-        `;
+        alertBox.classList.add('bg-red-50', 'text-red-700', 'border', 'border-red-200');
     }
-    container.innerHTML = html;
 }
 
-// --- 2. HANDLER INTERAKSI ---
+function clearUploadAlert() {
+    alertBox?.classList.add('hidden');
+    if (alertBox) alertBox.textContent = '';
+}
 
-function handleImageUpload(e) {
-    const file = e.target.files?.[0];
-    if (file) {
-        if (file.size > 5 * 1024 * 1024) {
-            alert('Ukuran file maksimal 5MB.');
+function fillTaskInfo(detail) {
+    const cover = PetugasAuth.resolveFileUrl(detail.photos?.before || detail.cover_photo || '') || placeholderImage;
+    taskTitleText.textContent = detail.title || '-';
+    taskCategoryText.textContent = detail.category || '-';
+    taskLocationText.textContent = detail.address || '-';
+    taskBeforeImage.src = cover;
+    taskBeforeThumbnail.src = cover;
+    taskBeforeImage.onerror = () => (taskBeforeImage.src = placeholderImage);
+    taskBeforeThumbnail.onerror = () => (taskBeforeThumbnail.src = placeholderImage);
+}
+
+async function loadTaskDetail() {
+    if (!taskId) {
+        showUploadAlert('ID tugas tidak ditemukan.');
+        submitButton.disabled = true;
+        return;
+    }
+    try {
+        const payload = await PetugasAPI.request(`/officer/tasks/${taskId}`);
+        currentTask = payload.data || {};
+        fillTaskInfo(currentTask);
+        if (!['dalam_proses', 'menunggu_validasi_admin'].includes(currentTask.status)) {
+            showUploadAlert('Tugas ini belum dapat mengunggah bukti.', 'error');
+            submitButton.disabled = true;
             return;
         }
-
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            selectedImage = reader.result;
-            renderImageUploader();
-        };
-        reader.readAsDataURL(file);
+        if (currentTask.status === 'menunggu_validasi_admin') {
+            await loadExistingProof();
+        } else {
+            submitButton.innerHTML = defaultButtonContent;
+        }
+    } catch (error) {
+        console.error('[UploadProof] load detail error', error);
+        showUploadAlert(error.message || 'Gagal memuat detail tugas.');
+        submitButton.disabled = true;
     }
 }
 
-function handleDeleteImage() {
-    selectedImage = null;
-    renderImageUploader();
+async function loadExistingProof() {
+    try {
+        const payload = await PetugasAPI.request(`/officer/tasks/${taskId}/completion-proof`);
+        existingProof = payload.data?.proof || null;
+        if (existingProof?.photo_after) {
+            photoPreview.src = PetugasAuth.resolveFileUrl(existingProof.photo_after);
+            photoPreview.classList.remove('hidden');
+        }
+        if (existingProof?.notes) {
+            notesInput.value = existingProof.notes;
+        }
+        submitButton.innerHTML = editButtonContent;
+    } catch (error) {
+        existingProof = null;
+        console.warn('[UploadProof] bukti belum ada', error);
+    }
 }
 
-document.getElementById('uploadProofForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const notes = document.getElementById('notes').value.trim();
-    const isEdit = !!window.taskInitialData.completionImageUrl;
-    
-    // Validasi
-    if (!selectedImage) {
-        alert('Foto bukti penyelesaian wajib diupload!');
+photoInput?.addEventListener('change', () => {
+    const file = photoInput.files[0];
+    if (!file) {
+        photoPreview.classList.add('hidden');
         return;
     }
-    if (!notes) {
-        alert('Catatan penyelesaian wajib diisi!');
-        return;
-    }
-    
-    // --- SIMULASI KIRIM DATA KE PHP ---
-    
-    const message = isEdit ? 'Bukti penyelesaian berhasil diperbarui!' : 'Bukti penyelesaian berhasil dikirim! Status: Menunggu validasi dari admin.';
-    
-    alert(message);
-    
-    // Arahkan kembali ke Detail Tugas
-    window.location.href = `petugas-task-detail.php?id=${taskId}`;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        photoPreview.src = e.target.result;
+        photoPreview.classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
 });
 
-// --- EKSEKUSI AWAL ---
+function validateForm() {
+    const errors = [];
+    const note = notesInput.value.trim();
+    if (!note) errors.push('Catatan penyelesaian wajib diisi.');
+    if (!photoInput.files[0] && !existingProof?.photo_after) {
+        errors.push('Foto bukti penyelesaian wajib diunggah.');
+    }
+    return errors;
+}
+
+form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    clearUploadAlert();
+
+    const errors = validateForm();
+    if (errors.length > 0) {
+        showUploadAlert(errors.join(' '));
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('note', notesInput.value.trim());
+    if (photoInput.files[0]) {
+        formData.append('photo_after', photoInput.files[0]);
+    }
+
+    const isEdit = currentTask?.status === 'menunggu_validasi_admin';
+    const endpoint = isEdit ? `/officer/tasks/${taskId}/completion-proof` : `/officer/tasks/${taskId}/complete`;
+    const method = isEdit ? 'PUT' : 'POST';
+
+    submitButton.disabled = true;
+    submitButton.innerText = isEdit ? 'Menyimpan...' : 'Mengirim...';
+
+    try {
+        const payload = await PetugasAPI.request(endpoint, {
+            method,
+            formData
+        });
+        showUploadAlert(payload.message || 'Bukti berhasil dikirim.', 'success');
+        setTimeout(() => {
+            window.location.href = `petugas-task-detail.php?id=${taskId}`;
+        }, 1200);
+    } catch (error) {
+        console.error('[UploadProof] submit error', error);
+        showUploadAlert(error.message || 'Gagal mengirim bukti.');
+    } finally {
+        submitButton.disabled = false;
+        submitButton.innerHTML = currentTask?.status === 'menunggu_validasi_admin'
+            ? editButtonContent
+            : defaultButtonContent;
+    }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Memastikan textarea diisi dengan data awal (jika ada)
-    document.getElementById('notes').value = window.taskInitialData.officerNotes || '';
-    renderImageUploader();
+    loadTaskDetail();
 });

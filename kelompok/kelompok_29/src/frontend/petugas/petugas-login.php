@@ -25,7 +25,7 @@
             <div class="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
                 <h2 class="text-xl font-semibold mb-6 text-gray-800">Masuk sebagai Petugas</h2>
                 
-                <form id="petugasLoginForm" action="petugas-process_login.php" method="POST">
+                <form id="petugasLoginForm" novalidate>
                     <div class="mb-4">
                         <label class="block text-gray-700 mb-2">Email</label>
                         <div class="relative">
@@ -42,9 +42,10 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                    <button id="petugasLoginButton" type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
                         Masuk ke Dashboard
                     </button>
+                    <div id="loginFeedback" class="mt-4 min-h-[1.25rem] text-sm text-red-600"></div>
                 </form>
             </div>
 
@@ -53,6 +54,7 @@
             </p>
         </div>
     </div>
+    <script src="js/petugas-auth-guard.js"></script>
     <script src="js/petugas-login.js"></script>
 </body>
 </html>

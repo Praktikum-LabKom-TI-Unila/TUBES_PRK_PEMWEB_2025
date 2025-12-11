@@ -1,17 +1,4 @@
 <?php
-// Dummy data untuk simulasi Petugas yang sedang login
-$currentUser = [
-    'id' => 'EMP-2023-001',
-    'name' => 'Budi Santoso',
-    'email' => 'budi.s@infra.go.id',
-    'phone' => '0812-3456-7890',
-    'role' => 'Field Officer',
-    'department' => 'Dinas Pekerjaan Umum',
-    'employeeId' => 'EMP-2023-001',
-    'createdAt' => '2023-01-01',
-];
-
-// Departemen untuk opsi SELECT
 $departments = [
     "Dinas Pekerjaan Umum",
     "Dinas Perhubungan",
@@ -45,16 +32,20 @@ $departments = [
                 </div>
             </header>
             
+            <div id="profilAlert" class="hidden mb-4 p-3 rounded-lg text-sm"></div>
+            <div id="profilLoading" class="mb-4 bg-white rounded-xl border border-gray-200 p-4 text-gray-500 text-sm">Memuat data profil...</div>
+
             <form id="formEditProfilePetugas" class="space-y-4">
                 
                 <section class="bg-white rounded-xl p-6 border border-gray-200">
                     <div class="flex items-center gap-4">
-                        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 text-green-600 text-4xl">
-                            <i class="material-icons">person</i>
+                        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 text-green-600 text-4xl overflow-hidden relative">
+                            <img id="fotoPreview" src="" alt="Foto Profil" class="w-full h-full object-cover hidden" />
+                            <i id="fotoIconPlaceholder" class="material-icons">person</i>
                         </div>
                         <div>
-                            <h3 class="text-lg font-semibold text-gray-900">Petugas Lapangan</h3>
-                            <p class="text-gray-600"><?php echo htmlspecialchars($currentUser['department']); ?></p>
+                            <h3 id="profilNamaText" class="text-lg font-semibold text-gray-900">Petugas Lapangan</h3>
+                            <p id="profilDepartemenText" class="text-gray-600">-</p>
                         </div>
                     </div>
                 </section>
@@ -66,7 +57,7 @@ $departments = [
                         <label for="nama" class="block text-gray-700 mb-2 text-sm">Nama Lengkap <span class="text-red-500">*</span></label>
                         <div class="relative">
                             <i class="material-icons input-icon">person</i>
-                            <input type="text" id="nama" name="name" value="<?php echo htmlspecialchars($currentUser['name']); ?>" class="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600" required>
+                            <input type="text" id="nama" name="full_name" class="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600" required>
                         </div>
                     </div>
                     
@@ -74,7 +65,7 @@ $departments = [
                         <label for="email" class="block text-gray-700 mb-2 text-sm">Email <span class="text-red-500">*</span></label>
                         <div class="relative">
                             <i class="material-icons input-icon">mail</i>
-                            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($currentUser['email']); ?>" class="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600" required>
+                            <input type="email" id="email" name="email" class="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600" required>
                         </div>
                     </div>
                     
@@ -82,8 +73,14 @@ $departments = [
                         <label for="telepon" class="block text-gray-700 mb-2 text-sm">No. Telepon <span class="text-red-500">*</span></label>
                         <div class="relative">
                             <i class="material-icons input-icon">phone</i>
-                            <input type="tel" id="telepon" name="phone" value="<?php echo htmlspecialchars($currentUser['phone']); ?>" class="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600" required>
+                            <input type="tel" id="telepon" name="phone" class="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600" required>
                         </div>
+                    </div>
+
+                    <div>
+                        <label for="fotoProfilInput" class="block text-gray-700 mb-2 text-sm">Foto Profil</label>
+                        <input type="file" id="fotoProfilInput" accept="image/*" class="w-full border border-gray-300 rounded-lg px-4 py-2">
+                        <p class="text-xs text-gray-500 mt-2">Format JPG/PNG maksimal 5MB.</p>
                     </div>
                 </section>
 
@@ -94,7 +91,7 @@ $departments = [
                         <label for="employeeId" class="block text-gray-700 mb-2 text-sm">Employee ID</label>
                         <div class="relative">
                             <i class="material-icons input-icon">work</i>
-                            <input type="text" id="employeeId" name="employeeId" value="<?php echo htmlspecialchars($currentUser['employeeId']); ?>" class="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg bg-gray-100" disabled>
+                            <input type="text" id="employeeId" class="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg bg-gray-100" disabled>
                         </div>
                         <p class="text-gray-500 mt-1 text-xs">Employee ID tidak dapat diubah</p>
                     </div>
@@ -106,7 +103,7 @@ $departments = [
                             <select id="departemen" name="department" class="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 appearance-none" required>
                                 <option value="">Pilih Departemen</option>
                                 <?php foreach ($departments as $dept): ?>
-                                    <option value="<?php echo htmlspecialchars($dept); ?>" <?php echo ($currentUser['department'] == $dept) ? 'selected' : ''; ?>>
+                                    <option value="<?php echo htmlspecialchars($dept); ?>">
                                         <?php echo htmlspecialchars($dept); ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -116,9 +113,9 @@ $departments = [
 
                     <h3 class="text-xl font-semibold mt-6 pt-4 border-t text-gray-800">Informasi Akun</h3>
                     <div class="space-y-2 text-gray-600 text-sm">
-                        <p>User ID: <span class="text-gray-900 font-semibold"><?php echo htmlspecialchars($currentUser['id']); ?></span></p>
-                        <p>Role: <span class="text-green-600 font-semibold">Field Officer</span></p>
-                        <p>Tanggal Bergabung: <span class="text-gray-900 font-semibold"><?php echo htmlspecialchars($currentUser['createdAt']); ?></span></p>
+                        <p>User ID: <span id="profilUserId" class="text-gray-900 font-semibold">-</span></p>
+                        <p>Role: <span id="profilRole" class="text-green-600 font-semibold">-</span></p>
+                        <p>Tanggal Bergabung: <span id="profilJoinDate" class="text-gray-900 font-semibold">-</span></p>
                     </div>
                 </section>
 
@@ -126,13 +123,17 @@ $departments = [
                     <button type="button" onclick="window.location.href='petugas-task-list.php'" class="flex-1 bg-white border border-gray-300 text-gray-700 py-4 rounded-lg hover:bg-gray-50 font-semibold">
                         Batal
                     </button>
-                    <button type="submit" class="flex-1 bg-blue-600 text-white py-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 font-semibold">
+                    <button id="btnSimpanProfil" type="submit" class="flex-1 bg-blue-600 text-white py-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 font-semibold">
                         <i class="material-icons text-xl">save</i> Simpan Perubahan
                     </button>
                 </div>
             </form>
         </div>
     </main>
+    <script src="js/petugas-auth-guard.js"></script>
+    <script>
+        PetugasAuth.requireOfficer();
+    </script>
     <script src="js/petugas-edit-profil.js"></script>
 </body>
 </html>
