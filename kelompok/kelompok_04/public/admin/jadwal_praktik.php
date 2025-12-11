@@ -3,6 +3,7 @@
 
 session_start();
 require_once __DIR__ . '/../../src/config/database.php';
+require_once __DIR__ . '/../../src/helpers/icon_helper.php';
 
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../login.php');
@@ -28,7 +29,6 @@ if ($action === 'create') {
     $_hari = trim($_POST['hari'] ?? '');
     $_jam_mulai = trim($_POST['jam_mulai'] ?? '');
     $_jam_selesai = trim($_POST['jam_selesai'] ?? '');
-    $_kuota = (int)($_POST['kuota_pasien'] ?? 0);
     $_status = trim($_POST['status'] ?? 'active');
 
     $error = [];
@@ -38,7 +38,6 @@ if ($action === 'create') {
     if (empty($_jam_mulai)) $error[] = 'Jam mulai harus diisi';
     if (empty($_jam_selesai)) $error[] = 'Jam selesai harus diisi';
     if ($_jam_mulai >= $_jam_selesai) $error[] = 'Jam mulai harus lebih kecil dari jam selesai';
-    if ($_kuota <= 0) $error[] = 'Kuota pasien harus lebih dari 0';
 
     if (empty($error)) {
         $poliStmt = $conn->prepare("SELECT id_poli FROM dokter WHERE id_dokter = ?");
@@ -65,10 +64,10 @@ if ($action === 'create') {
             } else {
                 $insertStmt = $conn->prepare("
                     INSERT INTO jadwal_praktik 
-                    (id_dokter, id_poli, hari, jam_mulai, jam_selesai, kuota_pasien, status, created_at, updated_at) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+                    (id_dokter, id_poli, hari, jam_mulai, jam_selesai, status, created_at, updated_at) 
+                    VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())
                 ");
-                $insertStmt->bind_param('iisssis', $_id_dokter, $_id_poli, $_hari, $_jam_mulai, $_jam_selesai, $_kuota, $_status);
+                $insertStmt->bind_param('iissss', $_id_dokter, $_id_poli, $_hari, $_jam_mulai, $_jam_selesai, $_status);
                 if ($insertStmt->execute()) set_flash('success', 'Jadwal praktik berhasil ditambahkan');
                 else set_flash('error', 'Gagal menambahkan jadwal praktik: ' . $insertStmt->error);
                 $insertStmt->close();
@@ -91,7 +90,6 @@ if ($action === 'update') {
     $_hari       = trim($_POST['hari'] ?? '');
     $_jam_mulai  = trim($_POST['jam_mulai'] ?? '');
     $_jam_selesai= trim($_POST['jam_selesai'] ?? '');
-    $_kuota      = (int)($_POST['kuota_pasien'] ?? 0);
     $_status     = trim($_POST['status'] ?? 'active');
 
     $error = [];
@@ -102,7 +100,6 @@ if ($action === 'update') {
     if (empty($_jam_mulai)) $error[] = 'Jam mulai harus diisi';
     if (empty($_jam_selesai)) $error[] = 'Jam selesai harus diisi';
     if ($_jam_mulai >= $_jam_selesai) $error[] = 'Jam mulai harus lebih kecil dari jam selesai';
-    if ($_kuota <= 0) $error[] = 'Kuota pasien harus lebih dari 0';
 
     if (empty($error)) {
         $poliStmt = $conn->prepare("SELECT id_poli FROM dokter WHERE id_dokter = ?");
@@ -120,7 +117,7 @@ if ($action === 'update') {
                 SELECT id_jadwal FROM jadwal_praktik 
                 WHERE id_dokter = ? AND hari = ? AND jam_mulai = ? AND jam_selesai = ? AND id_jadwal != ?
             ");
-            $cekStmt->bind_param('isssl', $_id_dokter, $_hari, $_jam_mulai, $_jam_selesai, $_id_jadwal);
+            $cekStmt->bind_param('isssi', $_id_dokter, $_hari, $_jam_mulai, $_jam_selesai, $_id_jadwal);
             $cekStmt->execute();
             $cekRes = $cekStmt->get_result();
             
@@ -129,10 +126,10 @@ if ($action === 'update') {
             } else {
                 $updateStmt = $conn->prepare("
                     UPDATE jadwal_praktik 
-                    SET id_dokter = ?, id_poli = ?, hari = ?, jam_mulai = ?, jam_selesai = ?, kuota_pasien = ?, status = ?, updated_at = NOW() 
+                    SET id_dokter = ?, id_poli = ?, hari = ?, jam_mulai = ?, jam_selesai = ?, status = ?, updated_at = NOW() 
                     WHERE id_jadwal = ?
                 ");
-                $updateStmt->bind_param('iissssis', $_id_dokter, $_id_poli, $_hari, $_jam_mulai, $_jam_selesai, $_kuota, $_status, $_id_jadwal);
+                $updateStmt->bind_param('iissssi', $_id_dokter, $_id_poli, $_hari, $_jam_mulai, $_jam_selesai, $_status, $_id_jadwal);
                 if ($updateStmt->execute()) set_flash('success', 'Jadwal praktik berhasil diubah');
                 else set_flash('error', 'Gagal mengubah jadwal praktik: ' . $updateStmt->error);
                 $updateStmt->close();
@@ -203,7 +200,6 @@ $sqlList = "
         j.hari,
         j.jam_mulai,
         j.jam_selesai,
-        j.kuota_pasien,
         j.status,
         d.nama_dokter,
         d.id_dokter,
@@ -278,8 +274,13 @@ function formatTime($time) {
     <meta charset="UTF-8">
     <title>Jadwal Praktik Dokter - Admin Puskesmas</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        body { font-family: 'Inter', sans-serif; }
         .gradient-green {
             background-image: linear-gradient(to right, #45BC7D, #3aa668);
         }
@@ -314,6 +315,17 @@ function formatTime($time) {
         .modal-content.active {
             display: block;
         }
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
     </style>
 </head>
 <body class="bg-gray-100 font-sans">
@@ -338,21 +350,21 @@ function formatTime($time) {
         <main class="flex-1 px-4 md:px-8 py-6 max-w-7xl mx-auto w-full">
 
             <?php if ($msg = get_flash('success')): ?>
-                <div class="mb-4 px-4 py-3 rounded-xl bg-green-50 text-green-700 text-sm border border-green-100">
-                    ✓ <?php echo htmlspecialchars($msg); ?>
+                <div class="mb-4 px-4 py-3 rounded-xl bg-green-50 text-green-700 text-sm border border-green-100 flex items-center gap-2">
+                    <?= render_icon('check', 'fa', 'text-base', 'Success') ?>
+                    <span><?php echo htmlspecialchars($msg); ?></span>
                 </div>
             <?php endif; ?>
             <?php if ($msg = get_flash('error')): ?>
-                <div class="mb-4 px-4 py-3 rounded-xl bg-red-50 text-red-700 text-sm border border-red-100">
-                    ✗ <?php echo htmlspecialchars($msg); ?>
+                <div class="mb-4 px-4 py-3 rounded-xl bg-red-50 text-red-700 text-sm border border-red-100 flex items-center gap-2">
+                    <?= render_icon('warning', 'fa', 'text-base', 'Error') ?>
+                    <span><?php echo htmlspecialchars($msg); ?></span>
                 </div>
             <?php endif; ?>
 
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
                 <div class="flex items-center gap-2">
-                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
-                    </svg>
+                    <?= render_icon('calendar', 'fa', 'text-lg text-gray-600', 'Filter') ?>
                     <span class="text-sm text-gray-700 font-medium">Filter Hari:</span>
                     <div class="flex flex-wrap gap-2">
                         <a href="jadwal_praktik.php?hari=all"
@@ -367,8 +379,9 @@ function formatTime($time) {
                         <?php endforeach; ?>
                     </div>
                 </div>
-                <button onclick="openModal('create')" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition text-sm font-medium">
-                    + Tambah Jadwal
+                <button onclick="openModal('create')" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition text-sm font-medium flex items-center gap-2">
+                    <?= render_icon('plus', 'fa', '', 'Tambah') ?>
+                    <span>Tambah Jadwal</span>
                 </button>
             </div>
 
@@ -389,11 +402,10 @@ function formatTime($time) {
                         <input type="hidden" name="id_jadwal" id="field_id_jadwal">
 
                         <div class="space-y-4">
-                            <!-- Dokter -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Dokter <span class="text-red-500">*</span></label>
                                 <select name="id_dokter" id="field_id_dokter" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                                    <option value="">-- Pilih Dokter --</option>
+                                    <option value="">Pilih Dokter</option>
                                     <?php foreach ($dokterList as $dok): ?>
                                         <option value="<?php echo $dok['id_dokter']; ?>">
                                             <?php echo htmlspecialchars($dok['nama_dokter']); ?> (<?php echo htmlspecialchars($dok['nama_poli']); ?>)
@@ -402,36 +414,26 @@ function formatTime($time) {
                                 </select>
                             </div>
 
-                            <!-- Hari -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Hari <span class="text-red-500">*</span></label>
                                 <select name="hari" id="field_hari" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                                    <option value="">-- Pilih Hari --</option>
+                                    <option value="">Pilih Hari</option>
                                     <?php foreach ($validDays as $day): ?>
                                         <option value="<?php echo $day; ?>"><?php echo $day; ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
 
-                            <!-- Jam Mulai -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Jam Mulai <span class="text-red-500">*</span></label>
                                 <input type="time" name="jam_mulai" id="field_jam_mulai" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
                             </div>
 
-                            <!-- Jam Selesai -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Jam Selesai <span class="text-red-500">*</span></label>
                                 <input type="time" name="jam_selesai" id="field_jam_selesai" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
                             </div>
 
-                            <!-- Kuota Pasien -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Kuota Pasien <span class="text-red-500">*</span></label>
-                                <input type="number" name="kuota_pasien" id="field_kuota" required min="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                            </div>
-
-                            <!-- Status -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
                                 <select name="status" id="field_status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
@@ -453,7 +455,6 @@ function formatTime($time) {
                 </div>
             </div>
 
-            <!-- Display -->
             <?php if ($selectedDay === 'all'): ?>
                 <div class="space-y-4">
                     <?php foreach ($validDays as $day): ?>
@@ -461,9 +462,7 @@ function formatTime($time) {
                             <div class="bg-white rounded-2xl shadow-sm border border-gray-100">
                                 <div class="p-6 rounded-t-2xl border-b border-gray-100 bg-gray-50">
                                     <div class="flex items-center gap-3">
-                                        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                        </svg>
+                                        <?= render_icon('calendar', 'fa', 'text-lg text-green-500', 'Calendar') ?>
                                         <h3 class="text-gray-800 font-semibold"><?php echo htmlspecialchars($day); ?></h3>
                                         <span class="text-xs bg-green-500 text-white px-2 py-1 rounded-lg">
                                             <?php echo count($schedulesByDay[$day]); ?>
@@ -488,29 +487,23 @@ function formatTime($time) {
                                                     </span>
                                                 </div>
                                                 <div class="flex items-center gap-2 text-xs text-gray-600 mb-3">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                                    </svg>
+                                                    <?= render_icon('clock', 'fa', 'text-sm', 'Time') ?>
                                                     <span>
                                                         <?php echo formatTime($schedule['jam_mulai']); ?> - <?php echo formatTime($schedule['jam_selesai']); ?>
                                                     </span>
                                                 </div>
-                                                <div class="flex items-center gap-2 text-xs text-gray-600 mb-3">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.856-1.487M15 10a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                    </svg>
-                                                    <span>Kuota: <?php echo $schedule['kuota_pasien']; ?></span>
-                                                </div>
                                                 <div class="pt-3 border-t border-gray-200 flex gap-2">
-                                                    <button onclick="editSchedule(<?php echo htmlspecialchars(json_encode($schedule)); ?>)" class="flex-1 px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition">
-                                                        Edit
+                                                    <button onclick="editSchedule(<?php echo htmlspecialchars(json_encode($schedule)); ?>)" class="flex-1 px-2 py-1.5 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition flex items-center justify-center gap-1">
+                                                        <?= render_icon('edit', 'fa', 'text-xs', 'Edit') ?>
+                                                        <span>Edit</span>
                                                     </button>
                                                     <form method="POST" style="flex: 1;" onsubmit="return confirm('Yakin hapus jadwal ini?');">
                                                         <input type="hidden" name="action" value="delete">
                                                         <input type="hidden" name="id_jadwal" value="<?php echo $schedule['id_jadwal']; ?>">
                                                         <input type="hidden" name="hari" value="all">
-                                                        <button type="submit" class="w-full px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition">
-                                                            Hapus
+                                                        <button type="submit" class="w-full px-2 py-1.5 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition flex items-center justify-center gap-1">
+                                                            <?= render_icon('trash', 'fa', 'text-xs', 'Hapus') ?>
+                                                            <span>Hapus</span>
                                                         </button>
                                                     </form>
                                                 </div>
@@ -524,9 +517,7 @@ function formatTime($time) {
                     
                     <?php if (empty($schedulesByDay)): ?>
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
-                            <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
+                            <?= render_icon('calendar', 'fa', 'text-5xl text-gray-300 mb-4', 'Calendar') ?>
                             <p class="text-gray-500 mb-2">Belum ada jadwal praktik terdaftar</p>
                             <button onclick="openModal('create')" class="text-green-600 hover:underline text-sm font-medium">
                                 + Tambah jadwal sekarang
@@ -539,9 +530,7 @@ function formatTime($time) {
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100">
                     <div class="p-6 rounded-t-2xl border-b border-gray-100 gradient-green">
                         <div class="flex items-center gap-3 text-white">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
+                            <?= render_icon('calendar', 'fa', 'text-2xl', 'Calendar') ?>
                             <div>
                                 <h3 class="text-white text-lg font-semibold"><?php echo htmlspecialchars($selectedDay); ?></h3>
                                 <p class="text-sm text-white opacity-90">
@@ -560,7 +549,6 @@ function formatTime($time) {
                                         <th class="px-6 py-4 text-left text-xs font-medium text-gray-600">Spesialisasi</th>
                                         <th class="px-6 py-4 text-left text-xs font-medium text-gray-600">Poli</th>
                                         <th class="px-6 py-4 text-left text-xs font-medium text-gray-600">Jam</th>
-                                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-600">Kuota</th>
                                         <th class="px-6 py-4 text-left text-xs font-medium text-gray-600">Status</th>
                                         <th class="px-6 py-4 text-center text-xs font-medium text-gray-600">Aksi</th>
                                     </tr>
@@ -581,16 +569,11 @@ function formatTime($time) {
                                             </td>
                                             <td class="px-6 py-4">
                                                 <div class="flex items-center gap-2 text-sm text-gray-700">
-                                                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                                    </svg>
+                                                    <?= render_icon('clock', 'fa', 'text-sm text-gray-500', 'Clock') ?>
                                                     <span>
                                                         <?php echo formatTime($schedule['jam_mulai']); ?> - <?php echo formatTime($schedule['jam_selesai']); ?>
                                                     </span>
                                                 </div>
-                                            </td>
-                                            <td class="px-6 py-4 text-sm text-gray-700">
-                                                <?php echo $schedule['kuota_pasien']; ?>
                                             </td>
                                             <td class="px-6 py-4">
                                                 <span class="px-3 py-1 <?php echo $schedule['status'] === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'; ?> rounded-lg text-xs">
@@ -598,17 +581,21 @@ function formatTime($time) {
                                                 </span>
                                             </td>
                                             <td class="px-6 py-4 text-center">
-                                                <button onclick="editSchedule(<?php echo htmlspecialchars(json_encode($schedule)); ?>)" class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition mr-2">
-                                                    Edit
-                                                </button>
-                                                <form method="POST" style="display: inline;" onsubmit="return confirm('Yakin hapus jadwal ini?');">
-                                                    <input type="hidden" name="action" value="delete">
-                                                    <input type="hidden" name="id_jadwal" value="<?php echo $schedule['id_jadwal']; ?>">
-                                                    <input type="hidden" name="hari" value="<?php echo htmlspecialchars($selectedDay); ?>">
-                                                    <button type="submit" class="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition">
-                                                        Hapus
+                                                <div class="flex items-center justify-center gap-2">
+                                                    <button onclick="editSchedule(<?php echo htmlspecialchars(json_encode($schedule)); ?>)" class="px-3 py-1.5 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition inline-flex items-center gap-1">
+                                                        <?= render_icon('edit', 'fa', 'text-xs', 'Edit') ?>
+                                                        <span>Edit</span>
                                                     </button>
-                                                </form>
+                                                    <form method="POST" style="display: inline;" onsubmit="return confirm('Yakin hapus jadwal ini?');">
+                                                        <input type="hidden" name="action" value="delete">
+                                                        <input type="hidden" name="id_jadwal" value="<?php echo $schedule['id_jadwal']; ?>">
+                                                        <input type="hidden" name="hari" value="<?php echo htmlspecialchars($selectedDay); ?>">
+                                                        <button type="submit" class="px-3 py-1.5 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition inline-flex items-center gap-1">
+                                                            <?= render_icon('trash', 'fa', 'text-xs', 'Hapus') ?>
+                                                            <span>Hapus</span>
+                                                        </button>
+                                                    </form>
+                                                </div>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -617,9 +604,7 @@ function formatTime($time) {
                         </div>
                     <?php else: ?>
                         <div class="p-12 text-center">
-                            <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
+                            <?= render_icon('calendar', 'fa', 'text-5xl text-gray-300 mb-3', 'Calendar') ?>
                             <p class="text-gray-500 mb-4">Tidak ada jadwal praktik untuk hari <?php echo htmlspecialchars($selectedDay); ?></p>
                             <button onclick="openModal('create')" class="text-green-600 hover:underline text-sm font-medium">
                                 + Tambah jadwal sekarang
@@ -632,9 +617,7 @@ function formatTime($time) {
             <div class="mt-6 bg-blue-50 rounded-2xl p-4 border border-blue-100">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
+                        <?= render_icon('calendar', 'fa', 'text-lg text-blue-600', 'Total') ?>
                         <span class="text-sm text-gray-700">
                             Total jadwal <?php echo $selectedDay === 'all' ? 'semua hari' : 'hari ' . htmlspecialchars($selectedDay); ?>:
                         </span>
@@ -677,7 +660,6 @@ function editSchedule(schedule) {
     document.getElementById('field_hari').value = schedule.hari;
     document.getElementById('field_jam_mulai').value = schedule.jam_mulai;
     document.getElementById('field_jam_selesai').value = schedule.jam_selesai;
-    document.getElementById('field_kuota').value = schedule.kuota_pasien;
     document.getElementById('field_status').value = schedule.status;
     
     modalOverlay.classList.add('active');
@@ -695,9 +677,8 @@ scheduleForm.addEventListener('submit', function(e) {
     const hari = document.getElementById('field_hari').value;
     const jamMulai = document.getElementById('field_jam_mulai').value;
     const jamSelesai = document.getElementById('field_jam_selesai').value;
-    const kuota = document.getElementById('field_kuota').value;
     
-    if (!dokter || !hari || !jamMulai || !jamSelesai || !kuota) {
+    if (!dokter || !hari || !jamMulai || !jamSelesai) {
         e.preventDefault();
         alert('Semua field wajib diisi');
         return false;

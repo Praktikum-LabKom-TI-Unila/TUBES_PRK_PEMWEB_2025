@@ -12,6 +12,8 @@ function get_icon_map() {
         'megaphone' => ['fa' => 'fa-solid fa-bullhorn', 'ion' => 'megaphone-outline'],
         'calendar' => ['fa' => 'fa-solid fa-calendar-days', 'ion' => 'calendar-outline'],
         'plus' => ['fa' => 'fa-solid fa-plus', 'ion' => 'add-outline'],
+        'print' => ['fa' => 'fa-solid fa-print', 'ion' => 'print-outline'],
+        'file-pdf' => ['fa' => 'fa-solid fa-file-pdf', 'ion' => 'document-outline'],
     ];
 }
 

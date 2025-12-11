@@ -3,14 +3,13 @@
 
 session_start();
 require_once __DIR__ . '/../../src/config/database.php';
+require_once __DIR__ . '/../../src/helpers/icon_helper.php';
 
-// Wajib login & role admin
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../login.php');
     exit;
 }
 
-// ==== Helper flash message ====
 function set_flash($type, $message) {
     $_SESSION['flash'][$type] = $message;
 }
@@ -23,11 +22,9 @@ function get_flash($type) {
     return null;
 }
 
-// ==== PROSES FORM (CREATE / UPDATE / DELETE) ====
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
-    // Tambah pasien
     if ($action === 'create') {
         $nama           = trim($_POST['nama_lengkap'] ?? '');
         $nik            = trim($_POST['nik'] ?? '');
@@ -42,10 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $conn->begin_transaction();
             try {
-                // Hash password
+                
                 $hash = password_hash($password, PASSWORD_DEFAULT);
 
-                // Insert ke tabel users
                 $sqlUser = "INSERT INTO users (username, password_hash, email, role, status, created_at, updated_at)
                             VALUES (?, ?, ?, 'pasien', 'active', NOW(), NOW())";
                 $stmtUser = $conn->prepare($sqlUser);
@@ -54,7 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $id_user = $stmtUser->insert_id;
                 $stmtUser->close();
 
-                // Insert ke tabel pasien
                 $sqlPasien = "INSERT INTO pasien (id_user, no_rm, nik, nama_lengkap, tanggal_lahir, jenis_kelamin, created_at, updated_at)
                               VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())";
                 $stmtPasien = $conn->prepare($sqlPasien);
@@ -74,7 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Update pasien
     if ($action === 'update') {
         $id_pasien      = (int)($_POST['id_pasien'] ?? 0);
         $nama           = trim($_POST['nama_lengkap'] ?? '');
@@ -89,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $conn->begin_transaction();
             try {
-                // Get id_user
+
                 $sqlGetUser = "SELECT id_user FROM pasien WHERE id_pasien = ?";
                 $stmtGetUser = $conn->prepare($sqlGetUser);
                 $stmtGetUser->bind_param('i', $id_pasien);
@@ -101,14 +95,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($rowUser) {
                     $id_user = (int)$rowUser['id_user'];
 
-                    // Update users
                     $sqlUser = "UPDATE users SET username = ?, email = ?, updated_at = NOW() WHERE id_user = ?";
                     $stmtUser = $conn->prepare($sqlUser);
                     $stmtUser->bind_param('ssi', $no_rm, $email, $id_user);
                     $stmtUser->execute();
                     $stmtUser->close();
 
-                    // Update pasien
                     $sqlPasien = "UPDATE pasien 
                                   SET no_rm = ?, nik = ?, nama_lengkap = ?, tanggal_lahir = ?, jenis_kelamin = ?, updated_at = NOW()
                                   WHERE id_pasien = ?";
@@ -133,14 +125,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Delete pasien
     if ($action === 'delete') {
         $id_pasien = (int)($_POST['id_pasien'] ?? 0);
 
         if ($id_pasien) {
             $conn->begin_transaction();
             try {
-                // Get id_user
+
                 $sqlGetUser = "SELECT id_user FROM pasien WHERE id_pasien = ?";
                 $stmtGetUser = $conn->prepare($sqlGetUser);
                 $stmtGetUser->bind_param('i', $id_pasien);
@@ -152,7 +143,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($rowUser) {
                     $id_user = (int)$rowUser['id_user'];
 
-                    // Check if patient has medical records
                     $sqlCheck = "SELECT COUNT(*) as c FROM rekam_medis WHERE id_pasien = ?";
                     $stmtCheck = $conn->prepare($sqlCheck);
                     $stmtCheck->bind_param('i', $id_pasien);
@@ -163,21 +153,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (($resCheck['c'] ?? 0) > 0) {
                         set_flash('error', 'Pasien tidak dapat dihapus karena memiliki rekam medis.');
                     } else {
-                        // Delete antrian
+
                         $sqlAntrian = "DELETE FROM antrian WHERE id_pasien = ?";
                         $stmtAntrian = $conn->prepare($sqlAntrian);
                         $stmtAntrian->bind_param('i', $id_pasien);
                         $stmtAntrian->execute();
                         $stmtAntrian->close();
 
-                        // Delete pasien
                         $sqlPasien = "DELETE FROM pasien WHERE id_pasien = ?";
                         $stmtPasien = $conn->prepare($sqlPasien);
                         $stmtPasien->bind_param('i', $id_pasien);
                         $stmtPasien->execute();
                         $stmtPasien->close();
 
-                        // Set user as inactive
                         $sqlUser = "UPDATE users SET status = 'inactive', updated_at = NOW() WHERE id_user = ?";
                         $stmtUser = $conn->prepare($sqlUser);
                         $stmtUser->bind_param('i', $id_user);
@@ -199,9 +187,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// ==== DATA UNTUK TAMPILAN ====
-
-// Search
 $search = trim($_GET['q'] ?? '');
 $params = [];
 $types  = '';
@@ -214,7 +199,6 @@ if ($search !== '') {
     $types  = 'sss';
 }
 
-// Ambil data pasien
 $sqlList = "
     SELECT 
         p.id_pasien,
@@ -250,7 +234,6 @@ if ($res) {
 }
 if (isset($stmt) && $stmt) $stmt->close();
 
-// Nama admin (untuk header)
 $adminName = 'Admin';
 if (isset($_SESSION['user_id'])) {
     $idUser = (int)$_SESSION['user_id'];
@@ -262,7 +245,6 @@ if (isset($_SESSION['user_id'])) {
     $qAdmin->close();
 }
 
-// Helper untuk format tanggal
 function formatTanggal($tanggal) {
     $bulan = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
     $parts = explode('-', $tanggal);
@@ -275,6 +257,9 @@ function formatTanggal($tanggal) {
     <meta charset="UTF-8">
     <title>Data Pasien - Admin Puskesmas</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body class="bg-gray-100 font-sans">
@@ -286,7 +271,7 @@ function formatTanggal($tanggal) {
     ?>
 
     <div class="flex-1 flex flex-col">
-        <!-- Topbar -->
+   
         <header class="w-full px-4 md:px-8 py-4 bg-white border-b border-gray-100 flex items-center justify-between">
             <div>
                 <h1 class="text-lg font-semibold text-gray-800">Data Pasien</h1>
@@ -299,7 +284,6 @@ function formatTanggal($tanggal) {
 
         <main class="flex-1 px-4 md:px-8 py-6 max-w-7xl mx-auto w-full">
 
-            <!-- Flash -->
             <?php if ($msg = get_flash('success')): ?>
                 <div class="mb-4 px-4 py-3 rounded-xl bg-green-50 text-green-700 text-sm border border-green-100">
                     <?php echo htmlspecialchars($msg); ?>
@@ -311,7 +295,6 @@ function formatTanggal($tanggal) {
                 </div>
             <?php endif; ?>
 
-            <!-- Toolbar: Search + Add -->
             <div class="mb-6 flex flex-col md:flex-row items-center gap-4">
               <form method="get" class="flex-1 w-full">
                 <input
@@ -333,7 +316,6 @@ function formatTanggal($tanggal) {
               </div>
             </div>
 
-            <!-- Modal (hidden by default) -->
             <div id="pasienModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-40">
               <div class="bg-white rounded-2xl w-full max-w-2xl p-6 mx-4 max-h-screen overflow-y-auto">
                 <div class="flex items-center justify-between mb-4">
@@ -345,35 +327,30 @@ function formatTanggal($tanggal) {
                   <input type="hidden" name="action" id="pasienFormAction" value="create">
                   <input type="hidden" name="id_pasien" id="pasienFormId" value="">
 
-                  <!-- Nama Lengkap -->
                   <div class="md:col-span-2">
                     <label class="block text-sm text-gray-700 mb-2">Nama Lengkap <span class="text-red-500">*</span></label>
                     <input type="text" name="nama_lengkap" id="field_nama" required
                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500">
                   </div>
 
-                  <!-- NIK -->
                   <div>
                     <label class="block text-sm text-gray-700 mb-2">NIK <span class="text-red-500">*</span></label>
                     <input type="text" name="nik" id="field_nik" required maxlength="16"
                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500">
                   </div>
 
-                  <!-- No. RM -->
                   <div>
                     <label class="block text-sm text-gray-700 mb-2">No. Rekam Medis <span class="text-red-500">*</span></label>
                     <input type="text" name="no_rm" id="field_norm" required
                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500">
                   </div>
 
-                  <!-- Tanggal Lahir -->
                   <div>
                     <label class="block text-sm text-gray-700 mb-2">Tanggal Lahir <span class="text-red-500">*</span></label>
                     <input type="date" name="tanggal_lahir" id="field_tgl" required
                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500">
                   </div>
 
-                  <!-- Jenis Kelamin -->
                   <div>
                     <label class="block text-sm text-gray-700 mb-2">Jenis Kelamin <span class="text-red-500">*</span></label>
                     <select name="jenis_kelamin" id="field_jk" required
@@ -384,14 +361,12 @@ function formatTanggal($tanggal) {
                     </select>
                   </div>
 
-                  <!-- Email -->
                   <div class="md:col-span-2">
                     <label class="block text-sm text-gray-700 mb-2">Email <span class="text-red-500">*</span></label>
                     <input type="email" name="email" id="field_email" required
                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500">
                   </div>
 
-                  <!-- Password (only for create) -->
                   <div id="passwordField" class="md:col-span-2">
                     <label class="block text-sm text-gray-700 mb-2">Password <span class="text-red-500">*</span></label>
                     <input type="password" name="password" id="field_password"
@@ -399,7 +374,6 @@ function formatTanggal($tanggal) {
                     <p class="mt-1 text-xs text-gray-400">Password untuk login pasien</p>
                   </div>
 
-                  <!-- Buttons -->
                   <div class="md:col-span-2 flex justify-end gap-3 pt-2">
                     <button type="button" id="btnCancelPasien" class="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl text-sm">Batal</button>
                     <button type="submit" class="px-6 py-3 bg-green-500 text-white rounded-xl text-sm">Simpan</button>
@@ -408,7 +382,6 @@ function formatTanggal($tanggal) {
               </div>
             </div>
 
-            <!-- Tabel Pasien -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100">
                 <div class="overflow-x-auto">
                     <table class="w-full">
