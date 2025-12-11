@@ -269,6 +269,19 @@ if (isset($_SESSION['user_id'])) {
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+    </style>
 </head>
 <body class="bg-gray-100 font-sans">
 
@@ -289,41 +302,46 @@ if (isset($_SESSION['user_id'])) {
             </div>
         </header>
 
-        <main class="flex-1 px-4 md:px-8 py-6 max-w-7xl mx-auto">
+        <main class="flex-1 px-4 md:px-8 py-6 max-w-7xl mx-auto w-full">
 
             <?php if ($msg = get_flash('success')): ?>
-                <div class="mb-4 px-4 py-3 rounded-xl bg-green-50 text-green-700 text-sm border border-green-100">
-                    <?php echo htmlspecialchars($msg); ?>
+                <div class="mb-4 px-4 py-3 rounded-xl bg-green-50 text-green-700 text-sm border border-green-100 flex items-center gap-2">
+                    <?= render_icon('check', 'fa', 'text-base', 'Success') ?>
+                    <span><?php echo htmlspecialchars($msg); ?></span>
                 </div>
             <?php endif; ?>
             <?php if ($msg = get_flash('error')): ?>
-                <div class="mb-4 px-4 py-3 rounded-xl bg-red-50 text-red-700 text-sm border border-red-100">
-                    <?php echo htmlspecialchars($msg); ?>
+                <div class="mb-4 px-4 py-3 rounded-xl bg-red-50 text-red-700 text-sm border border-red-100 flex items-center gap-2">
+                    <?= render_icon('warning', 'fa', 'text-base', 'Error') ?>
+                    <span><?php echo htmlspecialchars($msg); ?></span>
                 </div>
             <?php endif; ?>
 
             <div class="mb-6 flex flex-col md:flex-row items-center gap-4">
               <form method="get" class="flex-1 w-full">
-                <input
-                  type="text"
-                  name="q"
-                  placeholder="Cari dokter berdasarkan nama, username, spesialisasi atau poli..."
-                  value="<?php echo htmlspecialchars($search); ?>"
-                  class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
-                >
+                <div class="relative">
+                    <?= render_icon('search', 'fa', 'absolute left-4 top-1/2 -translate-y-1/2 text-gray-400', 'Search') ?>
+                    <input
+                      type="text"
+                      name="q"
+                      placeholder="Cari dokter berdasarkan nama, username, spesialisasi atau poli..."
+                      value="<?php echo htmlspecialchars($search); ?>"
+                      class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                    >
+                </div>
               </form>
 
               <div class="w-full md:w-auto">
                 <button
                   id="btnAddDokter"
                   type="button"
-                  class="px-4 py-3 bg-green-500 text-white rounded-xl text-sm hover:bg-green-600">
-                  Tambah Dokter
+                  class="w-full md:w-auto px-5 py-3 bg-green-500 text-white rounded-xl text-sm hover:bg-green-600 transition flex items-center justify-center gap-2 font-medium">
+                  <?= render_icon('plus', 'fa', 'text-base', 'Tambah') ?>
+                  <span>Tambah Dokter</span>
                 </button>
               </div>
             </div>
 
-            <!-- Include Modal Form -->
             <?php include __DIR__ . '/modals/modal_dokter.php'; ?>
 
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100">
@@ -331,52 +349,56 @@ if (isset($_SESSION['user_id'])) {
                     <table class="w-full">
                         <thead class="bg-gray-50 border-b border-gray-100">
                             <tr>
-                                <th class="px-6 py-4 text-left text-xs text-gray-600">Nama Dokter</th>
-                                <th class="px-6 py-4 text-left text-xs text-gray-600">NIP / Kode</th>
-                                <th class="px-6 py-4 text-left text-xs text-gray-600">Username Login</th>
-                                <th class="px-6 py-4 text-left text-xs text-gray-600">Spesialisasi</th>
-                                <th class="px-6 py-4 text-left text-xs text-gray-600">Poli</th>
-                                <th class="px-6 py-4 text-left text-xs text-gray-600">Jadwal Praktik</th>
-                                <th class="px-6 py-4 text-left text-xs text-gray-600">Kontak</th>
-                                <th class="px-6 py-4 text-left text-xs text-gray-600">Aksi</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Nama Dokter</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">NIP / Kode</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Username Login</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Spesialisasi</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Poli</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Jadwal Praktik</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Kontak</th>
+                                <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             <?php if (count($doctors)): ?>
                                 <?php foreach ($doctors as $doctor): ?>
                                     <tr class="hover:bg-gray-50 text-sm">
-                                        <td class="px-6 py-4 text-gray-800">
+                                        <td class="px-6 py-4 text-gray-800 font-medium">
                                             <?php echo htmlspecialchars($doctor['nama_dokter']); ?>
                                         </td>
                                         <td class="px-6 py-4 text-gray-600">
                                             <?php echo htmlspecialchars($doctor['kode_dokter']); ?>
                                         </td>
-                                        <td class="px-6 py-4 text-gray-700 font-medium">
-                                            <div class="flex items-center gap-2">
-                                                <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs">
-                                                    <?php echo htmlspecialchars($doctor['username']); ?>
-                                                </span>
-                                            </div>
+                                        <td class="px-6 py-4">
+                                            <span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-lg text-xs font-medium">
+                                                <?php echo htmlspecialchars($doctor['username']); ?>
+                                            </span>
                                         </td>
                                         <td class="px-6 py-4 text-gray-600">
                                             <?php echo htmlspecialchars($doctor['spesialis']); ?>
                                         </td>
-                                        <td class="px-6 py-4 text-gray-600">
-                                            <?php echo htmlspecialchars($doctor['nama_poli']); ?>
+                                        <td class="px-6 py-4">
+                                            <span class=" text-purple-700 py-1 rounded-lg text-xs">
+                                                <?php echo htmlspecialchars($doctor['nama_poli']); ?>
+                                            </span>
                                         </td>
-                                        <td class="px-6 py-4 text-gray-600">
+                                        <td class="px-6 py-4 text-gray-600 text-xs">
                                             <?php echo htmlspecialchars($doctor['jadwal'] ?: '-'); ?>
                                         </td>
-                                        <td class="px-6 py-4 text-gray-600">
-                                            <div><?php echo htmlspecialchars($doctor['no_hp']); ?></div>
-                                            <div class="text-xs text-gray-500">
-                                                <?php echo htmlspecialchars($doctor['email']); ?>
+                                        <td class="px-6 py-4 text-gray-600 text-xs">
+                                            <div class="flex items-center gap-1 mb-1">
+                                                <?= render_icon('phone', 'fa', 'text-xs text-gray-400', 'Phone') ?>
+                                                <span><?php echo htmlspecialchars($doctor['no_hp']); ?></span>
+                                            </div>
+                                            <div class="flex items-center gap-1 text-gray-500">
+                                                <?= render_icon('envelope', 'fa', 'text-xs text-gray-400', 'Email') ?>
+                                                <span><?php echo htmlspecialchars($doctor['email']); ?></span>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <div class="flex items-center gap-2">
+                                            <div class="flex items-center justify-center gap-2">
                                                 <button type="button"
-                                                    class="px-3 py-2 text-xs rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 edit-btn"
+                                                    class="px-3 py-2 text-xs rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition flex items-center gap-1 edit-btn"
                                                     data-id="<?php echo (int)$doctor['id_dokter']; ?>"
                                                     data-nama="<?php echo htmlspecialchars($doctor['nama_dokter'], ENT_QUOTES); ?>"
                                                     data-kode="<?php echo htmlspecialchars($doctor['kode_dokter'], ENT_QUOTES); ?>"
@@ -385,14 +407,16 @@ if (isset($_SESSION['user_id'])) {
                                                     data-nohp="<?php echo htmlspecialchars($doctor['no_hp'], ENT_QUOTES); ?>"
                                                     data-username="<?php echo htmlspecialchars($doctor['username'], ENT_QUOTES); ?>"
                                                     data-id-poli="<?php echo (int)($doctor['id_poli'] ?? 0); ?>">
-                                                    Edit
+                                                    <?= render_icon('edit', 'fa', 'text-xs', 'Edit') ?>
+                                                    <span>Edit</span>
                                                 </button>
-                                                <form method="post" onsubmit="return confirm('Yakin ingin menghapus dokter ini?');">
+                                                <form method="post" style="display: inline;" onsubmit="return confirm('Yakin ingin menghapus dokter ini?');">
                                                     <input type="hidden" name="action" value="delete">
                                                     <input type="hidden" name="id_dokter" value="<?php echo (int)$doctor['id_dokter']; ?>">
                                                     <button type="submit"
-                                                            class="px-3 py-2 text-xs rounded-lg bg-red-50 text-red-600 hover:bg-red-100">
-                                                        Hapus
+                                                            class="px-3 py-2 text-xs rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition flex items-center gap-1">
+                                                        <?= render_icon('trash', 'fa', 'text-xs', 'Hapus') ?>
+                                                        <span>Hapus</span>
                                                     </button>
                                                 </form>
                                             </div>
@@ -401,8 +425,14 @@ if (isset($_SESSION['user_id'])) {
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="8" class="px-6 py-10 text-center text-gray-500 text-sm">
-                                        Tidak ada data dokter.
+                                    <td colspan="8" class="px-6 py-12 text-center text-gray-500 text-sm">
+                                        <div class="flex flex-col items-center gap-3">
+                                            <?= render_icon('user-doctor', 'fa', 'text-5xl text-gray-300', 'No Data') ?>
+                                            <p class="font-medium">Tidak ada data dokter</p>
+                                            <?php if ($search): ?>
+                                                <p class="text-xs">Hasil pencarian untuk "<span class="font-semibold"><?php echo htmlspecialchars($search); ?></span>" tidak ditemukan</p>
+                                            <?php endif; ?>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endif; ?>
@@ -410,17 +440,140 @@ if (isset($_SESSION['user_id'])) {
                     </table>
                 </div>
 
-                <div class="px-6 py-3 text-xs text-gray-500 border-t border-gray-100">
-                    Menampilkan <?php echo count($doctors); ?> dokter
-                    <?php if ($search): ?>
-                        (hasil pencarian untuk: <span class="font-semibold">"<?php echo htmlspecialchars($search); ?>"</span>)
-                    <?php endif; ?>
+                <div class="px-6 py-4 text-sm text-gray-600 border-t border-gray-100 flex items-center gap-2">
+                    <?= render_icon('user-doctor', 'fa', 'text-base text-gray-400', 'Total') ?>
+                    <span>
+                        Menampilkan <span class="font-semibold"><?php echo count($doctors); ?></span> dokter
+                        <?php if ($search): ?>
+                            (hasil pencarian untuk: <span class="font-semibold">"<?php echo htmlspecialchars($search); ?>"</span>)
+                        <?php endif; ?>
+                    </span>
                 </div>
             </div>
 
         </main>
     </div>
 </div>
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Loaded - Initializing modal handlers');
+    
+    const modal = document.getElementById('dokterModal');
+    const btnAdd = document.getElementById('btnAddDokter');
+    const btnClose = document.getElementById('btnCloseModal');
+    const btnCancel = document.getElementById('btnCancelForm');
+    const form = document.getElementById('dokterForm');
+    const formAction = document.getElementById('formAction');
+    const formId = document.getElementById('formId');
+    const modalTitle = document.getElementById('modalTitle');
+    const passwordField = document.getElementById('field_password');
+    const passwordRequired = document.getElementById('passwordRequired');
+    const passwordHint = document.getElementById('passwordHint');
+
+    function openModal() {
+        console.log('Opening modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        console.log('Closing modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = '';
+    }
+
+    function clearForm() {
+        form.reset();
+        formAction.value = 'create';
+        formId.value = '';
+        modalTitle.textContent = 'Tambah Dokter';
+        passwordField.required = true;
+        if (passwordRequired) passwordRequired.style.display = 'inline';
+        if (passwordHint) passwordHint.textContent = 'Password untuk login dokter';
+    }
+
+    if (btnAdd) {
+        btnAdd.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Add button clicked');
+            clearForm();
+            openModal();
+        });
+    }
+
+    if (btnClose) {
+        btnClose.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeModal();
+        });
+    }
+
+    if (btnCancel) {
+        btnCancel.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeModal();
+        });
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('modal') === 'create') {
+        clearForm();
+        openModal();
+    }
+
+    const editButtons = document.querySelectorAll('.edit-btn');
+    console.log('Found ' + editButtons.length + ' edit buttons');
+    
+    editButtons.forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Edit button clicked');
+            
+            const id = btn.getAttribute('data-id');
+            const nama = btn.getAttribute('data-nama') || '';
+            const kode = btn.getAttribute('data-kode') || '';
+            const spesialis = btn.getAttribute('data-spesialis') || '';
+            const email = btn.getAttribute('data-email') || '';
+            const nohp = btn.getAttribute('data-nohp') || '';
+            const username = btn.getAttribute('data-username') || '';
+            const idPoli = btn.getAttribute('data-id-poli') || '';
+            
+            console.log('Editing doctor:', { id, nama, kode });
+            
+            document.getElementById('field_nama').value = nama;
+            document.getElementById('field_kode').value = kode;
+            document.getElementById('field_spesialis').value = spesialis;
+            document.getElementById('field_email').value = email;
+            document.getElementById('field_nohp').value = nohp;
+            document.getElementById('field_username').value = username;
+            document.getElementById('field_poli').value = idPoli;
+            document.getElementById('field_password').value = '';
+            
+            formAction.value = 'update';
+            formId.value = id;
+            modalTitle.textContent = 'Edit Dokter';
+            passwordField.required = false;
+            
+            if (passwordRequired) passwordRequired.style.display = 'none';
+            if (passwordHint) passwordHint.textContent = 'Kosongkan jika tidak ingin mengubah password';
+            
+            openModal();
+        });
+    });
+
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    }
+});
+</script>
 
 </body>
 </html>

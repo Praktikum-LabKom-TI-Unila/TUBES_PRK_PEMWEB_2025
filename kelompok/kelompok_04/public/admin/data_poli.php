@@ -237,13 +237,60 @@ if (isset($_SESSION['user_id'])) {
                 <button
                   id="btnAddPoli"
                   type="button"
-                  class="px-4 py-3 bg-green-500 text-white rounded-xl text-sm hover:bg-green-600">
+                  class="w-full md:w-auto px-4 py-3 bg-green-500 text-white rounded-xl text-sm hover:bg-green-600 transition-colors">
+                  <?php echo render_icon('plus', 'fa', 'mr-2'); ?>
                   Tambah Poli
                 </button>
               </div>
             </div>
 
-            <?php include __DIR__ . '/modals/modal_poli.php'; ?>
+            <!-- Modal Poli -->
+            <div id="poliModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-40">
+              <div class="bg-white rounded-2xl w-full max-w-2xl p-6 mx-4">
+                <div class="flex items-center justify-between mb-4">
+                  <h2 id="poliModalTitle" class="text-base font-semibold text-gray-800">Tambah Poli</h2>
+                  <button id="btnClosePoliModal" type="button" class="text-gray-500 hover:text-gray-700 text-2xl leading-none">&times;</button>
+                </div>
+
+                <form id="poliForm" method="post" class="space-y-4">
+                  <input type="hidden" name="action" id="poliFormAction" value="create">
+                  <input type="hidden" name="id_poli" id="poliFormId" value="">
+
+                  <div>
+                    <label class="block text-sm text-gray-700 mb-2">
+                        Nama Poli <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="nama_poli"
+                        id="field_poli_nama"
+                        value=""
+                        placeholder="Contoh: Poli Umum"
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                        required
+                    >
+                  </div>
+
+                  <div>
+                    <label class="block text-sm text-gray-700 mb-2">
+                        Deskripsi
+                    </label>
+                    <textarea
+                        name="deskripsi"
+                        id="field_poli_deskripsi"
+                        rows="3"
+                        placeholder="Deskripsi singkat tentang poli"
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-sm resize-none"
+                    ></textarea>
+                  </div>
+
+                  <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" id="btnCancelPoli" class="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl text-sm hover:bg-gray-200 transition-colors">Batal</button>
+                    <button type="submit" class="px-6 py-3 bg-green-500 text-white rounded-xl text-sm hover:bg-green-600 transition-colors">Simpan</button>
+                  </div>
+                </form>
+              </div>
+            </div>
 
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100">
                 <div class="p-6 border-b border-gray-100"></div>
@@ -264,30 +311,43 @@ if (isset($_SESSION['user_id'])) {
                                 <?php foreach ($polis as $p): ?>
                                     <tr class="hover:bg-gray-50 text-sm">
                                         <td class="px-6 py-4 text-gray-800">
+                                            <?php echo render_icon('building', 'fa', 'mr-2 text-green-500'); ?>
                                             <?php echo htmlspecialchars($p['nama_poli']); ?>
                                         </td>
                                         <td class="px-6 py-4 text-gray-600">
                                             <?php echo htmlspecialchars($p['deskripsi']); ?>
                                         </td>
                                         <td class="px-6 py-4 text-gray-600">
-                                            <?php echo $p['jam_operasional'] ? htmlspecialchars($p['jam_operasional']) : '-'; ?>
+                                            <?php if ($p['jam_operasional']): ?>
+                                                <?php echo render_icon('clock', 'fa', 'mr-1 text-gray-400'); ?>
+                                                <?php echo htmlspecialchars($p['jam_operasional']); ?>
+                                            <?php else: ?>
+                                                -
+                                            <?php endif; ?>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-xs">Aktif</span>
+                                            <span class="inline-flex items-center px-3 py-1 bg-green-100 text-green-700 rounded-lg text-xs">
+                                                <?php echo render_icon('check', 'fa', 'mr-1'); ?>
+                                                Aktif
+                                            </span>
                                         </td>
                                         <td class="px-6 py-4">
                                             <div class="flex items-center gap-2">
                                                 <button type="button"
-                                                    class="px-3 py-2 text-xs rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 edit-poli-btn"
+                                                    class="inline-flex items-center px-3 py-2 text-xs rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 edit-poli-btn"
                                                     data-id="<?php echo (int)$p['id_poli']; ?>"
                                                     data-nama="<?php echo htmlspecialchars($p['nama_poli'], ENT_QUOTES); ?>"
                                                     data-deskripsi="<?php echo htmlspecialchars($p['deskripsi'] ?? '', ENT_QUOTES); ?>">
+                                                    <?php echo render_icon('edit', 'fa', 'mr-1'); ?>
                                                     Edit
                                                 </button>
-                                                <form method="post" onsubmit="return confirm('Apakah Anda yakin ingin menghapus poli ini?');">
+                                                <form method="post" onsubmit="return confirm('Apakah Anda yakin ingin menghapus poli ini?');" class="inline">
                                                     <input type="hidden" name="action" value="delete">
                                                     <input type="hidden" name="id_poli" value="<?php echo (int)$p['id_poli']; ?>">
-                                                    <button type="submit" class="px-3 py-2 text-xs rounded-lg bg-red-50 text-red-600 hover:bg-red-100">Hapus</button>
+                                                    <button type="submit" class="inline-flex items-center px-3 py-2 text-xs rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors">
+                                                        <?php echo render_icon('trash', 'fa', 'mr-1'); ?>
+                                                        Hapus
+                                                    </button>
                                                 </form>
                                             </div>
                                         </td>
@@ -315,6 +375,108 @@ if (isset($_SESSION['user_id'])) {
         </main>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing poli modal...');
+    
+    const modal = document.getElementById('poliModal');
+    const btnAdd = document.getElementById('btnAddPoli');
+    const btnClose = document.getElementById('btnClosePoliModal');
+    const btnCancel = document.getElementById('btnCancelPoli');
+    const form = document.getElementById('poliForm');
+    const formAction = document.getElementById('poliFormAction');
+    const formId = document.getElementById('poliFormId');
+    const title = document.getElementById('poliModalTitle');
+    const fieldNama = document.getElementById('field_poli_nama');
+    const fieldDeskripsi = document.getElementById('field_poli_deskripsi');
+
+    function openModal() {
+        console.log('Opening modal...');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        window.scrollTo(0,0);
+    }
+    
+    function closeModal() {
+        console.log('Closing modal...');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    function clearForm() {
+        console.log('Clearing form...');
+        form.reset();
+        formAction.value = 'create';
+        formId.value = '';
+        title.textContent = 'Tambah Poli';
+    }
+
+    // Event listener untuk tombol tambah
+    if (btnAdd) {
+        btnAdd.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Add button clicked');
+            clearForm();
+            openModal();
+        });
+    }
+
+    // Event listener untuk tombol close
+    if (btnClose) {
+        btnClose.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeModal();
+        });
+    }
+
+    // Event listener untuk tombol cancel
+    if (btnCancel) {
+        btnCancel.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeModal();
+        });
+    }
+
+    // Event listener untuk tombol edit
+    const editButtons = document.querySelectorAll('.edit-poli-btn');
+    console.log('Found edit buttons:', editButtons.length);
+    
+    editButtons.forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Edit button clicked');
+            
+            const id = btn.getAttribute('data-id');
+            const nama = btn.getAttribute('data-nama') || '';
+            const deskripsi = btn.getAttribute('data-deskripsi') || '';
+            
+            console.log('Edit data:', {id, nama, deskripsi});
+            
+            fieldNama.value = nama;
+            fieldDeskripsi.value = deskripsi;
+            formAction.value = 'update';
+            formId.value = id;
+            title.textContent = 'Edit Poli';
+            openModal();
+        });
+    });
+
+    // Close modal jika klik di luar
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+    // Check URL untuk modal create
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('modal') === 'create') {
+        clearForm();
+        openModal();
+    }
+});
+</script>
 
 </body>
 </html>

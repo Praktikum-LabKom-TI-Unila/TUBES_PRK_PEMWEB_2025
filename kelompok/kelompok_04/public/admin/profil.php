@@ -166,7 +166,7 @@ $roleAdmin   = ucfirst($user['role'] ?? 'admin');
                     class="w-full text-white py-4 rounded-xl bg-gradient-to-r transition-colors flex items-center justify-center gap-2 text-sm"
                     style="background-image: linear-gradient(to right, #45BC7D, #3aa668);"
                 >
-                    <span class="w-5 h-5 rounded-full border border-white flex items-center justify-center text-xs">P</span>
+                    
                     <span>Edit Profil</span>
                 </button>
 
@@ -175,7 +175,7 @@ $roleAdmin   = ucfirst($user['role'] ?? 'admin');
                     onclick="openLogoutModal()"
                     class="w-full bg-red-50 border-2 border-red-100 text-red-600 py-4 rounded-xl hover:bg-red-100 transition-colors flex items-center justify-center gap-2 text-sm"
                 >
-                    <span class="w-5 h-5 rounded-full border border-red-400 flex items-center justify-center text-xs">&#8592;</span>
+            
                     <span>Keluar</span>
                 </button>
             </div>
