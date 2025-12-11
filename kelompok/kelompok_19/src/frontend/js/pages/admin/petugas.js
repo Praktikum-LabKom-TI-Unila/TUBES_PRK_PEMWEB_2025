@@ -39,12 +39,12 @@ function loadPetugas() {
 
 // Render petugas table
 function renderPetugasTable() {
-  const tbody = document.querySelector("#petugasTable tbody");
+  const tbody = document.getElementById("petugasTable");
   if (!tbody) return;
 
   if (allPetugas.length === 0) {
     tbody.innerHTML =
-      '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">Belum ada petugas</td></tr>';
+      '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">Belum ada petugas</td></tr>';
     return;
   }
 
@@ -84,7 +84,7 @@ function renderPetugasTable() {
 
 // Populate unit select
 function populateUnitSelect() {
-  const select = document.getElementById("unitSelect");
+  const select = document.getElementById("petugasUnit");
   if (!select) return;
 
   select.innerHTML =
@@ -97,6 +97,10 @@ function populateUnitSelect() {
 // Show modal
 function showAddPetugasModal() {
   editingPetugasId = null;
+
+  // Populate unit select
+  populateUnitSelect();
+
   document.getElementById("modalTitle").textContent = "Tambah Petugas Baru";
   document.getElementById("petugasForm").reset();
   document.getElementById("passwordField").classList.remove("hidden");
@@ -113,10 +117,14 @@ function editPetugas(id) {
   if (!petugas) return;
 
   editingPetugasId = id;
+
+  // Populate unit select first
+  populateUnitSelect();
+
   document.getElementById("modalTitle").textContent = "Edit Petugas";
   document.getElementById("petugasName").value = petugas.name;
   document.getElementById("petugasEmail").value = petugas.email;
-  document.getElementById("unitSelect").value = petugas.unit_id;
+  document.getElementById("petugasUnit").value = petugas.unit_id;
   document.getElementById("petugasJabatan").value = petugas.jabatan || "";
   document.getElementById("passwordField").classList.add("hidden");
   document.getElementById("modalTambahPetugas").classList.remove("hidden");
@@ -148,7 +156,7 @@ function handleSubmitPetugas(event) {
   const formData = {
     name: document.getElementById("petugasName").value,
     email: document.getElementById("petugasEmail").value,
-    unit_id: document.getElementById("unitSelect").value,
+    unit_id: document.getElementById("petugasUnit").value,
     jabatan: document.getElementById("petugasJabatan").value,
   };
 

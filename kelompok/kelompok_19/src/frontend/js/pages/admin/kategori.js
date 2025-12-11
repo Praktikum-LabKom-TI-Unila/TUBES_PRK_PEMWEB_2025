@@ -61,42 +61,45 @@ function renderCategoriesByUnit() {
     .map(
       (unitName) => `
         <div class="bg-white p-6 rounded-lg shadow-sm border">
-            <h2 class="text-xl font-semibold text-brand-blue mb-4">${unitName}</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h2 class="text-xl font-semibold text-brand-blue mb-6">${unitName}</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 ${grouped[unitName]
                   .map(
                     (cat) => `
-                    <div class="bg-gray-50 p-4 rounded-lg border">
-                        <div class="flex justify-between items-start">
+                    <div class="bg-gray-50 p-5 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
+                        <div class="flex justify-between items-start gap-3">
                             <div class="flex-1">
-                                <h3 class="font-medium text-gray-900 mb-1">${
-                                  cat.name
-                                }</h3>
-                                <p class="text-sm text-gray-600">${
-                                  cat.description || "-"
+                                <div class="flex items-center gap-2 mb-2">
+                                    <h3 class="font-semibold text-gray-900 text-base">${
+                                      cat.name
+                                    }</h3>
+                                    <span class="${
+                                      cat.is_active == 1
+                                        ? "text-green-600"
+                                        : "text-gray-400"
+                                    }">
+                                        <i class="fas fa-circle text-xs"></i>
+                                    </span>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-3">${
+                                  cat.description || "Tidak ada deskripsi"
                                 }</p>
-                                <div class="mt-2 flex items-center gap-3">
+                                <div class="flex items-center gap-4">
                                     <button onclick="editCategory(${
                                       cat.id
-                                    })" class="text-brand-blue hover:underline text-sm">
+                                    })" class="text-brand-blue hover:text-blue-700 text-sm font-medium transition-colors">
                                         <i class="fas fa-edit mr-1"></i> Edit
                                     </button>
                                     <button onclick="deleteCategory(${
                                       cat.id
-                                    }, '${
-                      cat.name
-                    }')" class="text-red-600 hover:underline text-sm">
+                                    }, '${cat.name.replace(
+                      /'/g,
+                      "\\'"
+                    )}')" class="text-red-600 hover:text-red-700 text-sm font-medium transition-colors">
                                         <i class="fas fa-trash-alt mr-1"></i> Hapus
                                     </button>
                                 </div>
                             </div>
-                            <span class="ml-2 ${
-                              cat.is_active == 1
-                                ? "text-green-600"
-                                : "text-gray-400"
-                            }">
-                                <i class="fas fa-circle text-xs"></i>
-                            </span>
                         </div>
                     </div>
                 `
@@ -111,7 +114,7 @@ function renderCategoriesByUnit() {
 
 // Populate unit select in modal
 function populateUnitSelect() {
-  const select = document.getElementById("unitSelect");
+  const select = document.getElementById("unitId");
   if (!select) return;
 
   select.innerHTML =
@@ -125,7 +128,7 @@ function populateUnitSelect() {
 function showAddCategoryModal() {
   editingCategoryId = null;
   document.getElementById("modalTitle").textContent = "Tambah Kategori Baru";
-  document.getElementById("categoryForm").reset();
+  document.getElementById("kategoriForm").reset();
   document.getElementById("modalTambahKategori").classList.remove("hidden");
 }
 
@@ -143,8 +146,8 @@ function editCategory(id) {
   document.getElementById("categoryName").value = category.name;
   document.getElementById("categoryDescription").value =
     category.description || "";
-  document.getElementById("unitSelect").value = category.unit_id;
-  document.getElementById("isActive").checked = category.is_active == 1;
+  document.getElementById("unitId").value = category.unit_id;
+  document.getElementById("categoryActive").checked = category.is_active == 1;
   document.getElementById("modalTambahKategori").classList.remove("hidden");
 }
 
@@ -174,8 +177,8 @@ function handleSubmitCategory(event) {
   const formData = {
     name: document.getElementById("categoryName").value,
     description: document.getElementById("categoryDescription").value,
-    unit_id: document.getElementById("unitSelect").value,
-    is_active: document.getElementById("isActive").checked ? 1 : 0,
+    unit_id: document.getElementById("unitId").value,
+    is_active: document.getElementById("categoryActive").checked ? 1 : 0,
   };
 
   const apiCall = editingCategoryId
@@ -220,6 +223,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const btnBatal = document.getElementById("btnBatalModal");
   if (btnBatal) btnBatal.addEventListener("click", hideModal);
 
-  const form = document.getElementById("categoryForm");
+  const form = document.getElementById("kategoriForm");
   if (form) form.addEventListener("submit", handleSubmitCategory);
 });
