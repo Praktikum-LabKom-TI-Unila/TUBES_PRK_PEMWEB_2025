@@ -1,12 +1,12 @@
 <?php
 session_start();
-include 'config.php';
+include '../config.php';
 
 if (isset($_SESSION['user_id'])) {
     if ($_SESSION['role'] == 'admin') {
-        header("Location: dashboard_admin.php");
+        header("Location: ../admin/dashboard_admin.php");
     } else {
-        header("Location: dashboard_siswa.php");
+        header("Location: ../siswa/dashboard_siswa.php");
     }
     exit();
 }
@@ -32,9 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
             
             if ($user['role'] == 'admin') {
-                header("Location: dashboard_admin.php");
+                header("Location: ../admin/dashboard_admin.php");
             } else {
-                header("Location: dashboard_siswa.php");
+                header("Location: ../siswa/dashboard_siswa.php");
             }
             exit();
         } else {

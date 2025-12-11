@@ -1,9 +1,9 @@
 <?php
 session_start();
-include 'config.php';
+include '../config.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: ../auth/login.php");
     exit();
 }
 
@@ -95,7 +95,7 @@ if ($role == 'siswa') {
         (SELECT COUNT(*) FROM riwayat_ujian) as total_pengerjaan"));
 }
 
-$dashboard_url = $role == 'admin' ? 'dashboard_admin.php' : 'dashboard_siswa.php';
+$dashboard_url = $role == 'admin' ? '../admin/dashboard_admin.php' : '../siswa/dashboard_siswa.php';
 ?>
 <!DOCTYPE html>
 <html lang="id">

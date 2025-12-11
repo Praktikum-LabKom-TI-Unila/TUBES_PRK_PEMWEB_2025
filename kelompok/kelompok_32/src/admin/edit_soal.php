@@ -1,9 +1,9 @@
 <?php
 session_start();
-include 'config.php';
+include '../config.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
-    header("Location: login.php");
+    header("Location: ../auth/login.php");
     exit();
 }
 
@@ -230,9 +230,11 @@ textarea.form-control { resize: vertical; min-height: 100px; }
             <ul class="menu">
                 <li><a href="dashboard_admin.php">Dashboard</a></li>
                 <li><a href="data_siswa.php">Data Siswa</a></li>
-                <li><a href="tambah_soal.php">Tambah Soal</a></li>
                 <li><a href="daftar_ujian.php" class="active">Daftar Ujian</a></li>
-                <li><a href="logout.php">Logout</a></li>
+                <li><a href="tambah_mata_pelajaran.php">Tambah Mata Pelajaran</a></li>
+                <li><a href="tambah_soal.php">Tambah Soal</a></li>
+                <li><a href="../siswa/profile.php">Profile</a></li>
+                <li><a href="../auth/logout.php">Logout</a></li>
             </ul>
         </aside>
         

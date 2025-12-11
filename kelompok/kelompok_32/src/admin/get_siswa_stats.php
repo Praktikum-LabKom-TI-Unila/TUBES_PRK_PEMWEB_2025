@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'config.php';
+include '../config.php';
 
 // hanya admin atau siswa yang meminta data dirinya sendiri
 if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin','siswa'])) {

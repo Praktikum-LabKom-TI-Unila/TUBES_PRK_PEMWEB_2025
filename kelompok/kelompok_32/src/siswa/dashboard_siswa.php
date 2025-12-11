@@ -1,9 +1,9 @@
 <?php
 session_start();
-include 'config.php';
+include '../config.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'siswa') {
-    header("Location: login.php");
+    header("Location: ../auth/login.php");
     exit();
 }
 
@@ -559,7 +559,7 @@ $result_ujian = mysqli_query($conn, "SELECT u.*, mp.nama as mata_pelajaran, mp.g
                 <a href="riwayat_siswa.php" class="nav-item"><span>◫</span> Riwayat Ujian</a>
                 <div class="nav-label" style="margin-top: 1.5rem;">Lainnya</div>
                 <a href="profile.php" class="nav-item"><span>👤</span> Profile</a>
-                <a href="logout.php" class="nav-item"><span>↪</span> Keluar</a>
+                <a href="../auth/logout.php" class="nav-item"><span>↪</span> Keluar</a>
             </nav>
             
             <div class="theme-toggle">

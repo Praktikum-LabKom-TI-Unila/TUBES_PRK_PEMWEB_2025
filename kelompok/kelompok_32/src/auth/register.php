@@ -1,12 +1,12 @@
 <?php
 session_start();
-include 'config.php';
+include '../config.php';
 
 
 $kelas_list = mysqli_query($conn, "SELECT id, nama FROM kelas ORDER BY nama");
 
 if (isset($_SESSION['user_id'])) {
-    header("Location: dashboard_siswa.php");
+    header("Location: ../siswa/dashboard_siswa.php");
     exit();
 }
 
