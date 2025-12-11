@@ -1,77 +1,49 @@
 <?php
 /**
- * FITUR 3: MANAJEMEN MATERI - DELETE
- * Tanggung Jawab: SURYA (Backend Developer)
- * 
- * Deskripsi: Hapus materi
- * - Delete record database
- * - Hapus file fisik dari server
+ * DELETE MATERI
  */
-
-session_start();
 header('Content-Type: application/json');
-
-require_once __DIR__ . '/../../config/database.php';
-require_once __DIR__ . '/../auth/session-check.php';
-
-$response = ['success' => false, 'message' => ''];
+require_once __DIR__ . '/../auth/session-helper.php';
+require_once __DIR__ . '/../config/database.php';
 
 try {
-    // 1. Cek session dosen
-    requireRole('dosen');
-    
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
         throw new Exception('Method not allowed');
     }
 
-    // 2. Validasi input POST
-    if (empty($_POST['id_materi'])) {
-        throw new Exception('id_materi harus diberikan');
+    if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'dosen') {
+        http_response_code(401);
+        throw new Exception('Unauthorized');
     }
 
-    $id_materi = intval($_POST['id_materi']);
-    $id_dosen = getUserId();
+    $data = json_decode(file_get_contents('php://input'), true);
+    $id_materi = $data['id_materi'] ?? null;
+    $id_dosen = $_SESSION['id_user'];
 
-    // 3. Query materi untuk get file_path
-    $get_materi = "SELECT m.id_materi, m.tipe, m.file_path, k.id_dosen 
-                   FROM materi m 
-                   JOIN kelas k ON m.id_kelas = k.id_kelas 
-                   WHERE m.id_materi = ?";
-    $stmt = $pdo->prepare($get_materi);
-    $stmt->execute([$id_materi]);
-    $materi = $stmt->fetch();
+    if (!$id_materi) {
+        http_response_code(400);
+        throw new Exception('id_materi required');
+    }
+
+    $stmt = $pdo->prepare('SELECT file_path FROM materi WHERE id_materi = ? AND id_dosen = ?');
+    $stmt->execute([$id_materi, $id_dosen]);
+    $materi = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$materi) {
-        throw new Exception('Materi tidak ditemukan');
+        http_response_code(403);
+        throw new Exception('Forbidden');
     }
 
-    // 4. Cek ownership
-    if ($materi['id_dosen'] != $id_dosen) {
-        throw new Exception('Anda tidak memiliki akses untuk menghapus materi ini');
-    }
+    $file_path = __DIR__ . '/../../uploads/materi/' . $materi['file_path'];
+    if (file_exists($file_path)) unlink($file_path);
 
-    // 5. Delete record database
-    $delete = "DELETE FROM materi WHERE id_materi = ?";
-    $stmt = $pdo->prepare($delete);
-    $stmt->execute([$id_materi]);
+    $delStmt = $pdo->prepare('DELETE FROM materi WHERE id_materi = ?');
+    $delStmt->execute([$id_materi]);
 
-    // 6. Hapus file fisik jika tipe = pdf
-    if ($materi['tipe'] === 'pdf' && !empty($materi['file_path'])) {
-        $upload_dir = __DIR__ . '/../../uploads/materi/';
-        $file_path = $upload_dir . $materi['file_path'];
-        
-        if (file_exists($file_path)) {
-            unlink($file_path);
-        }
-    }
-
-    // 7. Return JSON success
-    $response['success'] = true;
-    $response['message'] = 'Materi berhasil dihapus';
-
-} catch(Exception $e) {
-    $response['message'] = $e->getMessage();
+    echo json_encode(['success' => true, 'message' => 'Materi berhasil dihapus']);
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
-
-echo json_encode($response);
 ?>

@@ -1,81 +1,58 @@
 <?php
 /**
- * SESSION HELPER FUNCTIONS
- * Core authentication and session management
+ * SESSION HELPER - Advanced Session Management
+ * Supports both cookie-based and header-based session tracking
  */
 
-/**
- * Get user ID from session
- */
-function getUserId() {
-    return $_SESSION['id_user'] ?? null;
+// Ensure session save path is writable
+$save_path = ini_get('session.save_path');
+if (empty($save_path) || !is_writable($save_path)) {
+    $save_path = sys_get_temp_dir();
+    ini_set('session.save_path', $save_path);
 }
 
-/**
- * Get user role from session
- */
-function getUserRole() {
-    return $_SESSION['role'] ?? null;
+// Session configuration - maximum compatibility
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'domain' => '',
+    'secure' => false,
+    'httponly' => false,
+    'samesite' => 'None'
+]);
+
+// Increase session timeout
+ini_set('session.gc_maxlifetime', 7200);
+
+// Set session name
+session_name('PHPID');
+
+// Start session
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-/**
- * Check if user is authenticated
- */
-function isAuthenticated() {
-    return isset($_SESSION['id_user']) && !empty($_SESSION['id_user']);
-}
-
-/**
- * Require dosen role or throw 403
- */
-function requireDosen() {
-    if (!isAuthenticated() || getUserRole() !== 'dosen') {
-        http_response_code(403);
-        die(json_encode(['success' => false, 'message' => 'Only dosen can access this']));
+// IMPORTANT: Support for explicit session ID from custom header (for fetch API compatibility)
+// Client can send: X-Session-ID: <session_id_from_login>
+if (!empty($_SERVER['HTTP_X_SESSION_ID'])) {
+    $custom_session_id = $_SERVER['HTTP_X_SESSION_ID'];
+    
+    // Validate session ID format (alphanumeric, any case, 20+ chars)
+    // PHP session IDs are typically alphanumeric (a-z, 0-9) and around 26 chars
+    if (preg_match('/^[a-zA-Z0-9\-_]{20,}$/', $custom_session_id)) {
+        // Close current session first
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+        
+        // Set the provided session ID BEFORE starting session
+        session_id($custom_session_id);
+        
+        // Now start/resume with the provided ID
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
     }
-}
-
-/**
- * Require mahasiswa role or throw 403
- */
-function requireMahasiswa() {
-    if (!isAuthenticated() || getUserRole() !== 'mahasiswa') {
-        http_response_code(403);
-        die(json_encode(['success' => false, 'message' => 'Only mahasiswa can access this']));
-    }
-}
-
-/**
- * Require specific role or throw 403
- */
-function requireRole($role) {
-    if (!isAuthenticated() || getUserRole() !== $role) {
-        http_response_code(403);
-        die(json_encode(['success' => false, 'message' => "Only $role can access this"]));
-    }
-}
-
-/**
- * Require authentication or throw 401
- */
-function requireAuth() {
-    if (!isAuthenticated()) {
-        http_response_code(401);
-        die(json_encode(['success' => false, 'message' => 'Unauthorized: Please login first']));
-    }
-}
-
-/**
- * Create session token (for header validation)
- */
-function createSessionToken() {
-    return bin2hex(random_bytes(32));
-}
-
-/**
- * Validate session token format
- */
-function validateSessionToken($token) {
-    return !empty($token) && preg_match('/^[a-f0-9]{64}$/', $token);
 }
 ?>
+

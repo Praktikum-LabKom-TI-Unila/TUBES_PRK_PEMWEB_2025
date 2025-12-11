@@ -1,120 +1,110 @@
 <?php
 /**
- * FITUR 3: MANAJEMEN MATERI - UPLOAD PDF
- * Tanggung Jawab: SURYA (Backend Developer)
- * 
- * Deskripsi: Upload materi PDF
- * - Validasi file PDF (type & size max 10MB)
- * - Sanitize filename
- * - Upload ke /uploads/materi/
- * - Rename: materi_[id_kelas]_[timestamp].pdf
- * - Insert record ke database
+ * UPLOAD MATERI
+ * Endpoint: POST /backend/materi/upload-materi.php
+ * Upload PDF/File materi pembelajaran
  */
 
-session_start();
 header('Content-Type: application/json');
-
-require_once __DIR__ . '/../../config/database.php';
-require_once __DIR__ . '/../auth/session-check.php';
-
-$response = ['success' => false, 'message' => '', 'data' => null];
+require_once __DIR__ . '/../auth/session-helper.php';
+require_once __DIR__ . '/../config/database.php';
 
 try {
-    // 1. Cek session dosen
-    requireRole('dosen');
-    
+    // Validate method
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
         throw new Exception('Method not allowed');
     }
 
-    // 2. Validasi input POST
-    if (empty($_POST['id_kelas']) || empty($_POST['judul']) || empty($_POST['pertemuan_ke']) || empty($_FILES['file'])) {
-        throw new Exception('Field required tidak lengkap');
+    // Check authentication
+    if (!isset($_SESSION['id_user']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'dosen') {
+        http_response_code(401);
+        throw new Exception('Unauthorized - Dosen only');
     }
 
-    $id_kelas = intval($_POST['id_kelas']);
-    $judul = trim($_POST['judul']);
-    $deskripsi = isset($_POST['deskripsi']) ? trim($_POST['deskripsi']) : '';
-    $pertemuan_ke = intval($_POST['pertemuan_ke']);
-    $id_dosen = getUserId();
+    $id_dosen = $_SESSION['id_user'];
+    $id_kelas = $_POST['id_kelas'] ?? null;
+    $judul = $_POST['judul'] ?? null;
+    $deskripsi = $_POST['deskripsi'] ?? null;
+    $pertemuan_ke = $_POST['pertemuan_ke'] ?? null;
 
-    // Validasi judul
-    if (strlen($judul) < 3) {
-        throw new Exception('Judul minimal 3 karakter');
+    // Validate inputs
+    if (!$id_kelas || !$judul) {
+        http_response_code(400);
+        throw new Exception('id_kelas dan judul required');
     }
 
-    // Cek ownership kelas
-    $check_kelas = "SELECT id_dosen FROM kelas WHERE id_kelas = ?";
-    $stmt = $pdo->prepare($check_kelas);
-    $stmt->execute([$id_kelas]);
-    $kelas = $stmt->fetch();
-    
-    if (!$kelas || $kelas['id_dosen'] != $id_dosen) {
-        throw new Exception('Anda tidak memiliki akses ke kelas ini');
+    // Check ownership - kelas harus milik dosen yang login
+    $checkStmt = $pdo->prepare('SELECT id_kelas FROM kelas WHERE id_kelas = ? AND id_dosen = ?');
+    $checkStmt->execute([$id_kelas, $id_dosen]);
+    if (!$checkStmt->fetch()) {
+        http_response_code(403);
+        throw new Exception('Forbidden - Class tidak ditemukan atau bukan milik Anda');
     }
 
-    // 3. Validasi file
+    // Validate file upload
+    if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
+        http_response_code(400);
+        throw new Exception('File upload error');
+    }
+
     $file = $_FILES['file'];
+    $allowed_types = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
     $max_size = 10 * 1024 * 1024; // 10MB
-    $allowed_types = ['application/pdf'];
-    
-    if ($file['error'] !== UPLOAD_ERR_OK) {
-        throw new Exception('Gagal upload file');
-    }
-    
-    if ($file['size'] > $max_size) {
-        throw new Exception('Ukuran file maksimal 10MB');
-    }
-    
+
+    // Check file type
     if (!in_array($file['type'], $allowed_types)) {
-        throw new Exception('File harus berformat PDF');
+        http_response_code(400);
+        throw new Exception('File type not allowed (PDF, DOC, DOCX only)');
     }
 
-    // 4. Generate filename unik
-    $timestamp = time();
-    $filename = 'materi_' . $id_kelas . '_' . $timestamp . '.pdf';
+    // Check file size
+    if ($file['size'] > $max_size) {
+        http_response_code(400);
+        throw new Exception('File terlalu besar (max 10MB)');
+    }
+
+    // Generate filename
     $upload_dir = __DIR__ . '/../../uploads/materi/';
-    
-    // Buat folder jika belum ada
     if (!is_dir($upload_dir)) {
         mkdir($upload_dir, 0755, true);
     }
-    
-    $file_path = $upload_dir . $filename;
 
-    // 5. Upload file
+    $file_ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $file_name = 'materi_' . $id_kelas . '_' . time() . '_' . uniqid() . '.' . $file_ext;
+    $file_path = $upload_dir . $file_name;
+
+    // Move uploaded file
     if (!move_uploaded_file($file['tmp_name'], $file_path)) {
-        throw new Exception('Gagal menyimpan file');
+        http_response_code(500);
+        throw new Exception('Failed to upload file');
     }
 
-    // 6. Insert ke tabel materi
-    $insert = "INSERT INTO materi (id_kelas, judul, deskripsi, tipe, file_path, pertemuan_ke) 
-               VALUES (?, ?, ?, ?, ?, ?)";
+    // Insert to database
+    $stmt = $pdo->prepare('
+        INSERT INTO materi (id_kelas, id_dosen, judul, deskripsi, file_path, pertemuan_ke, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, NOW())
+    ');
     
-    $stmt = $pdo->prepare($insert);
-    $stmt->execute([
-        $id_kelas,
-        $judul,
-        $deskripsi,
-        'pdf',
-        $filename,
-        $pertemuan_ke
-    ]);
-
+    $stmt->execute([$id_kelas, $id_dosen, $judul, $deskripsi ?: null, $file_name, $pertemuan_ke ?: null]);
     $id_materi = $pdo->lastInsertId();
 
-    // 7. Return JSON success
-    $response['success'] = true;
-    $response['message'] = 'Materi PDF berhasil diupload';
-    $response['data'] = [
-        'id_materi' => intval($id_materi),
-        'filename' => $filename,
-        'judul' => $judul
-    ];
+    http_response_code(201);
+    echo json_encode([
+        'success' => true,
+        'message' => 'Materi berhasil diupload',
+        'data' => [
+            'id_materi' => $id_materi,
+            'file_name' => $file_name,
+            'judul' => $judul
+        ]
+    ]);
 
-} catch(Exception $e) {
-    $response['message'] = $e->getMessage();
+} catch (Exception $e) {
+    http_response_code(isset($http_code) ? $http_code : 500);
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
+    ]);
 }
-
-echo json_encode($response);
 ?>
