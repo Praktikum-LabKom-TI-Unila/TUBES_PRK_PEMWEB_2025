@@ -21,7 +21,7 @@ if ($row = mysqli_fetch_assoc($result)) {
         if ($row['role'] == 'admin') {
             header("Location: ../admin/dashboard.php");
         } else if ($row['role'] == 'staff') {
-            header("Location: ../staff/transaksi.php");
+            header("Location: ../staff/dashboard.php");
         }
     } else {
         header("Location: ../index.php?pesan=gagal");
