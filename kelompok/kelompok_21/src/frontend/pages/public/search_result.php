@@ -7,6 +7,7 @@ ini_set('display_errors', 1);
 require_once '../../../config/database.php';
 
 $assetPath = "../../assets/";
+$logoPath = "/kelompok/kelompok_21/src/assets/img/logo.png";
 
 $isLoggedIn = isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'];
 $userRole = isset($_SESSION['user_role']) ? $_SESSION['user_role'] : '';
@@ -92,14 +93,14 @@ if (empty($tutorsData)) {
 <nav class="sb-navbar">
     <div class="sb-nav-container">
         <div class="sb-brand">
-            <img src="<?php echo $assetPath; ?>img/logo.png" alt="ScholarBridge Logo" class="logo">
+            <img src="<?php echo $logoPath; ?>" alt="ScholarBridge Logo" class="logo">
             <span>ScholarBridge</span>
         </div>
         <ul class="sb-menu">
             <li><a href="../learner/dashboard_siswa.php">Beranda</a></li>
             <li><a href="search_result.php" class="active">Cari Tutor</a></li>
             <li><a href="../learner/sesi_saya.php">Sesi Saya</a></li>
-            <li><a href="#testimoni">Testimoni</a></li>
+            <li><a href="../learner/riwayat.php">Riwayat Booking</a></li>
         </ul>
         <div style="display: flex; gap: 10px; align-items: center;">
             <div style="position: relative;">

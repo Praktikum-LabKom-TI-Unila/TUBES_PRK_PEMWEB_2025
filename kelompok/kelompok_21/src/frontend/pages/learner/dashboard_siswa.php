@@ -99,7 +99,7 @@ $top_tutors_result = mysqli_query($conn, $top_tutors_query);
             <li><a href="dashboard_siswa.php" class="active">Beranda</a></li>
             <li><a href="../public/search_result.php">Cari Tutor</a></li>
             <li><a href="sesi_saya.php">Sesi Saya</a></li>
-            <li><a href="#testimoni">Testimoni</a></li>
+            <li><a href="riwayat.php">Riwayat Booking</a></li>
         </ul>
 
         <!-- User Profile -->
@@ -937,7 +937,7 @@ window.onclick = function(event) {
         <div class="recent-bookings">
             <div class="recent-bookings-header">
                 <h2>Booking Terbaru</h2>
-                <a href="#" class="view-all-link">Lihat Semua →</a>
+                <a href="sesi_saya.php" class="view-all-link">Lihat Semua →</a>
             </div>
             <?php if ($recent_bookings_result && mysqli_num_rows($recent_bookings_result) > 0): ?>
                 <?php while ($booking = mysqli_fetch_assoc($recent_bookings_result)): 

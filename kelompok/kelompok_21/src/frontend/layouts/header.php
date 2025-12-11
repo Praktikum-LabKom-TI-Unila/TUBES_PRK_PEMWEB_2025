@@ -3,6 +3,11 @@ if (!isset($assetPath)) {
   $assetPath = "../../../assets/";
 }
 
+// Gunakan absolute path untuk logo agar konsisten
+if (!isset($logoPath)) {
+  $logoPath = "/kelompok/kelompok_21/src/assets/img/logo.png";
+}
+
 if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
@@ -37,7 +42,7 @@ $userRole = $_SESSION['user_role'] ?? '';
 
     <!-- Logo/Brand -->
     <div class="sb-brand">
-      <img src="../../../assets/img/logo.png" alt="ScholarBridge Logo" class="logo">
+      <img src="<?php echo $logoPath; ?>" alt="ScholarBridge Logo" class="logo">
       <span>ScholarBridge</span>
     </div>
 
