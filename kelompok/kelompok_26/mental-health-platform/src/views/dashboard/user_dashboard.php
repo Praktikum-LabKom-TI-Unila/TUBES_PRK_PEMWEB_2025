@@ -65,17 +65,67 @@ if ($res) {
     while ($row = $res->fetch_assoc()) $sessions[] = $row;
 }
 
-// === Fetch subscription/payment status (simple) ===
-// payments table: check if it exists before querying
+// === Fetch subscription/payment status (subscription preferred, then payment(s)) ===
 $payment = null;
-$tableCheckResult = $conn->query("SHOW TABLES LIKE 'payments'");
+
+// 1) Subscription table (plan: daily/weekly/monthly, status: active/expired)
+$tableCheckResult = $conn->query("SHOW TABLES LIKE 'subscription'");
 if ($tableCheckResult && $tableCheckResult->num_rows > 0) {
-    $stmt = $conn->prepare("SELECT * FROM payments WHERE user_id = ? ORDER BY payment_id DESC LIMIT 1");
+    $stmt = $conn->prepare("SELECT * FROM subscription WHERE user_id = ? ORDER BY end_date DESC LIMIT 1");
     if ($stmt) {
         $stmt->bind_param("i", $user_id);
         $stmt->execute();
         $res = $stmt->get_result();
-        if ($res && $res->num_rows) $payment = $res->fetch_assoc();
+        if ($res && $res->num_rows) {
+            $sub = $res->fetch_assoc();
+            $isActive = ($sub['status'] ?? '') === 'active' && (!isset($sub['end_date']) || $sub['end_date'] >= date('Y-m-d'));
+            if ($isActive) {
+                $payment = [
+                    'plan' => $sub['plan'] ?? '—',
+                    'status' => $sub['status'] ?? 'active',
+                    'expires_at' => $sub['end_date'] ?? '-',
+                ];
+            }
+        }
+    }
+}
+
+// 2) Payment table (singular)
+if (!$payment) {
+    $tableCheckResult = $conn->query("SHOW TABLES LIKE 'payment'");
+    if ($tableCheckResult && $tableCheckResult->num_rows > 0) {
+        $stmt = $conn->prepare("SELECT * FROM payment WHERE user_id = ? ORDER BY payment_id DESC LIMIT 1");
+        if ($stmt) {
+            $stmt->bind_param("i", $user_id);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if ($res && $res->num_rows) {
+                $payment = $res->fetch_assoc();
+                // Normalize fields to keep rendering consistent
+                $payment['plan'] = $payment['plan'] ?? ($payment['status'] ?? '—');
+                $payment['status'] = $payment['status'] ?? 'pending';
+                $payment['expires_at'] = $payment['end_date'] ?? ($payment['created_at'] ?? '-');
+            }
+        }
+    }
+}
+
+// 3) payments table (plural) fallback
+if (!$payment) {
+    $tableCheckResult = $conn->query("SHOW TABLES LIKE 'payments'");
+    if ($tableCheckResult && $tableCheckResult->num_rows > 0) {
+        $stmt = $conn->prepare("SELECT * FROM payments WHERE user_id = ? ORDER BY payment_id DESC LIMIT 1");
+        if ($stmt) {
+            $stmt->bind_param("i", $user_id);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if ($res && $res->num_rows) {
+                $payment = $res->fetch_assoc();
+                $payment['plan'] = $payment['plan'] ?? ($payment['status'] ?? '—');
+                $payment['status'] = $payment['status'] ?? 'pending';
+                $payment['expires_at'] = $payment['expires_at'] ?? ($payment['created_at'] ?? '-');
+            }
+        }
     }
 }
 
@@ -168,7 +218,7 @@ if ($tableCheckResult && $tableCheckResult->num_rows > 0) {
             <div class="grid md:grid-cols-1 gap-8 mb-6">
                 <div class="card-gradient rounded-2xl soft-shadow p-6 card-animate">
                 <div class="flex items-center gap-4">
-                    <img src="<?= isset($user['profile_picture']) && $user['profile_picture'] ? "../uploads/profile/".htmlspecialchars($user['profile_picture']) : 'https://via.placeholder.com/80x80?text=User' ?>"
+                    <img src="<?= isset($user['profile_picture']) && $user['profile_picture'] ? "../uploads/images/user_profile_pictures/".htmlspecialchars($user['profile_picture']) : 'https://via.placeholder.com/80x80?text=User' ?>"
                          alt="avatar" class="w-20 h-20 object-cover rounded-xl shadow-sm">
                     <div>
                         <div class="text-lg font-semibold" style="color: var(--text-primary);"><?= htmlspecialchars($user['name'] ?? $user['email']) ?></div>
@@ -203,7 +253,7 @@ if ($tableCheckResult && $tableCheckResult->num_rows > 0) {
                         <?php foreach ($sessions as $s): ?>
                             <div class="flex items-center justify-between gap-4 p-4 rounded-lg border bg-white">
                                 <div class="flex items-center gap-4">
-                                    <img src="<?= isset($s['konselor_pic']) && $s['konselor_pic'] ? "./uploads/konselor/".htmlspecialchars($s['konselor_pic']) : 'https://via.placeholder.com/56x56?text=K' ?>" class="w-12 h-12 object-cover rounded-lg">
+                                    <img src="<?= isset($s['konselor_pic']) && $s['konselor_pic'] ? "../uploads/images/konselor_profile_pictures/".htmlspecialchars($s['konselor_pic']) : 'https://via.placeholder.com/56x56?text=K' ?>" class="w-12 h-12 object-cover rounded-lg">
                                     <div>
                                         <div class="font-semibold"><?= htmlspecialchars($s['konselor_name'] ?? '—') ?></div>
                                         <div class="text-xs" style="color:var(--text-secondary);"><?= date('d M Y H:i', strtotime($s['started_at'] ?? $s['created_at'] ?? '-')) ?></div>
@@ -268,18 +318,21 @@ if ($tableCheckResult && $tableCheckResult->num_rows > 0) {
 
                             <div class="mt-4 text-xs text-gray-500">Pendekatan Emosional</div>
                             <?php
-                                $emo_log = ($survey['q4']==1)?100:0;
+                                // q4: 1 = logis, 2 = emosional
+                                $log_pct = ($survey['q4']==1)?100:0;
+                                $emo_pct = 100 - $log_pct;
                             ?>
                             <div class="w-full bg-gray-200 h-3 rounded-full overflow-hidden">
-                                <div class="h-full bg-[#17252A]" style="width: <?= $emo_log ?>%"></div>
+                                <div class="h-full bg-[#17252A]" style="width: <?= $log_pct ?>%"></div>
                             </div>
                             <div class="flex justify-between text-xs text-gray-500 mt-2">
-                                <span>Logis</span>
-                                <span>Emosional</span>
+                                <span>Logis <?= $log_pct ?>%</span>
+                                <span>Emosional <?= $emo_pct ?>%</span>
                             </div>
 
-                            <div class="mt-4 text-sm">
-                                <a href="index.php?p=match" class="text-[#3AAFA9] font-semibold">Lihat hasil kecocokan</a>
+                            <div class="mt-6 space-y-2">
+                                <a href="index.php?p=match" class="block text-sm text-[#3AAFA9] font-semibold">Lihat hasil kecocokan</a>
+                                <a href="index.php?p=survey" class="block text-sm text-[#3AAFA9] font-semibold">Ambil survey lagi</a>
                             </div>
                         </div>
                     <?php else: ?>

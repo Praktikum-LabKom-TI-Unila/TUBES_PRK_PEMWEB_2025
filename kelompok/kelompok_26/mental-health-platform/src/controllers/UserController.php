@@ -129,7 +129,7 @@ class UserController {
         }
         
         // Create upload directory
-        $uploadDir = __DIR__ . '/../../uploads/profile/';
+        $uploadDir = __DIR__ . '/../../uploads/images/user_profile_pictures/';
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
         }

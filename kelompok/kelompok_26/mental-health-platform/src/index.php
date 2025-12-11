@@ -8,8 +8,32 @@ require_once _DIR_ . '/config/database.php';
 
 $p = $_GET['p'] ?? 'home';
 
+// Handle logout SEBELUM output apapun
+if ($p === 'logout') {
+    session_unset();
+    session_destroy();
+    header('Location: ?p=login');
+    exit;
+}
+
+// Handle API calls SEBELUM output apapun
+if ($p === 'api_chat') {
+    require_once __DIR__ . '/controllers/handle_chat.php';
+    exit;
+}
+
+if ($p === 'handle_payment') {
+    require_once __DIR__ . '/controllers/handle_payment.php';
+    exit;
+}
+
+if ($p === 'handle_konselor') {
+    require_once __DIR__ . '/controllers/handle_konselor.php';
+    exit;
+}
+
 function load_view($path, $conn = null) {
-    $file = _DIR_ . "/views/$path.php";
+    $file = __DIR__ . "/views/$path.php";
     if (file_exists($file)) include $file;
 }
 ?>
@@ -374,13 +398,6 @@ if (isset($_GET['p'])) {
             load_view("auth/register");
             break;
 
-        case 'logout':
-            // Hapus session dan redirect ke halaman utama
-            session_unset();
-            session_destroy();
-            header('Location: index.php?p=home');
-            exit;
-
         case 'survey':
             load_view("survey/survey_form");
             break;
@@ -389,20 +406,12 @@ if (isset($_GET['p'])) {
             load_view("chat/chat_room");
             break;
 
-        case 'api_chat':
-            require_once _DIR_ . '/controllers/handle_chat.php';
-            break;
-
         case 'delete_session':
             require_once _DIR_ . '/controllers/handle_session.php';
             break;
 
         case 'match':
             load_view("matching/match_result");
-            break;
-
-        case 'handle_konselor':
-            require_once _DIR_ . '/controllers/handle_konselor.php';
             break;
 
         case 'konselor_chat':

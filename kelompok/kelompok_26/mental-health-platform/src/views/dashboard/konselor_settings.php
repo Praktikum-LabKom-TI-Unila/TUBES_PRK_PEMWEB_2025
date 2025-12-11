@@ -94,11 +94,12 @@ if ($stmt) {
 
                         <div class="flex items-center gap-4 mb-8">
                             <div class="relative">
-                                <img id="profilePictureDisplay" src="<?= isset($konselor['profile_picture']) && $konselor['profile_picture'] ? "../uploads/konselor/".htmlspecialchars($konselor['profile_picture']) : 'https://via.placeholder.com/100x100?text=Konselor' ?>"
+                                <img id="profilePictureDisplay" src="<?= isset($konselor['profile_picture']) && $konselor['profile_picture'] ? "../uploads/images/konselor_profile_pictures/".htmlspecialchars($konselor['profile_picture']) : 'https://via.placeholder.com/100x100?text=Konselor' ?>"
                                      alt="avatar" class="w-24 h-24 object-cover rounded-xl shadow-sm">
-                                <button type="button" onclick="openPhotoModal()" class="absolute bottom-0 right-0 bg-[#3AAFA9] text-white p-2 rounded-full shadow-lg hover:bg-[#2fb39a] transition">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M3 17.25V21h3.75L17.81 9.94m-2.12-2.12l2.83-2.83a2.828 2.828 0 114 4l-2.83 2.83m-5.75 5.75L9 3"></path>
+                                <button type="button" onclick="openPhotoModal()" class="absolute bottom-0 right-0 bg-[#3AAFA9] text-white p-2 rounded-full shadow-lg hover:bg-[#2fb39a] transition" aria-label="Ubah foto">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 20h9" />
+                                        <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z" />
                                     </svg>
                                 </button>
                             </div>
@@ -339,7 +340,7 @@ document.getElementById('photoForm').addEventListener('submit', function(e) {
     formData.append('action', 'upload_photo');
     formData.append('photo', file);
 
-    fetch('index.php?p=handle_konselor', {
+    fetch('?p=handle_konselor', {
         method: 'POST',
         body: formData
     })
@@ -420,7 +421,7 @@ function submitProfileForm() {
         formData.append('password_old', password_old);
     }
 
-    fetch('index.php?p=handle_konselor', {
+    fetch('?p=handle_konselor', {
         method: 'POST',
         body: formData
     })

@@ -75,27 +75,78 @@ if ($direct_score >= 2 && $logical) {
 
 
 // ---------------------
-// MATCHING COUNSELORS
+// MATCHING COUNSELORS (map survey -> enum, then score)
 // ---------------------
-$cons = $conn->query("SELECT * FROM konselor");
+// Map jawaban survey ke enum konselor_profile
+$comm_pref = 'B'; // S=supportive (lembut), G=guiding (tegas), B=balanced
+$direct_count = 0; $gentle_count = 0;
+foreach ([$survey['q1'], $survey['q2'], $survey['q3']] as $ans) {
+    if ($ans == 1) $direct_count++; // tegas
+    if ($ans == 2) $gentle_count++; // lembut
+}
+if ($direct_count >= 2) {
+    $comm_pref = 'G';
+} elseif ($gentle_count >= 2) {
+    $comm_pref = 'S';
+}
+
+$approach_pref = 'B'; // O=oriented/hangat, D=directive/logis, B=balanced
+if (($survey['q4'] ?? 0) == 1) {
+    $approach_pref = 'D'; // logis, to-the-point
+} elseif (($survey['q4'] ?? 0) == 2) {
+    $approach_pref = 'O'; // hangat, suportif
+}
+
+$commLabelMap = [
+    'G' => 'Tegas & Langsung',
+    'S' => 'Lembut & Empatik',
+    'B' => 'Seimbang',
+];
+
+$approachLabelMap = [
+    'D' => 'Logis & Rasional',
+    'O' => 'Hangat & Suportif',
+    'B' => 'Seimbang',
+];
+
+$cons = $conn->query("SELECT k.*, kp.communication_style, kp.approach_style FROM konselor k LEFT JOIN konselor_profile kp ON kp.konselor_id = k.konselor_id");
 
 $results = [];
 
 while ($row = $cons->fetch_assoc()) {
+    // Normalize legacy numeric values (1 tegas/logis, 2 lembut/emosional)
+    $rawComm = $row['communication_style'] ?? '';
+    if ($rawComm === '1') $rawComm = 'G';
+    if ($rawComm === '2') $rawComm = 'S';
+    $comm = $rawComm ?: 'B';
 
+    $rawApproach = $row['approach_style'] ?? '';
+    if ($rawApproach === '1') $rawApproach = 'D';
+    if ($rawApproach === '2') $rawApproach = 'O';
+    $approach = $rawApproach ?: 'B';
     $score = 0;
 
-    // Compare q1 & q2 to communication_style
-    if (($survey['q1'] ?? null) == ($row['communication_style'] ?? null)) $score++;
-    if (($survey['q2'] ?? null) == ($row['communication_style'] ?? null)) $score++;
+    // Communication match: exact match highest, balanced gives partial credit
+    if ($comm_pref === $comm) {
+        $score += 3;
+    } elseif ($comm_pref === 'B' || $comm === 'B') {
+        $score += 1;
+    }
 
-    // Compare q3 & q4 to approach_style
-    // NOTE: Logika ini terlihat tidak benar di file asli (q3, q4 dibandingkan ke approach_style)
-    // Saya pertahankan struktur ini sesuai kode Anda, meski mungkin perlu dikoreksi nanti.
-    if (($survey['q3'] ?? null) == ($row['approach_style'] ?? null)) $score++; 
-    if (($survey['q4'] ?? null) == ($row['approach_style'] ?? null)) $score++;
+    // Approach match: exact > balanced
+    if ($approach_pref === $approach) {
+        $score += 2;
+    } elseif ($approach_pref === 'B' || $approach === 'B') {
+        $score += 1;
+    }
+
+    // Sedikit bonus untuk rating & pengalaman
+    $score += floatval($row['rating'] ?? 0) * 0.1;
+    $score += min(1, max(0, intval($row['experience_years'] ?? 0) / 10));
 
     $row['score'] = $score;
+    $row['comm_label'] = $commLabelMap[$comm] ?? 'Seimbang';
+    $row['approach_label'] = $approachLabelMap[$approach] ?? 'Seimbang';
     $results[] = $row;
 }
 
@@ -194,33 +245,41 @@ usort($results, function($a, $b) {
 
                         <div class="bg-white rounded-2xl soft-shadow p-6 flex flex-col md:flex-row items-center gap-6 border border-gray-100">
 
-                            <img src="./uploads/konselor/<?= $r['profile_picture'] ?? 'default.png' ?>"
+                            <img src="../uploads/images/konselor_profile_pictures/<?= $r['profile_picture'] ?? 'default.png' ?>"
                                 class="w-24 h-24 object-cover rounded-xl shadow-lg border-2 border-[#3AAFA9]">
 
                             <div class="flex-1">
 
                                 <h3 class="text-xl font-bold text-[#17252A]"><?= $r['name'] ?></h3>
 
+                                <div class="mt-1 text-sm text-gray-600">
+                                    <?= htmlspecialchars($r['specialization'] ?? 'Spesialisasi belum diisi') ?>
+                                </div>
+
                                 <div class="mt-2 text-gray-600 text-sm">
                                     Pengalaman: <strong><?= $r['experience_years'] ?> tahun</strong> |
                                     Rating: <strong><?= $r['rating'] ?>★</strong>
                                 </div>
 
+                                <div class="mt-3 text-sm text-gray-700 leading-relaxed">
+                                    <?= htmlspecialchars(($r['bio'] ?? '') ?: 'Biografi belum ditambahkan oleh konselor.') ?>
+                                </div>
+
                                 <div class="mt-4 p-4 bg-[#F7FBFB] rounded-xl text-sm">
                                     <p class="font-semibold text-[#17252A]">Gaya Komunikasi:</p>
                                     <p class="text-gray-600">
-                                        <?= (($r['communication_style'] ?? null) == 1) ? 'Tegas & Langsung' : 'Lembut & Empati' ?>
+                                        <?= htmlspecialchars($r['comm_label'] ?? 'Seimbang') ?>
                                     </p>
                                     <p class="font-semibold text-[#17252A] mt-3">Pendekatan Emosional:</p>
                                     <p class="text-gray-600">
-                                        <?= (($r['approach_style'] ?? null) == 1) ? 'Logis & Rasional' : 'Hangat & Suportif' ?>
+                                        <?= htmlspecialchars($r['approach_label'] ?? 'Seimbang') ?>
                                     </p>
                                 </div>
                             </div>
 
                             <div class="flex flex-col gap-3 w-full md:w-auto">
 
-                                <a href="index.php?p=chat&session_id=<?= $r['konselor_id'] ?>"
+                                <a href="?p=chat&konselor_id=<?= $r['konselor_id'] ?>"
                                     class="px-6 py-3 bg-[#3AAFA9] text-white rounded-lg text-center font-semibold hover:bg-[#2B8E89]">
                                     Mulai Chat
                                 </a>
