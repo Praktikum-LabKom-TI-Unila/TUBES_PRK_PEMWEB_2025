@@ -36,3 +36,16 @@ Selain itu, sistem juga menyediakan modul informasi dan publikasi yang komprehen
    ```
    http://localhost:8000/index.php
    ```
+
+# Screenshot Aplikasi
+### 1. Landing Page
+![Landing Page](src/assets/screenshots/home.png)
+
+### 2. Halaman Login
+![Halaman Login](src/assets/screenshots/login.png)
+
+### 3. Halaman Profile Anggota
+![Halaman Profile Anggota](src/assets/screenshots/profile.png)
+
+### 4. Dashboard Admin
+![Landing Page](src/assets/screenshots/admin-dashboard.png)
