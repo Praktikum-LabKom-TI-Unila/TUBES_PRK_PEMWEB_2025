@@ -447,70 +447,88 @@ async function deleteCampaign(id) {
 
 // Add update
 function addUpdate(campaignId) {
-    const title = prompt('Judul Update:');
-    if (!title) return;
-    
-    const content = prompt('Isi Update:');
-    if (!content) return;
-    
-    const imageUrl = prompt('URL Gambar (opsional):') || '';
-    
-    const formData = new FormData();
-    formData.append('action', 'add_update');
-    formData.append('campaign_id', campaignId);
-    formData.append('title', title);
-    formData.append('content', content);
-    formData.append('image_url', imageUrl);
-    
-    fetch('../api/admin.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            alert('Update berhasil ditambahkan');
-        } else {
-            alert('Gagal menambahkan update');
-        }
-    });
+    document.getElementById('updateCampaignId').value = campaignId;
+    document.getElementById('updateForm').reset();
+    document.getElementById('updateModal').classList.remove('hidden');
+}
+
+function closeUpdateModal() {
+    document.getElementById('updateModal').classList.add('hidden');
+    document.getElementById('updateForm').reset();
 }
 
 // Add report
 function addReport(campaignId) {
-    const title = prompt('Judul Laporan:');
-    if (!title) return;
-    
-    const description = prompt('Deskripsi:') || '';
-    
-    const expenseAmount = prompt('Jumlah Pengeluaran (Rp):');
-    if (!expenseAmount) return;
-    
-    const receiptUrl = prompt('URL Nota/Struk (opsional):') || '';
-    const distributionUrl = prompt('URL Foto Penyaluran (opsional):') || '';
-    
-    const formData = new FormData();
-    formData.append('action', 'add_report');
-    formData.append('campaign_id', campaignId);
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('expense_amount', expenseAmount);
-    formData.append('receipt_image', receiptUrl);
-    formData.append('distribution_image', distributionUrl);
-    
-    fetch('../api/admin.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            alert('Laporan berhasil ditambahkan');
-        } else {
-            alert('Gagal menambahkan laporan');
-        }
-    });
+    document.getElementById('reportCampaignId').value = campaignId;
+    document.getElementById('reportForm').reset();
+    document.getElementById('reportModal').classList.remove('hidden');
 }
+
+function closeReportModal() {
+    document.getElementById('reportModal').classList.add('hidden');
+    document.getElementById('reportForm').reset();
+}
+
+// Handle update and report form submit
+document.addEventListener('DOMContentLoaded', () => {
+    // Update form
+    const updateForm = document.getElementById('updateForm');
+    if (updateForm) {
+        updateForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            formData.append('action', 'add_update');
+            
+            try {
+                const response = await fetch('../api/admin.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Update berhasil ditambahkan');
+                    closeUpdateModal();
+                    loadCampaigns();
+                } else {
+                    alert(data.message || 'Gagal menambahkan update');
+                }
+            } catch (error) {
+                alert('Terjadi kesalahan');
+            }
+        });
+    }
+    
+    // Report form
+    const reportForm = document.getElementById('reportForm');
+    if (reportForm) {
+        reportForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            formData.append('action', 'add_report');
+            
+            try {
+                const response = await fetch('../api/admin.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Laporan berhasil ditambahkan');
+                    closeReportModal();
+                    loadCampaigns();
+                } else {
+                    alert(data.message || 'Gagal menambahkan laporan');
+                }
+            } catch (error) {
+                alert('Terjadi kesalahan');
+            }
+        });
+    }
+});
 
 // Load statistics
 async function loadStatistics() {

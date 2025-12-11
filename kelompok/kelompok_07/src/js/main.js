@@ -140,7 +140,13 @@ async function loadCampaignDetail(id) {
                         <div class="border-l-4 border-indigo-600 pl-4 mb-4">
                             <h3 class="font-semibold mb-1">${update.title}</h3>
                             <p class="text-gray-700 text-sm mb-2">${update.content}</p>
-                            ${update.image_url ? `<img src="${update.image_url}" class="max-w-md rounded-lg mb-2">` : ''}
+                            ${update.image_url ? `
+                                <div class="mb-2">
+                                    <img src="${update.image_url.startsWith('http://') || update.image_url.startsWith('https://') ? update.image_url : update.image_url}" 
+                                         alt="${update.title}" 
+                                         class="max-w-md rounded-lg border border-gray-300">
+                                </div>
+                            ` : ''}
                             <p class="text-xs text-gray-500">${new Date(update.created_at).toLocaleDateString('id-ID')}</p>
                         </div>
                     `).join('')}
@@ -155,8 +161,22 @@ async function loadCampaignDetail(id) {
                             <h3 class="font-semibold mb-2">${report.title}</h3>
                             <p class="text-gray-700 text-sm mb-2">${report.description || ''}</p>
                             <p class="text-indigo-600 font-semibold mb-2">Pengeluaran: Rp ${parseInt(report.expense_amount).toLocaleString('id-ID')}</p>
-                            ${report.receipt_image ? `<img src="${report.receipt_image}" class="max-w-md rounded-lg mb-2">` : ''}
-                            ${report.distribution_image ? `<img src="${report.distribution_image}" class="max-w-md rounded-lg mb-2">` : ''}
+                            ${report.receipt_image ? `
+                                <div class="mb-2">
+                                    <p class="text-sm text-gray-600 mb-1 font-medium">Foto Nota/Struk:</p>
+                                    <img src="${report.receipt_image.startsWith('http://') || report.receipt_image.startsWith('https://') ? report.receipt_image : report.receipt_image}" 
+                                         alt="Nota/Struk" 
+                                         class="max-w-md rounded-lg border border-gray-300">
+                                </div>
+                            ` : ''}
+                            ${report.distribution_image ? `
+                                <div class="mb-2">
+                                    <p class="text-sm text-gray-600 mb-1 font-medium">Foto Penyaluran Bantuan:</p>
+                                    <img src="${report.distribution_image.startsWith('http://') || report.distribution_image.startsWith('https://') ? report.distribution_image : report.distribution_image}" 
+                                         alt="Penyaluran Bantuan" 
+                                         class="max-w-md rounded-lg border border-gray-300">
+                                </div>
+                            ` : ''}
                             <p class="text-xs text-gray-500">${new Date(report.created_at).toLocaleDateString('id-ID')}</p>
                         </div>
                     `).join('')}
