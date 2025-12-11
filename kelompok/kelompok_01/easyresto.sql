@@ -45,7 +45,9 @@ INSERT INTO `detail_transaksi` (`id_detail`, `id_transaksi`, `id_menu`, `jumlah`
 	(19, 6, 15, 1, 17000),
 	(20, 6, 17, 1, 20000),
 	(21, 7, 6, 1, 22000),
-	(22, 7, 21, 1, 33000);
+	(22, 7, 21, 1, 33000),
+	(23, 8, 10, 1, 34000),
+	(24, 8, 6, 1, 22000);
 
 CREATE TABLE IF NOT EXISTS `kategori_menu` (
   `id_kategori` int NOT NULL AUTO_INCREMENT,
@@ -126,7 +128,8 @@ INSERT INTO `transaksi` (`id_transaksi`, `nama_pelanggan`, `tanggal`, `subtotal`
 	(4, 'aya', '2025-12-11 05:00:09', 74000, 7400, 1850, 83250),
 	(5, 'alya', '2025-12-11 11:48:03', 63000, 6300, 1575, 70875),
 	(6, 'alya nayra', '2025-12-11 11:49:27', 71000, 7100, 1775, 79875),
-	(7, 'alya', '2025-12-11 12:33:46', 55000, 5500, 1375, 61875);
+	(7, 'alya', '2025-12-11 12:33:46', 55000, 5500, 1375, 61875),
+	(8, 'gio', '2025-12-11 14:05:17', 56000, 5600, 1400, 63000);
 
 CREATE TABLE IF NOT EXISTS `users` (
   `id_user` int NOT NULL AUTO_INCREMENT,
@@ -141,7 +144,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `users` (`id_user`, `username`, `password`, `role`, `nama`, `phone_number`, `profile_picture`) VALUES
-	(1, 'admin', 'admin123', 'admin', 'Admin User', NULL, NULL),
+	(1, 'admin', 'admin123', 'admin', 'Admin User', '082167436859', '../uploads/profil/693acfec15a92_1765461996.jpg'),
 	(2, 'owner', 'owner123', 'owner', 'Owner User', NULL, '../uploads/profil/693abe00ab26c_1765457408.jpg'),
 	(3, 'kasir', '6d2f2d182c03040daeddbd634291813b', 'kasir', 'Alya Nayra Syafiqa', '082167576527', 'uploads/profil/693aaf29773fc_1765453609.jpg');
 
