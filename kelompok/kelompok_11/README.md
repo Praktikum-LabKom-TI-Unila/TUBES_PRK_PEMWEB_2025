@@ -1,215 +1,129 @@
-# POS UMKM Bengkel - Kelompok 11
+# 🔧 Sistem Informasi Manajemen & POS Bengkel UMKM
 
-## 👥 Anggota Kelompok
+## 👥 Anggota Kelompok 11
 
-**Ketua Kelompok:**
-- MUHAMMAD FAVIAN RIZKI (2315061067)
+Proyek ini dikembangkan oleh tim mahasiswa Teknik Komputer Universitas Lampung:
 
-**Anggota:**
-1. Ary Nanda Pratama (2315061039) - User Management & Role Access
-2. Daffa Raihan Permana (2315061082) - Modul Reservasi Bengkel
-3. Tomy Arya Fiosa (2315061110) - POS (Kasir), Transaksi & Stok
-4. Muhammad Favian Rizki (2315061067) - Inventory, Dashboard, UI & Dokumentasi
-
----
-
-## 📝 Deskripsi Project
-
-Sistem Point of Sale (POS) untuk UMKM Bengkel yang mengelola transaksi servis kendaraan, inventori sparepart, reservasi pelanggan, dan laporan keuangan. Aplikasi berbasis web dengan role-based access untuk Admin, Kasir, dan Mekanik.
-
-**Tema:** Digital Transformation for SMEs (POS, Marketplace, Inventori)
+| NIM | Nama Anggota | Peran & Tanggung Jawab |
+| :--- | :--- | :--- |
+| **2315061067** | **Muhammad Favian Rizki (Ketua)** | Fullstack (Inventory, Dashboard), UI/UX Design, Dokumentasi |
+| 2315061039 | Ary Nanda Pratama | (User Management, Auth, Role Access) |
+| 2315061082 | Daffa Raihan Permana | (Modul Reservasi Service & Check-in) |
+| 2315061110 | Tomy Arya Fiosa | (Point of Sale, Transaction Logic, QRIS) |
 
 ---
 
-## ✨ Fitur Utama
+## 📝 Tentang Proyek
 
-### 1. User Management
-- ✅ Login dengan role-based access (Admin, Kasir, Mekanik)
-- ✅ Logout
-- ✅ Session management
-- ⚠️ Registrasi (dalam pengembangan)
+**Sistem POS Bengkel UMKM** adalah solusi transformasi digital yang dirancang khusus untuk membantu pemilik bengkel kecil dan menengah dalam mengelola operasional bisnis mereka secara efisien.
 
-### 2. Modul Inventory (Admin Only)
-- ✅ CRUD Sparepart (tambah, edit, hapus, list)
-- ✅ CRUD Supplier (tambah, edit, hapus, list)
-- ✅ Low stock indicator
-- ✅ API JSON untuk monitoring stok
+Aplikasi ini menggantikan pencatatan manual dengan sistem terintegrasi yang mencakup manajemen stok sparepart, kasir (POS), reservasi pelanggan, hingga laporan kinerja mekanik secara *real-time*.
 
-### 3. Dashboard Real-time
-- ✅ Statistik transaksi harian
-- ✅ Omzet hari ini
-- ✅ Reservasi aktif
-- ✅ Alert stok menipis
-- ✅ Sparepart terlaris
-- ✅ Auto-refresh AJAX (30 detik)
+### 🌟 Fitur Unggulan
 
-### 4. Database
-- ✅ 12 tabel relational (roles, users, suppliers, parts, services, transactions, dll)
-- ✅ Foreign key constraints
-- ✅ Sample data lengkap
+#### 1. 🖥️ Dashboard Interaktif
+Monitoring bisnis dalam satu layar dengan statistik *real-time* menggunakan AJAX.
+- Grafik omzet harian.
+- Notifikasi stok menipis (Low Stock Alert).
+- Pelacakan performa mekanik teraktif.
+
+#### 2. 🛒 Point of Sales (Kasir) Modern
+Antarmuka kasir yang cepat dan mudah digunakan.
+- **Support Layanan & Sparepart:** Bisa input jasa servis dan barang sekaligus.
+- **QRIS Payment Simulation:** Simulasi pembayaran digital dengan QR Code dinamis.
+- **Cetak Struk:** Fitur cetak bukti pembayaran langsung dari browser.
+
+#### 3. 📅 Manajemen Reservasi
+Pelanggan tidak perlu antre lama.
+- Pencatatan booking servis.
+- Status tracking (Booked -> In Progress -> Completed).
+- Integrasi langsung ke Kasir saat check-in.
+
+#### 4. 📦 Inventory Management
+- Manajemen data Supplier.
+- CRUD Sparepart dengan foto produk.
+- Riwayat stok masuk dan keluar.
+
+#### 5. 🔐 Multi-Role Access
+Sistem keamanan berbasis peran untuk membatasi akses:
+- **Admin:** Akses penuh (Inventory, User, Laporan).
+- **Kasir:** Fokus pada transaksi POS.
+- **Mekanik:** Melihat jadwal pekerjaan servis.
+
+---
+
+## 📸 Tangkapan Layar (Screenshots)
+
+| Dashboard Admin | Point of Sale (POS) |
+| :---: | :---: |
+| ![Dashboard](Screenshot%20Aplikasi/Screenshot%202025-12-11%20214059.png) | ![POS](Screenshot%20Aplikasi/Screenshot%202025-12-11%20213554.png) |
+| **Reservasi** | **Pembayaran QRIS** |
+| ![Reservasi](Screenshot%20Aplikasi/Screenshot%202025-12-11%20213338.png) | ![QRIS](Screenshot%20Aplikasi/Screenshot%202025-12-11%20213938.png) |
 
 ---
 
 ## 🛠️ Teknologi yang Digunakan
 
-- **Frontend:** HTML5, CSS3, Bootstrap 5.3.0 (CDN)
-- **JavaScript:** Vanilla JS (Fetch API) - **No Framework**
-- **Backend:** PHP Native 7.4+ - **No Framework**
-- **Database:** MySQL/MariaDB
-- **Version Control:** Git & GitHub
-- **Server:** Apache (Laragon/XAMPP)
+* **Bahasa Pemrograman:** PHP Native (v7.4 / v8.0+)
+* **Database:** MySQL / MariaDB
+* **Frontend:** HTML5, Tailwind CSS (via CDN)
+* **Scripting:** Vanilla JavaScript (Fetch API, DOM Manipulation)
+* **Server:** Apache (XAMPP / Laragon)
 
 ---
 
 ## 🚀 Cara Instalasi & Menjalankan
 
+Ikuti langkah-langkah berikut untuk menjalankan proyek ini di komputer lokal Anda:
+
+### Prasyarat
+Pastikan Anda telah menginstal **XAMPP** atau **Laragon**.
+
 ### 1. Persiapan Database
-
-```sql
--- Buat database
-CREATE DATABASE pos_bengkel CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-
--- Import schema
-mysql -u root -p pos_bengkel < src/database/pos_bengkel.sql
-```
-
-Atau via phpMyAdmin:
-1. Buat database `pos_bengkel`
-2. Import file `src/database/pos_bengkel.sql`
+1. Buka **phpMyAdmin** (`http://localhost/phpmyadmin`).
+2. Buat database baru dengan nama: `pos_bengkel`.
+3. Import file SQL yang berada di:
+   `src/database/pos_bengkel.sql`
+4. (Opsional) Jalankan file `seed_data.php` jika ingin mereset data dummy.
 
 ### 2. Konfigurasi Database
-
-Edit file `src/config/database.php`:
+Buka file `src/config/database.php` dan sesuaikan kredensial jika perlu:
 
 ```php
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
-define('DB_PASS', '');  // Sesuaikan password MySQL Anda
+define('DB_PASS', ''); // Sesuaikan dengan password database Anda
 define('DB_NAME', 'pos_bengkel');
 ```
+### 3. Akses Aplikasi
+Tempatkan folder proyek di dalam folder htdocs (XAMPP) atau www (Laragon), lalu buka browser:
 
-### 3. Deploy Aplikasi
+http://localhost/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_11/src/
 
-**Untuk Laragon:**
-```bash
-# Copy project ke C:\laragon\www\
-# Akses: http://localhost/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_11/src/
+---
+
+## 🔑 Akun Demo (Login)
+
+Gunakan akun berikut untuk mencoba berbagai role:
+
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| **Administrator** | `admin@bengkel.com` | `password` |
+| **Kasir** | `kasir1@bengkel.com` | `password` |
+| **Mekanik** | `joko@bengkel.com` | `password` |
+
+---
+
+### 📂 Struktur Direktori Utama
 ```
-
-**Untuk XAMPP:**
-```bash
-# Copy project ke C:\xampp\htdocs\
-# Akses: http://localhost/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_11/src/
-```
-
-### 4. Login
-
-**Default Admin:**
-- Email: `admin@posbengkel.com`
-- Password: `password`
-
----
-
-## 📁 Struktur Folder
-
-```
-kelompok_11/
-├── README.md                    # Dokumentasi utama
-├── BRANCH_INFO.md              # Info branch strategy
-├── PROJECT_SUMMARY.md          # Ringkasan lengkap
-├── documentation/              # Dokumentasi teknis
-│   ├── README.md              # Fitur Anggota 4
-│   ├── INSTALL.md             # Panduan instalasi detail
-│   ├── ERD.txt                # Entity Relationship Diagram
-│   └── struktur_branch.txt    # Git workflow
-└── src/                        # Source code
-    ├── auth/                  # Login & logout
-    ├── config/                # Database & session config
-    ├── css/                   # Custom styling
-    ├── dashboard/             # Dashboard & API
-    ├── database/              # SQL schema
-    ├── inventory/             # CRUD sparepart & supplier
-    ├── js/                    # JavaScript files
-    ├── layout/                # Header, sidebar, footer
-    └── index.php              # Landing page
-```
-
----
-
-## 🎨 Pembagian Tugas Anggota 4
-
-**Branch:** `feature/inventory`
-
-**Tanggung Jawab:**
-1. **Modul Inventory** - CRUD Sparepart & Supplier (9 files)
-2. **Modul Dashboard** - Real-time statistics dengan AJAX (3 files)
-3. **UI/Layout** - Header, sidebar, footer, custom CSS (4 files)
-4. **Config & Auth** - Database connection, session, login/logout (4 files)
-5. **Dokumentasi** - README, INSTALL, ERD, Git workflow (4 files)
-
-**Total:** 24 files + database schema
-
-**Commits:** 10 commits bertahap dengan conventional commit messages
-
----
-
-## 📊 Database Schema (ERD)
-
-Database terdiri dari **12 tabel utama:**
-
-1. `roles` - Role pengguna (admin, kasir, mekanik)
-2. `users` - Data pengguna sistem
-3. `suppliers` - Data pemasok sparepart
-4. `services` - Jenis layanan bengkel
-5. `parts` - Data sparepart/inventori
-6. `stock_movements` - Riwayat pergerakan stok
-7. `reservations` - Reservasi pelanggan
-8. `reservation_checkins` - Check-in reservasi
-9. `transactions` - Transaksi penjualan
-10. `transaction_items` - Detail item transaksi
-11. `transaction_payments` - Pembayaran transaksi
-12. `audit_logs` - Log aktivitas sistem
-
-**Lihat detail:** `documentation/ERD.txt`
-
----
-
-## 🔐 Role & Hak Akses
-
-| Role | Dashboard | Inventory | Transaksi |
-|------|-----------|-----------|-----------|
-| Admin | ✅ | ✅ | ✅ |
-| Kasir | ✅ | ❌ | ✅ |
-| Mekanik | ✅ | ❌ | ❌ |
-
----
-
-## 📸 Screenshot
-
-*(Screenshot akan ditambahkan setelah deployment)*
-
----
-
-## 🐛 Troubleshooting
-
-**Error: Unknown database 'pos_bengkel'**
-- Import file `src/database/pos_bengkel.sql` terlebih dahulu
-
-**Error: 404 Not Found**
-- Pastikan path URL sesuai dengan lokasi folder
-
-**Dashboard tidak refresh**
-- Cek Console browser untuk error JavaScript
-- Pastikan API `dashboard/api_dashboard.php` bisa diakses
-
----
-
-## 📞 Support
-
-Dokumentasi lengkap ada di folder `documentation/`
-
----
-
-**Status:** ✅ Production Ready  
-**Last Update:** December 6, 2025  
-**Branch:** feature/inventory
+kelompok_11/src/
+├── auth/           # Logika Login, Logout, Register
+├── config/         # Koneksi Database
+├── dashboard/      # Halaman Dashboard & API Statistik
+├── database/       # File SQL & Seeder
+├── inventory/      # CRUD Sparepart & Supplier
+├── js/             # Script JS (AJAX, DOM)
+├── layout/         # Header, Sidebar, Footer (Modular)
+├── pos/            # Sistem Kasir & Transaksi
+├── reservasi/      # Manajemen Booking Servis
+└── index.php       # Routing Awal```
