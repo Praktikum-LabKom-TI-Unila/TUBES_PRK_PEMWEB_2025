@@ -2,7 +2,6 @@
 session_start();
 include '../config.php';
 
-// Cek login dan role admin
 if (!isset($_SESSION['id_user'])) {
     header("Location: ../login.php");
     exit();
@@ -19,7 +18,6 @@ if ($admin['role'] != 'admin') {
     exit();
 }
 
-// Setup folder upload
 $upload_dir = '../uploads/menu/';
 if (!is_dir($upload_dir)) {
     mkdir($upload_dir, 0777, true);
@@ -28,14 +26,12 @@ if (!is_dir($upload_dir)) {
 $success = '';
 $error = '';
 
-// --- HANDLER TAMBAH MENU ---
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_menu'])) {
     $nama_menu = $_POST['nama_menu'];
     $harga = $_POST['harga'];
     $id_kategori = $_POST['id_kategori'];
     $foto_nama = null;
 
-    // Handle File Upload
     if (isset($_FILES['foto']) && $_FILES['foto']['error'] == 0) {
         $allowed = ['jpg', 'jpeg', 'png', 'webp'];
         $filename = $_FILES['foto']['name'];
@@ -65,21 +61,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_menu'])) {
     }
 }
 
-// --- HANDLER EDIT MENU ---
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_menu'])) {
     $id_menu = $_POST['id_menu_edit'];
     $nama_menu = $_POST['nama_menu_edit'];
     $harga = $_POST['harga_edit'];
     $id_kategori = $_POST['id_kategori_edit'];
     
-    // Ambil foto lama
     $stmt_old = $conn->prepare("SELECT foto FROM menu WHERE id_menu = ?");
     $stmt_old->bind_param("i", $id_menu);
     $stmt_old->execute();
     $old_foto = $stmt_old->get_result()->fetch_assoc()['foto'];
     $foto_nama = $old_foto;
 
-    // Handle File Upload Baru jika ada
     if (isset($_FILES['foto_edit']) && $_FILES['foto_edit']['error'] == 0) {
         $allowed = ['jpg', 'jpeg', 'png', 'webp'];
         $filename = $_FILES['foto_edit']['name'];
@@ -89,7 +82,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_menu'])) {
             $new_filename = uniqid() . '._edit.' . $ext;
             $dest = $upload_dir . $new_filename;
             if (move_uploaded_file($_FILES['foto_edit']['tmp_name'], $dest)) {
-                // Hapus foto lama jika upload baru berhasil
                 if ($old_foto && file_exists($upload_dir . $old_foto)) {
                     unlink($upload_dir . $old_foto);
                 }
@@ -113,10 +105,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_menu'])) {
     }
 }
 
-// --- HANDLER HAPUS MENU ---
 if (isset($_GET['hapus'])) {
     $id_menu = $_GET['hapus'];
-    // Ambil nama foto untuk dihapus fisiknya
     $stmt = $conn->prepare("SELECT foto FROM menu WHERE id_menu = ?");
     $stmt->bind_param("i", $id_menu);
     $stmt->execute();
@@ -134,20 +124,16 @@ if (isset($_GET['hapus'])) {
             $error = "Gagal menghapus menu dari database (mungkin sedang digunakan dalam transaksi).";
         }
     }
-    // Redirect agar tidak loop saat refresh
     header("Location: manajemen_menu.php" . ($success ? "?success=".urlencode($success) : "") . ($error ? "?error=".urlencode($error) : ""));
     exit();
 }
 
-// Ambil pesan dari redirect hapus jika ada
 if (isset($_GET['success'])) $success = $_GET['success'];
 if (isset($_GET['error'])) $error = $_GET['error'];
 
-// Ambil Data untuk Tampilan
 $kategori_result = $conn->query("SELECT * FROM kategori_menu");
 $menu_result = $conn->query("SELECT m.*, k.nama_kategori FROM menu m LEFT JOIN kategori_menu k ON m.id_kategori = k.id_kategori ORDER BY m.id_menu DESC");
 
-// Foto Profil Admin
 $foto_display = 'https://ui-avatars.com/api/?name=' . urlencode($admin['nama'] ?? 'Admin') . '&background=B7A087&color=fff';
 if (!empty($admin['profile_picture']) && file_exists($admin['profile_picture'])) {
     $foto_display = $admin['profile_picture'];
@@ -200,7 +186,6 @@ if (!empty($admin['profile_picture']) && file_exists($admin['profile_picture']))
         .table-row:hover {
             background-color: rgba(183, 160, 135, 0.08);
         }
-        /* Modal Styles */
         .modal {
             transition: opacity 0.25s ease;
         }
@@ -454,7 +439,6 @@ if (!empty($admin['profile_picture']) && file_exists($admin['profile_picture']))
     </div>
 
     <script>
-        // Fungsi generik untuk toggle modal
         function toggleModal(modalID) {
             const modal = document.getElementById(modalID);
             modal.classList.toggle('hidden');
@@ -462,7 +446,6 @@ if (!empty($admin['profile_picture']) && file_exists($admin['profile_picture']))
             document.body.classList.toggle('modal-active');
         }
 
-        // Fungsi khusus untuk membuka modal edit dan mengisi datanya
         function openEditModal(data) {
             document.getElementById('edit_id_menu').value = data.id_menu;
             document.getElementById('edit_nama_menu').value = data.nama_menu;
@@ -488,14 +471,12 @@ if (!empty($admin['profile_picture']) && file_exists($admin['profile_picture']))
             }
         }
 
-        // Menutup modal saat mengklik overlay
         document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
             overlay.addEventListener('click', function() {
                 toggleModal(overlay.closest('.modal').id);
             });
         });
 
-        // Menutup modal dengan tombol ESC
         document.onkeydown = function(evt) {
             evt = evt || window.event;
             var isEscape = false;
