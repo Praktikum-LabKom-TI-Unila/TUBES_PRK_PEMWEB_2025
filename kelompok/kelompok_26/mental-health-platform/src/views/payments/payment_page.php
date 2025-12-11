@@ -47,25 +47,40 @@ $packages = [
 $subscription = null;
 $payment = null;
 
-// 1. Ambil data langganan terbaru
-$subQuery = $conn->prepare("SELECT * FROM subscription WHERE user_id = ? ORDER BY end_date DESC LIMIT 1");
+// 1. Ambil langganan aktif terbaru (abaikan yang pending/expired)
+$subQuery = $conn->prepare("SELECT * FROM subscription WHERE user_id = ? AND status = 'active' ORDER BY end_date DESC LIMIT 1");
 if ($subQuery) {
     $subQuery->bind_param('i', $user_id);
     $subQuery->execute();
     $subscription = $subQuery->get_result()->fetch_assoc();
 }
 
-// 2. Ambil data pembayaran terbaru (jika ada langganan atau pending)
-if ($subscription) {
-    $payQuery = $conn->prepare("SELECT * FROM payment WHERE user_id = ? AND status != 'approved' ORDER BY created_at DESC LIMIT 1");
-} else {
-    $payQuery = $conn->prepare("SELECT * FROM payment WHERE user_id = ? AND status = 'pending' ORDER BY created_at DESC LIMIT 1");
-}
+// 2. Ambil data pembayaran pending.
+// Jika kolom subscription_id tidak ada di tabel payment, fallback ke query tanpa kolom itu.
+try {
+    if ($subscription) {
+        $payQuery = $conn->prepare("SELECT * FROM payment WHERE user_id = ? AND subscription_id = ? AND status = 'pending' ORDER BY created_at DESC LIMIT 1");
+    } else {
+        $payQuery = $conn->prepare("SELECT * FROM payment WHERE user_id = ? AND status = 'pending' ORDER BY created_at DESC LIMIT 1");
+    }
 
-if (isset($payQuery) && $payQuery) {
-    $payQuery->bind_param('i', $user_id);
-    $payQuery->execute();
-    $payment = $payQuery->get_result()->fetch_assoc();
+    if ($payQuery) {
+        if ($subscription && $payQuery->param_count === 2) {
+            $payQuery->bind_param('ii', $user_id, $subscription['subscription_id']);
+        } else {
+            $payQuery->bind_param('i', $user_id);
+        }
+        $payQuery->execute();
+        $payment = $payQuery->get_result()->fetch_assoc();
+    }
+} catch (Throwable $e) {
+    // Fallback: tabel payment mungkin tidak punya kolom subscription_id
+    $fallback = $conn->prepare("SELECT * FROM payment WHERE user_id = ? AND status = 'pending' ORDER BY created_at DESC LIMIT 1");
+    if ($fallback) {
+        $fallback->bind_param('i', $user_id);
+        $fallback->execute();
+        $payment = $fallback->get_result()->fetch_assoc();
+    }
 }
 
 // Flash messages
@@ -139,10 +154,11 @@ unset($_SESSION['success'], $_SESSION['error']);
                     <div class="p-4 bg-yellow-100 border border-yellow-300 rounded-lg text-yellow-800 text-sm">
                         Anda saat ini menggunakan mode Trial atau belum memiliki langganan.
                     </div>
-                    <button type="button" onclick="document.getElementById('packageModal').classList.remove('hidden')" class="mt-4 block px-6 py-3 bg-[#3AAFA9] text-white rounded-full text-center font-bold hover:bg-[#2B8E89] shadow-md transition duration-300">
-                        Pilih Paket Berlangganan 🚀
-                    </button>
                 <?php endif; ?>
+
+                <button type="button" onclick="document.getElementById('packageModal').classList.remove('hidden')" class="mt-4 inline-flex items-center justify-center px-6 py-3 bg-[#3AAFA9] text-white rounded-full text-center font-bold hover:bg-[#2B8E89] shadow-md transition duration-300">
+                    Pilih / Ganti Paket
+                </button>
             </div>
         </div>
 
@@ -193,26 +209,21 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <span class="text-xl text-yellow-600">📎</span> Unggah Bukti Pembayaran
             </h2>
             
-            <?php if ($payment && $payment['status'] === 'pending'): ?>
-                <div class="p-4 bg-blue-100 border border-blue-400 text-blue-800 text-sm mb-6 rounded-lg">
-                    Anda sudah mengunggah bukti pembayaran. Status saat ini: **<?= ucfirst($payment['status']) ?>**. Menunggu verifikasi admin.
-                    <p class="mt-2 text-xs">File terakhir: **<?= htmlspecialchars($payment['proof_image'] ?? '-') ?>**</p>
-                </div>
-            <?php endif; ?>
-
-            <form method="POST" action="index.php?p=upload_payment_proof" enctype="multipart/form-data" class="space-y-6">
-                
-                <?php if ($subscription): ?>
-                    <input type="hidden" name="subscription_id" value="<?= $subscription['subscription_id'] ?>">
-                <?php endif; ?>
+            <form id="proofForm" method="POST" action="index.php?p=handle_payment" enctype="multipart/form-data" class="space-y-6">
+                <?php
+                    $priceMap = ['daily' => 10000, 'weekly' => 50000, 'monthly' => 180000];
+                    $selectedPrice = $subscription ? ($priceMap[$subscription['plan']] ?? '') : '';
+                ?>
+                <input type="hidden" name="action" value="upload_proof">
+                <input type="hidden" name="subscription_id" id="subscriptionIdInput" value="<?= $subscription['subscription_id'] ?? '' ?>">
 
                 <div>
                     <label class="block text-sm font-bold text-[#17252A] mb-2">Jumlah Transfer (IDR)</label>
-                    <input type="number" name="amount" placeholder="Contoh: 50000" 
-                            value="<?= $payment ? intval($payment['amount']) : '' ?>"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3AAFA9] focus:border-[#3AAFA9]" required>
+                    <input type="number" id="amountInput" value="<?= $selectedPrice ?>" readonly
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 font-semibold text-[#17252A]">
+                    <p class="text-xs text-gray-500 mt-1">Nominal otomatis sesuai paket yang dipilih.</p>
                 </div>
-
+                
                 <div>
                     <label class="block text-sm font-bold text-[#17252A] mb-2">Bukti Transfer (JPG/PNG)</label>
                     <div class="relative border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-[#3AAFA9] transition duration-300 bg-white">
@@ -221,7 +232,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                         <div class="pointer-events-none">
                             <p class="text-4xl mb-2 text-[#3AAFA9]">⬆️</p>
                             <p class="text-gray-700 font-semibold">Klik atau seret & lepas file di sini</p>
-                            <p class="text-xs text-gray-500 mt-1">Maksimal 5MB. Pastikan jumlah transfer terlihat jelas.</p>
+                            <p class="text-xs text-gray-500 mt-1">Maksimal 5MB. Pastikan nomor transfer & jumlah terlihat jelas.</p>
                         </div>
                     </div>
                 </div>
@@ -229,6 +240,12 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <button type="submit" class="w-full px-6 py-3 bg-[#17252A] text-white rounded-full hover:bg-[#0F1920] font-bold transition duration-300 shadow-lg">
                     Kirim Bukti Pembayaran
                 </button>
+
+                <?php if (!$subscription): ?>
+                    <div class="p-4 bg-yellow-100 border border-yellow-300 rounded-lg text-yellow-800 text-sm">
+                        Silakan pilih paket langganan terlebih dahulu, lalu unggah bukti.
+                    </div>
+                <?php endif; ?>
             </form>
         </div>
 
@@ -330,7 +347,8 @@ html.dark-mode .bg-white { background-color: var(--bg-card) !important; }
 <script>
 function selectPackage(planName, price) {
     const info = document.getElementById('packageSelectionInfo');
-    const amountInput = document.querySelector('input[name="amount"]');
+    const amountInput = document.getElementById('amountInput');
+    const subscriptionIdInput = document.getElementById('subscriptionIdInput');
     
     // 1. Update informasi di Modal
     info.innerHTML = `Anda telah memilih <strong>${planName.toUpperCase()}</strong> dengan total biaya <strong>Rp${price.toLocaleString('id-ID')}</strong>. Sedang memproses...`;
@@ -348,10 +366,8 @@ function selectPackage(planName, price) {
     formData.append('plan', planName);
     formData.append('price', price);
 
-    // Get current path to construct proper URL
-    const baseUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') - 5); // Remove /src from path
-    
-    fetch(baseUrl + '/src/index.php?p=handle_payment', {
+    // Kirim langsung ke endpoint handler (relatif terhadap index.php)
+    fetch('index.php?p=handle_payment', {
         method: 'POST',
         body: formData
     })
@@ -359,11 +375,10 @@ function selectPackage(planName, price) {
     .then(data => {
         if (data.success) {
             info.innerHTML = `✓ Paket <strong>${planName.toUpperCase()}</strong> berhasil dipilih! Rp${price.toLocaleString('id-ID')}. Silakan lanjutkan ke pembayaran.`;
-            // 4. Tutup Modal
-            setTimeout(() => {
-                document.getElementById('packageModal').classList.add('hidden');
-                location.reload(); // Refresh untuk menampilkan subscription yang baru
-            }, 1500);
+            // Tutup modal & paste nominal tanpa reload
+            document.getElementById('packageModal').classList.add('hidden');
+            if (amountInput) amountInput.value = price;
+            if (subscriptionIdInput && data.subscription_id) subscriptionIdInput.value = data.subscription_id;
         } else {
             info.innerHTML = `✗ Error: ${data.message || 'Gagal memilih paket'}`;
             info.classList.remove('text-green-700');
@@ -409,6 +424,76 @@ function selectPaymentMethod(method) {
 // Inisialisasi tampilan metode pembayaran saat halaman dimuat
 document.addEventListener('DOMContentLoaded', function() {
     // Panggil selectPaymentMethod('transfer') untuk menampilkan detail transfer & kontainer upload
-    selectPaymentMethod('transfer'); 
+    selectPaymentMethod('transfer');
+    
+    // Handle form submit untuk upload bukti pembayaran
+    const proofForm = document.getElementById('proofForm');
+    if (proofForm) {
+        proofForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const subscriptionIdInput = document.getElementById('subscriptionIdInput');
+            if (!subscriptionIdInput || !subscriptionIdInput.value) {
+                alert('Silakan pilih paket terlebih dahulu agar subscription_id terisi.');
+                return;
+            }
+
+            const formData = new FormData(this);
+            const submitBtn = proofForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            
+            // Disable button dan tampilkan loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Memproses...';
+            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            
+            fetch('index.php?p=handle_payment', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Tampilkan pesan sukses
+                    const successMsg = document.createElement('div');
+                    successMsg.className = 'p-4 bg-green-100 border border-green-400 text-green-800 text-sm rounded-lg mb-4';
+                    successMsg.innerHTML = `✓ ${data.message}<br><small>Plan: ${data.plan} | End: ${data.end_date}</small>`;
+                    
+                    proofForm.parentElement.insertBefore(successMsg, proofForm);
+                    proofForm.reset();
+                    
+                    // Reload page setelah 2 detik
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    // Tampilkan pesan error
+                    const errorMsg = document.createElement('div');
+                    errorMsg.className = 'p-4 bg-red-100 border border-red-400 text-red-800 text-sm rounded-lg mb-4';
+                    errorMsg.textContent = `✗ ${data.message || 'Gagal mengunggah bukti pembayaran'}`;
+                    
+                    proofForm.parentElement.insertBefore(errorMsg, proofForm);
+                    
+                    // Restore button
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'p-4 bg-red-100 border border-red-400 text-red-800 text-sm rounded-lg mb-4';
+                errorMsg.textContent = '✗ Terjadi kesalahan saat memproses';
+                
+                proofForm.parentElement.insertBefore(errorMsg, proofForm);
+                
+                // Restore button
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            });
+        });
+    }
 });
 </script>

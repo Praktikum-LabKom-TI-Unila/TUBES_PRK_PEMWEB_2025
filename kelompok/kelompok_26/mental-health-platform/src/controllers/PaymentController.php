@@ -32,12 +32,13 @@ class PaymentController {
         }
         
         $userId = intval($_SESSION['user']['user_id'] ?? $_SESSION['user']['id'] ?? 0);
-        $amount = intval($_POST['amount'] ?? 0);
+        // amount opsional; jangan blokir jika tidak dikirim
+        $amount = isset($_POST['amount']) ? intval($_POST['amount']) : 0;
         $file = $_FILES['proof_image'] ?? null;
         
         // --- Validasi Input & File ---
-        if ($userId <= 0 || $amount <= 0) {
-            $_SESSION['error'] = 'Data pengguna atau jumlah transfer tidak valid.';
+        if ($userId <= 0) {
+            $_SESSION['error'] = 'Data pengguna tidak valid.';
             header('Location: ?p=payments');
             exit;
         }
@@ -65,7 +66,7 @@ class PaymentController {
         }
         
         // --- Proses Upload File ---
-        $uploadDir = __DIR__ . '/../../uploads/payment_proof/';
+        $uploadDir = __DIR__ . '/../../uploads/payment_proofs/';
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
         }
@@ -81,37 +82,37 @@ class PaymentController {
         }
 
         // --- Simpan ke Database ---
-        // Mencari session_id terbaru sebagai placeholder untuk memenuhi FK constraint DB
-        $sessionId = 0; 
-        $stmtSession = $this->db->prepare("SELECT session_id FROM chat_session WHERE user_id = ? ORDER BY started_at DESC LIMIT 1");
-        if ($stmtSession) {
-            $stmtSession->bind_param('i', $userId);
-            $stmtSession->execute();
-            $res = $stmtSession->get_result();
-            if ($res && $res->num_rows > 0) {
-                $sessionId = intval($res->fetch_assoc()['session_id']);
-            }
-            $stmtSession->close();
-        }
-        if ($sessionId === 0) $sessionId = 1; // Fallback jika tidak ada sesi
+        // Coba insert dengan kolom amount & proof_image; jika gagal karena schema beda, fallback minimal.
+        $saved = false;
 
         $stmt = $this->db->prepare("
-            INSERT INTO payment (user_id, session_id, amount, status, proof_image)
-            VALUES (?, ?, ?, 'pending', ?)
+            INSERT INTO payment (user_id, amount, proof_image, status, created_at)
+            VALUES (?, ?, ?, 'approved', NOW())
         ");
-        
+
         if ($stmt) {
-            $stmt->bind_param("iiis", $userId, $sessionId, $amount, $filename);
-            
-            if ($stmt->execute()) {
-                $_SESSION['success'] = 'Bukti pembayaran berhasil diunggah. Menunggu verifikasi admin.';
-            } else {
-                $_SESSION['error'] = 'Gagal menyimpan data pembayaran ke database: ' . $stmt->error;
-                unlink($filepath); 
-            }
+            $stmt->bind_param("iis", $userId, $amount, $filename);
+            $saved = $stmt->execute();
             $stmt->close();
+        }
+
+        if (!$saved) {
+            // Fallback: tanpa kolom amount
+            $fallback = $this->db->prepare("
+                INSERT INTO payment (user_id, proof_image, status, created_at)
+                VALUES (?, ?, 'approved', NOW())
+            ");
+            if ($fallback) {
+                $fallback->bind_param("is", $userId, $filename);
+                $saved = $fallback->execute();
+                $fallback->close();
+            }
+        }
+
+        if ($saved) {
+            $_SESSION['success'] = 'Bukti pembayaran diterima dan langganan diaktifkan.';
         } else {
-            $_SESSION['error'] = 'Kesalahan saat menyiapkan query database.';
+            $_SESSION['error'] = 'Gagal menyimpan data pembayaran ke database.';
             unlink($filepath);
         }
         
