@@ -194,36 +194,6 @@ if (empty($tutorsData)) {
       </div>
     </div>
   </section>
-
-  <!-- PRICING -->
-  <section class="section-pricing" aria-label="Paket harga">
-    <div class="section-title">Paket Belajar</div>
-    <div class="section-desc">Pilih paket yang sesuai kebutuhan. Paket fleksibel dan transparan.</div>
-
-    <div class="price-grid">
-      <div class="price-card">
-        <div class="price-tier">Paket Basic</div>
-        <div class="price-value">Rp 250.000</div>
-        <div class="price-benefit">4 sesi / bulan</div>
-        <a href="#" class="price-btn">Pilih Paket</a>
-      </div>
-
-      <div class="price-card">
-        <div class="price-tier">Paket Reguler</div>
-        <div class="price-value">Rp 350.000</div>
-        <div class="price-benefit">8 sesi / bulan</div>
-        <a href="#" class="price-btn">Pilih Paket</a>
-      </div>
-
-      <div class="price-card">
-        <div class="price-tier">Paket Intensif</div>
-        <div class="price-value">Rp 650.000</div>
-        <div class="price-benefit">16 sesi / bulan</div>
-        <a href="#" class="price-btn">Pilih Paket</a>
-      </div>
-    </div>
-  </section>
-
   <!-- FAQ -->
   <section class="section-faq" aria-label="FAQ">
     <div class="section-title">Pertanyaan Umum</div>

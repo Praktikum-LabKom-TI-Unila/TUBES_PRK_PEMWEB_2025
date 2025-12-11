@@ -525,5 +525,4 @@ window.onclick = function(event) {
 </body>
 </html>
 <?php else: ?>
-<?php include '../../layouts/footer.php'; ?>
 <?php endif; ?>

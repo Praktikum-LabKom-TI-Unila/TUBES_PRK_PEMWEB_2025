@@ -1,76 +1,49 @@
-/* ============================================================
-   SCHOLARBRIDGE — AJAX_SEARCH.JS FINAL
-   Search Result Renderer
-============================================================ */
+// DATA PRODUK (contoh, boleh diganti)
+const products = [
+    { name: "Pulpen", price: 5000 },
+    { name: "Buku Tulis", price: 15000 },
+    { name: "Tas Sekolah", price: 120000 },
+    { name: "Penggaris", price: 7000 },
+    { name: "Laptop", price: 6500000 },
+];
 
-const resultList = document.getElementById("resultList");
+// Render awal
+renderTable(products);
 
-// Format angka → Rp xxx.xxx
-function rupiah(n) {
-  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+// Fungsi render tabel
+function renderTable(list) {
+    const tbody = document.querySelector("#productTable tbody");
+    tbody.innerHTML = "";
+
+    list.forEach(item => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${item.name}</td>
+            <td>${item.price.toLocaleString()}</td>
+        `;
+        tbody.appendChild(row);
+    });
 }
 
-// Render card search result
-function renderResult(list) {
-  if (!resultList) return;
+// EVENT LISTENER FILTER
+document.getElementById("filterName").addEventListener("input", applyFilter);
+document.getElementById("filterPrice").addEventListener("change", applyFilter);
 
-  resultList.innerHTML = "";
+// Fungsi FILTER
+function applyFilter() {
+    const nameVal = document.getElementById("filterName").value.toLowerCase();
+    const priceVal = document.getElementById("filterPrice").value;
 
-  list.forEach(t => {
-    const col = document.createElement("div");
-    col.className = "col-md-4 fade-up";
+    let filtered = products.filter(item => {
+        let matchName = item.name.toLowerCase().includes(nameVal);
+        let matchPrice = true;
 
-    col.innerHTML = `
-      <div class="result-card">
-        <div class="result-photo">${t.nama.charAt(0)}</div>
+        if (priceVal === "low")      matchPrice = item.price < 50000;
+        if (priceVal === "mid")      matchPrice = item.price >= 50000 && item.price <= 100000;
+        if (priceVal === "high")     matchPrice = item.price > 100000;
 
-        <div class="result-name">${t.nama}</div>
-        <div class="result-subject">${t.mapel}</div>
+        return matchName && matchPrice;
+    });
 
-        <div class="result-price">Rp ${rupiah(t.harga)}</div>
-
-        <a
-          href="../public/detail_tutor.php?nama=${encodeURIComponent(t.nama)}&mapel=${encodeURIComponent(t.mapel)}&harga=${t.harga}&rating=${t.rating}"
-          class="result-btn"
-        >
-          Lihat Detail
-        </a>
-      </div>
-    `;
-
-    resultList.appendChild(col);
-  });
-}
-
-// -------- Initial Load --------
-renderResult(tutorsData);
-
-// -------- Search Filter --------
-const srInput = document.getElementById("searchInput");
-const srButton = document.getElementById("btnSearch");
-
-if (srInput) {
-  srInput.addEventListener("input", function() {
-    const q = this.value.toLowerCase();
-
-    const filtered = tutorsData.filter(t =>
-      t.nama.toLowerCase().includes(q) ||
-      t.mapel.toLowerCase().includes(q)
-    );
-
-    renderResult(filtered);
-  });
-}
-
-if (srButton) {
-  srButton.addEventListener("click", function() {
-    const q = (srInput.value || "").toLowerCase();
-
-    const filtered = tutorsData.filter(t =>
-      t.nama.toLowerCase().includes(q) ||
-      t.mapel.toLowerCase().includes(q)
-    );
-
-    renderResult(filtered);
-  });
+    renderTable(filtered);
 }

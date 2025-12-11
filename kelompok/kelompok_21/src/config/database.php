@@ -1,10 +1,11 @@
 <?php
-$host = 'localhost:3307';
+$host = '127.0.0.1';
 $user = 'root';
 $pass = '';
 $db   = 'scholarbridge';
+$port = 3306; // port default XAMPP
 
-$conn = mysqli_connect($host, $user, $pass, $db);
+$conn = mysqli_connect($host, $user, $pass, $db, $port);
 
 if (!$conn) {
     die("Koneksi gagal: " . mysqli_connect_error());
