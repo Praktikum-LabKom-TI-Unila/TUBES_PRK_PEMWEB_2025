@@ -120,7 +120,6 @@ $total_bundle = mysqli_num_rows($query_bundle);
                 <h6 class="fw-bold text-dark">Status Sistem</h6>
                 <p class="mb-0 text-muted small">
                     Database terhubung. Semua fitur berjalan normal. <br>
-                    <strong>Versi Aplikasi:</strong> v4.2 (Earth Tone Edition)
                 </p>
             </div>
         </div>
