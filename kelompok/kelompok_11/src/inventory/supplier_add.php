@@ -1,8 +1,8 @@
 <?php
 $pageTitle = 'Tambah Supplier';
-require_once __DIR__ . '/../layout/header.php';
-require_once __DIR__ . '/../config/database.php';
 
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../auth/cek_login.php';
 require_role(['Admin']);
 
 $error = '';
@@ -35,9 +35,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Nama supplier harus diisi.';
     }
 }
+
+require_once __DIR__ . '/../layout/header.php';
 ?>
 
-<!-- Back Button -->
 <div class="flex justify-end items-center mb-6">
     <a href="supplier_list.php" class="glass-panel px-4 py-2 rounded-xl hover:shadow-glass transition flex items-center gap-2">
         <i class="fas fa-arrow-left text-brand-blue"></i>
@@ -54,7 +55,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 <?php endif; ?>
 
-<!-- Form Card -->
 <div class="glass-panel rounded-3xl shadow-glass overflow-hidden">
     <div class="px-6 py-4 bg-white/40 border-b border-white/50">
         <h3 class="text-lg font-bold text-brand-dark">Form Data Supplier</h3>
@@ -64,13 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="p-6">
         <form method="POST" class="space-y-6">
             <div>
-                <label for="nama" class="block text-sm font-medium text-brand-dark mb-2">
-                    Nama Supplier <span class="text-red-500">*</span>
-                </label>
-                <input type="text" 
-                       id="nama" 
-                       name="nama" 
-                       required 
+                <label for="nama" class="block text-sm font-medium text-brand-dark mb-2">Nama Supplier *</label>
+                <input type="text" id="nama" name="nama" required 
                        value="<?= htmlspecialchars($_POST['nama'] ?? '') ?>"
                        class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 outline-none transition"
                        placeholder="Nama perusahaan supplier">
@@ -79,9 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label for="kontak" class="block text-sm font-medium text-brand-dark mb-2">Nama Kontak</label>
-                    <input type="text" 
-                           id="kontak" 
-                           name="kontak" 
+                    <input type="text" id="kontak" name="kontak"
                            value="<?= htmlspecialchars($_POST['kontak'] ?? '') ?>"
                            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 outline-none transition"
                            placeholder="PIC supplier">
@@ -89,9 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 <div>
                     <label for="telepon" class="block text-sm font-medium text-brand-dark mb-2">Telepon</label>
-                    <input type="text" 
-                           id="telepon" 
-                           name="telepon" 
+                    <input type="text" id="telepon" name="telepon"
                            value="<?= htmlspecialchars($_POST['telepon'] ?? '') ?>"
                            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 outline-none transition"
                            placeholder="08xxx atau 021xxx">
@@ -100,9 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             <div>
                 <label for="alamat" class="block text-sm font-medium text-brand-dark mb-2">Alamat</label>
-                <textarea id="alamat" 
-                          name="alamat" 
-                          rows="3"
+                <textarea id="alamat" name="alamat" rows="3"
                           class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 outline-none transition resize-none"
                           placeholder="Alamat lengkap supplier"><?= htmlspecialchars($_POST['alamat'] ?? '') ?></textarea>
             </div>
