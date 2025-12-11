@@ -14,8 +14,11 @@ untuk mendukung konsep smart city di bidang transportasi.
   No   Nama                       NPM
   ---- -------------------------- ------------
   1    Makhasin Muhammad          2315061084
+  ---- -------------------------- ------------
   2    Nabila Salwa Alghaida      2315061034
+  ---- -------------------------- ------------
   3    Nabilla Chairunisa         2315061022
+  ---- -------------------------- ------------
   4    Risdam Ananda Rholanjiba   2315061052
 
 ------------------------------------------------------------------------
@@ -164,16 +167,12 @@ Jika menggunakan XAMPP:
 
 1.  Pindahkan folder project ke:
 
-```{=html}
-<!-- -->
 ```
     htdocs/KELOMPOK_06/
 
 2.  Jalankan Apache & MySQL\
 3.  Akses website:
 
-```{=html}
-<!-- -->
 ```
     http://localhost/KELOMPOK_06/src/auth/login.php
 
