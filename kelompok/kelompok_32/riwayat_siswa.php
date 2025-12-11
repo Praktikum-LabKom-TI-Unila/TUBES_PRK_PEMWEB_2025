@@ -591,6 +591,7 @@ if (!empty($_SESSION['kelas'])) {
                 <a href="dashboard_siswa.php" class="nav-item"><span>◉</span> Dashboard</a>
                 <a href="riwayat_siswa.php" class="nav-item active"><span>◫</span> Riwayat Ujian</a>
                 <div class="nav-label" style="margin-top: 1.5rem;">Lainnya</div>
+                <a href="profile.php" class="nav-item"><span>👤</span> Profile</a>
                 <a href="logout.php" class="nav-item"><span>↪</span> Keluar</a>
             </nav>
             

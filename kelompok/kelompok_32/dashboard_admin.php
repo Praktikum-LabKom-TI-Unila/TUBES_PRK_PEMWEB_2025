@@ -102,6 +102,7 @@ $result_ujian = mysqli_query($conn, $query_ujian);
                 <li><a href="daftar_ujian.php">Daftar Ujian</a></li>
                 <li><a href="tambah_mata_pelajaran.php">Tambah Mata Pelajaran</a></li>
                 <li><a href="tambah_soal.php">Tambah Soal</a></li>
+                <li><a href="profile.php">Profile</a></li>
                 <li><a href="logout.php">Logout</a></li>
             </ul>
         </aside>

@@ -221,6 +221,7 @@ if (isset($_POST['submit'])) {
             <li><a href="daftar_ujian.php">Daftar Ujian</a></li>
             <li><a class="active" href="tambah_mata_pelajaran.php">Tambah Mata Pelajaran</a></li>
             <li><a href="tambah_soal.php">Tambah Soal</a></li>
+            <li><a href="profile.php">Profile</a></li>
             <li><a href="logout.php">Logout</a></li>
         </ul>
     </aside>
