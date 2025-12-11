@@ -1,12 +1,6 @@
-/**
- * SIMORA - Admin Logout Helper
- * Centralized logout functionality with professional modal confirmation for Admin
- */
-
 (function() {
     'use strict';
     
-    // Auto-detect API base path
     const currentPath = window.location.pathname;
     const hostname = window.location.hostname;
     const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
@@ -22,11 +16,7 @@
     const API_BASE = `${basePath}/backend/api`;
     const LOGIN_PAGE = `${basePath}/frontend/auth/login.html`;
     
-    /**
-     * Create and inject logout confirmation modal
-     */
     function createLogoutModal() {
-        // Check if modal already exists
         if (document.getElementById('logoutModal')) return;
         
         const modalHTML = `
@@ -60,7 +50,6 @@
             </div>
         `;
         
-        // Inject modal styles
         const styles = `
             <style>
                 .logout-modal-overlay {
@@ -237,9 +226,6 @@
         document.body.insertAdjacentHTML('beforeend', modalHTML);
     }
     
-    /**
-     * Show logout modal
-     */
     function showLogoutModal() {
         const modal = document.getElementById('logoutModal');
         if (!modal) {
@@ -252,9 +238,6 @@
         document.body.style.overflow = 'hidden';
     }
     
-    /**
-     * Hide logout modal
-     */
     function hideLogoutModal() {
         const modal = document.getElementById('logoutModal');
         if (!modal) return;
@@ -263,9 +246,6 @@
         document.body.style.overflow = '';
     }
     
-    /**
-     * Handle logout action
-     */
     async function handleLogout() {
         const confirmBtn = document.getElementById('confirmLogout');
         const originalHTML = confirmBtn.innerHTML;
@@ -315,19 +295,14 @@
         }
     }
     
-    // Track if already initialized to prevent double initialization
     let isInitialized = false;
     
-    /**
-     * Initialize logout button
-     */
     function initLogoutButton() {
         if (isInitialized) {
             console.warn('⚠️ Logout already initialized, skipping...');
             return;
         }
         
-        // Admin has multiple logout buttons with different IDs
         const logoutButtons = [
             document.getElementById('btnLogout'),
             document.getElementById('btn-logout-desktop'),
@@ -342,9 +317,7 @@
         
         createLogoutModal();
         
-        // Attach click handler to all logout buttons
         logoutButtons.forEach(btn => {
-            // Remove any existing listeners first
             const newBtn = btn.cloneNode(true);
             btn.parentNode.replaceChild(newBtn, btn);
             
@@ -355,19 +328,14 @@
             });
         });
         
-        // Handle modal buttons with event delegation (one-time setup)
         document.addEventListener('click', handleModalClick);
         
-        // Close on ESC key
         document.addEventListener('keydown', handleEscKey);
         
         isInitialized = true;
         console.log(`✅ Admin logout initialized (${logoutButtons.length} buttons found)`);
     }
     
-    /**
-     * Handle modal clicks
-     */
     function handleModalClick(e) {
         if (e.target.id === 'cancelLogout' || e.target.closest('#cancelLogout')) {
             e.preventDefault();
@@ -386,16 +354,12 @@
         }
     }
     
-    /**
-     * Handle ESC key
-     */
     function handleEscKey(e) {
         if (e.key === 'Escape') {
             hideLogoutModal();
         }
     }
     
-    // Auto-initialize (only once)
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initLogoutButton);
     } else {

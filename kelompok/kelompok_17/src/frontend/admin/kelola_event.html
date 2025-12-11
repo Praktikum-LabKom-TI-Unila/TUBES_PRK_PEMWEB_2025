@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="css/admin.css">
 
     <style>
-        /* Mendefinisikan Variable Warna Utama */
         :root {
             --clr-primary-brand: #01A29D;
             --clr-hover-dark: #005A54;
@@ -25,7 +24,6 @@
         }
         .d-none { display: none !important; }
 
-        /* Style untuk menjaga item sidebar Kelola Event aktif */
         .nav-item-data-event.active-dark-bg { 
             background-color: var(--clr-menu-active-bg-dark); 
             color: white; 
@@ -33,14 +31,13 @@
             border-left: 4px solid #F3F4F6;
             padding-left: calc(1rem - 4px);
         }
-        /* Style untuk Nav Tabs */
         .nav-tabs-custom {
             border-bottom: 1px solid #E5E7EB;
             margin-bottom: 1.5rem;
         }
         .nav-link-custom {
             font-weight: 600;
-            color: #6B7280; /* Gray text default */
+            color: #6B7280; 
             border: none;
             border-bottom: 3px solid transparent;
             padding: 0.75rem 1rem;
@@ -54,7 +51,6 @@
             border-bottom: 3px solid var(--clr-primary-brand);
             background-color: transparent;
         }
-        /* Style untuk tombol Lihat Laporan di card */
         .btn-lihat-laporan {
             background-color: #3B82F6; 
             color: white;
@@ -66,10 +62,9 @@
         .btn-lihat-laporan:hover {
             background-color: #2563EB;
         }
-        /* Style untuk tombol pendaftaran panitia */
         .btn-manage-pendaftaran {
-             background-color: #fcd34d; /* Kuning */
-             color: #78350f; /* Cokelat gelap */
+             background-color: #fcd34d; 
+             color: #78350f; 
              font-weight: 600;
              padding: 0.4rem 0.8rem;
              border-radius: 0.5rem;
@@ -79,7 +74,6 @@
         .btn-manage-pendaftaran:hover {
             background-color: #fbbf24;
         }
-        /* Style untuk detail pendaftar di modal */
         .member-list-modal {
             list-style: none;
             padding: 0;
@@ -88,7 +82,6 @@
             padding: 0.5rem 0;
             border-bottom: 1px dashed #E5E7EB;
         }
-        /* Custom class untuk tombol di modal detail */
         .btn-modal-action {
              background-color: #3B82F6; 
              color: white;
@@ -267,11 +260,9 @@
     </aside>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/logout-helper.js"></script>
     <script src="js/admin.js"></script>
     <script>
-        // ========================================
-        // CONFIGURATION
-        // ========================================
         const hostname = window.location.hostname;
         const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
         const isDotTest = hostname.endsWith('.test');
@@ -285,13 +276,9 @@
         
         const API_BASE = `${basePath}/backend/api`;
         
-        // State
         let allEvents = [];
         let currentEventDetail = null;
         
-        // ========================================
-        // LOAD EVENTS FROM API
-        // ========================================
         async function loadEventsFromAPI() {
             try {
                 const response = await fetch(`${API_BASE}/events.php?action=list&limit=100`, {
@@ -316,11 +303,9 @@
         function renderEvents() {
             const today = new Date().toISOString().split('T')[0];
             
-            // Separate upcoming and past events
             const upcomingEvents = allEvents.filter(e => e.event_date >= today);
             const pastEvents = allEvents.filter(e => e.event_date < today);
             
-            // Render upcoming events
             const upcomingContainer = document.getElementById('agenda-mendatang-list');
             if (upcomingEvents.length === 0) {
                 upcomingContainer.innerHTML = '<p class="text-gray-500 text-center py-4">Tidak ada event mendatang.</p>';
@@ -328,7 +313,6 @@
                 upcomingContainer.innerHTML = upcomingEvents.map(event => createEventCard(event, false)).join('');
             }
             
-            // Render past events
             const pastContainer = document.getElementById('agenda-berlalu-list');
             const pastSummary = document.getElementById('past-events-summary');
             pastSummary.textContent = `Total ${pastEvents.length} Event yang Sudah Selesai. Gunakan laporan detail untuk rekapitulasi.`;
@@ -339,7 +323,6 @@
                 pastContainer.innerHTML = pastEvents.map(event => createEventCard(event, true)).join('');
             }
             
-            // Add click handlers
             document.querySelectorAll('[data-event-id]').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const eventId = btn.getAttribute('data-event-id');
@@ -386,7 +369,6 @@
             
             currentEventDetail = event;
             
-            // Update modal content
             document.getElementById('eventDetailModalLabel').textContent = `Detail Event: ${event.title}`;
             
             const eventDate = new Date(event.event_date);
@@ -408,7 +390,6 @@
             document.getElementById('modal-event-status').innerHTML = `Status: <span class="${statusClass} font-bold">${statusText}</span>`;
         }
         
-        // Sidebar Toggle
         window.toggleMobileSidebar = function() {
             const sidebar = document.getElementById('sidebar-mobile');
             const overlay = document.getElementById('sidebar-mobile-overlay');
@@ -418,7 +399,6 @@
             document.body.classList.toggle('overflow-hidden');
         };
         
-        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             loadEventsFromAPI();
         });

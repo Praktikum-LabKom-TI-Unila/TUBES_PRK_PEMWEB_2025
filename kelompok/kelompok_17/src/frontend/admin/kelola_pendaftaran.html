@@ -53,7 +53,6 @@
 <body class="bg-[var(--clr-base-bg)]">
 
     <div class="flex h-screen bg-light-teal overflow-hidden">
-        <!-- Sidebar Desktop -->
         <aside id="sidebar-desktop" class="sidebar-custom hidden lg:flex flex-col flex-shrink-0">
             <div class="p-4 flex items-center justify-start h-16">
                 <span class="text-2xl font-extrabold text-white">SIMORA</span>
@@ -74,7 +73,6 @@
         </aside>
 
         <main class="flex-1 flex flex-col overflow-y-auto">
-            <!-- Header -->
             <header class="bg-white shadow-md p-4 flex items-center justify-between sticky top-0 z-30 h-16 border-b border-gray-100">
                 <button id="mobile-menu-button" class="lg:hidden text-gray-600 hover:text-gray-900" onclick="toggleMobileSidebar()">
                     <i class="fas fa-bars text-xl"></i>
@@ -89,9 +87,7 @@
                 </div>
             </header>
 
-            <!-- Content -->
             <div class="p-6">
-                <!-- Stats Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
                         <div class="flex items-center justify-between">
@@ -128,7 +124,6 @@
                     </div>
                 </div>
 
-                <!-- Filter & Search -->
                 <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-6">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div class="flex gap-2 flex-wrap">
@@ -154,7 +149,6 @@
                     </div>
                 </div>
 
-                <!-- Loading State -->
                 <div id="loading-state" class="text-center py-12">
                     <div class="spinner-border text-teal-600" role="status">
                         <span class="visually-hidden">Loading...</span>
@@ -162,22 +156,18 @@
                     <p class="text-gray-500 mt-3">Memuat data pendaftaran...</p>
                 </div>
 
-                <!-- Empty State -->
                 <div id="empty-state" class="text-center py-12 hidden">
                     <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
                     <h3 class="text-lg font-semibold text-gray-700">Tidak ada pendaftaran</h3>
                     <p class="text-gray-500">Belum ada pendaftaran panitia untuk ditampilkan</p>
                 </div>
 
-                <!-- Registration List -->
                 <div id="registration-list" class="space-y-4 hidden">
-                    <!-- Cards will be rendered here -->
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Mobile Sidebar -->
     <div id="sidebar-mobile" class="sidebar-mobile">
         <div class="flex justify-between items-center p-4 border-b border-teal-700">
             <span class="text-xl font-bold text-white">SIMORA</span>
@@ -199,7 +189,6 @@
     </div>
     <div id="sidebar-mobile-overlay" class="sidebar-mobile-overlay" onclick="toggleMobileSidebar()"></div>
 
-    <!-- Detail Modal -->
     <div id="detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center">
         <div class="fixed inset-0 bg-black bg-opacity-50" onclick="closeDetailModal()"></div>
         <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4 relative z-10 max-h-[90vh] overflow-y-auto">
@@ -211,13 +200,11 @@
                     </button>
                 </div>
                 <div id="detail-content">
-                    <!-- Content will be rendered here -->
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Confirm Modal -->
     <div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center">
         <div class="fixed inset-0 bg-black bg-opacity-50" onclick="closeConfirmModal()"></div>
         <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 relative z-10 p-6 text-center">
@@ -240,7 +227,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/logout-helper.js"></script>
     <script>
-        // Configuration
         const hostname = window.location.hostname;
         const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
         const isDotTest = hostname.endsWith('.test');
@@ -255,7 +241,6 @@
         const API_BASE = `${basePath}/backend/api`;
         const LOGIN_PAGE = `${basePath}/frontend/auth/login.html`;
 
-        // State
         let allRegistrations = [];
         let allEvents = [];
         let currentFilter = 'all';
@@ -263,12 +248,10 @@
         let searchQuery = '';
         let confirmCallback = null;
 
-        // DOM Elements
         const loadingState = document.getElementById('loading-state');
         const emptyState = document.getElementById('empty-state');
         const registrationList = document.getElementById('registration-list');
 
-        // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
             await checkAuth();
             await loadEvents();
@@ -318,7 +301,6 @@
         async function loadRegistrations() {
             showLoading();
             try {
-                // Load all registrations (admin endpoint)
                 const response = await fetch(`${API_BASE}/registrations.php?action=all`, {
                     credentials: 'include'
                 });
@@ -540,7 +522,6 @@
         });
 
         function setupEventListeners() {
-            // Filter buttons
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.filter-btn').forEach(b => {
@@ -554,20 +535,17 @@
                 });
             });
 
-            // Event filter
             document.getElementById('filter-event').addEventListener('change', (e) => {
                 currentEventFilter = e.target.value;
                 renderRegistrations();
             });
 
-            // Search
             document.getElementById('search-input').addEventListener('input', (e) => {
                 searchQuery = e.target.value;
                 renderRegistrations();
             });
         }
 
-        // Helper Functions
         function showLoading() {
             loadingState.classList.remove('hidden');
             emptyState.classList.add('hidden');
@@ -625,11 +603,9 @@
         }
 
         function showToast(message, type = 'info') {
-            // Simple toast using alert for now
             alert(message);
         }
 
-        // Mobile Sidebar
         function toggleMobileSidebar() {
             const sidebar = document.getElementById('sidebar-mobile');
             const overlay = document.getElementById('sidebar-mobile-overlay');
