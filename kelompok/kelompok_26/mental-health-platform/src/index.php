@@ -32,6 +32,14 @@ if ($p === 'handle_konselor') {
     exit;
 }
 
+// Handle upload bukti pembayaran SEBELUM output HTML apapun
+if ($p === 'upload_payment_proof') {
+    require_once __DIR__ . '/controllers/PaymentController.php';
+    $paymentController = new PaymentController($conn);
+    $paymentController->uploadProof();
+    exit;
+}
+
 function load_view($path, $conn = null) {
     $file = __DIR__ . "/views/$path.php";
     if (file_exists($file)) include $file;

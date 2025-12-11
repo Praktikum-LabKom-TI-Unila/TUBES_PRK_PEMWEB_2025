@@ -54,9 +54,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $insert->bind_param("ssss", $name, $email, $hashed, $profile_picture);
 
             if ($insert->execute()) {
+                $newId = $insert->insert_id;
+                
+                // Buat trial subscription otomatis (1 hari sejak daftar)
+                try {
+                    $trial_start = date('Y-m-d');
+                    $trial_end = date('Y-m-d', strtotime('+1 day'));
+                    $trial_plan = 'daily';
+                    $trial_status = 'active';
+                    
+                    $subStmt = $conn->prepare("
+                        INSERT INTO subscription (user_id, plan, start_date, end_date, status, created_at)
+                        VALUES (?, ?, ?, ?, ?, NOW())
+                    ");
+                    if ($subStmt) {
+                        $subStmt->bind_param('issss', $newId, $trial_plan, $trial_start, $trial_end, $trial_status);
+                        $subStmt->execute();
+                        $subStmt->close();
+                    }
+                } catch(Exception $e){ /* ignore trial creation */ }
+                
                 // write activity log: new user registration (best-effort)
                 try{
-                    $newId = $insert->insert_id;
                     $stmtLog = $conn->prepare("INSERT INTO activity_log (actor_type, actor_id, action, details) VALUES (?,?,?,?)");
                     if ($stmtLog) {
                         $actorType = 'user';
