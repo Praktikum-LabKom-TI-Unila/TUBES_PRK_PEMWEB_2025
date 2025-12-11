@@ -1,0 +1,650 @@
+openapi: 3.0.3
+info:
+  title: SIPINDA Officer API
+  version: '1.0.0'
+  description: |
+    Blueprint endpoint role Petugas (F2–F8) meliputi dashboard, profil,
+    daftar tugas, detail/timeline, aksi lifecycle, pengunggahan bukti,
+    dan notifikasi terbaru.
+servers:
+  - url: /api
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ErrorDetail:
+      type: object
+      properties:
+        field:
+          type: string
+          nullable: true
+        message:
+          type: string
+          nullable: true
+        reason:
+          type: string
+          nullable: true
+    BaseResponse:
+      type: object
+      required: [status, code, message, data, errors]
+      properties:
+        status:
+          type: string
+          enum: [success, error]
+        code:
+          type: integer
+        message:
+          type: string
+        data:
+          nullable: true
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    OfficerProfile:
+      type: object
+      required:
+        - user_id
+        - officer_id
+        - full_name
+        - email
+        - phone
+        - department
+        - employee_id
+        - specialization
+        - status
+        - joined_at
+      properties:
+        user_id:
+          type: integer
+        officer_id:
+          type: integer
+        full_name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        department:
+          type: string
+        employee_id:
+          type: string
+        specialization:
+          type: string
+        address:
+          type: string
+          nullable: true
+        profile_photo:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [tersedia, sibuk]
+        joined_at:
+          type: string
+          format: date-time
+    OfficerProfileUpdateRequest:
+      type: object
+      required: [full_name, email, phone, department, specialization]
+      properties:
+        full_name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        department:
+          type: string
+        specialization:
+          type: string
+          description: Wajib salah satu dari `Jalan_Raya`, `Penerangan_Jalan`, `Drainase`, `Trotoar`, `Taman`, `Jembatan`, `Rambu_Lalu_Lintas`, `Fasilitas_Umum`, `Lainnya`.
+        employee_id:
+          type: string
+          nullable: true
+          description: Opsional untuk memperbarui kode pegawai. Jika dikosongkan maka akan memakai nilai lama.
+        address:
+          type: string
+        photo:
+          type: string
+          format: binary
+          nullable: true
+        photo_base64:
+          type: string
+          nullable: true
+    DashboardStats:
+      type: object
+      properties:
+        active_tasks:
+          type: integer
+        completed_tasks:
+          type: integer
+        total_assignments:
+          type: integer
+        waiting_validation:
+          type: integer
+    TaskStatus:
+      type: string
+      enum:
+        - ditugaskan_ke_petugas
+        - dalam_proses
+        - menunggu_validasi_admin
+        - diverifikasi_admin
+        - selesai
+    TaskSummary:
+      type: object
+      required: [task_id, complaint_id, title, category, status, address, created_at, updated_at]
+      properties:
+        task_id:
+          type: integer
+        complaint_id:
+          type: integer
+        title:
+          type: string
+        category:
+          type: string
+        status:
+          $ref: '#/components/schemas/TaskStatus'
+        address:
+          type: string
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        finished_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    TaskList:
+      type: object
+      required: [page, limit, total_data, total_page, records]
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total_data:
+          type: integer
+        total_page:
+          type: integer
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskSummary'
+    TaskDetail:
+      type: object
+      required:
+        - task_id
+        - complaint_id
+        - title
+        - category
+        - status
+        - description
+        - address
+        - reporter
+        - timestamps
+      properties:
+        task_id:
+          type: integer
+        complaint_id:
+          type: integer
+        title:
+          type: string
+        category:
+          type: string
+        status:
+          $ref: '#/components/schemas/TaskStatus'
+        description:
+          type: string
+        address:
+          type: string
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+              format: float
+              nullable: true
+            longitude:
+              type: number
+              format: float
+              nullable: true
+        photos:
+          type: object
+          properties:
+            before:
+              type: string
+              nullable: true
+            after:
+              type: string
+              nullable: true
+        reporter:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            email:
+              type: string
+            phone:
+              type: string
+            address:
+              type: string
+            photo:
+              type: string
+              nullable: true
+        timestamps:
+          type: object
+          properties:
+            assigned_at:
+              type: string
+              format: date-time
+              nullable: true
+            finished_at:
+              type: string
+              format: date-time
+              nullable: true
+            complaint_created_at:
+              type: string
+              format: date-time
+            complaint_updated_at:
+              type: string
+              format: date-time
+    TimelineItem:
+      type: object
+      required: [id, status, note, created_at, created_by]
+      properties:
+        id:
+          type: integer
+        status:
+          $ref: '#/components/schemas/TaskStatus'
+        note:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        created_by:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+    TaskActionNote:
+      type: object
+      properties:
+        note:
+          type: string
+          description: Catatan tambahan yang akan ditulis ke timeline.
+    TaskCancelRequest:
+      type: object
+      required: [reason]
+      properties:
+        reason:
+          type: string
+          description: Alasan mengembalikan penugasan ke admin.
+    CompletionProofRequest:
+      type: object
+      required: [photo_after]
+      properties:
+        note:
+          type: string
+        photo_after:
+          type: string
+          format: binary
+        photo_base64:
+          type: string
+          description: Alternatif base64 `data:image/...`.
+    CompletionProofData:
+      type: object
+      required: [id, photo_after, created_at, updated_at]
+      properties:
+        id:
+          type: integer
+        photo_after:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+paths:
+  /officer/dashboard/stats:
+    get:
+      summary: API-F2-01 Statistik dashboard petugas
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Statistik berhasil diambil.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/DashboardStats'
+        '401':
+          description: Token tidak valid.
+  /officer/profile:
+    get:
+      summary: API-F3-01 Detail profil petugas
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Profil petugas.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/OfficerProfile'
+    put:
+      summary: API-F3-02 Perbarui profil petugas
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OfficerProfileUpdateRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfficerProfileUpdateRequest'
+      responses:
+        '200':
+          description: Profil diperbarui.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/OfficerProfile'
+  /officer/tasks/active:
+    get:
+      summary: API-F4-01 Daftar tugas aktif
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+      responses:
+        '200':
+          description: Berhasil mengambil daftar tugas aktif.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TaskList'
+  /officer/tasks/completed:
+    get:
+      summary: API-F4-02 Riwayat tugas selesai
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+      responses:
+        '200':
+          description: Daftar tugas selesai.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TaskList'
+  /officer/tasks/{taskId}:
+    get:
+      summary: API-F5-01 Detail tugas petugas
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: taskId
+          required: true
+          schema:
+            type: integer
+            description: ID baris `officer_tasks` atau ID pengaduan (`complaints.id`). Server akan mencari keduanya secara otomatis.
+      responses:
+        '200':
+          description: Detail tugas dikembalikan.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TaskDetail'
+        '404':
+          description: Tugas tidak ditemukan.
+  /officer/tasks/{taskId}/timeline:
+    get:
+      summary: API-F5-02 Timeline tugas petugas
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: taskId
+          required: true
+          schema:
+            type: integer
+            description: ID baris `officer_tasks` atau ID pengaduan (`complaints.id`).
+      responses:
+        '200':
+          description: Timeline lengkap.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          task_id:
+                            type: integer
+                          complaint_id:
+                            type: integer
+                          records:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/TimelineItem'
+  /officer/tasks/{taskId}/start:
+    post:
+      summary: API-F6-01 Mulai pengerjaan tugas
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: taskId
+          required: true
+          schema:
+            type: integer
+          description: ID baris `officer_tasks` atau ID pengaduan (`complaints.id`).
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskActionNote'
+      responses:
+        '200':
+          description: Status berubah menjadi `dalam_proses`.
+  /officer/tasks/{taskId}/cancel:
+    post:
+      summary: API-F6-02 Batalkan/serahkan kembali tugas
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: taskId
+          required: true
+          schema:
+            type: integer
+          description: ID baris `officer_tasks` atau ID pengaduan (`complaints.id`).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCancelRequest'
+      responses:
+        '200':
+          description: Penugasan dikembalikan ke admin.
+  /officer/tasks/{taskId}/complete:
+    post:
+      summary: API-F7-01 Unggah bukti penyelesaian
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: taskId
+          required: true
+          schema:
+            type: integer
+          description: ID baris `officer_tasks` atau ID pengaduan (`complaints.id`).
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CompletionProofRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/CompletionProofRequest'
+      responses:
+        '200':
+          description: Bukti diterima dan status menunggu validasi admin.
+  /officer/tasks/{taskId}/completion-proof:
+    get:
+      summary: API-F6-02 Lihat bukti penyelesaian sementara
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: taskId
+          required: true
+          schema:
+            type: integer
+          description: ID baris `officer_tasks` atau ID pengaduan (`complaints.id`).
+      responses:
+        '200':
+          description: Bukti terakhir pada status menunggu validasi admin.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          task_id:
+                            type: integer
+                          complaint_id:
+                            type: integer
+                          proof:
+                            $ref: '#/components/schemas/CompletionProofData'
+        '404':
+          description: Bukti belum tersedia.
+    put:
+      summary: API-F6-03 Perbarui bukti penyelesaian sebelum validasi admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: taskId
+          required: true
+          schema:
+            type: integer
+          description: ID baris `officer_tasks` atau ID pengaduan (`complaints.id`).
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CompletionProofRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/CompletionProofRequest'
+                - type: object
+                  properties:
+                    note:
+                      type: string
+                      description: Catatan kronologi pembaruan bukti.
+      responses:
+        '200':
+          description: Bukti berhasil diperbarui.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          task_id:
+                            type: integer
+                          complaint_id:
+                            type: integer
+                          proof:
+                            $ref: '#/components/schemas/CompletionProofData'
