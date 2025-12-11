@@ -288,7 +288,7 @@
             });
             
             const data = await response.json();
-            console.log('✅ Logout response:', data);
+            console.log('Logout response:', data);
             
             // Clear any local storage/session storage
             localStorage.removeItem('user');
@@ -308,7 +308,7 @@
             }, 500);
             
         } catch (error) {
-            console.error('❌ Logout error:', error);
+            console.error('Logout error:', error);
             
             // Reset button
             confirmBtn.classList.remove('loading');
@@ -328,7 +328,7 @@
         const btnLogout = document.getElementById('btnLogout');
         
         if (!btnLogout) {
-            console.warn('⚠️ Logout button not found');
+            console.warn('Logout button not found');
             return;
         }
         
@@ -364,7 +364,7 @@
             }
         });
         
-        console.log('✅ Logout button initialized with modal');
+        console.log('Logout button initialized with modal');
     }
     
     /**
@@ -381,16 +381,16 @@
             const data = await response.json();
             
             if (data.status === 'success' && data.data && data.data.logged_in) {
-                console.log('✅ User authenticated:', data.data.user);
+                console.log('User authenticated:', data.data.user);
                 return true;
             } else {
-                console.warn('⚠️ User not authenticated, redirecting to login...');
+                console.warn('User not authenticated, redirecting to login...');
                 window.location.href = LOGIN_PAGE;
                 return false;
             }
             
         } catch (error) {
-            console.error('❌ Auth check failed:', error);
+            console.error('Auth check failed:', error);
             window.location.href = LOGIN_PAGE;
             return false;
         }

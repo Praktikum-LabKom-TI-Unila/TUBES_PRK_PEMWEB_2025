@@ -210,8 +210,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 <h4 class="event-title">${event.title}</h4>
                                 <p class="event-desc">${event.description || 'Tidak ada deskripsi.'}</p>
                                 <div class="event-meta">
-                                    <span>🕒 ${event.start_time?.substring(0, 5) || '00:00'}</span>
-                                    <span>📍 ${event.location || 'TBD'}</span>
+                                    <span> ${event.start_time?.substring(0, 5) || '00:00'}</span>
+                                    <span> ${event.location || 'TBD'}</span>
                                 </div>
                             </div>
                         </div>
@@ -236,13 +236,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const updateSliderWithEvents = async () => {
         try {
-            console.log('🔄 Loading slider events...');
+            console.log(' Loading slider events...');
             const response = await fetch(`${API_BASE}/events.php?action=latest&limit=5`, {
                 method: 'GET',
                 credentials: 'include'
             });
             const result = await response.json();
-            console.log('📦 Slider API response:', result);
+            console.log(' Slider API response:', result);
 
             const wrapper = document.getElementById('sliderWrapper');
             const dotsContainer = document.getElementById('sliderDots');
@@ -254,11 +254,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (dotsContainer) dotsContainer.innerHTML = '';
                 
                 const badges = [
-                    { text: '🎯 Event Utama', class: '' },
-                    { text: '🤖 Seminar', class: 'purple' },
-                    { text: '🎉 Kegiatan', class: 'green' },
-                    { text: '📚 Workshop', class: '' },
-                    { text: '🎭 Acara', class: 'purple' }
+                    { text: ' Event Utama', class: '' },
+                    { text: ' Seminar', class: 'purple' },
+                    { text: ' Kegiatan', class: 'green' },
+                    { text: ' Workshop', class: '' },
+                    { text: ' Acara', class: 'purple' }
                 ];
 
                 result.data.forEach((event, index) => {
@@ -275,7 +275,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                       event.banner !== 'default.jpg' &&
                                       event.banner !== 'null';
                     const bannerUrl = hasBanner ? `${UPLOAD_BASE}/event/${event.banner}` : '';
-                    console.log(`📷 Event ${index + 1}: "${event.title}" - Banner: "${event.banner}" - HasBanner: ${hasBanner}`);
+                    console.log(` Event ${index + 1}: "${event.title}" - Banner: "${event.banner}" - HasBanner: ${hasBanner}`);
                     if (hasBanner) console.log(`   Banner URL: ${bannerUrl}`);
                     
                     const slideHtml = `
@@ -288,8 +288,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 <h2 class="slide-title">${event.title}</h2>
                                 <p class="slide-desc">${event.description || 'Event organisasi'}</p>
                                 <div class="slide-meta">
-                                    <span>📅 ${formattedDate}</span>
-                                    <span>📍 ${event.location || 'TBD'}</span>
+                                    <span> ${formattedDate}</span>
+                                    <span> ${event.location || 'TBD'}</span>
                                 </div>
                                 <button class="slide-btn">Lihat Detail</button>
                             </div>
@@ -308,8 +308,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     slide.addEventListener('click', (e) => {
                         if (!e.target.closest('.slider-btn')) {
                             const eventId = slide.dataset.eventId;
-                            console.log('🖱️ Slide clicked! Event ID:', eventId);
-                            console.log('📍 Navigating to:', `${EVENTS_PAGE}?event=${eventId}`);
+                            console.log(' Slide clicked! Event ID:', eventId);
+                            console.log(' Navigating to:', `${EVENTS_PAGE}?event=${eventId}`);
                             window.location.href = `${EVENTS_PAGE}?event=${eventId}`;
                         }
                     });
@@ -321,12 +321,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="slide active">
                         <div class="slide-overlay"></div>
                         <div class="slide-content">
-                            <span class="slide-badge">📋 Info</span>
+                            <span class="slide-badge"> Info</span>
                             <h2 class="slide-title">Belum Ada Event</h2>
                             <p class="slide-desc">Tidak ada event yang tersedia saat ini. Silakan cek kembali nanti.</p>
                             <div class="slide-meta">
-                                <span>📅 -</span>
-                                <span>📍 -</span>
+                                <span> -</span>
+                                <span> -</span>
                             </div>
                         </div>
                     </div>

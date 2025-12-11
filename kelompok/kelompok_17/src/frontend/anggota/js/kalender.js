@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (monthEvents.length === 0) {
             eventsList.innerHTML = `
                 <div class="no-events">
-                    <div class="no-events-icon">📅</div>
+                    <div class="no-events-icon"></div>
                     <p>Tidak ada kegiatan bulan ini</p>
                 </div>
             `;
@@ -267,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="event-info">
                         <div class="title">${event.title}</div>
-                        <div class="time">🕒 ${event.time}</div>
+                        <div class="time"> ${event.time}</div>
                     </div>
                 </div>
             `;

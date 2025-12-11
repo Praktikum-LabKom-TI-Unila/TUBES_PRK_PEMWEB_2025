@@ -4,9 +4,9 @@
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // ========================================
+    
     // CONFIGURATION
-    // ========================================
+    
     const hostname = window.location.hostname;
     const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
     const isDotTest = hostname.endsWith('.test');
@@ -26,9 +26,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     let currentUser = null;
     let currentProfile = null;
 
-    // ========================================
+    
     // MODAL MANAGEMENT
-    // ========================================
+    
     const modalManager = {
         editProfile: {
             overlay: document.getElementById('modalOverlay'),
@@ -59,12 +59,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         modal.modal.classList.remove('active');
     };
 
-    // ========================================
+    
     // 1. AUTHENTICATION CHECK
-    // ========================================
+    
     const checkAuth = async () => {
         try {
-            console.log('🔍 Checking authentication...');
+            console.log(' Checking authentication...');
             const response = await fetch(`${API_BASE}/auth.php?action=me`, {
                 method: 'GET',
                 credentials: 'include'
@@ -73,27 +73,27 @@ document.addEventListener('DOMContentLoaded', async () => {
             const result = await response.json();
 
             if (!response.ok || result.status !== 'success') {
-                console.error('❌ Auth failed');
+                console.error(' Auth failed');
                 window.location.href = LOGIN_PAGE;
                 return null;
             }
 
-            console.log('✅ Auth successful');
+            console.log(' Auth successful');
             currentUser = result.data;
             return currentUser;
         } catch (error) {
-            console.error('❌ Auth Error:', error);
+            console.error(' Auth Error:', error);
             window.location.href = LOGIN_PAGE;
             return null;
         }
     };
 
-    // ========================================
+    
     // 2. LOAD PROFILE DATA
-    // ========================================
+    
     const loadProfile = async () => {
         try {
-            console.log('📥 Loading profile data...');
+            console.log('� Loading profile data...');
             const response = await fetch(`${API_BASE}/profile.php?action=me`, {
                 method: 'GET',
                 credentials: 'include'
@@ -102,22 +102,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             const result = await response.json();
 
             if (!response.ok || result.status !== 'success') {
-                console.error('❌ Failed to load profile:', result.message);
+                console.error(' Failed to load profile:', result.message);
                 return null;
             }
 
             currentProfile = result.data;
-            console.log('✅ Profile loaded:', currentProfile);
+            console.log(' Profile loaded:', currentProfile);
             return currentProfile;
         } catch (error) {
-            console.error('❌ Load Profile Error:', error);
+            console.error(' Load Profile Error:', error);
             return null;
         }
     };
 
-    // ========================================
+    
     // 3. DISPLAY PROFILE INFORMATION
-    // ========================================
+    
     const displayProfile = (user, profile) => {
         // Update navbar
         document.getElementById('navUsername').textContent = profile?.full_name || user.username;
@@ -200,12 +200,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    // ========================================
+    
     // 4. LOAD ATTENDANCE STATISTICS
-    // ========================================
+    
     const loadAttendanceStats = async () => {
         try {
-            console.log('📊 Loading attendance statistics...');
+            console.log('� Loading attendance statistics...');
             const response = await fetch(`${API_BASE}/attendance.php?action=statistics`, {
                 method: 'GET',
                 credentials: 'include'
@@ -236,10 +236,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     document.getElementById('progressAlpa').style.width = alpaPercent + '%';
                 }
 
-                console.log('✅ Attendance stats loaded');
+                console.log(' Attendance stats loaded');
             }
         } catch (error) {
-            console.error('❌ Error loading attendance stats:', error);
+            console.error(' Error loading attendance stats:', error);
         }
     };
 
@@ -266,9 +266,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         requestAnimationFrame(updateValue);
     };
 
-    // ========================================
+    
     // 5. EDIT PROFILE HANDLER
-    // ========================================
+    
     const initEditProfileHandler = () => {
         const btnEdit = document.getElementById('btnEditProfile');
 
@@ -338,7 +338,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     submitBtn.textContent = originalText;
                 }
             } catch (error) {
-                console.error('❌ Edit Profile Error:', error);
+                console.error(' Edit Profile Error:', error);
                 showMessage('formMessage', 'Terjadi kesalahan: ' + error.message, 'error');
                 const submitBtn = modalManager.editProfile.submit;
                 if (submitBtn) {
@@ -349,9 +349,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     };
 
-    // ========================================
+    
     // 6. CHANGE PASSWORD HANDLER
-    // ========================================
+    
     const initChangePasswordHandler = () => {
         const btnChange = document.getElementById('btnChangePassword');
 
@@ -423,7 +423,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     submitBtn.textContent = originalText;
                 }
             } catch (error) {
-                console.error('❌ Change Password Error:', error);
+                console.error(' Change Password Error:', error);
                 showMessage('passwordMessage', 'Terjadi kesalahan: ' + error.message, 'error');
                 const submitBtn = modalManager.changePassword.submit;
                 if (submitBtn) {
@@ -434,9 +434,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     };
 
-    // ========================================
+    
     // 7. MESSAGE HELPER
-    // ========================================
+    
     const showMessage = (elementId, message, type) => {
         const element = document.getElementById(elementId);
         if (!element) return;
@@ -451,9 +451,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 5000);
     };
 
-    // ========================================
+    
     // 8. PHOTO UPLOAD HANDLER
-    // ========================================
+    
     const initPhotoUploadHandler = () => {
         const photoInput = document.getElementById('photoInput');
         const photoPreview = document.getElementById('photoPreview');
@@ -599,19 +599,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    // ========================================
+    
     // 9. LOGOUT HANDLER
-    // ========================================
+    
     // FUNGSI initLogout DIHAPUS - Dipindahkan ke logout-helper.js
     // Logout sekarang menggunakan modal konfirmasi profesional dengan warna mint green
     const initLogout = () => {
         // Event listener logout sudah ditangani oleh logout-helper.js
-        console.log('✅ Logout will be handled by logout-helper.js');
+        console.log(' Logout will be handled by logout-helper.js');
     };
 
-    // ========================================
+    
     // 9. MOBILE NAVIGATION
-    // ========================================
+    
     const initMobileNav = () => {
         const toggle = document.getElementById('navToggle');
         const menu = document.getElementById('navMenu');
@@ -629,9 +629,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     };
 
-    // ========================================
+    
     // INITIALIZE ALL
-    // ========================================
+    
     try {
         const user = await checkAuth();
         if (!user) return;
@@ -648,8 +648,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         initLogout();
         initMobileNav();
 
-        console.log('✅ Profile page initialized successfully');
+        console.log(' Profile page initialized successfully');
     } catch (error) {
-        console.error('❌ Initialization Error:', error);
+        console.error(' Initialization Error:', error);
     }
 });

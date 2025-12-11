@@ -8,9 +8,7 @@
  * - Very verbose logging & comments, matching style of dashboard.js
  */
 
-/* ================================
-   CONFIGURATION
-   ================================ */
+
 
 const hostname = window.location.hostname;
 const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
@@ -28,11 +26,9 @@ const LOGIN_PAGE = `${basePath}/frontend/auth/login.html`;
 
 const SEARCH_ENDPOINT = `${API_BASE}/auth.php?action=all_members`;
 
-console.log('📍 pencarian.js - SEARCH_ENDPOINT:', SEARCH_ENDPOINT);
+console.log(' pencarian.js - SEARCH_ENDPOINT:', SEARCH_ENDPOINT);
 
-/* ================================
-   UTILS / HELPERS (reusable)
-   ================================ */
+
 
 /**
  * debounce(fn, wait) - return debounced function
@@ -94,9 +90,7 @@ function highlightText(text = '', terms = []) {
   return result;
 }
 
-/* ================================
-   DOM CACHING
-   ================================ */
+
 
 document.addEventListener('DOMContentLoaded', () => {
   // Inputs & controls
@@ -134,9 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Toast container
   const toastContainer = document.getElementById('toastContainer');
 
-  /* ================================
-     STATE
-     ================================ */
+  
   let currentView = 'table'; // 'table' or 'cards'
   let currentPage = 1;
   const PAGE_SIZE = 10;
@@ -147,9 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let totalPages = 1;
   let cache = new Map(); // simple in-memory caching by query+types+page+sort
 
-  /* ================================
-     UI HELPERS
-     ================================ */
+  
 
   function showToast(title, msg, variant = 'info', timeout = 4000) {
     const t = document.createElement('div');
@@ -181,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
     c.className = 'chip';
     if (active) c.classList.add('active');
     c.dataset.type = type;
-    c.innerHTML = `${escapeHtml(type)} <span class="remove" aria-hidden="true">✕</span>`;
+    c.innerHTML = `${escapeHtml(type)} <span class="remove" aria-hidden="true"></span>`;
     c.addEventListener('click', (e) => {
       // Toggle selection
       if (selectedTypes.has(type)) {
@@ -326,9 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* ================================
-     SMALL UI UTILITIES
-     ================================ */
+  
 
   function getInitials(name = '') {
     if (!name) return 'U';
@@ -383,9 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
   profileModalCloseBtn?.addEventListener('click', closeProfileModalFn);
   profileModalBackdrop?.addEventListener('click', closeProfileModalFn);
 
-  /* ================================
-     CORE SEARCH LOGIC
-     ================================ */
+  
 
   // Build query key for cache
   function buildCacheKey(q, types, page, sort) {
@@ -535,9 +521,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  /* ================================
-     EVENT BINDINGS / UX
-     ================================ */
+  
 
   // Debounced search handler (used on input)
   const debouncedSearch = debounce(() => {
@@ -605,10 +589,7 @@ document.addEventListener('DOMContentLoaded', () => {
     tableView.classList.add('hidden');
   });
 
-  /* ================================
-     INITIALIZE FILTER CHIPS (tipe keanggotaan)
-     - We create default chips; if backend has dynamic types, replace with API call
-     ================================ */
+  
 
   const defaultTypes = ['anggota', 'admin', 'pengurus', 'alumni', 'calon'];
   defaultTypes.forEach(t => {
@@ -616,9 +597,7 @@ document.addEventListener('DOMContentLoaded', () => {
     typeChipsEl.appendChild(chip);
   });
 
-  /* ================================
-     LOAD DEFAULT (initial) - show popular members / recent ones
-     ================================ */
+  
   (function init() {
     // initial skeletons
     showSkeletons(4);
@@ -627,12 +606,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // For now we run an empty search to fetch first page
     currentPage = 1;
     runSearch();
-    console.log('✅ pencarian.js initialized');
+    console.log(' pencarian.js initialized');
   })();
 
-  /* ================================
-     CLEANUP / UTIL: cache maintenance
-     ================================ */
+  
   // expire cache older than 5 minutes periodically
   setInterval(() => {
     const now = Date.now();

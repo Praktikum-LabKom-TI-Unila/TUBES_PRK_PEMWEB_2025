@@ -4,9 +4,9 @@
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // ========================================
+    
     // CONFIGURATION
-    // ========================================
+    
     const hostname = window.location.hostname;
     const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
     const isDotTest = hostname.endsWith('.test');
@@ -22,9 +22,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const UPLOAD_BASE = basePath.replace('/src', '/upload');
     const LOGIN_PAGE = `${basePath}/frontend/auth/login.html`;
     
-    // ========================================
+    
     // STATE MANAGEMENT
-    // ========================================
+    
     let allEvents = [];
     let myRegistrations = [];
     let myAttendances = [];
@@ -69,9 +69,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const btnRemovePreview = document.getElementById('btnRemovePreview');
     const toast = document.getElementById('toast');
 
-    // ========================================
+    
     // INITIALIZATION
-    // ========================================
+    
     async function init() {
         showLoading();
         
@@ -119,9 +119,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // ========================================
+    
     // LOAD CURRENT USER
-    // ========================================
+    
     async function loadCurrentUser() {
         try {
             const response = await fetch(`${API_BASE}/auth.php?action=me`, {
@@ -140,9 +140,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // ========================================
+    
     // LOAD MY REGISTRATIONS
-    // ========================================
+    
     async function loadMyRegistrations() {
         try {
             const regResponse = await fetch(`${API_BASE}/registrations.php?action=my-registrations`, {
@@ -202,9 +202,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // ========================================
+    
     // LOAD EVENTS
-    // ========================================
+    
     async function loadEvents() {
         try {
             const response = await fetch(`${API_BASE}/events.php?action=list&limit=50`, {
@@ -267,9 +267,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // ========================================
+    
     // RENDER ALL SECTIONS
-    // ========================================
+    
     function renderAllSections() {
         const filteredEvents = filterEvents();
         
@@ -319,9 +319,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // ========================================
+    
     // ADD CLICK HANDLERS TO CARDS
-    // ========================================
+    
     function addCardClickHandlers(container) {
         container.querySelectorAll('.event-card').forEach(card => {
             card.addEventListener('click', (e) => {
@@ -331,9 +331,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // ========================================
+    
     // CREATE EVENT CARD
-    // ========================================
+    
     function createEventCard(event, isMyEvent) {
         const registration = myRegistrations.find(r => r.event_id === event.id);
         const eventIcon = getEventIcon(event.type);
@@ -400,9 +400,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
     }
 
-    // ========================================
+    
     // CHECK IF EVENT IS ONGOING
-    // ========================================
+    
     function isEventOngoing(event) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -411,9 +411,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         return eventDate.getTime() === today.getTime();
     }
 
-    // ========================================
+    
     // GET REGISTRATION STATUS BADGE
-    // ========================================
+    
     function getRegistrationStatusBadge(status) {
         const badges = {
             pending: `
@@ -456,9 +456,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         return badges[status] || '';
     }
 
-    // ========================================
+    
     // FILTER EVENTS
-    // ========================================
+    
     function filterEvents() {
         return allEvents.filter(event => {
             const matchesSearch = !searchQuery || 
@@ -477,9 +477,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // ========================================
+    
     // OPEN EVENT DETAIL MODAL
-    // ========================================
+    
     async function openEventDetail(eventId) {
         const event = allEvents.find(e => e.id === eventId);
         if (!event) return;
@@ -686,9 +686,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.body.style.overflow = 'hidden';
     }
 
-    // ========================================
+    
     // GET REGISTRATION STATUS INFO
-    // ========================================
+    
     function getRegistrationStatusInfo(status) {
         const info = {
             pending: `
@@ -743,9 +743,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         return info[status] || '';
     }
 
-    // ========================================
+    
     // GET ATTENDANCE CARD HTML
-    // ========================================
+    
     function getAttendanceCardHTML(status) {
         const cards = {
             pending: `
@@ -793,9 +793,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         return cards[status] || '';
     }
 
-    // ========================================
+    
     // CLOSE EVENT DETAIL MODAL
-    // ========================================
+    
     function closeEventDetailModal() {
         eventModal.classList.remove('active');
         document.body.style.overflow = 'auto';
@@ -809,9 +809,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         currentEventId = null;
     }
 
-    // ========================================
+    
     // HANDLE EVENT REGISTRATION
-    // ========================================
+    
     async function registerEvent() {
         if (!currentEventId) return;
         
@@ -825,9 +825,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // ========================================
+    
     // CANCEL REGISTRATION
-    // ========================================
+    
     async function cancelRegistration() {
         if (!currentEventId) return;
         
@@ -885,26 +885,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // ========================================
+    
     // OPEN PRESENSI MODAL
-    // ========================================
+    
     function openPresensiModal() {
         document.getElementById('presensiEventId').value = currentEventId;
         presensiModal.classList.add('active');
         resetPresensiForm();
     }
 
-    // ========================================
+    
     // CLOSE PRESENSI MODAL
-    // ========================================
+    
     function closePresensiModalFunc() {
         presensiModal.classList.remove('active');
         resetPresensiForm();
     }
 
-    // ========================================
+    
     // RESET PRESENSI FORM
-    // ========================================
+    
     function resetPresensiForm() {
         presensiForm.reset();
         uploadPreview.style.display = 'none';
@@ -912,9 +912,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         previewImage.src = '';
     }
 
-    // ========================================
+    
     // HANDLE FILE UPLOAD
-    // ========================================
+    
     uploadArea.addEventListener('click', () => {
         presensiPhoto.click();
     });
@@ -1076,9 +1076,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // ========================================
+    
     // REGISTRATION MODAL HANDLERS
-    // ========================================
+    
     const registrationModal = document.getElementById('registrationModal');
     const registrationModalOverlay = document.getElementById('registrationModalOverlay');
     const closeRegistrationModal = document.getElementById('closeRegistrationModal');
@@ -1177,9 +1177,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         return divisions[code] || code;
     }
 
-    // ========================================
+    
     // CONFIRMATION & SUCCESS MODALS
-    // ========================================
+    
     const confirmModal = document.getElementById('confirmModal');
     const confirmModalOverlay = document.getElementById('confirmModalOverlay');
     const btnConfirmCancel = document.getElementById('btnConfirmCancel');
@@ -1225,9 +1225,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     btnSuccessOk?.addEventListener('click', closeSuccessModal);
     successModalOverlay?.addEventListener('click', closeSuccessModal);
 
-    // ========================================
+    
     // EVENT LISTENERS
-    // ========================================
+    
     function setupEventListeners() {
         searchInput.addEventListener('input', (e) => {
             searchQuery = e.target.value;
@@ -1267,9 +1267,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // ========================================
+    
     // HELPER FUNCTIONS
-    // ========================================
+    
     function showLoading() {
         loadingState.style.display = 'flex';
         myEventsSection.style.display = 'none';
@@ -1303,15 +1303,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function getEventIcon(type) {
         const icons = {
-            workshop: '💻',
-            seminar: '🎓',
-            gathering: '🥳',
-            meeting: '👥',
-            webinar: '🖥️',
-            competition: '🏆',
-            training: '📚'
+            workshop: '',
+            seminar: '',
+            gathering: '',
+            meeting: '',
+            webinar: '',
+            competition: '',
+            training: ''
         };
-        return icons[type] || '📅';
+        return icons[type] || '';
     }
 
     function getStatusBadge(status) {

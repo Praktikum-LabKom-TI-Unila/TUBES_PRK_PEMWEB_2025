@@ -6,9 +6,9 @@
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    // ===============================
+    
     // API CONFIG
-    // ===============================
+    
     const hostname = window.location.hostname;
     const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
     const isDotTest = hostname.endsWith('.test');
@@ -25,9 +25,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const API_MEMBERS = `${API_BASE}/auth.php?action=all_members`;
     const API_UPDATE_STATUS = `${API_BASE}/users.php?action=update-status`;
 
-    // ===============================
+    
     // UI ELEMENTS
-    // ===============================
+    
     const container = document.getElementById("presensiContainer");
     const searchInput = document.getElementById("searchInput");
     const searchBtn = document.getElementById("btnSearch");
@@ -35,9 +35,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let memberData = [];
 
-    // ===============================
+    
     // Fetch members from backend
-    // ===============================
+    
     async function loadMembers() {
         try {
             const response = await fetch(API_MEMBERS, {
@@ -58,9 +58,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ===============================
+    
     // Render Members List
-    // ===============================
+    
     function renderMembers(data) {
 
         container.innerHTML = "";
@@ -102,9 +102,9 @@ document.addEventListener("DOMContentLoaded", () => {
         attachStatusListeners();
     }
 
-    // ===============================
+    
     // Set Status Active / Nonactive
-    // ===============================
+    
     function attachStatusListeners() {
         const buttons = document.querySelectorAll("[data-set]");
 
@@ -142,9 +142,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ===============================
+    
     // Search
-    // ===============================
+    
     function searchMembers() {
         const query = searchInput.value.toLowerCase().trim();
 
