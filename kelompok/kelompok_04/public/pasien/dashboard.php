@@ -11,7 +11,6 @@ $user_id = (int) $_SESSION['user_id'];
 $bookingError = '';
 $bookingSuccess = '';
 
-// Ambil data pasien
 $sqlPasien = "SELECT p.*, u.email 
               FROM pasien p 
               JOIN users u ON p.id_user = u.id_user
@@ -31,7 +30,6 @@ if (!$pasien) {
     ];
 }
 
-// Proses ambil antrian 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'ambil_antrian') {
     $id_poli_post    = (int) ($_POST['id_poli'] ?? 0);
     $jam_mulai_post  = trim($_POST['jam_mulai'] ?? '');
@@ -40,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'ambil
     if ($id_poli_post <= 0 || $jam_mulai_post === '' || $tanggal_post === '') {
         $bookingError = 'Semua field wajib diisi untuk ambil antrian.';
     } else {
-        // Cari jadwal yang sesuai dengan poli, jam, dan hari
+
         $timestamp = strtotime($tanggal_post);
         $hariIdx = date('N', $timestamp); 
         $mapHari = [
@@ -49,7 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'ambil
         ];
         $hariEnum = $mapHari[$hariIdx] ?? 'Senin';
 
-        // Cari jadwal yang cocok dengan poli dan jam yang dipilih
         $sqlJadwal = "SELECT j.id_jadwal, j.id_dokter
                       FROM jadwal_praktik j
                       JOIN dokter d ON j.id_dokter = d.id_dokter
@@ -217,7 +214,6 @@ while ($row = $resJDok->fetch_assoc()) {
 }
 $stmtJDok->close();
 
-// Pengumuman
 $sqlPeng = "SELECT id_pengumuman, judul, isi, tanggal
             FROM pengumuman
             WHERE status = 'publish'
@@ -230,7 +226,6 @@ while ($row = $resPeng->fetch_assoc()) {
     $artikel[] = $row;
 }
 
-// Rekam medis
 $sqlRM = "SELECT r.id_rekam, r.tanggal_kunjungan, r.diagnosa, d.nama_dokter
           FROM rekam_medis r
           JOIN dokter d ON r.id_dokter = d.id_dokter
@@ -247,7 +242,6 @@ while ($row = $resRM->fetch_assoc()) {
 }
 $stmtRM->close();
 
-// Ambil daftar poli
 $sqlPoli = "SELECT id_poli, nama_poli FROM poli ORDER BY nama_poli ASC";
 $resPoli = $conn->query($sqlPoli);
 $poliOptions = [];
@@ -255,7 +249,6 @@ while ($row = $resPoli->fetch_assoc()) {
     $poliOptions[] = $row;
 }
 
-// Ambil jadwal per poli dengan jam 
 $sqlJadwalPerPoli = "SELECT DISTINCT d.id_poli, j.jam_mulai, j.jam_selesai, j.hari
                      FROM jadwal_praktik j
                      JOIN dokter d ON j.id_dokter = d.id_dokter
@@ -360,9 +353,8 @@ $jadwalPerPoliJson = json_encode($jadwalPerPoli);
         </div>
 <div id="status-antrian">
     <?php if ($hasQueue): ?>
-        <!-- Hanya 1 kotak untuk antrian pertama/utama -->
         <?php 
-        $antrianUtama = $semuaAntrian[0]; // Ambil antrian pertama saja
+        $antrianUtama = $semuaAntrian[0]; 
         ?>
         <div class="bg-gradient-to-r from-[#45BC7D] to-[#3aa668] rounded-2xl p-6 text-white shadow-md">
             <div class="flex items-start justify-between mb-4">
@@ -414,7 +406,6 @@ $jadwalPerPoliJson = json_encode($jadwalPerPoli);
         </div>
 
     <?php else: ?>
-        <!-- Kode "belum ada antrian" tetap sama -->
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
             <div class="flex flex-col items-center text-center">
                 <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
@@ -536,7 +527,6 @@ $jadwalPerPoliJson = json_encode($jadwalPerPoli);
         </div>
     </div>
 
-    <!-- Modal Antrian - REVISI (Tanggal Otomatis Hari Ini) -->
 <div id="antrianModal" class="fixed inset-0 bg-black/50 items-center justify-center z-50 px-6 hidden">
     <div class="bg-white rounded-2xl w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between p-6 border-b border-gray-100 sticky top-0 bg-white">
@@ -552,7 +542,6 @@ $jadwalPerPoliJson = json_encode($jadwalPerPoli);
             <input type="hidden" name="action" value="ambil_antrian">
             <input type="hidden" name="tanggal" value="<?php echo date('Y-m-d'); ?>">
 
-            <!-- Info Tanggal Hari Ini -->
             <div class="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-4">
                 <div class="flex items-center gap-3">
                     <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
@@ -569,7 +558,6 @@ $jadwalPerPoliJson = json_encode($jadwalPerPoli);
                 </div>
             </div>
 
-            <!-- Pilih Poli -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">
                     <span class="flex items-center gap-2">
@@ -589,10 +577,8 @@ $jadwalPerPoliJson = json_encode($jadwalPerPoli);
                 </select>
             </div>
 
-            <!-- Hidden Input Jam -->
             <input type="hidden" name="jam_mulai" id="inputJamMulai">
 
-            <!-- Daftar Jam Tersedia -->
             <div id="jamContainer" class="hidden">
                 <label class="block text-sm font-medium text-gray-700 mb-3">
                     <span class="flex items-center gap-2">
@@ -614,7 +600,6 @@ $jadwalPerPoliJson = json_encode($jadwalPerPoli);
                 </div>
             </div>
 
-            <!-- Summary Box -->
             <div id="summaryBox" class="hidden bg-gradient-to-r from-[#45BC7D]/10 to-[#3aa668]/10 border border-[#45BC7D]/30 rounded-xl p-4">
                 <div class="space-y-1.5 text-sm">
                 </div>

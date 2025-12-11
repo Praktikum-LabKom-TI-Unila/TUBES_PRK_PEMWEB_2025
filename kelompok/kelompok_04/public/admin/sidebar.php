@@ -42,8 +42,8 @@ require_once __DIR__ . '/../../src/helpers/icon_helper.php';
 
     <div class="px-6 py-6 border-b border-gray-100">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center">
-                <span class="text-[#45BC7D] font-bold text-lg">P</span>
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center">
+                 <img src="../img/puskesmas.svg" alt="Logo Puskesmas" class="w-full h-full object-contain drop-shadow-lg">
             </div>
             <div>
                 <p class="text-xs text-gray-400">Puskesmas</p>
