@@ -51,3 +51,17 @@ function getUserInfo() {
       return null;
     });
 }
+
+// Get current user from session storage (for petugas/admin)
+function getCurrentUser() {
+  try {
+    const userStr = sessionStorage.getItem("user");
+    if (userStr) {
+      return JSON.parse(userStr);
+    }
+    return null;
+  } catch (error) {
+    console.error("Error getting current user:", error);
+    return null;
+  }
+}
