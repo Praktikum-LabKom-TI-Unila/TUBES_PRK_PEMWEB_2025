@@ -1,5 +1,6 @@
 <?php
 
+require_once __DIR__ . '/../../core/Controller.php';
 require_once __DIR__ . '/../../models/Material.php';
 require_once __DIR__ . '/../../helpers/ExcelExporter.php';
 
@@ -69,6 +70,55 @@ class ReportController extends Controller {
             echo '<h3>Error: ' . $e->getMessage() . '</h3>';
             echo '<p>File: ' . $e->getFile() . '</p>';
             echo '<p>Line: ' . $e->getLine() . '</p>';
+            exit;
+        }
+    }
+
+    public function exportLowStock() {
+        try {
+            $materialModel = new Material();
+            
+            $search = $_GET['search'] ?? '';
+            $categoryFilter = $_GET['category'] ?? '';
+            $onlyOutOfStock = isset($_GET['only_out_of_stock']) ? (bool)$_GET['only_out_of_stock'] : false;
+            
+            $filters = [];
+            if ($search) $filters['search'] = $search;
+            if ($categoryFilter) $filters['category_id'] = $categoryFilter;
+            if ($onlyOutOfStock) $filters['only_out_of_stock'] = true;
+            
+            $result = $materialModel->getLowStock(1, 1000, $filters);
+            $materials = $result['data'] ?? [];
+            
+            header('Content-Type: application/vnd.ms-excel');
+            header('Content-Disposition: attachment;filename="laporan_bahan_hampir_habis_' . date('Y-m-d') . '.xls"');
+            header('Cache-Control: max-age=0');
+            
+            echo '<table border="1">';
+            echo '<tr><th>Kode</th><th>Nama Bahan</th><th>Kategori</th><th>Stok Saat Ini</th><th>Stok Minimum</th><th>Kekurangan</th><th>Status</th><th>Supplier</th></tr>';
+            
+            foreach ($materials as $material) {
+                $status = $material['current_stock'] == 0 ? 'Habis Total' : 'Low Stock';
+                $shortage = max(0, $material['min_stock'] - $material['current_stock']);
+                
+                echo '<tr>';
+                echo '<td>' . htmlspecialchars($material['code']) . '</td>';
+                echo '<td>' . htmlspecialchars($material['name']) . '</td>';
+                echo '<td>' . htmlspecialchars($material['category_name'] ?? '-') . '</td>';
+                echo '<td>' . $material['current_stock'] . ' ' . htmlspecialchars($material['unit']) . '</td>';
+                echo '<td>' . $material['min_stock'] . ' ' . htmlspecialchars($material['unit']) . '</td>';
+                echo '<td>' . $shortage . ' ' . htmlspecialchars($material['unit']) . '</td>';
+                echo '<td>' . $status . '</td>';
+                echo '<td>' . htmlspecialchars($material['supplier_name'] ?? '-') . '</td>';
+                echo '</tr>';
+            }
+            
+            echo '</table>';
+            exit;
+            
+        } catch (Exception $e) {
+            header('Content-Type: text/html');
+            echo '<h3>Error: ' . $e->getMessage() . '</h3>';
             exit;
         }
     }
