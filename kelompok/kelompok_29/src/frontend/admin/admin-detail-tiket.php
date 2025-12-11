@@ -1,28 +1,12 @@
 <?php
-// Dummy data untuk simulasi tiket tunggal (menggunakan status yang berbeda untuk testing)
-$ticketId = isset($_GET['id']) ? $_GET['id'] : 'TKT-001'; 
-$currentTicket = [
-    'id' => $ticketId,
-    'reporterName' => 'Ahmad Wijaya',
-    'reporterEmail' => 'ahmad.wijaya@email.com',
-    'title' => 'Jalan Berlubang di Jl. Sudirman',
-    'category' => 'Jalan Raya',
-    'status' => 'diverifikasi-admin', // Status untuk menguji tombol "Tugaskan Petugas"
-    'createdAt' => '2025-10-10',
-    'location' => 'Jl. Sudirman No. 45, Jakarta Pusat',
-    'description' => 'Terdapat lubang yang cukup dalam dan lebar di tengah jalan yang berpotensi menyebabkan kecelakaan.',
-    'imageUrl' => 'img/dummy-road-initial.jpg',
-    'assignedOfficer' => 'Budi Santoso',
-    'completionImageUrl' => 'img/dummy-road-fixed.jpg',
-    'officerNotes' => 'Perbaikan selesai dengan penambalan aspal pada area lubang utama.',
-];
+$ticketId = isset($_GET['id']) ? trim($_GET['id']) : '';
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Tiket #<?php echo htmlspecialchars($ticketId); ?></title>
+    <title>Detail Tiket</title>
     <script src="https://cdn.tailwindcss.com"></script> 
     <script src="js/admin-auth-guard.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -35,17 +19,17 @@ $currentTicket = [
         .timeline-point { width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; position: absolute; left: 0; transform: translateX(-50%); z-index: 5; }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50" data-ticket-id="<?php echo htmlspecialchars($ticketId); ?>">
     
     <div class="header-sticky">
         <div class="max-w-5xl mx-auto p-4 flex items-center gap-3">
             <a href="admin-manajemen-tiket.php" class="w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded-lg text-gray-700 text-xl transition-colors">&larr;</a>
             <div class="flex-grow">
-                <h1 class="text-2xl font-semibold text-gray-900">Detail Tiket #<?php echo htmlspecialchars($currentTicket['id']); ?></h1>
-                <p class="text-gray-600 text-sm"><?php echo htmlspecialchars($currentTicket['reporterName']); ?></p>
+                <h1 id="ticketHeaderTitle" class="text-2xl font-semibold text-gray-900">Detail Tiket</h1>
+                <p id="ticketHeaderReporter" class="text-gray-600 text-sm">Pelapor tidak diketahui</p>
             </div>
             <div class="flex items-center gap-3">
-                <div id="statusBadgeContainer"></div>
+                <div id="statusBadgeContainer" class="text-sm text-gray-500">Status tidak tersedia</div>
                 <button
                     type="button"
                     class="inline-flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-lg border border-red-100 text-sm font-semibold hover:bg-red-100"
@@ -60,74 +44,113 @@ $currentTicket = [
         </div>
     </div>
 
+    <section id="pageAlert" class="hidden max-w-5xl mx-auto mt-4 px-4"></section>
+
     <main class="content-wrapper">
-        <div class="max-w-5xl mx-auto p-4 grid lg:grid-cols-3 gap-4">
+        <div class="max-w-5xl mx-auto p-4 grid lg:grid-cols-3 gap-4" id="detailShell">
             
             <div class="lg:col-span-2 space-y-4">
-                <div class="bg-white rounded-xl overflow-hidden border border-gray-200">
-                    <img src="<?php echo htmlspecialchars($currentTicket['imageUrl']); ?>" alt="<?php echo htmlspecialchars($currentTicket['title']); ?>" class="w-full h-80 object-cover">
+                <div class="bg-white rounded-xl overflow-hidden border border-gray-200" id="ticketImageWrapper">
+                    <img id="ticketImage" src="https://placehold.co/1200x600?text=Memuat+foto" alt="Foto Pengaduan" class="w-full h-80 object-cover">
                 </div>
                 <div class="bg-white rounded-xl p-6 border border-gray-200">
-                    <h2 class="mb-4 text-2xl font-semibold"><?php echo htmlspecialchars($currentTicket['title']); ?></h2>
-                    <div class="flex flex-wrap gap-4 text-gray-600 mb-6 text-sm">
-                        <div class="flex items-center gap-2"><i class="material-icons text-base">calendar_today</i><span><?php echo date('d F Y', strtotime($currentTicket['createdAt'])); ?></span></div>
-                        <div class="flex items-center gap-2"><i class="material-icons text-base">description</i><span><?php echo htmlspecialchars($currentTicket['category']); ?></span></div>
+                    <h2 id="ticketTitle" class="mb-4 text-2xl font-semibold text-gray-900">Memuat judul...</h2>
+                    <div class="flex flex-wrap gap-4 text-gray-600 mb-6 text-sm" id="ticketMeta">
+                        <div class="flex items-center gap-2">
+                            <i class="material-icons text-base">calendar_today</i>
+                            <span id="ticketCreatedAt">-</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="material-icons text-base">description</i>
+                            <span id="ticketCategory">-</span>
+                        </div>
                     </div>
                     <div class="mb-4">
                         <p class="text-gray-700 mb-2 font-medium">Deskripsi:</p>
-                        <p class="text-gray-600"><?php echo htmlspecialchars($currentTicket['description']); ?></p>
+                        <p id="ticketDescription" class="text-gray-600">Memuat deskripsi...</p>
                     </div>
                     <div class="pt-4 border-t border-gray-200">
                         <div class="flex items-start gap-2">
                             <i class="material-icons text-xl text-gray-400 mt-0.5">location_on</i>
                             <div>
                                 <p class="text-gray-700 mb-1 font-medium">Lokasi:</p>
-                                <p class="text-gray-600"><?php echo htmlspecialchars($currentTicket['location']); ?></p>
+                                <p id="ticketLocation" class="text-gray-600">-</p>
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="bg-white rounded-xl p-6 border border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Peta Lokasi</h3>
+                    <div class="map-placeholder rounded-xl border border-dashed border-gray-200 flex items-center justify-center h-56 text-gray-400 text-sm" id="ticketMapPlaceholder">
+                        Lokasi akan ditampilkan di sini
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl p-6 border border-gray-200" id="reporterCard">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Informasi Pelapor</h3>
+                    <div class="space-y-2 text-gray-700">
+                        <p><span class="font-semibold">Nama:</span> <span id="reporterName">-</span></p>
+                        <p><span class="font-semibold">Email:</span> <span id="reporterEmail">-</span></p>
+                        <p><span class="font-semibold">Telepon:</span> <span id="reporterPhone">-</span></p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl p-6 border border-gray-200 hidden" id="proofSection">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-semibold text-gray-900">Bukti Penyelesaian</h3>
+                        <span class="text-sm text-gray-500" id="proofMeta"></span>
+                    </div>
+                    <div id="proofList" class="space-y-4"></div>
                 </div>
                 </div>
 
             <div class="space-y-4">
                 
-                <div class="bg-white rounded-xl p-6 border border-gray-200" id="actionButtonsCard">
+                <div class="bg-white rounded-xl p-6 border border-gray-200" id="actionPanel">
                     <h3 class="mb-4 text-xl font-semibold">Aksi</h3>
                     <div class="space-y-3" id="actionButtonsContainer">
-                        </div>
+                        <p class="text-sm text-gray-500">Memuat aksi yang tersedia...</p>
+                    </div>
                 </div>
 
-                <?php if ($currentTicket['assignedOfficer']): ?>
-                <div class="bg-white rounded-xl p-6 border border-gray-200" id="assignedOfficerCard">
+                <div class="bg-white rounded-xl p-6 border border-gray-200 hidden" id="assignedOfficerCard">
                     <h3 class="mb-4 text-xl font-semibold">Petugas Ditugaskan</h3>
                     <div class="flex items-start gap-3">
                         <div class="officer-avatar"><i class="material-icons">person</i></div>
                         <div>
-                            <p class="text-gray-900 font-semibold mb-1"><?php echo htmlspecialchars($currentTicket['assignedOfficer']); ?></p>
-                            <p class="text-gray-600 text-sm">Dinas Pekerjaan Umum</p>
+                            <p id="officerName" class="text-gray-900 font-semibold mb-1">-</p>
+                            <p id="officerMeta" class="text-gray-600 text-sm">-</p>
+                            <p id="officerStatus" class="text-gray-500 text-xs mt-1">-</p>
                         </div>
                     </div>
                 </div>
-                <?php endif; ?>
 
                 <div class="bg-white rounded-xl p-6 border border-gray-200" id="timelineCard">
                     <h3 class="mb-4 text-xl font-semibold">Timeline</h3>
-                    <div id="timelineContainer">
-                        </div>
+                    <div id="timelineContainer" class="space-y-4">
+                        <p class="text-sm text-gray-500">Memuat timeline...</p>
+                    </div>
                 </div>
 
             </div>
         </div>
     </main>
-    
-    <div id="modal-container"></div> 
+
+    <div id="detailSkeleton" class="max-w-5xl mx-auto p-6 hidden">
+        <div class="animate-pulse space-y-4">
+            <div class="h-6 bg-gray-200 rounded"></div>
+            <div class="h-64 bg-gray-200 rounded"></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="h-32 bg-gray-200 rounded"></div>
+                <div class="h-32 bg-gray-200 rounded"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalRoot"></div>
 
     <script src="js/admin-logout.js"></script>
     <script src="js/admin-detail-tiket.js"></script>
-    <script src="js/admin-select-officer.js"></script>
     <script>
-        // Definisikan data di window secara global (PERBAIKAN KRUSIAL)
-        window.ticketData = <?php echo json_encode($currentTicket); ?>;
+        window.__ADMIN_TICKET_ID__ = '<?php echo htmlspecialchars($ticketId); ?>';
     </script>
 </body>
 </html>

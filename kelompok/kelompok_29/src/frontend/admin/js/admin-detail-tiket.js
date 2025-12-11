@@ -1,143 +1,627 @@
-// File: js/admin-detail-tiket.js
-let ticketData = window.ticketData || {}; 
+'use strict';
 
-// --- 1. DUMMY DATA Timeline ---
-const mockTimeline = [
-    { status: 'selesai', date: '2025-10-18', notes: 'Penyelesaian disetujui.', actor: 'Admin System' },
-    { status: 'menunggu-validasi-admin', date: '2025-10-17', notes: 'Petugas upload bukti penyelesaian.', actor: 'Budi Santoso' },
-    { status: 'dalam-proses', date: '2025-10-15', notes: 'Petugas mulai mengerjakan.', actor: 'Budi Santoso' },
-    { status: 'ditugaskan-ke-petugas', date: '2025-10-12', notes: 'Ditugaskan ke Budi Santoso.', actor: 'Admin System' },
-    { status: 'diverifikasi-admin', date: '2025-10-11', notes: 'Pengaduan diverifikasi dan diterima.', actor: 'Admin System' },
-    { status: 'diajukan', date: '2025-10-10', notes: 'Pengaduan baru diajukan.', actor: 'Ahmad Wijaya' },
-];
+(function () {
+  const STATUS_FLOW = [
+    { key: 'diajukan', label: 'Diajukan', color: 'blue' },
+    { key: 'diverifikasi_admin', label: 'Diverifikasi Admin', color: 'indigo' },
+    { key: 'ditugaskan_ke_petugas', label: 'Ditugaskan ke Petugas', color: 'orange' },
+    { key: 'dalam_proses', label: 'Dalam Proses', color: 'amber' },
+    { key: 'menunggu_validasi_admin', label: 'Menunggu Validasi Admin', color: 'rose' },
+    { key: 'selesai', label: 'Selesai', color: 'green' },
+  ];
 
-// --- 2. FUNGSI UTILITAS ---
+  const STATUS_META = {
+    diajukan: { badge: 'bg-blue-100 text-blue-700', info: 'Pengaduan baru diajukan.' },
+    diverifikasi_admin: { badge: 'bg-indigo-100 text-indigo-700', info: 'Pengaduan sudah diverifikasi admin.' },
+    ditugaskan_ke_petugas: { badge: 'bg-orange-100 text-orange-700', info: 'Menunggu petugas memulai.' },
+    dalam_proses: { badge: 'bg-amber-100 text-amber-700', info: 'Petugas sedang mengerjakan tugas.' },
+    menunggu_validasi_admin: { badge: 'bg-rose-100 text-rose-700', info: 'Menunggu validasi admin atas bukti penyelesaian.' },
+    selesai: { badge: 'bg-green-100 text-green-700', info: 'Pengaduan telah tuntas.' },
+    ditolak_admin: { badge: 'bg-red-100 text-red-700', info: 'Pengaduan ditolak admin.' },
+  };
 
-function getStatusBadge(status) {
-    let text = status.toUpperCase().replace(/-/g, ' ');
-    let classes = 'badge-status-detail px-3 py-1 rounded-full font-semibold text-xs ';
-    
-    // Mapping Status ke Tailwind Classes
-    if (status.includes('proses')) classes += 'bg-yellow-100 text-yellow-700';
-    else if (status.includes('selesai')) classes += 'bg-green-100 text-green-700';
-    else if (status.includes('diverifikasi')) classes += 'bg-indigo-100 text-indigo-700';
-    else if (status.includes('ditugaskan')) classes += 'bg-orange-100 text-orange-700';
-    else if (status.includes('diajukan')) classes += 'bg-blue-100 text-blue-700';
-    else if (status.includes('validasi')) classes += 'bg-red-100 text-red-700';
+  const DOM = {
+    root: document.getElementById('detailShell'),
+    skeleton: document.getElementById('detailSkeleton'),
+    alert: document.getElementById('pageAlert'),
+    headerTitle: document.getElementById('ticketHeaderTitle'),
+    headerReporter: document.getElementById('ticketHeaderReporter'),
+    statusBadge: document.getElementById('statusBadgeContainer'),
+    ticketImage: document.getElementById('ticketImage'),
+    ticketTitle: document.getElementById('ticketTitle'),
+    ticketCreatedAt: document.getElementById('ticketCreatedAt'),
+    ticketCategory: document.getElementById('ticketCategory'),
+    ticketDescription: document.getElementById('ticketDescription'),
+    ticketLocation: document.getElementById('ticketLocation'),
+    ticketMapPlaceholder: document.getElementById('ticketMapPlaceholder'),
+    reporterName: document.getElementById('reporterName'),
+    reporterEmail: document.getElementById('reporterEmail'),
+    reporterPhone: document.getElementById('reporterPhone'),
+    officerCard: document.getElementById('assignedOfficerCard'),
+    officerName: document.getElementById('officerName'),
+    officerMeta: document.getElementById('officerMeta'),
+    officerStatus: document.getElementById('officerStatus'),
+    actionContainer: document.getElementById('actionButtonsContainer'),
+    timelineContainer: document.getElementById('timelineContainer'),
+    proofSection: document.getElementById('proofSection'),
+    proofList: document.getElementById('proofList'),
+    proofMeta: document.getElementById('proofMeta'),
+    modalRoot: document.getElementById('modalRoot'),
+  };
 
-    return `<span class="${classes}">${text}</span>`;
-}
+  const state = {
+    ticketId: '',
+    token: '',
+    detail: null,
+    proofs: [],
+  };
 
-// --- 3. FUNGSI RENDERING ---
+  document.addEventListener('DOMContentLoaded', init);
 
-function renderTimeline(timeline) {
-    const container = document.getElementById('timelineContainer');
-    let html = '<div class="timeline-wrapper relative pt-2">';
-    
-    timeline.forEach(item => {
-        const colorClass = item.status.includes('selesai') ? 'bg-green-600' : (item.status.includes('validasi') ? 'bg-red-600' : 'bg-blue-600');
-        
-        html += `
-            <div class="timeline-item flex mb-4 relative">
-                <div class="timeline-point w-3 h-3 rounded-full ${colorClass} border-2 border-white absolute left-0 transform -translate-x-1/2 z-10"></div>
-                <div class="timeline-content ml-4 pb-2 border-l border-gray-300 pl-4 w-full">
-                    <p class="timeline-status font-medium text-gray-800">${item.notes}</p>
-                    <p class="timeline-meta text-xs text-gray-500 mt-1">${new Date(item.date).toLocaleDateString('id-ID')} - ${item.actor}</p>
-                </div>
-            </div>
-        `;
+  function init() {
+    state.ticketId = (window.__ADMIN_TICKET_ID__ || '').trim() || getTicketIdFromUrl();
+    if (!state.ticketId) {
+      setPageAlert('error', 'ID tiket tidak ditemukan pada URL.');
+      toggleShell(false);
+      return;
+    }
+
+    state.token = getAdminToken();
+    if (!state.token) {
+      redirectToLogin();
+      return;
+    }
+
+    fetchTicketDetail();
+  }
+
+  async function fetchTicketDetail() {
+    toggleSkeleton(true);
+    setPageAlert('info', 'Memuat detail tiket...');
+    try {
+      const data = await requestWithAuth(`/api/admin/tickets/${state.ticketId}`, state.token);
+      state.detail = data || {};
+      renderTicketDetail();
+      setPageAlert();
+
+      const status = state.detail?.ticket?.status;
+      if (status === 'menunggu_validasi_admin' || status === 'selesai') {
+        await fetchProofs();
+      } else {
+        renderProofs(state.detail?.completion_proofs || []);
+      }
+    } catch (error) {
+      console.error('[AdminDetailTicket] fetch detail error', error);
+      setPageAlert('error', error?.message || 'Gagal memuat detail tiket.');
+      toggleShell(false);
+    } finally {
+      toggleSkeleton(false);
+    }
+  }
+
+  async function fetchProofs() {
+    try {
+      const data = await requestWithAuth(`/api/admin/tickets/${state.ticketId}/proof`, state.token);
+      const records = data?.records || [];
+      renderProofs(records);
+    } catch (error) {
+      console.warn('[AdminDetailTicket] proof fetch error', error);
+      setPageAlert('error', 'Bukti penyelesaian gagal dimuat.');
+    }
+  }
+
+  function renderTicketDetail() {
+    const ticket = state.detail?.ticket || {};
+    const reporter = state.detail?.reporter || {};
+    const officer = state.detail?.officer || null;
+    const timeline = state.detail?.timeline || [];
+
+    document.title = `Detail Tiket #${ticket?.id || '-'} | SIPINDA`;
+    DOM.headerTitle.textContent = `Detail Tiket #${ticket?.id || '-'}`;
+    DOM.headerReporter.textContent = reporter?.name || 'Pelapor tidak diketahui';
+
+    renderStatusBadge(ticket?.status);
+
+    DOM.ticketImage.src = ticket?.photo_before || 'https://placehold.co/1200x600?text=Tidak+ada+foto';
+    DOM.ticketImage.alt = ticket?.title || 'Foto Pengaduan';
+    DOM.ticketTitle.textContent = ticket?.title || 'Tanpa judul';
+    DOM.ticketCreatedAt.textContent = formatDate(ticket?.created_at);
+    DOM.ticketCategory.textContent = ticket?.category || '-';
+    DOM.ticketDescription.textContent = ticket?.description || 'Deskripsi tidak tersedia.';
+    DOM.ticketLocation.textContent = ticket?.address || '-';
+    DOM.ticketMapPlaceholder.textContent = ticket?.address || 'Lokasi belum tersedia';
+
+    DOM.reporterName.textContent = reporter?.name || '-';
+    DOM.reporterEmail.textContent = reporter?.email || '-';
+    DOM.reporterPhone.textContent = reporter?.phone || '-';
+
+    renderOfficerCard(officer);
+    renderTimeline(timeline, ticket?.status);
+    renderActions(ticket);
+  }
+
+  function renderStatusBadge(status) {
+    if (!status) {
+      DOM.statusBadge.textContent = 'Status tidak diketahui';
+      return;
+    }
+
+    const meta = STATUS_META[status] || { badge: 'bg-gray-100 text-gray-700', info: '' };
+    DOM.statusBadge.innerHTML = `<span class="px-3 py-1 rounded-full text-sm font-semibold ${meta.badge}">${formatStatusText(status)}</span>`;
+  }
+
+  function renderOfficerCard(officer) {
+    if (!officer) {
+      DOM.officerCard.classList.add('hidden');
+      return;
+    }
+
+    DOM.officerName.textContent = officer?.name || '-';
+    const department = officer?.department ? officer.department : 'Departemen tidak diketahui';
+    const specialization = officer?.specialization ? ` • ${officer.specialization}` : '';
+    DOM.officerMeta.textContent = `${department}${specialization}`;
+    DOM.officerStatus.textContent = officer?.email ? `Email: ${officer.email}` : 'Kontak petugas tidak tersedia';
+    DOM.officerCard.classList.remove('hidden');
+  }
+
+  function renderTimeline(timeline = [], currentStatus = '') {
+    const timelineMap = {};
+    (timeline || []).forEach((item) => {
+      if (item?.status) timelineMap[item.status] = item;
     });
-    html = `<div class="absolute top-0 bottom-0 left-0 w-0.5 bg-gray-300 ml-1"></div>` + html;
-    container.innerHTML = html;
-}
 
-function renderActionButtons(status) {
-    const container = document.getElementById('actionButtonsContainer');
-    container.innerHTML = '';
-    let html = '';
+    const currentIndex = STATUS_FLOW.findIndex((step) => step.key === currentStatus);
+    const rows = STATUS_FLOW.map((step, index) => {
+      const isActive = index <= currentIndex;
+      const entry = timelineMap[step.key];
+      const color = getColorClasses(step.color, isActive);
+      const dateLabel = entry?.created_at ? formatDateTime(entry.created_at) : 'Belum dilakukan';
+      const actor = entry?.created_by?.name || entry?.created_by?.id || '-';
+      const note = entry?.note || STATUS_META[step.key]?.info || '';
 
-    const ticketId = ticketData.id || 'TKT-000';
+      return `
+                <div class="flex items-start gap-3">
+                    <div class="flex flex-col items-center">
+                        <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${color.dot}">${index + 1}</span>
+                        ${
+                          index < STATUS_FLOW.length - 1
+                            ? `<span class="w-px flex-1 ${isActive ? 'bg-' + step.color + '-300' : 'bg-gray-200'}"></span>`
+                            : ''
+                        }
+                    </div>
+                    <div class="pb-4">
+                        <p class="text-sm font-semibold ${color.text}">${step.label}</p>
+                        <p class="text-xs text-gray-500">${dateLabel}${actor ? ` • ${actor}` : ''}</p>
+                        ${note ? `<p class="text-gray-600 text-sm mt-1">${note}</p>` : ''}
+                    </div>
+                </div>
+            `;
+    }).join('');
+
+    DOM.timelineContainer.innerHTML = rows;
+  }
+
+  function renderActions(ticket) {
+    const status = ticket?.status;
+    DOM.actionContainer.innerHTML = '';
+
+    if (!status) {
+      DOM.actionContainer.innerHTML = '<p class="text-sm text-gray-500">Status tiket tidak diketahui.</p>';
+      return;
+    }
 
     switch (status) {
-        case 'diajukan':
-            html = `
-                <button onclick="handleVerify('${ticketId}')" class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 font-semibold">
-                    <i class="material-icons">shield</i> Verifikasi & Terima
-                </button>
-                <button onclick="handleReject('${ticketId}')" class="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2 font-semibold">
-                    <i class="material-icons">cancel</i> Tolak Pengaduan
-                </button>
-            `;
-            break;
-        case 'diverifikasi-admin':
-            html = `
-                <button onclick="showOfficerModal('${ticketId}')" class="w-full bg-amber-600 text-white py-3 rounded-lg hover:bg-amber-700 transition-colors flex items-center justify-center gap-2 font-semibold">
-                    <i class="material-icons">person_add</i> Tugaskan Petugas
-                </button>
-            `;
-            break;
-        case 'ditugaskan-ke-petugas':
-        case 'dalam-proses':
-            const msgClass = status === 'ditugaskan-ke-petugas' ? 'bg-yellow-50 border-yellow-200 text-yellow-800' : 'bg-orange-50 border-orange-200 text-orange-800';
-            html = `
-                <div class="p-4 border rounded-lg ${msgClass}">
-                    <p class="font-medium mb-1">⏳ ${status === 'ditugaskan-ke-petugas' ? 'Menunggu petugas memulai' : 'Petugas sedang bekerja'}</p>
-                    <p class="text-sm">Petugas: ${ticketData.assignedOfficer}</p>
+      case 'diajukan':
+        DOM.actionContainer.appendChild(createPrimaryButton('Verifikasi & Terima', 'shield', () => handleVerify()));
+        DOM.actionContainer.appendChild(createDangerButton('Tolak Pengaduan', 'cancel', () => openRejectModal()));
+        break;
+      case 'diverifikasi_admin':
+        DOM.actionContainer.appendChild(createAccentButton('Tugaskan Petugas', 'person_add', () => openAssignOfficerModal()));
+        break;
+      case 'ditugaskan_ke_petugas':
+        DOM.actionContainer.appendChild(
+          createInfoBox(
+            '⏳ Menunggu petugas memulai',
+            'bg-yellow-50 border-yellow-200 text-yellow-800',
+            'Petugas telah menerima tugas dan akan segera memulai.'
+          )
+        );
+        break;
+      case 'dalam_proses':
+        DOM.actionContainer.appendChild(
+          createInfoBox(
+            '🛠️ Petugas sedang bekerja',
+            'bg-amber-50 border-amber-200 text-amber-800',
+            'Pantau bukti penyelesaian yang akan dikirimkan petugas.'
+          )
+        );
+        break;
+      case 'menunggu_validasi_admin':
+        DOM.actionContainer.appendChild(createDangerButton('Validasi Penyelesaian', 'check_circle', () => handleValidate()));
+        DOM.actionContainer.appendChild(
+          createInfoBox('📌 Periksa bukti sebelum validasi', 'bg-rose-50 border-rose-200 text-rose-700', 'Pastikan bukti penyelesaian sudah lengkap.')
+        );
+        break;
+      case 'selesai':
+        DOM.actionContainer.appendChild(
+          createInfoBox('✅ Pengaduan telah selesai', 'bg-green-50 border-green-200 text-green-700', 'Tidak ada aksi lanjutan.')
+        );
+        break;
+      case 'ditolak_admin':
+        DOM.actionContainer.appendChild(
+          createInfoBox('❌ Pengaduan ditolak', 'bg-red-50 border-red-200 text-red-700', 'Status final, tidak ada aksi lanjutan.')
+        );
+        break;
+      default:
+        DOM.actionContainer.appendChild(
+          createInfoBox('ℹ️ Aksi belum tersedia', 'bg-gray-50 border-gray-200 text-gray-600', 'Hubungi administrator untuk status ini.')
+        );
+    }
+  }
+
+  function renderProofs(records = []) {
+    if (!records.length) {
+      DOM.proofSection.classList.add('hidden');
+      DOM.proofList.innerHTML = '';
+      return;
+    }
+
+    DOM.proofSection.classList.remove('hidden');
+    DOM.proofMeta.textContent = `${records.length} bukti penyelesaian`;
+    const cards = records
+      .map((proof) => {
+        const img = proof?.photo || 'https://placehold.co/600x400?text=Tidak+ada+foto';
+        const note = proof?.notes || 'Tidak ada catatan.';
+        const officerName = proof?.officer?.name || '-';
+        const submittedAt = formatDateTime(proof?.submitted_at);
+
+        return `
+                <div class="border border-gray-200 rounded-xl overflow-hidden">
+                    <img src="${img}" alt="Bukti Penyelesaian" class="w-full h-56 object-cover">
+                    <div class="p-4 space-y-1 text-sm text-gray-600">
+                        <p class="font-semibold text-gray-900">${officerName}</p>
+                        <p>${note}</p>
+                        <p class="text-xs text-gray-400">Dikirim pada ${submittedAt}</p>
+                    </div>
                 </div>
             `;
-            break;
-        case 'menunggu-validasi-admin':
-            html = `
-                <button onclick="window.location.href='admin-validasi-selesai.php?id=${ticketId}'" class="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2 font-semibold">
-                    <i class="material-icons">check_circle</i> Validasi Penyelesaian
+      })
+      .join('');
+
+    DOM.proofList.innerHTML = cards;
+  }
+
+  async function handleVerify() {
+    await performAction({
+      buttonSelector: '#actionButtonsContainer button:first-child',
+      endpoint: `/api/admin/tickets/${state.ticketId}/verify`,
+      successMessage: 'Pengaduan berhasil diverifikasi.',
+    });
+  }
+
+  function openRejectModal() {
+    const modal = createModal({
+      title: 'Tolak Pengaduan',
+      body: `
+                <p class="text-sm text-gray-600 mb-3">Opsional: jelaskan alasan penolakan agar pelapor mendapat informasi yang jelas.</p>
+                <textarea id="rejectReasonInput" rows="4" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-red-500" placeholder="Tambahkan catatan penolakan"></textarea>
+            `,
+      primaryText: 'Kirim Penolakan',
+      primaryClass: 'bg-red-600 hover:bg-red-700 text-white',
+      onPrimary: async (modalEl) => {
+        const reason = modalEl.querySelector('#rejectReasonInput').value.trim();
+        await performAction({
+          buttonSelector: '#modalRoot button[data-modal-primary] ',
+          endpoint: `/api/admin/tickets/${state.ticketId}/reject`,
+          method: 'POST',
+          body: { reason },
+          successMessage: 'Pengaduan berhasil ditolak.',
+        });
+        closeModal();
+      },
+    });
+    DOM.modalRoot.innerHTML = '';
+    DOM.modalRoot.appendChild(modal);
+  }
+
+  function openAssignOfficerModal() {
+    const modal = createModal({
+      title: 'Tugaskan Petugas',
+      body: '<div id="officerList" class="space-y-3 text-sm text-gray-600">Memuat daftar petugas...</div>',
+      showFooter: false,
+    });
+    DOM.modalRoot.innerHTML = '';
+    DOM.modalRoot.appendChild(modal);
+    loadAvailableOfficers(modal.querySelector('#officerList'));
+  }
+
+  async function loadAvailableOfficers(container) {
+    try {
+      const data = await requestWithAuth('/api/admin/officers/available', state.token);
+      const records = data?.records || [];
+      if (!records.length) {
+        container.innerHTML = '<p class="text-sm text-gray-500">Tidak ada petugas yang tersedia.</p>';
+        return;
+      }
+
+      container.innerHTML = records
+        .map(
+          (officer) => `
+                <button data-officer-id="${
+                  officer.id
+                }" class="w-full text-left border border-gray-200 rounded-xl p-4 hover:border-blue-500 hover:bg-blue-50 transition flex justify-between items-center">
+                    <div>
+                        <p class="font-semibold text-gray-900">${officer.name}</p>
+                        <p class="text-xs text-gray-500">${officer.department || '-'} | ${officer.specialization || '-'}</p>
+                        <p class="text-xs text-gray-400">Tugas aktif: ${officer.active_tasks ?? 0}</p>
+                    </div>
+                    <span class="material-icons text-blue-500">chevron_right</span>
                 </button>
-            `;
-            break;
-        case 'selesai':
-            html = `
-                <div class="p-4 border rounded-lg bg-green-50 border-green-200 text-green-800">
-                    <p class="font-medium">✅ Pengaduan telah selesai</p>
+            `
+        )
+        .join('');
+
+      container.querySelectorAll('button[data-officer-id]').forEach((button) => {
+        button.addEventListener('click', async () => {
+          const officerId = button.getAttribute('data-officer-id');
+          await performAction({
+            endpoint: `/api/admin/tickets/${state.ticketId}/assign-officer`,
+            method: 'POST',
+            body: { officer_id: officerId },
+            successMessage: 'Petugas berhasil ditugaskan.',
+          });
+          closeModal();
+        });
+      });
+    } catch (error) {
+      container.innerHTML = `<p class="text-sm text-red-600">Gagal memuat petugas: ${error?.message || 'unknown error'}</p>`;
+    }
+  }
+
+  async function handleValidate() {
+    await performAction({
+      buttonSelector: '#actionButtonsContainer button:first-child',
+      endpoint: `/api/admin/tickets/${state.ticketId}/validate`,
+      successMessage: 'Penyelesaian berhasil divalidasi.',
+    });
+  }
+
+  async function performAction({ buttonSelector, endpoint, method = 'POST', body = {}, successMessage = 'Berhasil diperbarui.' }) {
+    const button = buttonSelector ? document.querySelector(buttonSelector) : null;
+    setButtonLoading(button, true);
+    try {
+      await requestWithAuth(endpoint, state.token, {
+        method,
+        body: Object.keys(body || {}).length ? JSON.stringify(body) : undefined,
+        headers: { 'Content-Type': 'application/json' },
+      });
+      setPageAlert('success', successMessage);
+      await fetchTicketDetail();
+    } catch (error) {
+      console.error('[AdminDetailTicket] action error', error);
+      setPageAlert('error', error?.message || 'Aksi gagal diproses.');
+    } finally {
+      setButtonLoading(button, false);
+    }
+  }
+
+  function createPrimaryButton(text, icon, handler) {
+    return createButton(text, icon, 'bg-indigo-600 hover:bg-indigo-700 text-white', handler);
+  }
+
+  function createDangerButton(text, icon, handler) {
+    return createButton(text, icon, 'bg-red-600 hover:bg-red-700 text-white', handler);
+  }
+
+  function createAccentButton(text, icon, handler) {
+    return createButton(text, icon, 'bg-amber-600 hover:bg-amber-700 text-white', handler);
+  }
+
+  function createButton(text, icon, classes, handler) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `w-full py-3 rounded-lg transition-colors flex items-center justify-center gap-2 font-semibold ${classes}`;
+    button.innerHTML = `<i class="material-icons">${icon}</i> ${text}`;
+    button.addEventListener('click', handler);
+    return button;
+  }
+
+  function createInfoBox(title, classes, subtitle) {
+    const div = document.createElement('div');
+    div.className = `p-4 border rounded-lg text-sm ${classes}`;
+    div.innerHTML = `<p class="font-semibold mb-1">${title}</p>${subtitle ? `<p>${subtitle}</p>` : ''}`;
+    return div;
+  }
+
+  function createModal({
+    title,
+    body,
+    primaryText = 'Simpan',
+    primaryClass = 'bg-blue-600 hover:bg-blue-700 text-white',
+    onPrimary,
+    showFooter = true,
+  }) {
+    const overlay = document.createElement('div');
+    overlay.className = 'fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-4';
+    overlay.innerHTML = `
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative">
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-900">${title}</h3>
+                    <button class="text-gray-400 hover:text-gray-600" data-modal-close>&times;</button>
                 </div>
-            `;
-            break;
+                <div class="p-6 space-y-4 text-sm text-gray-600">${body}</div>
+                ${
+                  showFooter
+                    ? `
+                <div class="p-6 border-t border-gray-100 flex justify-end gap-3">
+                    <button class="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50" data-modal-close>Batalkan</button>
+                    <button class="px-4 py-2 rounded-lg font-semibold ${primaryClass}" data-modal-primary>${primaryText}</button>
+                </div>`
+                    : ''
+                }
+            </div>
+        `;
+
+    overlay.addEventListener('click', (event) => {
+      if (event.target === overlay || event.target.hasAttribute('data-modal-close')) {
+        closeModal();
+      }
+    });
+
+    if (showFooter && typeof onPrimary === 'function') {
+      overlay.querySelector('[data-modal-primary]').addEventListener('click', async () => {
+        await onPrimary(overlay);
+      });
     }
-    container.innerHTML = html;
-}
 
-// --- 4. HANDLER INTERAKSI (JS NATIVE) ---
+    return overlay;
+  }
 
-function handleVerify(id) {
-    if (confirm('Yakin ingin memverifikasi pengaduan ini?')) {
-        alert('Pengaduan berhasil diverifikasi!');
-        window.location.reload(); 
+  function closeModal() {
+    DOM.modalRoot.innerHTML = '';
+  }
+
+  function setButtonLoading(button, isLoading) {
+    if (!button) return;
+    button.disabled = isLoading;
+    button.classList.toggle('opacity-70', isLoading);
+  }
+
+  function setPageAlert(type, message) {
+    if (!message) {
+      DOM.alert.classList.add('hidden');
+      DOM.alert.innerHTML = '';
+      return;
     }
-}
 
-function handleReject(id) {
-    if (confirm('Yakin ingin menolak pengaduan ini?')) {
-        alert('Pengaduan ditolak.');
-        window.location.href = 'admin-manajemen-tiket.php'; 
-    }
-}
+    const palette =
+      type === 'success'
+        ? 'bg-green-50 border-green-200 text-green-700'
+        : type === 'error'
+        ? 'bg-red-50 border-red-200 text-red-700'
+        : 'bg-blue-50 border-blue-200 text-blue-700';
 
-function showOfficerModal(ticketId) {
-    if (typeof renderOfficerSelectionModal !== 'undefined') {
-        const assignedOfficerName = window.ticketData.assignedOfficer || null; 
-        renderOfficerSelectionModal(ticketId, assignedOfficerName);
+    DOM.alert.className = `max-w-5xl mx-auto mt-4 px-4 ${palette} border rounded-xl py-3`;
+    DOM.alert.textContent = message;
+    DOM.alert.classList.remove('hidden');
+  }
+
+  function toggleShell(show) {
+    if (show) {
+      DOM.root.classList.remove('hidden');
     } else {
-        alert('Error: admin-select-officer.js tidak dimuat.');
+      DOM.root.classList.add('hidden');
     }
-}
+  }
 
-// --- 5. EKSEKUSI ---
-document.addEventListener('DOMContentLoaded', () => {
-    ticketData = window.ticketData || {}; 
-    
-    if (ticketData && ticketData.status) {
-        document.getElementById('statusBadgeContainer').innerHTML = getStatusBadge(ticketData.status);
-        renderActionButtons(ticketData.status);
-        renderTimeline(mockTimeline); 
+  function toggleSkeleton(show) {
+    if (show) {
+      DOM.skeleton.classList.remove('hidden');
     } else {
-        console.error("Ticket data is missing or incomplete.");
+      DOM.skeleton.classList.add('hidden');
     }
-});
+  }
+
+  async function requestWithAuth(endpoint, token, options = {}) {
+    const response = await fetch(`${resolveBackendBaseUrl()}${endpoint}`, {
+      method: options.method || 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        ...(options.headers || {}),
+      },
+      mode: 'cors',
+      body: options.body,
+    });
+
+    const payload = await safeParseJson(response);
+
+    if (response.status === 401) {
+      redirectToLogin();
+      throw new Error('Sesi berakhir, silakan login ulang.');
+    }
+
+    if (!response.ok || payload?.status === 'error') {
+      throw new Error(buildApiErrorMessage(payload, response));
+    }
+
+    return payload?.data;
+  }
+
+  async function safeParseJson(response) {
+    try {
+      const text = await response.text();
+      return text ? JSON.parse(text) : {};
+    } catch (error) {
+      console.warn('[AdminDetailTicket] gagal parse JSON', error);
+      return {};
+    }
+  }
+
+  function buildApiErrorMessage(payload, response) {
+    const code = payload?.code || response?.status;
+    const baseMessage = payload?.message || 'Permintaan gagal diproses.';
+    const details = Array.isArray(payload?.errors) ? payload.errors.map((err) => err?.message).filter(Boolean) : [];
+    const suffix = details.length ? ` Detail: ${details.join(', ')}` : '';
+    return `${baseMessage} (kode ${code}).${suffix}`;
+  }
+
+  function getAdminToken() {
+    return localStorage.getItem('sipinda_admin_token') || sessionStorage.getItem('sipinda_admin_token');
+  }
+
+  function redirectToLogin() {
+    window.location.replace('admin-login.php');
+  }
+
+  function resolveBackendBaseUrl() {
+    const metaOverride = document.querySelector('meta[name="sipinda-backend-url"]');
+    if (metaOverride?.content) {
+      return metaOverride.content.replace(/\/+$/, '');
+    }
+
+    const globalOverride = window.SIPINDA_BACKEND_URL || window.__SIPINDA_BACKEND_URL__;
+    if (typeof globalOverride === 'string' && globalOverride.trim()) {
+      return globalOverride.trim().replace(/\/+$/, '');
+    }
+
+    const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+    const hostname = window.location.hostname || 'localhost';
+    const backendPort = hostname === 'localhost' ? 9090 : window.location.port || 80;
+    return `${protocol}//${hostname}:${backendPort}`;
+  }
+
+  function formatDate(value) {
+    if (!value) return '-';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '-';
+    return new Intl.DateTimeFormat('id-ID', { dateStyle: 'long' }).format(date);
+  }
+
+  function formatDateTime(value) {
+    if (!value) return '-';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '-';
+    return new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short' }).format(date);
+  }
+
+  function formatStatusText(status) {
+    return status ? status.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase()) : '-';
+  }
+
+  function getColorClasses(color, isActive) {
+    const map = {
+      blue: { dot: isActive ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500', text: isActive ? 'text-blue-700' : 'text-gray-500' },
+      indigo: { dot: isActive ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-500', text: isActive ? 'text-indigo-700' : 'text-gray-500' },
+      orange: { dot: isActive ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-500', text: isActive ? 'text-orange-700' : 'text-gray-500' },
+      amber: { dot: isActive ? 'bg-amber-500 text-white' : 'bg-gray-200 text-gray-500', text: isActive ? 'text-amber-700' : 'text-gray-500' },
+      rose: { dot: isActive ? 'bg-rose-500 text-white' : 'bg-gray-200 text-gray-500', text: isActive ? 'text-rose-700' : 'text-gray-500' },
+      green: { dot: isActive ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-500', text: isActive ? 'text-green-700' : 'text-gray-500' },
+    };
+    return map[color] || { dot: 'bg-gray-200 text-gray-500', text: 'text-gray-500' };
+  }
+
+  function getTicketIdFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('id') || '';
+  }
+})();
