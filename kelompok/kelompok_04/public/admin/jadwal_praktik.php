@@ -493,7 +493,7 @@ function formatTime($time) {
                                                     </span>
                                                 </div>
                                                 <div class="pt-3 border-t border-gray-200 flex gap-2">
-                                                    <button onclick="editSchedule(<?php echo htmlspecialchars(json_encode($schedule)); ?>)" class="flex-1 px-3 <py-1 class="5"> </py-1> text-xs rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition flex items-center justify-center gap-1">
+                                                    <button onclick="editSchedule(<?php echo htmlspecialchars(json_encode($schedule)); ?>)" class="flex-1 px-3 py-1.5 text-xs rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition flex items-center justify-center gap-1">
                                                         <?= render_icon('edit', 'fa', 'text-xs', 'Edit') ?>
                                                         <span>Edit</span>
                                                     </button>
