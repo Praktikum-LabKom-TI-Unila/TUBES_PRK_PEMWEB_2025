@@ -1,0 +1,55 @@
+/* Card hover animations */
+.card {
+    transition: all 0.3s ease-in-out;
+}
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 48, 143, 0.15) !important;
+}
+
+/* Complaint card hover */
+.complaint-card {
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+}
+.complaint-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 48, 143, 0.2) !important;
+    border-color: var(--lampung-blue) !important;
+}
+
+/* Icon hover effect */
+.complaint-icon {
+    transition: all 0.3s ease-in-out;
+}
+.complaint-card:hover .complaint-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* Vote button pulse effect */
+@keyframes pulse-vote {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+.vote-btn:hover {
+    animation: pulse-vote 0.6s ease-in-out;
+}
+
+/* Footer links hover */
+footer a {
+    transition: all 0.3s ease-in-out;
+}
+footer a:hover {
+    color: var(--lampung-gold) !important;
+    transform: translateX(5px);
+    display: inline-block;
+}
+
+/* Social media icons hover */
+footer .d-flex a {
+    transition: all 0.3s ease-in-out;
+}
+footer .d-flex a:hover {
+    transform: translateY(-3px) scale(1.2);
+    color: var(--lampung-gold) !important;
+}
