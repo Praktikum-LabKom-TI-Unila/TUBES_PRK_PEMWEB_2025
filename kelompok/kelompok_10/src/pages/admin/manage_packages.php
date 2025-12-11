@@ -1,19 +1,14 @@
 <?php
 session_start();
 require_once '../../config/database.php';
-
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../auth/login.php');
     exit();
 }
-
-// Query untuk mengambil semua paket
 $packages_query = "SELECT id, nama_paket, deskripsi, harga_per_qty, satuan, estimasi_hari, is_active, created_at 
                    FROM packages 
                    ORDER BY created_at DESC";
 $packages_result = mysqli_query($conn, $packages_query);
-
-// Hitung statistik paket
 $stats_query = "SELECT 
                     COUNT(*) as total_packages,
                     SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as active_packages,
@@ -22,7 +17,6 @@ $stats_query = "SELECT
                 FROM packages";
 $stats_result = mysqli_query($conn, $stats_query);
 $stats = mysqli_fetch_assoc($stats_result);
-
 $page_title = "Kelola Paket";
 ?>
 <!DOCTYPE html>
@@ -36,10 +30,8 @@ $page_title = "Kelola Paket";
 <body>
     <div class="admin-container">
         <?php include '../../includes/sidebar_admin.php'; ?>
-        
         <main class="main-content">
             <?php include '../../includes/header_admin.php'; ?>
-            
             <div class="content-wrapper">
                 <div class="page-header">
                     <button class="btn-primary" onclick="openAddModal()">
@@ -50,10 +42,7 @@ $page_title = "Kelola Paket";
                         Tambah Paket
                     </button>
                 </div>
-
                 <div id="alertContainer"></div>
-
-                <!-- Statistik Mini -->
                 <div class="stats-mini-grid">
                     <div class="stat-mini-card">
                         <h3>Total Paket</h3>
@@ -72,8 +61,6 @@ $page_title = "Kelola Paket";
                         <div class="number"><?php echo $stats['total_pcs']; ?></div>
                     </div>
                 </div>
-
-                <!-- Tabel Paket -->
                 <div class="table-container">
                     <div class="table-header">
                         <h2>Daftar Paket Laundry</h2>
@@ -85,7 +72,6 @@ $page_title = "Kelola Paket";
                             </svg>
                         </div>
                     </div>
-                    
                     <?php if (mysqli_num_rows($packages_result) > 0): ?>
                     <table id="packagesTable">
                         <thead>
@@ -164,8 +150,6 @@ $page_title = "Kelola Paket";
             </div>
         </main>
     </div>
-
-    <!-- Modal Tambah/Edit Paket -->
     <div id="packageModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -176,17 +160,14 @@ $page_title = "Kelola Paket";
                 <form id="packageForm">
                     <input type="hidden" id="packageId" name="package_id">
                     <input type="hidden" id="formAction" name="action" value="add">
-                    
                     <div class="form-group">
                         <label for="nama_paket">Nama Paket *</label>
                         <input type="text" id="nama_paket" name="nama_paket" required placeholder="Contoh: Cuci Komplit">
                     </div>
-                    
                     <div class="form-group">
                         <label for="deskripsi">Deskripsi</label>
                         <textarea id="deskripsi" name="deskripsi" placeholder="Jelaskan detail layanan paket ini..."></textarea>
                     </div>
-                    
                     <div class="form-row">
                         <div class="form-group">
                             <label for="harga_per_qty">Harga *</label>
@@ -196,7 +177,6 @@ $page_title = "Kelola Paket";
                             </div>
                             <div class="helper-text">Harga per satuan</div>
                         </div>
-                        
                         <div class="form-group">
                             <label for="satuan">Satuan *</label>
                             <select id="satuan" name="satuan" required>
@@ -206,7 +186,6 @@ $page_title = "Kelola Paket";
                             </select>
                         </div>
                     </div>
-                    
                     <div class="form-group">
                         <label for="estimasi_hari">Estimasi Pengerjaan *</label>
                         <div class="input-prefix">
@@ -215,7 +194,6 @@ $page_title = "Kelola Paket";
                         </div>
                         <div class="helper-text">Waktu pengerjaan yang dibutuhkan</div>
                     </div>
-                    
                     <div class="form-actions">
                         <button type="button" class="btn-secondary" onclick="closeModal()">Batal</button>
                         <button type="submit" class="btn-primary">Simpan</button>
@@ -224,9 +202,7 @@ $page_title = "Kelola Paket";
             </div>
         </div>
     </div>
-
     <script>
-        // Fungsi untuk membuka modal tambah paket
         function openAddModal() {
             document.getElementById('modalTitle').textContent = 'Tambah Paket';
             document.getElementById('formAction').value = 'add_package';
@@ -234,8 +210,6 @@ $page_title = "Kelola Paket";
             document.getElementById('packageId').value = '';
             document.getElementById('packageModal').style.display = 'block';
         }
-
-        // Fungsi untuk membuka modal edit paket
         function editPackage(package) {
             document.getElementById('modalTitle').textContent = 'Edit Paket';
             document.getElementById('formAction').value = 'edit_package';
@@ -247,27 +221,19 @@ $page_title = "Kelola Paket";
             document.getElementById('estimasi_hari').value = package.estimasi_hari;
             document.getElementById('packageModal').style.display = 'block';
         }
-
-        // Fungsi untuk menutup modal
         function closeModal() {
             document.getElementById('packageModal').style.display = 'none';
             document.getElementById('packageForm').reset();
         }
-
-        // Tutup modal jika klik di luar modal
         window.onclick = function(event) {
             const modal = document.getElementById('packageModal');
             if (event.target === modal) {
                 closeModal();
             }
         }
-
-        // Handle form submit
         document.getElementById('packageForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
             const formData = new FormData(this);
-            
             fetch('../../process/admin_handler.php', {
                 method: 'POST',
                 body: formData
@@ -288,14 +254,11 @@ $page_title = "Kelola Paket";
                 showAlert('error', 'Terjadi kesalahan: ' + error.message);
             });
         });
-
-        // Fungsi toggle status paket
         function toggleStatus(packageId, isActive, buttonElement) {
             const formData = new FormData();
             formData.append('action', 'toggle_package_status');
             formData.append('package_id', packageId);
             formData.append('is_active', isActive);
-            
             fetch('../../process/admin_handler.php', {
                 method: 'POST',
                 body: formData
@@ -304,7 +267,6 @@ $page_title = "Kelola Paket";
             .then(data => {
                 if (data.success) {
                     showAlert('success', data.message);
-                    // Update tampilan badge tanpa reload
                     if (isActive == 1) {
                         buttonElement.className = 'badge-status badge-active';
                         buttonElement.textContent = 'Aktif';
@@ -322,14 +284,11 @@ $page_title = "Kelola Paket";
                 showAlert('error', 'Terjadi kesalahan: ' + error.message);
             });
         }
-
-        // Fungsi delete paket
         function deletePackage(packageId, packageName) {
             if (confirm(`Apakah Anda yakin ingin menghapus paket "${packageName}"?`)) {
                 const formData = new FormData();
                 formData.append('action', 'delete_package');
                 formData.append('package_id', packageId);
-                
                 fetch('../../process/admin_handler.php', {
                     method: 'POST',
                     body: formData
@@ -350,18 +309,14 @@ $page_title = "Kelola Paket";
                 });
             }
         }
-
-        // Fungsi search table
         function searchTable() {
             const input = document.getElementById('searchInput');
             const filter = input.value.toUpperCase();
             const table = document.getElementById('packagesTable');
             const tr = table.getElementsByTagName('tr');
-            
             for (let i = 1; i < tr.length; i++) {
                 let found = false;
                 const td = tr[i].getElementsByTagName('td');
-                
                 for (let j = 0; j < td.length - 1; j++) {
                     if (td[j]) {
                         const txtValue = td[j].textContent || td[j].innerText;
@@ -371,31 +326,23 @@ $page_title = "Kelola Paket";
                         }
                     }
                 }
-                
                 tr[i].style.display = found ? '' : 'none';
             }
         }
-
-        // Fungsi untuk menampilkan alert
         function showAlert(type, message) {
             const alertContainer = document.getElementById('alertContainer');
             const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
-            
             alertContainer.innerHTML = `
                 <div class="alert ${alertClass}">
                     ${message}
                 </div>
             `;
-            
             const alert = alertContainer.querySelector('.alert');
             alert.style.display = 'block';
-            
             setTimeout(() => {
                 alert.style.display = 'none';
             }, 5000);
         }
-
-        // Format input harga dengan thousand separator
         document.getElementById('harga_per_qty').addEventListener('input', function(e) {
             let value = this.value.replace(/\D/g, '');
             this.value = value;

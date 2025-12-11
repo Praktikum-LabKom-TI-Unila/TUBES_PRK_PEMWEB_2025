@@ -1,18 +1,13 @@
 <?php
-// Menentukan halaman aktif
 $active_page = $active_page ?? 'new_transaction';
 ?>
-
 <div class="sidebar">
     <div class="sidebar-header">
         <img src="../../assets/img/Zira_Laundry.jpg" alt="Zira Laundry" class="header-icon" style="width: 80px; height: 80px; object-fit: contain; border-radius: 10px;">
         <h1>ZIRA LAUNDRY</h1>
         <p class="role-caption">Kasir</p>
     </div>
-
     <nav>
-
-        <!-- TRANSAKSI BARU -->
         <a href="new_transaction.php"
            class="<?= ($active_page === 'new_transaction') ? 'active' : ''; ?>">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none"
@@ -23,8 +18,6 @@ $active_page = $active_page ?? 'new_transaction';
             </svg>
             Transaksi Baru
         </a>
-
-        <!-- SEMUA TRANSAKSI -->
         <a href="transaction_list.php"
            class="<?= ($active_page === 'transaction_list') ? 'active' : ''; ?>">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none"
@@ -35,8 +28,6 @@ $active_page = $active_page ?? 'new_transaction';
             </svg>
             Daftar Transaksi
         </a>
-
-        <!-- CETAK STRUK -->
         <a href="invoice_print.php"
            class="<?= ($active_page === 'invoice_print') ? 'active' : ''; ?>">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none"
@@ -50,9 +41,7 @@ $active_page = $active_page ?? 'new_transaction';
             </svg>
             Cetak Struk
         </a>
-
     </nav>
-
     <div class="sidebar-footer">
         <a href="../../process/auth_handler.php?action=logout" class="btn-logout">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none"
@@ -66,10 +55,8 @@ $active_page = $active_page ?? 'new_transaction';
         </a>
     </div>
 </div>
-
 <style>
 body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f9; margin: 0; display: flex; min-height: 100vh; }
-
 .sidebar { 
     width: 250px; 
     background-color: #038472; 
@@ -80,49 +67,37 @@ body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f9; margin: 0
     box-shadow: 2px 0 5px rgba(0,0,0,0.1);
     font-size: 0.95em;
 }
-
 .sidebar-header {
     text-align: center;
     padding: 0 20px 20px;
     border-bottom: 1px solid rgba(255,255,255,0.1);
     margin-bottom: 10px;
 }
-
 .sidebar-header h1 { margin: 5px 0 0; font-size: 1.5em; font-weight: 600; }
-
 .role-caption { color: rgba(255,255,255,0.7); font-size: 0.8em; }
-
 .header-icon { width: 40px; height: 40px; margin-bottom: 5px; }
-
 .sidebar nav { flex-grow: 1; }
-
 .sidebar a {
     display: flex; align-items: center;
     padding: 12px 20px;
     text-decoration: none; color: white;
     transition: background 0.3s, border-left 0.3s;
 }
-
 .sidebar a:hover { background-color: rgba(0,0,0,0.1); }
-
 .sidebar-icon { width: 20px; height: 20px; margin-right: 12px; }
-
 .sidebar a.active {
     background-color: rgba(0,0,0,0.15);
     border-left: 5px solid white;
     padding-left: 15px;
 }
-
 .sidebar-footer {
     padding: 10px 0 20px;
     border-top: 1px solid rgba(255,255,255,0.1);
 }
-
 .btn-logout {
     display: flex; align-items: center;
     padding: 12px 20px;
     text-decoration: none; color: white;
 }
-
 .btn-logout:hover { background-color: #c0392b; }
 </style>

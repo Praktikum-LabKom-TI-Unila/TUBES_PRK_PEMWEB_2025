@@ -1,19 +1,14 @@
 <?php
 session_start();
 require_once '../../config/database.php';
-
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../auth/login.php');
     exit();
 }
-
-// Query untuk mengambil semua user
 $users_query = "SELECT id, username, full_name, role, is_active, created_at 
                 FROM users 
                 ORDER BY created_at DESC";
 $users_result = mysqli_query($conn, $users_query);
-
-// Hitung statistik user
 $stats_query = "SELECT 
                     COUNT(*) as total_users,
                     SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as active_users,
@@ -23,7 +18,6 @@ $stats_query = "SELECT
                 WHERE role != 'admin'";
 $stats_result = mysqli_query($conn, $stats_query);
 $stats = mysqli_fetch_assoc($stats_result);
-
 $page_title = "Kelola User";
 ?>
 <!DOCTYPE html>
@@ -37,10 +31,8 @@ $page_title = "Kelola User";
 <body>
     <div class="admin-container">
         <?php include '../../includes/sidebar_admin.php'; ?>
-        
         <main class="main-content">
             <?php include '../../includes/header_admin.php'; ?>
-            
             <div class="content-wrapper">
                 <div class="page-header">
                     <button class="btn-primary" onclick="openAddModal()">
@@ -51,10 +43,7 @@ $page_title = "Kelola User";
                         Tambah User
                     </button>
                 </div>
-
                 <div id="alertContainer"></div>
-
-                <!-- Statistik Mini -->
                 <div class="stats-mini-grid">
                     <div class="stat-mini-card">
                         <h3>Total User</h3>
@@ -73,8 +62,6 @@ $page_title = "Kelola User";
                         <div class="number"><?php echo $stats['total_worker']; ?></div>
                     </div>
                 </div>
-
-                <!-- Tabel User -->
                 <div class="table-container">
                     <div class="table-header">
                         <h2>Daftar User</h2>
@@ -86,7 +73,6 @@ $page_title = "Kelola User";
                             </svg>
                         </div>
                     </div>
-                    
                     <?php if (mysqli_num_rows($users_result) > 0): ?>
                     <table id="usersTable">
                         <thead>
@@ -168,8 +154,6 @@ $page_title = "Kelola User";
             </div>
         </main>
     </div>
-
-    <!-- Modal Tambah/Edit User -->
     <div id="userModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -180,17 +164,14 @@ $page_title = "Kelola User";
                 <form id="userForm">
                     <input type="hidden" id="userId" name="user_id">
                     <input type="hidden" id="formAction" name="action" value="add">
-                    
                     <div class="form-group">
                         <label for="username">Username *</label>
                         <input type="text" id="username" name="username" required>
                     </div>
-                    
                     <div class="form-group">
                         <label for="full_name">Nama Lengkap *</label>
                         <input type="text" id="full_name" name="full_name" required>
                     </div>
-                    
                     <div class="form-group">
                         <label for="role">Role *</label>
                         <select id="role" name="role" required>
@@ -199,13 +180,11 @@ $page_title = "Kelola User";
                             <option value="worker">Petugas</option>
                         </select>
                     </div>
-                    
                     <div class="form-group" id="passwordGroup">
                         <label for="password">Password *</label>
                         <input type="password" id="password" name="password">
                         <small style="color: #666; font-size: 12px;">Minimal 6 karakter</small>
                     </div>
-                    
                     <div class="form-actions">
                         <button type="button" class="btn-secondary" onclick="closeModal()">Batal</button>
                         <button type="submit" class="btn-primary">Simpan</button>
@@ -214,9 +193,7 @@ $page_title = "Kelola User";
             </div>
         </div>
     </div>
-
     <script>
-        // Fungsi untuk membuka modal tambah user
         function openAddModal() {
             document.getElementById('modalTitle').textContent = 'Tambah User';
             document.getElementById('formAction').value = 'add';
@@ -227,8 +204,6 @@ $page_title = "Kelola User";
             document.getElementById('passwordGroup').style.display = 'block';
             document.getElementById('userModal').style.display = 'block';
         }
-
-        // Fungsi untuk membuka modal edit user
         function editUser(user) {
             document.getElementById('modalTitle').textContent = 'Edit User';
             document.getElementById('formAction').value = 'edit';
@@ -242,27 +217,19 @@ $page_title = "Kelola User";
             document.getElementById('passwordGroup').querySelector('small').textContent = 'Kosongkan jika tidak ingin mengubah password';
             document.getElementById('userModal').style.display = 'block';
         }
-
-        // Fungsi untuk menutup modal
         function closeModal() {
             document.getElementById('userModal').style.display = 'none';
             document.getElementById('userForm').reset();
         }
-
-        // Tutup modal jika klik di luar modal
         window.onclick = function(event) {
             const modal = document.getElementById('userModal');
             if (event.target === modal) {
                 closeModal();
             }
         }
-
-        // Handle form submit
         document.getElementById('userForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
             const formData = new FormData(this);
-            
             fetch('../../process/admin_handler.php', {
                 method: 'POST',
                 body: formData
@@ -283,14 +250,11 @@ $page_title = "Kelola User";
                 showAlert('error', 'Terjadi kesalahan: ' + error.message);
             });
         });
-
-        // Fungsi toggle status user
         function toggleStatus(userId, isActive, buttonElement) {
             const formData = new FormData();
             formData.append('action', 'toggle_status');
             formData.append('user_id', userId);
             formData.append('is_active', isActive);
-            
             fetch('../../process/admin_handler.php', {
                 method: 'POST',
                 body: formData
@@ -299,7 +263,6 @@ $page_title = "Kelola User";
             .then(data => {
                 if (data.success) {
                     showAlert('success', data.message);
-                    // Update tampilan badge tanpa reload
                     if (isActive == 1) {
                         buttonElement.className = 'badge-status badge-active';
                         buttonElement.textContent = 'Aktif';
@@ -317,14 +280,11 @@ $page_title = "Kelola User";
                 showAlert('error', 'Terjadi kesalahan: ' + error.message);
             });
         }
-
-        // Fungsi delete user
         function deleteUser(userId, username) {
             if (confirm(`Apakah Anda yakin ingin menghapus user "${username}"?`)) {
                 const formData = new FormData();
                 formData.append('action', 'delete');
                 formData.append('user_id', userId);
-                
                 fetch('../../process/admin_handler.php', {
                     method: 'POST',
                     body: formData
@@ -345,18 +305,14 @@ $page_title = "Kelola User";
                 });
             }
         }
-
-        // Fungsi search table
         function searchTable() {
             const input = document.getElementById('searchInput');
             const filter = input.value.toUpperCase();
             const table = document.getElementById('usersTable');
             const tr = table.getElementsByTagName('tr');
-            
             for (let i = 1; i < tr.length; i++) {
                 let found = false;
                 const td = tr[i].getElementsByTagName('td');
-                
                 for (let j = 0; j < td.length - 1; j++) {
                     if (td[j]) {
                         const txtValue = td[j].textContent || td[j].innerText;
@@ -366,25 +322,19 @@ $page_title = "Kelola User";
                         }
                     }
                 }
-                
                 tr[i].style.display = found ? '' : 'none';
             }
         }
-
-        // Fungsi untuk menampilkan alert
         function showAlert(type, message) {
             const alertContainer = document.getElementById('alertContainer');
             const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
-            
             alertContainer.innerHTML = `
                 <div class="alert ${alertClass}">
                     ${message}
                 </div>
             `;
-            
             const alert = alertContainer.querySelector('.alert');
             alert.style.display = 'block';
-            
             setTimeout(() => {
                 alert.style.display = 'none';
             }, 5000);

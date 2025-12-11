@@ -1,55 +1,44 @@
 <?php
 session_start();
 require_once '../../config/database.php';
-
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../auth/login.php');
     exit();
 }
-
-// Bulan Indonesia array
 $bulan_indo = [
     '01' => 'Januari', '02' => 'Februari', '03' => 'Maret',
     '04' => 'April', '05' => 'Mei', '06' => 'Juni',
     '07' => 'Juli', '08' => 'Agustus', '09' => 'September',
     '10' => 'Oktober', '11' => 'November', '12' => 'Desember'
 ];
-
-// Determine filter type
 $filter_type = $_GET['filter_type'] ?? 'date';
 $where_clause = "1=1";
 $date_label = "";
-
 switch ($filter_type) {
     case 'all':
         $where_clause = "1=1";
         $date_label = "Semua Data";
         break;
-        
     case 'today':
         $where_clause = "DATE(t.tgl_masuk) = CURDATE()";
         $date_label = "Hari Ini - " . date('d/m/Y');
         break;
-        
     case 'week':
         $where_clause = "YEARWEEK(t.tgl_masuk, 1) = YEARWEEK(CURDATE(), 1)";
         $date_label = "Minggu Ini";
         break;
-        
     case 'date':
         $selected_date = $_GET['date'] ?? date('Y-m-d');
         $where_clause = "DATE(t.tgl_masuk) = '$selected_date'";
         $date_parts = explode('-', $selected_date);
         $date_label = $date_parts[2] . ' ' . $bulan_indo[$date_parts[1]] . ' ' . $date_parts[0];
         break;
-        
     case 'month':
         $selected_month = $_GET['month'] ?? date('m');
         $selected_month_year = $_GET['month_year'] ?? date('Y');
         $where_clause = "MONTH(t.tgl_masuk) = '$selected_month' AND YEAR(t.tgl_masuk) = '$selected_month_year'";
         $date_label = $bulan_indo[$selected_month] . ' ' . $selected_month_year;
         break;
-        
     case 'custom':
         $start_date = $_GET['start_date'] ?? '';
         $end_date = $_GET['end_date'] ?? '';
@@ -62,8 +51,6 @@ switch ($filter_type) {
         }
         break;
 }
-
-// Query untuk statistik
 $stats_query = "SELECT 
                     COUNT(*) as total_transaksi,
                     SUM(CASE WHEN t.status_bayar = 'Paid' THEN 1 ELSE 0 END) as transaksi_lunas,
@@ -74,15 +61,11 @@ $stats_query = "SELECT
                 WHERE $where_clause";
 $stats_result = mysqli_query($conn, $stats_query);
 $stats = mysqli_fetch_assoc($stats_result);
-
-// Handle NULL values
 $stats['total_transaksi'] = $stats['total_transaksi'] ?? 0;
 $stats['transaksi_lunas'] = $stats['transaksi_lunas'] ?? 0;
 $stats['transaksi_belum_lunas'] = $stats['transaksi_belum_lunas'] ?? 0;
 $stats['total_pendapatan'] = $stats['total_pendapatan'] ?? 0;
 $stats['total_berat'] = $stats['total_berat'] ?? 0;
-
-// Query untuk daftar transaksi
 $transactions_query = "SELECT t.id, t.nama_pelanggan, t.no_hp, t.berat_qty, t.total_harga,
                               t.status_laundry, t.status_bayar, t.tgl_masuk, t.tgl_estimasi_selesai,
                               p.nama_paket, p.satuan,
@@ -93,7 +76,6 @@ $transactions_query = "SELECT t.id, t.nama_pelanggan, t.no_hp, t.berat_qty, t.to
                        WHERE $where_clause
                        ORDER BY t.tgl_masuk DESC";
 $transactions_result = mysqli_query($conn, $transactions_query);
-
 $page_title = "Laporan Transaksi";
 ?>
 <!DOCTYPE html>
@@ -107,14 +89,11 @@ $page_title = "Laporan Transaksi";
 <body>
     <div class="admin-container">
         <?php include '../../includes/sidebar_admin.php'; ?>
-        
         <main class="main-content">
             <?php include '../../includes/header_admin.php'; ?>
-            
             <div class="content-wrapper">
                 <div class="page-header">
                     <div class="header-actions">
-                    <!-- Filter Dropdown -->
                     <div class="filter-dropdown-wrapper">
                         <button class="btn-filter" onclick="toggleFilterDropdown()">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -122,21 +101,15 @@ $page_title = "Laporan Transaksi";
                             </svg>
                             Filter
                         </button>
-                        
                         <div class="filter-dropdown-menu" id="filterDropdown">
                             <div class="filter-dropdown-header">Pilih Filter</div>
-                            
-                            <!-- Quick Filters -->
                             <div class="filter-option-group">
                                 <div class="filter-option-title">Filter Cepat</div>
                                 <a href="?filter_type=all" class="filter-quick-link <?= $filter_type == 'all' ? 'active' : '' ?>">Semua Data</a>
                                 <a href="?filter_type=today" class="filter-quick-link <?= $filter_type == 'today' ? 'active' : '' ?>">Hari Ini</a>
                                 <a href="?filter_type=week" class="filter-quick-link <?= $filter_type == 'week' ? 'active' : '' ?>">Minggu Ini</a>
                             </div>
-                            
                             <hr class="filter-divider">
-                            
-                            <!-- Filter by Date -->
                             <div class="filter-option-group">
                                 <div class="filter-option-title">Per Tanggal</div>
                                 <form action="" method="get" class="filter-form">
@@ -146,10 +119,7 @@ $page_title = "Laporan Transaksi";
                                            value="<?php echo $filter_type == 'date' ? ($selected_date ?? '') : ''; ?>">
                                 </form>
                             </div>
-                            
                             <hr class="filter-divider">
-                            
-                            <!-- Filter by Month -->
                             <div class="filter-option-group">
                                 <div class="filter-option-title">Per Bulan</div>
                                 <form action="" method="get" class="filter-form">
@@ -177,10 +147,7 @@ $page_title = "Laporan Transaksi";
                                     </div>
                                 </form>
                             </div>
-                            
                             <hr class="filter-divider">
-                            
-                            <!-- Custom Range -->
                             <div class="filter-option-group">
                                 <div class="filter-option-title">Custom Range</div>
                                 <form action="" method="get" class="filter-form">
@@ -197,8 +164,6 @@ $page_title = "Laporan Transaksi";
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Export Button -->
                     <a href="export_laporan.php?filter_type=<?php echo $filter_type; ?><?php 
                         if($filter_type == 'date' && isset($selected_date)) echo '&date=' . $selected_date;
                         elseif($filter_type == 'month' && isset($selected_month) && isset($selected_month_year)) echo '&month=' . $selected_month . '&month_year=' . $selected_month_year;
@@ -213,8 +178,6 @@ $page_title = "Laporan Transaksi";
                     </a>
                     </div>
                 </div>
-
-                <!-- Statistics Cards -->
                 <div class="stats-mini-grid">
                     <div class="stat-mini-card">
                         <h3>Total Transaksi</h3>
@@ -237,8 +200,6 @@ $page_title = "Laporan Transaksi";
                         <div class="subtitle">dari transaksi lunas</div>
                     </div>
                 </div>
-
-                <!-- Transactions Table -->
                 <div class="table-container">
                     <div class="table-header">
                         <h2>Daftar Transaksi</h2>
@@ -252,7 +213,6 @@ $page_title = "Laporan Transaksi";
                             <?php echo $date_label; ?>
                         </div>
                     </div>
-                    
                     <?php if (mysqli_num_rows($transactions_result) > 0): ?>
                     <div style="overflow-x: auto;">
                         <table>
@@ -312,18 +272,14 @@ $page_title = "Laporan Transaksi";
             </div>
         </main>
     </div>
-
     <script>
         function toggleFilterDropdown() {
             const dropdown = document.getElementById('filterDropdown');
             dropdown.classList.toggle('show');
         }
-        
-        // Close dropdown when clicking outside
         document.addEventListener('click', function(event) {
             const dropdown = document.getElementById('filterDropdown');
             const wrapper = document.querySelector('.filter-dropdown-wrapper');
-            
             if (wrapper && !wrapper.contains(event.target)) {
                 dropdown.classList.remove('show');
             }

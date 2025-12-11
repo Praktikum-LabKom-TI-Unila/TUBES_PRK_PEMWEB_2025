@@ -1,29 +1,18 @@
 <?php
 session_start();
-
-// Cek apakah user sudah login dan rolenya worker
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'worker') {
     header('Location: ../auth/login.php');
     exit();
 }
-
 $active_page = 'task_history';
-
-// Ambil data user yang login dari session
 $worker_id = $_SESSION['user_id']; 
 $worker_name = $_SESSION['full_name']; 
 $worker_role = "Petugas";
-
-
 require_once __DIR__ . '/../../config/database.php';
-
-// Filter tanggal
 $filter = $_GET['filter'] ?? 'all';
 $start_date = $_GET['start_date'] ?? '';
 $end_date = $_GET['end_date'] ?? '';
-
 $where_conditions = ["t.status_laundry IN ('Done', 'Taken')"];
-
 switch ($filter) {
     case 'today':
         $where_conditions[] = "DATE(t.tgl_selesai) = CURDATE()";
@@ -40,9 +29,7 @@ switch ($filter) {
         }
         break;
 }
-
 $where_clause = implode(' AND ', $where_conditions);
-
 $query = "
     SELECT 
         t.id, t.nama_pelanggan, p.nama_paket, t.berat_qty, t.status_laundry, 
@@ -56,24 +43,19 @@ $query = "
     ORDER BY 
         t.tgl_selesai DESC
 ";
-
 $history_tasks = fetchData($conn, $query);
-
 if ($history_tasks === false) {
     $history_tasks = [];
     $error_message = "Gagal mengambil data riwayat dari database.";
 } else {
     $error_message = null;
 }
-
-
 function get_payment_badge_class($status) {
     if ($status === 'Paid') {
         return 'status-done'; 
     }
     return 'status-danger'; 
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -83,9 +65,7 @@ function get_payment_badge_class($status) {
     <link rel="stylesheet" href="../../assets/css/worker.css?v=<?php echo time(); ?>"> 
 </head>
 <body>
-    
     <?php require_once __DIR__ . '/../../includes/sidebar_worker.php'; ?>
-
     <div class="main-content">
         <header class="page-header">
             <h2>
@@ -96,7 +76,6 @@ function get_payment_badge_class($status) {
                 </svg> 
                 Riwayat Tugas
             </h2>
-            
             <div class="profile-info">
                 <div class="text">
                     <span class="username"><?php echo htmlspecialchars($worker_name); ?></span>
@@ -108,10 +87,7 @@ function get_payment_badge_class($status) {
                 </svg>
             </div>
             </header>
-
         <div class="content-panel">
-            
-            <!-- Filter Tanggal -->
             <div class="filter-section">
                 <form method="GET" action="" class="filter-form">
                     <div class="filter-group">
@@ -124,22 +100,18 @@ function get_payment_badge_class($status) {
                             <option value="custom" <?= $filter == 'custom' ? 'selected' : '' ?>>Custom Range</option>
                         </select>
                     </div>
-
                     <div class="filter-group custom-date" id="customDateInputs" style="display: <?= $filter == 'custom' ? 'flex' : 'none' ?>;">
                         <input type="date" name="start_date" value="<?= htmlspecialchars($start_date) ?>" placeholder="Dari Tanggal">
                         <span>s/d</span>
                         <input type="date" name="end_date" value="<?= htmlspecialchars($end_date) ?>" placeholder="Sampai Tanggal">
                     </div>
-
                     <button type="submit" class="btn-filter">Terapkan</button>
                     <a href="task_history.php" class="btn-reset">Reset</a>
                 </form>
             </div>
-
             <?php if (!empty($error_message)): ?>
                 <div class="alert alert-error"><?php echo $error_message; ?></div>
             <?php endif; ?>
-
             <div class="table-responsive">
                 <table>
                     <thead>
@@ -165,7 +137,6 @@ function get_payment_badge_class($status) {
                                     <td><?php echo date('d M Y H:i', strtotime($task['tgl_masuk'])); ?></td>
                                     <td>
                                         <?php 
-                                            // Tgl Selesai adalah Tgl Done/Tgl Diambil
                                             echo date('d M Y H:i', strtotime($task['tgl_selesai'] ?? $task['tgl_diambil'])); 
                                         ?>
                                     </td>
@@ -193,20 +164,16 @@ function get_payment_badge_class($status) {
             </div>
         </div>
     </div>
-
     <script>
     function toggleCustomDate() {
         const filterType = document.getElementById('filterSelect').value;
         const customDate = document.getElementById('customDateInputs');
-        
         if (filterType === 'custom') {
             customDate.style.display = 'flex';
         } else {
             customDate.style.display = 'none';
         }
     }
-    
-    // Set initial state on page load
     document.addEventListener('DOMContentLoaded', function() {
         toggleCustomDate();
     });

@@ -1,4 +1,3 @@
-
 body { 
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
     background-color: #f4f7f9; 
@@ -6,8 +5,6 @@ body {
     display: flex; 
     min-height: 100vh;
 }
-
-/* Kontainer Sidebar Utama */
 .sidebar { 
     width: 250px; 
     background-color: #038472; 
@@ -21,38 +18,30 @@ body {
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     font-size: 0.95em; 
 }
-
-/* Header (Logo & Nama Aplikasi) */
 .sidebar-header {
     text-align: center;
     padding: 0 20px 20px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: 10px;
 }
-
 .sidebar-header h1 {
     margin: 5px 0 0;
     font-size: 1.5em; 
     font-weight: 600;
 }
-
 .role-caption {
     color: rgba(255, 255, 255, 0.7);
     font-size: 0.8em;
     margin: 0;
 }
-
 .header-icon {
     width: 40px;
     height: 40px;
     margin-bottom: 5px;
 }
-
-/* Navigasi Link */
 .sidebar nav {
     flex-grow: 1; 
 }
-
 .sidebar a {
     display: flex;
     align-items: center;
@@ -61,30 +50,23 @@ body {
     color: white;
     transition: background-color 0.3s, border-left 0.3s;
 }
-
 .sidebar a:hover {
     background-color: rgba(0, 0, 0, 0.1);
 }
-
 .sidebar-icon {
     width: 20px;
     height: 20px;
     margin-right: 12px;
 }
-
-/* Link Aktif (Gaya Admin) */
 .sidebar a.active {
     background-color: rgba(0, 0, 0, 0.15); 
     border-left: 5px solid white; 
     padding-left: 15px; 
 }
-
-/* Footer (Logout) */
 .sidebar-footer {
     padding: 10px 0 20px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
-
 .btn-logout {
     display: flex;
     align-items: center;
@@ -93,22 +75,17 @@ body {
     padding: 12px 20px;
     transition: background-color 0.3s;
 }
-
 .btn-logout:hover {
     background-color: #c0392b; 
 }
-
-/* Main Content */
 .main-content {
     flex-grow: 1;
     padding: 30px; 
     background-color: #f4f7f9;
 }
-
 .page-header {
     display: flex;
     align-items: center;
-    /* Memisahkan judul ke kiri dan profil ke kanan */
     justify-content: space-between; 
     margin-bottom: 25px;
     padding-bottom: 10px;
@@ -118,7 +95,6 @@ body {
     margin: 0;
     font-size: 1.8em;
     color: #34495e; 
-    /* Untuk menyelaraskan ikon dan teks judul */
     display: flex; 
     align-items: center;
 }
@@ -128,15 +104,12 @@ body {
     margin-right: 10px;
     color: #038472;
 }
-
-/* Content Panel dan Alert */
 .content-panel {
     background-color: white;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
-
 .alert.alert-error {
     padding: 15px;
     margin-bottom: 20px;
@@ -145,7 +118,6 @@ body {
     color: #c0392b;
     border-radius: 4px;
 }
-
 .profile-info {
     display: flex;
     align-items: center;
@@ -154,7 +126,6 @@ body {
     background-color: white; 
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
-
 .profile-info .text {
     display: flex;
     flex-direction: column;
@@ -162,18 +133,15 @@ body {
     margin-right: 10px;
     line-height: 1.2;
 }
-
 .profile-info .username {
     font-weight: 600;
     font-size: 0.95em;
     color: #34495e;
 }
-
 .profile-info .role {
     font-size: 0.75em;
     color: #95a5a6;
 }
-
 .profile-icon {
     width: 30px;
     height: 30px;
@@ -183,23 +151,19 @@ body {
     padding: 3px;
     display: block;
 }
-
 .table-responsive {
     overflow-x: auto;
 }
-
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
 }
-
 table th, table td {
     padding: 12px 15px;
     text-align: left;
     border-bottom: 1px solid #eee;
 }
-
 table thead th {
     background-color: #ecf0f1;
     color: #34495e;
@@ -207,19 +171,15 @@ table thead th {
     text-transform: uppercase;
     font-size: 0.85em;
 }
-
 table tbody tr:hover {
     background-color: #f9f9f9;
 }
-
 .text-center {
     text-align: center;
 }
 .text-secondary {
     color: #95a5a6;
 }
-
-/* Badge Status */
 .status-badge {
     display: inline-block;
     padding: 4px 10px;
@@ -229,8 +189,6 @@ table tbody tr:hover {
     text-align: center;
     color: white;
 }
-
-/* Warna Badge berdasarkan status ENUM */
 .status-pending {
     background-color: #f1c40f;
     color: #34495e; 
@@ -247,9 +205,6 @@ table tbody tr:hover {
 .status-taken {
     background-color: #34495e;
 }
-
-
-/* Tombol Aksi */
 .btn {
     padding: 8px 15px;
     border: none;
@@ -260,12 +215,10 @@ table tbody tr:hover {
     font-weight: 600;
     white-space: nowrap;
 }
-
 .btn-sm {
     padding: 6px 10px;
     font-size: 0.8em;
 }
-
 .btn-primary {
     background-color: #3498db;
     color: white;
@@ -282,11 +235,9 @@ table tbody tr:hover {
     background-color: #e74c3c;
     color: white;
 }
-
 .btn:hover {
     opacity: 0.9;
 }
-/* Filter Section */
 .filter-section {
     background: white;
     padding: 20px;
@@ -294,26 +245,22 @@ table tbody tr:hover {
     margin-bottom: 20px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-
 .filter-form {
     display: flex;
     align-items: flex-end;
     gap: 15px;
     flex-wrap: wrap;
 }
-
 .filter-group {
     display: flex;
     flex-direction: column;
     gap: 5px;
 }
-
 .filter-group label {
     font-size: 0.9em;
     color: #555;
     font-weight: 500;
 }
-
 .filter-group select,
 .filter-group input[type="date"] {
     padding: 10px 15px;
@@ -323,22 +270,18 @@ table tbody tr:hover {
     min-width: 180px;
     background: white;
 }
-
 .custom-date {
     flex-direction: row;
     align-items: center;
     gap: 10px;
 }
-
 .custom-date span {
     color: #777;
     font-size: 0.9em;
 }
-
 .custom-date input {
     min-width: 150px;
 }
-
 .btn-filter {
     padding: 10px 25px;
     background: #038472;
@@ -349,11 +292,9 @@ table tbody tr:hover {
     font-weight: 500;
     transition: background 0.3s;
 }
-
 .btn-filter:hover {
     background: #026c5f;
 }
-
 .btn-reset {
     padding: 10px 25px;
     background: #6c757d;
@@ -365,7 +306,6 @@ table tbody tr:hover {
     font-weight: 500;
     transition: background 0.3s;
 }
-
 .btn-reset:hover {
     background: #5a6268;
 }

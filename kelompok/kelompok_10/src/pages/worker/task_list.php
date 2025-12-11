@@ -1,22 +1,14 @@
 <?php
 session_start();
-
-// Cek apakah user sudah login dan rolenya worker
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'worker') {
     header('Location: ../auth/login.php');
     exit();
 }
-
 $active_page = 'task_list';
-
-// Ambil data user yang login dari session
 $worker_id = $_SESSION['user_id']; 
 $worker_name = $_SESSION['full_name']; 
 $worker_role = "Petugas"; 
-
-
 require_once __DIR__ . '/../../config/database.php';
-
 $query = "
     SELECT 
         t.id, t.nama_pelanggan, p.nama_paket, t.berat_qty, t.status_laundry, t.tgl_masuk
@@ -29,9 +21,7 @@ $query = "
     ORDER BY 
         tgl_masuk ASC
 ";
-
 $tasks = fetchData($conn, $query);
-
 if ($tasks === false) {
     $tasks = [];
     $error_message = "Gagal mengambil data dari database.";
@@ -47,9 +37,7 @@ if ($tasks === false) {
     <link rel="stylesheet" href="../../assets/css/worker.css?v=<?php echo time(); ?>"> 
 </head>
 <body>
-    
     <?php require_once __DIR__ . '/../../includes/sidebar_worker.php'; ?>
-
     <div class="main-content">
         <header class="page-header">
             <h2>
@@ -59,7 +47,6 @@ if ($tasks === false) {
                 </svg> 
                 Daftar Tugas Aktif
             </h2>
-            
             <div class="profile-info">
                 <div class="text">
                     <span class="username"><?php echo htmlspecialchars($worker_name); ?></span>
@@ -71,12 +58,10 @@ if ($tasks === false) {
                 </svg>
             </div>
             </header>
-
         <div class="content-panel">
             <?php if (!empty($error_message)): ?>
                 <div class="alert alert-error"><?php echo $error_message; ?></div>
             <?php endif; ?>
-
             <div class="table-responsive">
                 <table>
                     <thead>
@@ -110,13 +95,11 @@ if ($tasks === false) {
                                             <input type="hidden" name="transaction_id" value="<?php echo $task['id']; ?>">
                                             <input type="hidden" name="worker_id" value="<?php echo $worker_id; ?>"> 
                                             <input type="hidden" name="status_before" value="<?php echo $task['status_laundry']; ?>">
-                                            
                                             <?php 
                                             $current_status = $task['status_laundry'];
                                             $next_status_value = '';
                                             $next_status_label = '';
                                             $button_class = 'btn-primary';
-
                                             if ($current_status == 'Pending') {
                                                 $next_status_label = 'Mulai Cuci (Washing)';
                                                 $next_status_value = 'Washing';
@@ -131,7 +114,6 @@ if ($tasks === false) {
                                                 $button_class = 'btn-danger';
                                             }
                                             ?>
-                                            
                                             <?php if ($next_status_value): ?>
                                                 <input type="hidden" name="next_status" value="<?php echo $next_status_value; ?>">
                                                 <button type="submit" class="btn <?php echo $button_class; ?> btn-sm">

@@ -1,16 +1,13 @@
 <?php
 session_start();
 require_once '../../config/database.php';
-
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../auth/login.php');
     exit();
 }
-
 $summary_query = "SELECT * FROM v_dashboard_summary";
 $summary_result = mysqli_query($conn, $summary_query);
 $summary = mysqli_fetch_assoc($summary_result);
-
 $recent_transactions_query = "SELECT t.id, t.nama_pelanggan, t.status_laundry, t.status_bayar, 
                                       t.total_harga, t.tgl_masuk, p.nama_paket
                                FROM transactions t
@@ -18,7 +15,6 @@ $recent_transactions_query = "SELECT t.id, t.nama_pelanggan, t.status_laundry, t
                                ORDER BY t.tgl_masuk DESC
                                LIMIT 5";
 $recent_transactions = mysqli_query($conn, $recent_transactions_query);
-
 $page_title = "Dashboard";
 ?>
 <!DOCTYPE html>
@@ -32,10 +28,8 @@ $page_title = "Dashboard";
 <body>
     <div class="admin-container">
         <?php include '../../includes/sidebar_admin.php'; ?>
-        
         <main class="main-content">
             <?php include '../../includes/header_admin.php'; ?>
-            
             <div class="content-wrapper">
                 <div class="stats-grid">
                     <div class="stat-card stat-primary">
@@ -53,7 +47,6 @@ $page_title = "Dashboard";
                             <p class="stat-value"><?php echo number_format($summary['total_transaksi'] ?? 0); ?></p>
                         </div>
                     </div>
-
                     <div class="stat-card stat-warning">
                         <div class="stat-icon">
                             <svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="#FFC107" stroke-width="2">
@@ -66,7 +59,6 @@ $page_title = "Dashboard";
                             <p class="stat-value"><?php echo number_format($summary['sedang_proses'] ?? 0); ?></p>
                         </div>
                     </div>
-
                     <div class="stat-card stat-success">
                         <div class="stat-icon">
                             <svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="2">
@@ -78,7 +70,6 @@ $page_title = "Dashboard";
                             <p class="stat-value"><?php echo number_format($summary['siap_diambil'] ?? 0); ?></p>
                         </div>
                     </div>
-
                     <div class="stat-card stat-danger">
                         <div class="stat-icon">
                             <svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2">
@@ -92,7 +83,6 @@ $page_title = "Dashboard";
                         </div>
                     </div>
                 </div>
-
                 <div class="revenue-grid">
                     <div class="revenue-card">
                         <h3>Pendapatan Hari Ini</h3>
@@ -103,7 +93,6 @@ $page_title = "Dashboard";
                         <p class="revenue-value">Rp <?php echo number_format($summary['pendapatan_bulan_ini'] ?? 0, 0, ',', '.'); ?></p>
                     </div>
                 </div>
-
                 <div class="recent-transactions">
                     <div class="card-header">
                         <h2>Transaksi Terbaru</h2>

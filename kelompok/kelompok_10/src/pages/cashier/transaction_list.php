@@ -1,19 +1,13 @@
 <?php
 session_start();
-
-// Cek apakah user sudah login dan rolenya kasir
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'kasir') {
     header('Location: ../auth/login.php');
     exit();
 }
-
-// Ambil data user yang login dari session
 $cashier_id = $_SESSION['user_id']; 
 $cashier_name = $_SESSION['full_name']; 
 $cashier_role = "Kasir";
-
 $baseDir = dirname(__DIR__, 2);
-
 $configPaths = [
     $baseDir . '/config/config.php',
     $baseDir . '/config/database.php',
@@ -22,7 +16,6 @@ $configPaths = [
     $baseDir . '/config/connection.php',
     $baseDir . '/config.php'
 ];
-
 $configLoaded = false;
 foreach ($configPaths as $path) {
     if (file_exists($path)) {
@@ -31,18 +24,12 @@ foreach ($configPaths as $path) {
         break;
     }
 }
-
 if (!$configLoaded) die("Config database tidak ditemukan!");
 if (!isset($conn)) die("Variabel \$conn tidak tersedia!");
-
-// Filter tanggal
 $filter = isset($_GET['filter']) ? $_GET['filter'] : 'all';
 $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : '';
 $end_date = isset($_GET['end_date']) ? $_GET['end_date'] : '';
-
-// Build WHERE clause untuk filter
 $whereClause = "1=1";
-
 switch ($filter) {
     case 'today':
         $whereClause = "DATE(t.tgl_masuk) = CURDATE()";
@@ -63,7 +50,6 @@ switch ($filter) {
         $whereClause = "1=1";
         break;
 }
-
 $query = mysqli_query($conn, "
     SELECT t.*, p.nama_paket
     FROM transactions t
@@ -71,33 +57,25 @@ $query = mysqli_query($conn, "
     WHERE $whereClause
     ORDER BY t.tgl_masuk DESC
 ");
-
-// Store results untuk digunakan di modal juga
 $transactions = [];
 if ($query) {
     while ($row = mysqli_fetch_assoc($query)) {
         $transactions[] = $row;
     }
 }
-
 $active_page = "transaction_list";
-
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <title>Daftar Transaksi - Zira Laundry</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https:
     <link rel="stylesheet" href="../../assets/css/cashier.css">
 </head>
-
 <body>
-
 <?php include $baseDir . "/includes/sidebar_cashier.php"; ?>
-
 <div class="content-area">
-
     <div class="page-header">
         <span>📄 Daftar Transaksi Laundry</span>
         <div class="profile-info">
@@ -111,22 +89,18 @@ $active_page = "transaction_list";
             </svg>
         </div>
     </div>
-
     <?php if (isset($_SESSION['error'])): ?>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <?= $_SESSION['error']; unset($_SESSION['error']); ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>
-
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <?= $_SESSION['success']; unset($_SESSION['success']); ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>
-
-    <!-- Filter Section -->
     <div class="card shadow-sm mb-3">
         <div class="card-body">
             <h6 class="mb-3">Filter Berdasarkan Tanggal</h6>
@@ -141,17 +115,14 @@ $active_page = "transaction_list";
                         <option value="custom" <?= $filter == 'custom' ? 'selected' : '' ?>>Custom Range</option>
                     </select>
                 </div>
-                
                 <div class="col-md-3" id="customDate" style="display: <?= $filter == 'custom' ? 'block' : 'none' ?>;">
                     <label for="start_date" class="form-label">Tanggal Mulai</label>
                     <input type="date" name="start_date" id="start_date" class="form-control" value="<?= htmlspecialchars($start_date) ?>">
                 </div>
-                
                 <div class="col-md-3" id="customEndDate" style="display: <?= $filter == 'custom' ? 'block' : 'none' ?>;">
                     <label for="end_date" class="form-label">Tanggal Akhir</label>
                     <input type="date" name="end_date" id="end_date" class="form-control" value="<?= htmlspecialchars($end_date) ?>">
                 </div>
-                
                 <div class="col-md-3">
                     <button type="submit" class="btn btn-primary" style="background: var(--main-color); border: none;">
                         <svg width="16" height="16" fill="currentColor" class="bi bi-search me-1" viewBox="0 0 16 16">
@@ -166,12 +137,9 @@ $active_page = "transaction_list";
             </form>
         </div>
     </div>
-
     <div class="card shadow-sm">
         <div class="card-header">Semua Transaksi</div>
-
         <div class="card-body">
-
             <table class="table table-bordered table-striped text-center">
                 <thead style="background:#d7efe9;">
                     <tr>
@@ -185,7 +153,6 @@ $active_page = "transaction_list";
                         <th>Aksi</th>
                     </tr>
                 </thead>
-
                 <tbody>
                 <?php foreach ($transactions as $row) : ?>
                     <tr>
@@ -193,34 +160,26 @@ $active_page = "transaction_list";
                         <td><?= $row['nama_pelanggan']; ?></td>
                         <td><?= $row['nama_paket']; ?></td>
                         <td>Rp<?= number_format($row['total_harga']); ?></td>
-
-                        <!-- Status Laundry -->
                         <td>
                             <span class="badge-status <?= strtolower($row['status_laundry']); ?>">
                                 <?= $row['status_laundry']; ?>
                             </span>
                         </td>
-
-                        <!-- Status Pembayaran -->
                         <td>
                             <span class="badge-status <?= strtolower($row['status_bayar']); ?>">
                                 <?= $row['status_bayar']; ?>
                             </span>
                         </td>
-
                         <td><?= date("d/m/Y H:i", strtotime($row['tgl_masuk'])); ?></td>
-
                         <td>
                             <a href="invoice_print.php?id=<?= urlencode($row['id']); ?>" class="btn btn-teal btn-sm mb-1">
                                 🧾 Struk
                             </a>
-
                             <?php if ($row['status_bayar'] === 'Unpaid'): ?>
                                 <button class="btn btn-success btn-sm mb-1" data-bs-toggle="modal" data-bs-target="#paymentModal<?= $row['id']; ?>">
                                     💰 Bayar
                                 </button>
                             <?php endif; ?>
-
                             <?php if ($row['status_laundry'] === 'Done' && $row['status_laundry'] !== 'Taken'): ?>
                                 <a href="../../process/transaction_handler.php?action=take&id=<?= urlencode($row['id']); ?>" 
                                    class="btn btn-warning btn-sm"
@@ -230,8 +189,6 @@ $active_page = "transaction_list";
                             <?php endif; ?>
                         </td>
                     </tr>
-
-                    <!-- Modal Pembayaran -->
                     <div class="modal fade" id="paymentModal<?= $row['id']; ?>" tabindex="-1">
                         <div class="modal-dialog">
                             <div class="modal-content">
@@ -242,22 +199,18 @@ $active_page = "transaction_list";
                                 <form action="../../process/transaction_handler.php?action=payment" method="POST">
                                     <div class="modal-body">
                                         <input type="hidden" name="transaction_id" value="<?= $row['id']; ?>">
-                                        
                                         <div class="mb-3">
                                             <label class="form-label">No Resi</label>
                                             <input type="text" class="form-control" value="<?= $row['id']; ?>" readonly>
                                         </div>
-
                                         <div class="mb-3">
                                             <label class="form-label">Pelanggan</label>
                                             <input type="text" class="form-control" value="<?= $row['nama_pelanggan']; ?>" readonly>
                                         </div>
-
                                         <div class="mb-3">
                                             <label class="form-label">Total Harga</label>
                                             <input type="text" class="form-control" value="Rp<?= number_format($row['total_harga']); ?>" readonly>
                                         </div>
-
                                         <div class="mb-3">
                                             <label class="form-label"><strong>Metode Pembayaran *</strong></label>
                                             <select name="metode_bayar" class="form-select" required>
@@ -266,7 +219,6 @@ $active_page = "transaction_list";
                                                 <option value="QRIS">QRIS</option>
                                             </select>
                                         </div>
-
                                         <div class="mb-3">
                                             <label class="form-label"><strong>Jumlah Bayar *</strong></label>
                                             <input type="number" name="jumlah_bayar" class="form-control" 
@@ -276,7 +228,6 @@ $active_page = "transaction_list";
                                                    required>
                                             <small class="text-muted">Minimal: Rp<?= number_format($row['total_harga']); ?></small>
                                         </div>
-
                                         <div class="mb-3">
                                             <label class="form-label">Catatan (Opsional)</label>
                                             <textarea name="catatan" class="form-control" rows="2"></textarea>
@@ -290,24 +241,18 @@ $active_page = "transaction_list";
                             </div>
                         </div>
                     </div>
-
                 <?php endforeach; ?>
                 </tbody>
-
             </table>
-
         </div>
     </div>
-
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https:
 <script>
 function toggleCustomDate() {
     const filterType = document.getElementById('filter').value;
     const customDate = document.getElementById('customDate');
     const customEndDate = document.getElementById('customEndDate');
-    
     if (filterType === 'custom') {
         customDate.style.display = 'block';
         customEndDate.style.display = 'block';
@@ -316,8 +261,6 @@ function toggleCustomDate() {
         customEndDate.style.display = 'none';
     }
 }
-
-// Set initial state on page load
 document.addEventListener('DOMContentLoaded', function() {
     toggleCustomDate();
 });

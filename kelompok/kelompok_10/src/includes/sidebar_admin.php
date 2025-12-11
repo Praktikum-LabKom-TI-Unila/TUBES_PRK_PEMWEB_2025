@@ -3,7 +3,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../auth/login.php');
     exit();
 }
-
 $current_page = basename($_SERVER['PHP_SELF']);
 ?>
 <div class="sidebar">
@@ -14,7 +13,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <h2>ZIRA LAUNDRY</h2>
         <p>Sistem</p>
     </div>
-
     <nav class="sidebar-nav">
         <a href="dashboard.php" class="nav-item <?php echo $current_page === 'dashboard.php' ? 'active' : ''; ?>">
             <span class="icon">
@@ -60,7 +58,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <span>Laporan</span>
         </a>
     </nav>
-
     <div class="sidebar-footer">
         <a href="../../process/auth_handler.php?action=logout" class="nav-item logout">
             <span class="icon">

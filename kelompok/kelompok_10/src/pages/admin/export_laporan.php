@@ -1,55 +1,44 @@
 <?php
 session_start();
 require_once '../../config/database.php';
-
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../auth/login.php');
     exit();
 }
-
-// Bulan Indonesia array
 $bulan_indo = [
     '01' => 'Januari', '02' => 'Februari', '03' => 'Maret',
     '04' => 'April', '05' => 'Mei', '06' => 'Juni',
     '07' => 'Juli', '08' => 'Agustus', '09' => 'September',
     '10' => 'Oktober', '11' => 'November', '12' => 'Desember'
 ];
-
-// Determine filter type
 $filter_type = $_GET['filter_type'] ?? 'date';
 $where_clause = "1=1";
 $date_label = "";
-
 switch ($filter_type) {
     case 'all':
         $where_clause = "1=1";
         $date_label = "Semua Data";
         break;
-        
     case 'today':
         $where_clause = "DATE(t.tgl_masuk) = CURDATE()";
         $date_label = "Hari Ini - " . date('d/m/Y');
         break;
-        
     case 'week':
         $where_clause = "YEARWEEK(t.tgl_masuk, 1) = YEARWEEK(CURDATE(), 1)";
         $date_label = "Minggu Ini";
         break;
-        
     case 'date':
         $selected_date = $_GET['date'] ?? date('Y-m-d');
         $where_clause = "DATE(t.tgl_masuk) = '$selected_date'";
         $date_parts = explode('-', $selected_date);
         $date_label = $date_parts[2] . ' ' . $bulan_indo[$date_parts[1]] . ' ' . $date_parts[0];
         break;
-        
     case 'month':
         $selected_month = $_GET['month'] ?? date('m');
         $selected_month_year = $_GET['month_year'] ?? date('Y');
         $where_clause = "MONTH(t.tgl_masuk) = '$selected_month' AND YEAR(t.tgl_masuk) = '$selected_month_year'";
         $date_label = $bulan_indo[$selected_month] . ' ' . $selected_month_year;
         break;
-        
     case 'custom':
         $start_date = $_GET['start_date'] ?? '';
         $end_date = $_GET['end_date'] ?? '';
@@ -62,8 +51,6 @@ switch ($filter_type) {
         }
         break;
 }
-
-// Query untuk daftar transaksi
 $transactions_query = "SELECT t.id, t.nama_pelanggan, t.no_hp, t.berat_qty, t.total_harga,
                               t.status_laundry, t.status_bayar, t.tgl_masuk, t.tgl_estimasi_selesai,
                               p.nama_paket, p.satuan,
@@ -74,8 +61,6 @@ $transactions_query = "SELECT t.id, t.nama_pelanggan, t.no_hp, t.berat_qty, t.to
                        WHERE $where_clause
                        ORDER BY t.tgl_masuk DESC";
 $transactions_result = mysqli_query($conn, $transactions_query);
-
-// Query untuk statistik
 $stats_query = "SELECT 
                     COUNT(*) as total_transaksi,
                     SUM(CASE WHEN t.status_bayar = 'Paid' THEN 1 ELSE 0 END) as transaksi_lunas,
@@ -86,8 +71,6 @@ $stats_query = "SELECT
                 WHERE $where_clause";
 $stats_result = mysqli_query($conn, $stats_query);
 $stats = mysqli_fetch_assoc($stats_result);
-
-// Set headers untuk download Excel (HTML format)
 $filename = "Laporan_Transaksi_" . date('Y-m-d_His') . ".xls";
 header('Content-Type: application/vnd.ms-excel');
 header('Content-Disposition: attachment; filename="' . $filename . '"');
@@ -199,7 +182,6 @@ header('Expires: 0');
     <div class="header-section">
         <h1>LAPORAN TRANSAKSI ZIRA LAUNDRY</h1>
     </div>
-
     <table class="info-table">
         <tr>
             <td>Periode</td>
@@ -214,7 +196,6 @@ header('Expires: 0');
             <td>: <?php echo htmlspecialchars($_SESSION['full_name']); ?></td>
         </tr>
     </table>
-
     <div class="stats-section">
         <h2>📊 RINGKASAN</h2>
         <table class="stats-table">
@@ -240,7 +221,6 @@ header('Expires: 0');
             </tr>
         </table>
     </div>
-
     <table class="data-table">
         <thead>
             <tr>
@@ -287,7 +267,6 @@ header('Expires: 0');
                 <td><?php echo htmlspecialchars($row['kasir_nama'] ?? '-'); ?></td>
             </tr>
             <?php endwhile; ?>
-            
             <tr class="total-row">
                 <td colspan="4" style="text-align: right;">TOTAL</td>
                 <td><?php echo number_format($total_berat_semua, 2); ?> kg</td>
@@ -296,7 +275,6 @@ header('Expires: 0');
             </tr>
         </tbody>
     </table>
-
     <div style="margin-top: 30px; padding: 10px; background-color: #f0f0f0; border-left: 4px solid #038472;">
         <small>
             <strong>Catatan:</strong><br>

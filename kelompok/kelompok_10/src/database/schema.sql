@@ -156,12 +156,12 @@ SELECT
     SUM(CASE WHEN MONTH(tgl_masuk) = MONTH(CURDATE()) THEN total_harga ELSE 0 END) as pendapatan_bulan_ini
 FROM transactions;
 
--- ============================================================================
--- UPDATE SCRIPT FOR EXISTING DATABASE
--- ============================================================================
--- Jika database sudah ada sebelumnya, jalankan script berikut untuk update:
--- 
--- 1. Update metode_bayar di payment_history untuk mendukung Tunai dan QRIS
+
+
+
+
+
+
 
 ALTER TABLE payment_history 
 MODIFY COLUMN metode_bayar ENUM('Tunai', 'QRIS', 'Transfer', 'E-Wallet', 'Cash') DEFAULT 'Tunai';
@@ -172,4 +172,4 @@ WHERE metode_bayar = 'Cash';
 
 ALTER TABLE payment_history 
 MODIFY COLUMN metode_bayar ENUM('Tunai', 'QRIS', 'Transfer', 'E-Wallet') DEFAULT 'Tunai';
--- ============================================================================
+

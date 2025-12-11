@@ -1,6 +1,5 @@
 <?php
 session_start();
-
 if (isset($_SESSION['user_id'])) {
     $role = $_SESSION['role'];
     if ($role === 'admin') {
@@ -12,13 +11,11 @@ if (isset($_SESSION['user_id'])) {
     }
     exit();
 }
-
 $error = '';
 if (isset($_SESSION['error'])) {
     $error = $_SESSION['error'];
     unset($_SESSION['error']);
 }
-
 $success = '';
 if (isset($_SESSION['success'])) {
     $success = $_SESSION['success'];
@@ -43,25 +40,20 @@ if (isset($_SESSION['success'])) {
                     </div>
                     <h2>ZIRA LAUNDRY</h2>
                 </div>
-
                 <div class="login-form-wrapper">
                     <h3>Login untuk akunmu</h3>
-
                     <?php if ($error): ?>
                         <div class="alert alert-error">
                             <?php echo htmlspecialchars($error); ?>
                         </div>
                     <?php endif; ?>
-
                     <?php if ($success): ?>
                         <div class="alert alert-success">
                             <?php echo htmlspecialchars($success); ?>
                         </div>
                     <?php endif; ?>
-
                     <form action="../../process/auth_handler.php" method="POST" class="login-form">
                         <input type="hidden" name="action" value="login">
-                        
                         <div class="form-group">
                             <input 
                                 type="text" 
@@ -72,7 +64,6 @@ if (isset($_SESSION['success'])) {
                                 autofocus
                             >
                         </div>
-
                         <div class="form-group">
                             <input 
                                 type="password" 
@@ -82,20 +73,16 @@ if (isset($_SESSION['success'])) {
                                 required
                             >
                         </div>
-
                         <button type="submit" class="btn-login">LOGIN</button>
                     </form>
-
                     <div class="login-footer">
                         <p><a href="../public/index.php">Kembali ke Beranda</a></p>
                     </div>
                 </div>
-
                 <div class="copyright">
                     <p>&copy; Kelompok 10 2025 All Rights Reserved</p>
                 </div>
             </div>
-
             <div class="login-right">
                 <div class="image-overlay">
                     <img src="../../assets/img/laundry.png" alt="Laundry Illustration" class="laundry-image">

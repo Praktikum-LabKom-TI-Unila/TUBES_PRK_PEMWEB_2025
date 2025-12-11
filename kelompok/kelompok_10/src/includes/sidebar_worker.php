@@ -1,9 +1,6 @@
 <?php
-// Tentukan halaman aktif berdasarkan variabel $active_page
-// Default-nya diubah menjadi 'task_list' jika belum diset
 $active_page = $active_page ?? 'task_list'; 
 ?>
-
 <div class="sidebar">
     <div class="sidebar-header">
         <img src="../../assets/img/Zira_Laundry.jpg" alt="Zira Laundry" class="header-icon" style="width: 80px; height: 80px; object-fit: contain; border-radius: 10px;">
@@ -27,59 +24,45 @@ $active_page = $active_page ?? 'task_list';
         </a>
     </div>
 </div>
-
 <style>
-/* Reset Body (Tetap di sini jika belum ada di file utama) */
 body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f9; margin: 0; display: flex; min-height: 100vh; }
-
-/* Kontainer Sidebar Utama */
 .sidebar { 
     width: 250px; 
-    /* Warna Admin: Hijau Teal Gelap */
     background-color: #038472; 
     color: white; 
-    padding: 20px 0; /* Padding vertikal */
+    padding: 20px 0; 
     position: sticky; 
     top: 0; 
     height: 100vh; 
     display: flex; 
     flex-direction: column; 
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    /* Ganti font size untuk konsistensi */
     font-size: 0.95em; 
 }
-
-/* Header (Logo & Nama Aplikasi) */
 .sidebar-header {
     text-align: center;
-    padding: 0 20px 20px; /* Padding bawah lebih besar */
+    padding: 0 20px 20px; 
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: 10px;
 }
-
 .sidebar-header h1 {
     margin: 5px 0 0;
-    font-size: 1.5em; /* Ukuran yang mirip Dashboard */
+    font-size: 1.5em; 
     font-weight: 600;
 }
-
 .role-caption {
-    color: rgba(255, 255, 255, 0.7); /* Warna abu-abu yang lebih lembut */
+    color: rgba(255, 255, 255, 0.7); 
     font-size: 0.8em;
     margin: 0;
 }
-
 .header-icon {
     width: 40px;
     height: 40px;
     margin-bottom: 5px;
 }
-
-/* Navigasi Link */
 .sidebar nav {
-    flex-grow: 1; /* Agar nav mengisi ruang di tengah */
+    flex-grow: 1; 
 }
-
 .sidebar a {
     display: flex;
     align-items: center;
@@ -88,32 +71,23 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-
     color: white;
     transition: background-color 0.3s, border-left 0.3s;
 }
-
 .sidebar a:hover {
-    background-color: rgba(0, 0, 0, 0.1); /* Efek hover yang lebih lembut */
+    background-color: rgba(0, 0, 0, 0.1); 
 }
-
 .sidebar-icon {
     width: 20px;
     height: 20px;
     margin-right: 12px;
 }
-
-/* Link Aktif (Gaya Admin) */
 .sidebar a.active {
-    /* Background yang sedikit berbeda */
     background-color: rgba(0, 0, 0, 0.15); 
-    /* Garis vertikal tebal di kiri */
     border-left: 5px solid white; 
-    padding-left: 15px; /* Sesuaikan padding untuk garis */
+    padding-left: 15px; 
 }
-
-/* Footer (Logout) */
 .sidebar-footer {
     padding: 10px 0 20px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
-
 .btn-logout {
     display: flex;
     align-items: center;
@@ -122,8 +96,7 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-
     padding: 12px 20px;
     transition: background-color 0.3s;
 }
-
 .btn-logout:hover {
-    background-color: #c0392b; /* Merah yang lebih menonjol untuk logout */
+    background-color: #c0392b; 
 }
 </style>

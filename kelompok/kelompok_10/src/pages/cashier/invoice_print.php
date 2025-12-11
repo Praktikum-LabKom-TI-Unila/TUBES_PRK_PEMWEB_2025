@@ -1,6 +1,5 @@
 <?php
 $baseDir = dirname(__DIR__, 2);
-
 $configPaths = [
     $baseDir . '/config/config.php',
     $baseDir . '/config/database.php',
@@ -9,7 +8,6 @@ $configPaths = [
     $baseDir . '/config/connection.php',
     $baseDir . '/config.php'
 ];
-
 $configLoaded = false;
 foreach ($configPaths as $path) {
     if (file_exists($path)) {
@@ -18,59 +16,47 @@ foreach ($configPaths as $path) {
         break;
     }
 }
-
 if (!$configLoaded) {
     $error_message = "Config database tidak ditemukan!";
 }
-
 if (!isset($conn)) {
     $error_message = "Variabel \$conn tidak ditemukan!";
 }
-
 $transaksi = null;
-
 if (!isset($_GET["id"])) {
     $error_message = "ID transaksi tidak ditemukan!";
 } else {
     $id = mysqli_real_escape_string($conn, $_GET["id"]);
-
     $query = mysqli_query($conn, "
         SELECT t.*, p.nama_paket, p.harga_per_qty, p.satuan
         FROM transactions t
         JOIN packages p ON t.package_id = p.id
         WHERE t.id = '$id'
     ");
-
     if ($query && mysqli_num_rows($query) > 0) {
         $transaksi = mysqli_fetch_assoc($query);
     } else {
         $error_message = "Transaksi dengan ID $id tidak ditemukan!";
     }
 }
-
 $active_page = "invoice_print";
-
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <title>Cetak Struk - Zira Laundry</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https:
     <link rel="stylesheet" href="../../assets/css/cashier.css">
-    
     <style>
-        /* Invoice Print Specific Overrides */
         body {
             font-family: 'Courier New', monospace;
         }
-        
         .content-area {
             display: flex;
             justify-content: center;
             align-items: flex-start;
         }
-        
         .status-badge {
             display: inline-block;
             padding: 3px 8px;
@@ -80,43 +66,27 @@ $active_page = "invoice_print";
         }
     </style>
 </head>
-
 <body>
-
 <?php include $baseDir . "/includes/sidebar_cashier.php"; ?>
-
 <div class="content-area">
-
 <?php if (isset($error_message)) : ?>
-
     <div class="alert alert-danger">
         <strong>Error:</strong> <?= $error_message; ?>
     </div>
-
 <?php else: ?>
-
     <div class="receipt">
-        
-        <!-- Header -->
         <div class="receipt-header">
             <h2>ZIRA LAUNDRY</h2>
             <p>Jl. Raya Laundry No. 123</p>
             <p>Telp: 0812-3456-7890</p>
         </div>
-
-        <!-- Receipt Number Barcode Style -->
         <div class="barcode">
             <?= $transaksi["id"]; ?>
         </div>
-
-        <!-- Transaction Date -->
         <div style="text-align: center; font-size: 11px; margin-bottom: 15px;">
             <?= date("d/m/Y H:i:s", strtotime($transaksi["tgl_masuk"])); ?>
         </div>
-
         <div class="receipt-divider"></div>
-
-        <!-- Customer Info -->
         <div class="receipt-body">
             <div class="receipt-row bold">
                 <span>PELANGGAN</span>
@@ -130,15 +100,11 @@ $active_page = "invoice_print";
                 <span><?= $transaksi["no_hp"]; ?></span>
             </div>
         </div>
-
         <div class="receipt-divider"></div>
-
-        <!-- Items -->
         <div class="receipt-body">
             <div class="receipt-row bold">
                 <span>DETAIL PESANAN</span>
             </div>
-            
             <div class="receipt-item">
                 <div class="receipt-row">
                     <span><?= $transaksi["nama_paket"]; ?></span>
@@ -148,27 +114,20 @@ $active_page = "invoice_print";
                     <span>Rp<?= number_format($transaksi["total_harga"], 0, ',', '.'); ?></span>
                 </div>
             </div>
-
             <?php if (!empty($transaksi["catatan"])): ?>
             <div class="receipt-row" style="font-size: 11px; font-style: italic; margin-top: 5px;">
                 <span>Catatan: <?= $transaksi["catatan"]; ?></span>
             </div>
             <?php endif; ?>
         </div>
-
         <div class="receipt-divider thick"></div>
-
-        <!-- Total -->
         <div class="receipt-total">
             <div class="receipt-row bold" style="font-size: 16px;">
                 <span>TOTAL</span>
                 <span>Rp<?= number_format($transaksi["total_harga"], 0, ',', '.'); ?></span>
             </div>
         </div>
-
         <div class="receipt-divider"></div>
-
-        <!-- Status -->
         <div class="receipt-body">
             <div class="receipt-row">
                 <span>Status Laundry:</span>
@@ -187,23 +146,15 @@ $active_page = "invoice_print";
             </div>
             <?php endif; ?>
         </div>
-
-        <!-- Footer -->
         <div class="receipt-footer">
             <p style="margin: 5px 0; font-weight: bold;">TERIMA KASIH</p>
             <p style="margin: 5px 0;">Simpan struk ini sebagai bukti</p>
             <p style="margin: 5px 0;">Gunakan NO RESI untuk cek status</p>
             <p style="margin: 10px 0 5px 0; font-size: 10px;">Powered by Zira Laundry System</p>
         </div>
-
-        <!-- Print Button -->
         <button class="btn-print" onclick="window.print();">🖨 CETAK STRUK</button>
-
     </div>
-
 <?php endif; ?>
-
 </div>
-
 </body>
 </html>
