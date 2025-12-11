@@ -160,3 +160,9 @@ Untuk development, frontend dapat diakses langsung atau menggunakan Live Server 
 
 - Pastikan folder `backend/assets/uploads/evidence/` memiliki permission write
 - Cek `php.ini` untuk `upload_max_filesize` dan `post_max_size`
+
+---
+
+## Preview Aplikasi
+
+![Landing Page](src/frontend/preview/251211_23h33m39s_screenshot.png)

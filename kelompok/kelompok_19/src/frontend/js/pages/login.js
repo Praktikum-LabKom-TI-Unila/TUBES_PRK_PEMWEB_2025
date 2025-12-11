@@ -32,6 +32,11 @@ function handleLogin(event) {
       console.log("Login response:", data); // Debug
 
       if (data.success) {
+        // Store user data in sessionStorage
+        if (data.data) {
+          sessionStorage.setItem("user", JSON.stringify(data.data));
+        }
+
         showSuccess("Login berhasil! Mengalihkan...");
         setTimeout(() => {
           // Redirect based on role
