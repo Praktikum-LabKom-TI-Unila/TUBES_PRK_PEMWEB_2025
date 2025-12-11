@@ -52,92 +52,9 @@ $active_page = 'new_transaction';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transaksi Baru - E-Laundry</title>
-
+    <title>Transaksi Baru - Zira Laundry</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <style>
-        :root {
-            --main-color: #038472;
-            --main-dark: #026c5f;
-        }
-
-        body {
-            margin: 0;
-            background-color: #f4f6f7;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .content-area {
-            margin-left: 0%px; 
-            padding: 30px;
-            width: calc(100% - 250px); 
-        }
-
-        .page-header {
-            background-color: var(--main-color);
-            color: #fff;
-            padding: 14px 30px;
-            border-radius: 10px;
-            font-size: 22px;
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .profile-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .profile-info .text {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            text-align: right;
-        }
-
-        .profile-info .username {
-            font-size: 15px;
-            font-weight: 600;
-            color: #fff;
-        }
-
-        .profile-info .role {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .profile-icon {
-            width: 36px;
-            height: 36px;
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            padding: 6px;
-        }
-
-        .card {
-            width: 100%;
-        }
-
-        .card-header {
-            background-color: var(--main-color) !important;
-            color: #fff !important;
-            font-weight: 600;
-        }
-
-        .btn-success {
-            background-color: var(--main-color) !important;
-            border-color: var(--main-dark) !important;
-        }
-
-        .btn-success:hover {
-            background-color: var(--main-dark) !important;
-        }
-    </style>
+    <link rel="stylesheet" href="../../assets/css/cashier.css">
 </head>
 <body>
 

@@ -1,9 +1,11 @@
 <!-- Header -->
 <header>
     <div class="logo-section">
-        <div class="logo-icon"></div>
+        <div class="logo-icon">
+            <img src="../../assets/img/Zira_Laundry.jpg" alt="Zira Laundry">
+        </div>
         <div class="logo-text">
-            <h1>E-LAUNDRY</h1>
+            <h1>ZIRA LAUNDRY</h1>
             <p>PROFESSIONAL LAUNDRY SERVICE</p>
         </div>
     </div>

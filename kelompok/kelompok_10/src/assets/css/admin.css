@@ -1015,3 +1015,58 @@ tbody td:first-child {
     font-weight: 600;
     color: #008080;
 }
+
+/* Filter Quick Links */
+.filter-quick-link {
+    display: block;
+    padding: 8px 12px;
+    margin: 4px 0;
+    background: #f8f9fa;
+    color: #333;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+.filter-quick-link:hover {
+    background: #e9ecef;
+    color: #038472;
+}
+
+.filter-quick-link.active {
+    background: #038472;
+    color: white;
+}
+
+/* Custom Range Styling */
+.filter-custom-range {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.filter-custom-range span {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.filter-custom-range input[type="date"] {
+    flex: 1;
+}
+
+.btn-apply-filter {
+    width: 100%;
+    padding: 8px;
+    background: #038472;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.3s;
+}
+
+.btn-apply-filter:hover {
+    background: #026c5f;
+}

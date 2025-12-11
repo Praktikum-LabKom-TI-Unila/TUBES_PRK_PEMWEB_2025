@@ -286,3 +286,86 @@ table tbody tr:hover {
 .btn:hover {
     opacity: 0.9;
 }
+/* Filter Section */
+.filter-section {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.filter-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.filter-group label {
+    font-size: 0.9em;
+    color: #555;
+    font-weight: 500;
+}
+
+.filter-group select,
+.filter-group input[type="date"] {
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.95em;
+    min-width: 180px;
+    background: white;
+}
+
+.custom-date {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.custom-date span {
+    color: #777;
+    font-size: 0.9em;
+}
+
+.custom-date input {
+    min-width: 150px;
+}
+
+.btn-filter {
+    padding: 10px 25px;
+    background: #038472;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.3s;
+}
+
+.btn-filter:hover {
+    background: #026c5f;
+}
+
+.btn-reset {
+    padding: 10px 25px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    display: inline-block;
+    font-weight: 500;
+    transition: background 0.3s;
+}
+
+.btn-reset:hover {
+    background: #5a6268;
+}

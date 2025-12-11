@@ -13,7 +13,7 @@ $total_packages = count($packages);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $page_title; ?> - E-LAUNDRY</title>
+    <title><?php echo $page_title; ?> - ZIRA LAUNDRY</title>
     <link rel="stylesheet" href="../../assets/css/public.css?v=<?php echo time(); ?>">
     <style>
             * {
@@ -201,12 +201,12 @@ $total_packages = count($packages);
 
             /* Features Section */
             .features {
-                max-width: 1200px;
+                max-width: 1400px;
                 margin: -4rem auto 4rem;
                 padding: 0 2rem;
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 2rem;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 1.5rem;
                 position: relative;
                 z-index: 10;
             }
@@ -539,6 +539,8 @@ $total_packages = count($packages);
                 }
 
                 .features {
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 1.2rem;
                     margin-top: -1.5rem;
                 }
             }
@@ -554,6 +556,11 @@ $total_packages = count($packages);
 
                 .price {
                     font-size: 2rem;
+                }
+                
+                .features {
+                    grid-template-columns: 1fr;
+                    gap: 1rem;
                 }
             }
         </style>
@@ -627,9 +634,9 @@ $total_packages = count($packages);
             </div>
 
             <div class="hero-content">
-                <h1>E-LAUNDRY</h1>
+                <h1>ZIRA LAUNDRY</h1>
                 <p>
-                    Selamat datang di E-LAUNDRY!<br>
+                    Selamat datang di ZIRA LAUNDRY!<br>
                     Pesan layanan laundry dengan mudah, hasil bersih dan wangi, serta status pesanan yang bisa dipantau kapan saja.
                 </p>
                 <div class="hero-buttons">
@@ -640,59 +647,107 @@ $total_packages = count($packages);
 
         <!-- Features -->
 <section class="features" id="layanan">
-    <!-- Logo 1: Cepat & Terpercaya -->
+    <!-- 1: Layanan Berkualitas -->
+    <div class="feature-card">
+        <div class="feature-icon">
+            <svg width="80" height="80" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="40" fill="#E8F5E9" stroke="#4CAF50" stroke-width="2"/>
+                <path d="M35 50 L45 60 L65 35" fill="none" stroke="#4CAF50" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="50" cy="50" r="30" fill="none" stroke="#81C784" stroke-width="2" stroke-dasharray="5,3"/>
+            </svg>
+        </div>
+        <h3>Layanan Berkualitas</h3>
+        <p>Standar kualitas tinggi untuk hasil cucian terbaik</p>
+    </div>
+    
+    <!-- 2: Dikerjakan Profesional -->
+    <div class="feature-card">
+        <div class="feature-icon">
+            <svg width="80" height="80" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="40" fill="#E3F2FD" stroke="#2196F3" stroke-width="2"/>
+                <circle cx="50" cy="40" r="8" fill="#2196F3"/>
+                <path d="M35 52 Q50 48 65 52 L65 70 Q50 75 35 70 Z" fill="#1976D2"/>
+                <rect x="45" y="58" width="10" height="3" fill="#FFF" rx="1"/>
+            </svg>
+        </div>
+        <h3>Dikerjakan Profesional</h3>
+        <p>Ditangani oleh tenaga ahli berpengalaman</p>
+    </div>
+    
+    <!-- 3: Tepat Waktu -->
     <div class="feature-card">
         <div class="feature-icon">
             <svg width="80" height="80" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="50" cy="50" r="40" fill="#FFF9E6" stroke="#FF9800" stroke-width="2"/>
-                <!-- Lightning bolt -->
-                <path d="M40 35 L50 45 L45 50 L60 65 L35 50 L45 50 L30 35 Z" 
-                      fill="#FF9800" stroke="#FF8C00" stroke-width="1.5"/>
-                <!-- Speed line -->
-                <line x1="65" y1="35" x2="75" y2="30" stroke="#FF9800" stroke-width="3" stroke-linecap="round"/>
+                <circle cx="50" cy="50" r="30" fill="none" stroke="#FFB74D" stroke-width="2"/>
+                <line x1="50" y1="50" x2="50" y2="30" stroke="#FF9800" stroke-width="3" stroke-linecap="round"/>
+                <line x1="50" y1="50" x2="65" y2="50" stroke="#FF9800" stroke-width="3" stroke-linecap="round"/>
+                <circle cx="50" cy="50" r="3" fill="#FF9800"/>
             </svg>
         </div>
-        <h3>Cepat & Terpercaya</h3>
-        <p>Layanan laundry cepat tanpa mengurangi kualitas hasil akhir</p>
+        <h3>Tepat Waktu</h3>
+        <p>Pengerjaan sesuai estimasi yang dijanjikan</p>
     </div>
     
-    <!-- Logo 2: Harga Terjangkau -->
+    <!-- 4: Harga Terjangkau -->
     <div class="feature-card">
         <div class="feature-icon">
             <svg width="80" height="80" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="50" cy="50" r="40" fill="#F1F8E9" stroke="#4CAF50" stroke-width="2"/>
-                <!-- Money bill -->
                 <rect x="35" y="40" width="30" height="18" rx="3" fill="#4CAF50" stroke="#388E3C" stroke-width="1.5"/>
-                <!-- RP text -->
                 <text x="50" y="52" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#FFFFFF">Rp</text>
-                <!-- Coin -->
                 <circle cx="60" cy="32" r="6" fill="#FFD600" stroke="#FFC107" stroke-width="1.5"/>
             </svg>
         </div>
         <h3>Harga Terjangkau</h3>
-        <p>Harga kompetitif dengan layanan premium untuk semua kalangan</p>
+        <p>Harga kompetitif untuk semua kalangan</p>
     </div>
     
-    <!-- Logo 3: Pengiriman Gratis -->
+    <!-- 5: Cepat & Terpercaya -->
+    <div class="feature-card">
+        <div class="feature-icon">
+            <svg width="80" height="80" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="40" fill="#FCE4EC" stroke="#E91E63" stroke-width="2"/>
+                <path d="M40 35 L50 45 L45 50 L60 65 L35 50 L45 50 L30 35 Z" fill="#E91E63" stroke="#C2185B" stroke-width="1.5"/>
+                <line x1="65" y1="35" x2="75" y2="30" stroke="#E91E63" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <h3>Cepat & Terpercaya</h3>
+        <p>Proses cepat tanpa mengurangi kualitas</p>
+    </div>
+    
+    <!-- 6: Pengiriman Gratis -->
     <div class="feature-card">
         <div class="feature-icon">
             <svg width="80" height="80" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="50" cy="50" r="40" fill="#E8F4FD" stroke="#2196F3" stroke-width="2"/>
-                <!-- Delivery truck -->
                 <rect x="35" y="45" width="30" height="12" rx="2" fill="#2196F3"/>
                 <rect x="40" y="38" width="20" height="10" fill="#1976D2" rx="1"/>
-                <!-- Wheels -->
                 <circle cx="42" cy="60" r="5" fill="#333"/>
                 <circle cx="42" cy="60" r="2" fill="#FFF"/>
                 <circle cx="58" cy="60" r="5" fill="#333"/>
                 <circle cx="58" cy="60" r="2" fill="#FFF"/>
-                <!-- FREE badge -->
                 <rect x="62" y="32" width="16" height="8" rx="2" fill="#FF5722"/>
                 <text x="70" y="37" text-anchor="middle" font-family="Arial, sans-serif" font-size="5" font-weight="bold" fill="#FFF">FREE</text>
             </svg>
         </div>
         <h3>Pengiriman Gratis</h3>
-        <p>Pengiriman dan pengambilan gratis untuk area tertentu</p>
+        <p>Antar jemput gratis untuk area tertentu</p>
+    </div>
+    
+    <!-- 7: Hasil Bersih & Wangi -->
+    <div class="feature-card">
+        <div class="feature-icon">
+            <svg width="80" height="80" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="40" fill="#F3E5F5" stroke="#9C27B0" stroke-width="2"/>
+                <circle cx="40" cy="45" r="8" fill="#CE93D8" opacity="0.6"/>
+                <circle cx="55" cy="40" r="10" fill="#BA68C8" opacity="0.7"/>
+                <circle cx="50" cy="55" r="12" fill="#AB47BC" opacity="0.8"/>
+                <path d="M45 65 Q50 70 55 65" stroke="#9C27B0" stroke-width="2" fill="none" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <h3>Hasil Bersih & Wangi</h3>
+        <p>Cucian bersih maksimal dengan aroma segar</p>
     </div>
 </section>
 
@@ -711,13 +766,6 @@ $total_packages = count($packages);
                         <p><?php echo htmlspecialchars($package['deskripsi']); ?></p>
                         <div class="price"><?php echo formatHarga($package['harga_per_qty']); ?></div>
                         <div class="price-info">per <?php echo htmlspecialchars($package['satuan']); ?> (<?php echo $package['estimasi_hari']; ?> hari)</div>
-                        <ul class="features-list">
-                            <li>Layanan Berkualitas</li>
-                            <li>Dikerjakan Profesional</li>
-                            <li>Tepat Waktu</li>
-                            <li>Harga Terjangkau</li>
-                        </ul>
-                        <button class="btn-choose">Pilih Layanan</button>
                     </div>
                     <?php endforeach; ?>
                 <?php else: ?>
@@ -790,7 +838,7 @@ $total_packages = count($packages);
                 </div>
 
                 <div class="footer-bottom">
-                    <p>&copy; 2025 E-LAUNDRY. All rights reserved.</p>
+                    <p>&copy; 2025 ZIRA LAUNDRY. All rights reserved.</p>
                 </div>
             </div>
         </footer>

@@ -30,7 +30,7 @@ if (isset($_SESSION['success'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - E-Laundry</title>
+    <title>Login - Zira Laundry</title>
     <link rel="stylesheet" href="../../assets/css/auth.css?v=<?php echo time(); ?>">
 </head>
 <body>
@@ -39,13 +39,9 @@ if (isset($_SESSION['success'])) {
             <div class="login-left">
                 <div class="logo-section">
                     <div class="logo-icon">
-                        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="12" y="20" width="40" height="32" rx="4" fill="white" opacity="0.9"/>
-                            <circle cx="32" cy="36" r="8" fill="white" opacity="0.5"/>
-                            <path d="M20 16C20 14.8954 20.8954 14 22 14H42C43.1046 14 44 14.8954 44 16V20H20V16Z" fill="white"/>
-                        </svg>
+                        <img src="../../assets/img/Zira_Laundry.jpg" alt="Zira Laundry" style="width: 80px; height: 80px; object-fit: contain; border-radius: 10px;">
                     </div>
-                    <h2>E-LAUNDRY</h2>
+                    <h2>ZIRA LAUNDRY</h2>
                 </div>
 
                 <div class="login-form-wrapper">
@@ -91,7 +87,6 @@ if (isset($_SESSION['success'])) {
                     </form>
 
                     <div class="login-footer">
-                        <p>Belum punya akun? <a href="register.php">Daftar di sini</a></p>
                         <p><a href="../public/index.php">Kembali ke Beranda</a></p>
                     </div>
                 </div>

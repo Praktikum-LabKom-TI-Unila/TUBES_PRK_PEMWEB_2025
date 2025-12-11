@@ -9,13 +9,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
 <div class="sidebar">
     <div class="sidebar-header">
         <div class="logo">
-            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="12" y="20" width="40" height="32" rx="4" fill="white" opacity="0.9"/>
-                <circle cx="32" cy="36" r="8" fill="white" opacity="0.5"/>
-                <path d="M20 16C20 14.8954 20.8954 14 22 14H42C43.1046 14 44 14.8954 44 16V20H20V16Z" fill="white"/>
-            </svg>
+            <img src="../../assets/img/Zira_Laundry.jpg" alt="Zira Laundry" style="width: 80px; height: 80px; object-fit: contain; border-radius: 10px;">
         </div>
-        <h2>E-LAUNDRY</h2>
+        <h2>ZIRA LAUNDRY</h2>
         <p>Sistem</p>
     </div>
 

@@ -30,7 +30,7 @@ $page_title = "Kelola Paket";
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelola Paket - E-Laundry</title>
+    <title>Kelola Paket - Zira Laundry</title>
     <link rel="stylesheet" href="../../assets/css/admin.css?v=<?php echo time(); ?>">
 </head>
 <body>
@@ -42,7 +42,6 @@ $page_title = "Kelola Paket";
             
             <div class="content-wrapper">
                 <div class="page-header">
-                    <h1>Kelola Paket</h1>
                     <button class="btn-primary" onclick="openAddModal()">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="12" y1="5" x2="12" y2="19"></line>

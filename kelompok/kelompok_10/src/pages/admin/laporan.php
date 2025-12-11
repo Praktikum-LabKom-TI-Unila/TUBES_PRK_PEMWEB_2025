@@ -21,6 +21,21 @@ $where_clause = "1=1";
 $date_label = "";
 
 switch ($filter_type) {
+    case 'all':
+        $where_clause = "1=1";
+        $date_label = "Semua Data";
+        break;
+        
+    case 'today':
+        $where_clause = "DATE(t.tgl_masuk) = CURDATE()";
+        $date_label = "Hari Ini - " . date('d/m/Y');
+        break;
+        
+    case 'week':
+        $where_clause = "YEARWEEK(t.tgl_masuk, 1) = YEARWEEK(CURDATE(), 1)";
+        $date_label = "Minggu Ini";
+        break;
+        
     case 'date':
         $selected_date = $_GET['date'] ?? date('Y-m-d');
         $where_clause = "DATE(t.tgl_masuk) = '$selected_date'";
@@ -33,6 +48,18 @@ switch ($filter_type) {
         $selected_month_year = $_GET['month_year'] ?? date('Y');
         $where_clause = "MONTH(t.tgl_masuk) = '$selected_month' AND YEAR(t.tgl_masuk) = '$selected_month_year'";
         $date_label = $bulan_indo[$selected_month] . ' ' . $selected_month_year;
+        break;
+        
+    case 'custom':
+        $start_date = $_GET['start_date'] ?? '';
+        $end_date = $_GET['end_date'] ?? '';
+        if (!empty($start_date) && !empty($end_date)) {
+            $where_clause = "DATE(t.tgl_masuk) BETWEEN '$start_date' AND '$end_date'";
+            $date_label = date('d/m/Y', strtotime($start_date)) . ' - ' . date('d/m/Y', strtotime($end_date));
+        } else {
+            $where_clause = "1=1";
+            $date_label = "Custom Range (belum dipilih)";
+        }
         break;
 }
 
@@ -74,7 +101,7 @@ $page_title = "Laporan Transaksi";
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Transaksi - E-Laundry</title>
+    <title>Laporan Transaksi - Zira Laundry</title>
     <link rel="stylesheet" href="../../assets/css/admin.css?v=<?php echo time(); ?>">
 </head>
 <body>
@@ -86,7 +113,6 @@ $page_title = "Laporan Transaksi";
             
             <div class="content-wrapper">
                 <div class="page-header">
-                    <h1>Laporan Transaksi</h1>
                     <div class="header-actions">
                     <!-- Filter Dropdown -->
                     <div class="filter-dropdown-wrapper">
@@ -100,6 +126,16 @@ $page_title = "Laporan Transaksi";
                         <div class="filter-dropdown-menu" id="filterDropdown">
                             <div class="filter-dropdown-header">Pilih Filter</div>
                             
+                            <!-- Quick Filters -->
+                            <div class="filter-option-group">
+                                <div class="filter-option-title">Filter Cepat</div>
+                                <a href="?filter_type=all" class="filter-quick-link <?= $filter_type == 'all' ? 'active' : '' ?>">Semua Data</a>
+                                <a href="?filter_type=today" class="filter-quick-link <?= $filter_type == 'today' ? 'active' : '' ?>">Hari Ini</a>
+                                <a href="?filter_type=week" class="filter-quick-link <?= $filter_type == 'week' ? 'active' : '' ?>">Minggu Ini</a>
+                            </div>
+                            
+                            <hr class="filter-divider">
+                            
                             <!-- Filter by Date -->
                             <div class="filter-option-group">
                                 <div class="filter-option-title">Per Tanggal</div>
@@ -107,7 +143,7 @@ $page_title = "Laporan Transaksi";
                                     <input type="hidden" name="filter_type" value="date">
                                     <input type="date" name="date" class="filter-date-input" 
                                            onchange="this.form.submit()"
-                                           value="<?php echo $filter_type == 'date' ? $selected_date : ''; ?>">
+                                           value="<?php echo $filter_type == 'date' ? ($selected_date ?? '') : ''; ?>">
                                 </form>
                             </div>
                             
@@ -122,7 +158,7 @@ $page_title = "Laporan Transaksi";
                                         <select name="month" class="filter-month-select" onchange="this.form.submit()">
                                             <?php foreach($bulan_indo as $num => $nama): ?>
                                                 <option value="<?php echo $num; ?>" 
-                                                    <?php echo ($filter_type == 'month' && $selected_month == $num) ? 'selected' : ''; ?>>
+                                                    <?php echo ($filter_type == 'month' && ($selected_month ?? '') == $num) ? 'selected' : ''; ?>>
                                                     <?php echo $nama; ?>
                                                 </option>
                                             <?php endforeach; ?>
@@ -133,7 +169,7 @@ $page_title = "Laporan Transaksi";
                                             for($y = $current_year; $y >= $current_year - 5; $y--): 
                                             ?>
                                                 <option value="<?php echo $y; ?>"
-                                                    <?php echo ($filter_type == 'month' && $selected_month_year == $y) ? 'selected' : ''; ?>>
+                                                    <?php echo ($filter_type == 'month' && ($selected_month_year ?? '') == $y) ? 'selected' : ''; ?>>
                                                     <?php echo $y; ?>
                                                 </option>
                                             <?php endfor; ?>
@@ -141,13 +177,32 @@ $page_title = "Laporan Transaksi";
                                     </div>
                                 </form>
                             </div>
+                            
+                            <hr class="filter-divider">
+                            
+                            <!-- Custom Range -->
+                            <div class="filter-option-group">
+                                <div class="filter-option-title">Custom Range</div>
+                                <form action="" method="get" class="filter-form">
+                                    <input type="hidden" name="filter_type" value="custom">
+                                    <div class="filter-custom-range">
+                                        <input type="date" name="start_date" class="filter-date-input" 
+                                               value="<?php echo $filter_type == 'custom' ? ($start_date ?? '') : ''; ?>" required>
+                                        <span>s/d</span>
+                                        <input type="date" name="end_date" class="filter-date-input" 
+                                               value="<?php echo $filter_type == 'custom' ? ($end_date ?? '') : ''; ?>" required>
+                                    </div>
+                                    <button type="submit" class="btn-apply-filter">Terapkan</button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                     
                     <!-- Export Button -->
                     <a href="export_laporan.php?filter_type=<?php echo $filter_type; ?><?php 
-                        if($filter_type == 'date') echo '&date=' . $selected_date;
-                        elseif($filter_type == 'month') echo '&month=' . $selected_month . '&month_year=' . $selected_month_year;
+                        if($filter_type == 'date' && isset($selected_date)) echo '&date=' . $selected_date;
+                        elseif($filter_type == 'month' && isset($selected_month) && isset($selected_month_year)) echo '&month=' . $selected_month . '&month_year=' . $selected_month_year;
+                        elseif($filter_type == 'custom' && isset($start_date) && isset($end_date)) echo '&start_date=' . $start_date . '&end_date=' . $end_date;
                     ?>" class="btn-export">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>

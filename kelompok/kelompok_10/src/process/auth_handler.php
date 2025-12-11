@@ -121,64 +121,9 @@ function handleLogin() {
 }
 
 function handleRegister() {
-    global $conn;
-    
-    $full_name = trim($_POST['full_name'] ?? '');
-    $username = trim($_POST['username'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $no_hp = trim($_POST['no_hp'] ?? '');
-    $alamat = trim($_POST['alamat'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $password_confirm = $_POST['password_confirm'] ?? '';
-
-    if (empty($full_name) || empty($username) || empty($email) || empty($no_hp) || empty($alamat) || empty($password)) {
-        $_SESSION['error'] = 'Semua field wajib diisi!';
-        header('Location: ../pages/auth/register.php');
-        exit();
-    }
-
-    if ($password !== $password_confirm) {
-        $_SESSION['error'] = 'Password dan konfirmasi password tidak sama!';
-        header('Location: ../pages/auth/register.php');
-        exit();
-    }
-
-    if (strlen($password) < 6) {
-        $_SESSION['error'] = 'Password minimal 6 karakter!';
-        header('Location: ../pages/auth/register.php');
-        exit();
-    }
-
-    $username = mysqli_real_escape_string($conn, $username);
-    
-    $check_staff = "SELECT id FROM users WHERE username = '$username' LIMIT 1";
-    $result_staff = mysqli_query($conn, $check_staff);
-    
-    $check_customer = "SELECT id FROM customers WHERE username = '$username' LIMIT 1";
-    $result_customer = mysqli_query($conn, $check_customer);
-    
-    if (mysqli_num_rows($result_staff) > 0 || mysqli_num_rows($result_customer) > 0) {
-        $_SESSION['error'] = 'Username sudah digunakan!';
-        header('Location: ../pages/auth/register.php');
-        exit();
-    }
-
-    $full_name = mysqli_real_escape_string($conn, $full_name);
-    $email = mysqli_real_escape_string($conn, $email);
-    $no_hp = mysqli_real_escape_string($conn, $no_hp);
-    $alamat = mysqli_real_escape_string($conn, $alamat);
-    $password_hash = password_hash($password, PASSWORD_DEFAULT);
-
-    $insert_query = "INSERT INTO customers (username, password, full_name, email, no_hp, alamat, is_active) 
-                     VALUES ('$username', '$password_hash', '$full_name', '$email', '$no_hp', '$alamat', TRUE)";
-    
-    if (mysqli_query($conn, $insert_query)) {
-        $_SESSION['success'] = 'Registrasi berhasil! Silakan login dengan akun Anda.';
-        header('Location: ../pages/auth/login.php');
-    } else {
-        $_SESSION['error'] = 'Terjadi kesalahan saat registrasi!';
-        header('Location: ../pages/auth/register.php');
-    }
+    // Fitur register dinonaktifkan - semua user dikontrol oleh administrator
+    $_SESSION['error'] = 'Fitur registrasi tidak tersedia. Silakan hubungi administrator untuk membuat akun.';
+    header('Location: ../pages/auth/login.php');
     exit();
 }
 

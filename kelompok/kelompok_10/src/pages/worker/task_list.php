@@ -43,7 +43,7 @@ if ($tasks === false) {
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Daftar Tugas Aktif - E-LAUNDRY</title>
+    <title>Daftar Tugas Aktif - ZIRA LAUNDRY</title>
     <link rel="stylesheet" href="../../assets/css/worker.css?v=<?php echo time(); ?>"> 
 </head>
 <body>

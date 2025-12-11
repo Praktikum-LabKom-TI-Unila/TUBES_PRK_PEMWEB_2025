@@ -5,14 +5,8 @@ $active_page = $active_page ?? 'new_transaction';
 
 <div class="sidebar">
     <div class="sidebar-header">
-        <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 3h18v4H3z"></path>
-            <path d="M3 9h18v12H3z"></path>
-            <circle cx="7" cy="15" r="2"></circle>
-            <circle cx="17" cy="15" r="2"></circle>
-        </svg>
-        <h1>E-LAUNDRY</h1>
+        <img src="../../assets/img/Zira_Laundry.jpg" alt="Zira Laundry" class="header-icon" style="width: 80px; height: 80px; object-fit: contain; border-radius: 10px;">
+        <h1>ZIRA LAUNDRY</h1>
         <p class="role-caption">Kasir</p>
     </div>
 

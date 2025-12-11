@@ -1,12 +1,47 @@
 <?php
+session_start();
+
+// Cek apakah user sudah login dan rolenya worker
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'worker') {
+    header('Location: ../auth/login.php');
+    exit();
+}
 
 $active_page = 'task_history';
 
-$worker_name = "Syandra"; 
-$worker_role = "Petugas"; 
+// Ambil data user yang login dari session
+$worker_id = $_SESSION['user_id']; 
+$worker_name = $_SESSION['full_name']; 
+$worker_role = "Petugas";
 
 
 require_once __DIR__ . '/../../config/database.php';
+
+// Filter tanggal
+$filter = $_GET['filter'] ?? 'all';
+$start_date = $_GET['start_date'] ?? '';
+$end_date = $_GET['end_date'] ?? '';
+
+$where_conditions = ["t.status_laundry IN ('Done', 'Taken')"];
+
+switch ($filter) {
+    case 'today':
+        $where_conditions[] = "DATE(t.tgl_selesai) = CURDATE()";
+        break;
+    case 'week':
+        $where_conditions[] = "YEARWEEK(t.tgl_selesai, 1) = YEARWEEK(CURDATE(), 1)";
+        break;
+    case 'month':
+        $where_conditions[] = "MONTH(t.tgl_selesai) = MONTH(CURDATE()) AND YEAR(t.tgl_selesai) = YEAR(CURDATE())";
+        break;
+    case 'custom':
+        if (!empty($start_date) && !empty($end_date)) {
+            $where_conditions[] = "DATE(t.tgl_selesai) BETWEEN '$start_date' AND '$end_date'";
+        }
+        break;
+}
+
+$where_clause = implode(' AND ', $where_conditions);
 
 $query = "
     SELECT 
@@ -17,7 +52,7 @@ $query = "
     JOIN 
         packages p ON t.package_id = p.id
     WHERE 
-        t.status_laundry IN ('Done', 'Taken') 
+        $where_clause
     ORDER BY 
         t.tgl_selesai DESC
 ";
@@ -44,7 +79,7 @@ function get_payment_badge_class($status) {
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Riwayat Tugas - E-LAUNDRY</title>
+    <title>Riwayat Tugas - ZIRA LAUNDRY</title>
     <link rel="stylesheet" href="../../assets/css/worker.css?v=<?php echo time(); ?>"> 
 </head>
 <body>
@@ -75,6 +110,32 @@ function get_payment_badge_class($status) {
             </header>
 
         <div class="content-panel">
+            
+            <!-- Filter Tanggal -->
+            <div class="filter-section">
+                <form method="GET" action="" class="filter-form">
+                    <div class="filter-group">
+                        <label>Filter Periode:</label>
+                        <select name="filter" id="filterSelect" onchange="toggleCustomDate()">
+                            <option value="all" <?= $filter == 'all' ? 'selected' : '' ?>>Semua Data</option>
+                            <option value="today" <?= $filter == 'today' ? 'selected' : '' ?>>Hari Ini</option>
+                            <option value="week" <?= $filter == 'week' ? 'selected' : '' ?>>Minggu Ini</option>
+                            <option value="month" <?= $filter == 'month' ? 'selected' : '' ?>>Bulan Ini</option>
+                            <option value="custom" <?= $filter == 'custom' ? 'selected' : '' ?>>Custom Range</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group custom-date" id="customDateInputs" style="display: <?= $filter == 'custom' ? 'flex' : 'none' ?>;">
+                        <input type="date" name="start_date" value="<?= htmlspecialchars($start_date) ?>" placeholder="Dari Tanggal">
+                        <span>s/d</span>
+                        <input type="date" name="end_date" value="<?= htmlspecialchars($end_date) ?>" placeholder="Sampai Tanggal">
+                    </div>
+
+                    <button type="submit" class="btn-filter">Terapkan</button>
+                    <a href="task_history.php" class="btn-reset">Reset</a>
+                </form>
+            </div>
+
             <?php if (!empty($error_message)): ?>
                 <div class="alert alert-error"><?php echo $error_message; ?></div>
             <?php endif; ?>
@@ -132,5 +193,23 @@ function get_payment_badge_class($status) {
             </div>
         </div>
     </div>
+
+    <script>
+    function toggleCustomDate() {
+        const filterType = document.getElementById('filterSelect').value;
+        const customDate = document.getElementById('customDateInputs');
+        
+        if (filterType === 'custom') {
+            customDate.style.display = 'flex';
+        } else {
+            customDate.style.display = 'none';
+        }
+    }
+    
+    // Set initial state on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleCustomDate();
+    });
+    </script>
 </body>
 </html>

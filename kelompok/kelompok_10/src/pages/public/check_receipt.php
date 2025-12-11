@@ -108,7 +108,7 @@ function getStatusColor($status) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $page_title; ?> - E-LAUNDRY</title>
+    <title><?php echo $page_title; ?> - ZIRA LAUNDRY</title>
     <link rel="stylesheet" href="../../assets/css/public.css?v=<?php echo time(); ?>">
     <style>
         * {

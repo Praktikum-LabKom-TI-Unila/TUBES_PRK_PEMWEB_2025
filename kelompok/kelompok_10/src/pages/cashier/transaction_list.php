@@ -35,10 +35,40 @@ foreach ($configPaths as $path) {
 if (!$configLoaded) die("Config database tidak ditemukan!");
 if (!isset($conn)) die("Variabel \$conn tidak tersedia!");
 
+// Filter tanggal
+$filter = isset($_GET['filter']) ? $_GET['filter'] : 'all';
+$start_date = isset($_GET['start_date']) ? $_GET['start_date'] : '';
+$end_date = isset($_GET['end_date']) ? $_GET['end_date'] : '';
+
+// Build WHERE clause untuk filter
+$whereClause = "1=1";
+
+switch ($filter) {
+    case 'today':
+        $whereClause = "DATE(t.tgl_masuk) = CURDATE()";
+        break;
+    case 'week':
+        $whereClause = "YEARWEEK(t.tgl_masuk, 1) = YEARWEEK(CURDATE(), 1)";
+        break;
+    case 'month':
+        $whereClause = "MONTH(t.tgl_masuk) = MONTH(CURDATE()) AND YEAR(t.tgl_masuk) = YEAR(CURDATE())";
+        break;
+    case 'custom':
+        if (!empty($start_date) && !empty($end_date)) {
+            $whereClause = "DATE(t.tgl_masuk) BETWEEN '$start_date' AND '$end_date'";
+        }
+        break;
+    case 'all':
+    default:
+        $whereClause = "1=1";
+        break;
+}
+
 $query = mysqli_query($conn, "
     SELECT t.*, p.nama_paket
     FROM transactions t
     JOIN packages p ON t.package_id = p.id
+    WHERE $whereClause
     ORDER BY t.tgl_masuk DESC
 ");
 
@@ -50,14 +80,6 @@ if ($query) {
     }
 }
 
-// Reset query pointer
-$query = mysqli_query($conn, "
-    SELECT t.*, p.nama_paket
-    FROM transactions t
-    JOIN packages p ON t.package_id = p.id
-    ORDER BY t.tgl_masuk DESC
-");
-
 $active_page = "transaction_list";
 
 ?>
@@ -65,104 +87,9 @@ $active_page = "transaction_list";
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Daftar Transaksi - E-Laundry</title>
+    <title>Daftar Transaksi - Zira Laundry</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <style>
-        :root {
-            --main-color: #038472;
-            --main-dark: #026c5f;
-        }
-
-        body {
-            background-color: #eef4f3;
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            display: flex;
-        }
-
-        .content-area {
-            margin-left: 0%px !important;
-            padding: 30px;
-            width: calc(100% - 250px);
-        }
-
-        .page-header {
-            background: var(--main-color);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 10px;
-            font-size: 22px;
-            font-weight: 600;
-            margin-bottom: 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .profile-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .profile-info .text {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            text-align: right;
-        }
-
-        .profile-info .username {
-            font-size: 15px;
-            font-weight: 600;
-            color: #fff;
-        }
-
-        .profile-info .role {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .profile-icon {
-            width: 36px;
-            height: 36px;
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            padding: 6px;
-        }
-
-        .card-header {
-            background-color: var(--main-color) !important;
-            color: white !important;
-            font-weight: 600;
-        }
-
-        .badge-status {
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            color: white;
-        }
-        .pending { background: #ffc107 !important; color: black !important; }
-        .washing { background: #0dcaf0 !important; }
-        .ironing { background: #6f42c1 !important; }
-        .done    { background: #198754 !important; }
-        .taken   { background: #6c757d !important; }
-
-        .unpaid { background: #dc3545 !important; }
-        .paid   { background: #198754 !important; }
-
-        .btn-teal {
-            background-color: var(--main-color);
-            border-color: var(--main-dark);
-            color: white;
-        }
-        .btn-teal:hover {
-            background-color: var(--main-dark);
-        }
-    </style>
+    <link rel="stylesheet" href="../../assets/css/cashier.css">
 </head>
 
 <body>
@@ -199,6 +126,47 @@ $active_page = "transaction_list";
         </div>
     <?php endif; ?>
 
+    <!-- Filter Section -->
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <h6 class="mb-3">Filter Berdasarkan Tanggal</h6>
+            <form method="GET" action="" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label for="filter" class="form-label">Periode</label>
+                    <select name="filter" id="filter" class="form-select" onchange="toggleCustomDate()">
+                        <option value="all" <?= $filter == 'all' ? 'selected' : '' ?>>Semua Data</option>
+                        <option value="today" <?= $filter == 'today' ? 'selected' : '' ?>>Hari Ini</option>
+                        <option value="week" <?= $filter == 'week' ? 'selected' : '' ?>>Minggu Ini</option>
+                        <option value="month" <?= $filter == 'month' ? 'selected' : '' ?>>Bulan Ini</option>
+                        <option value="custom" <?= $filter == 'custom' ? 'selected' : '' ?>>Custom Range</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3" id="customDate" style="display: <?= $filter == 'custom' ? 'block' : 'none' ?>;">
+                    <label for="start_date" class="form-label">Tanggal Mulai</label>
+                    <input type="date" name="start_date" id="start_date" class="form-control" value="<?= htmlspecialchars($start_date) ?>">
+                </div>
+                
+                <div class="col-md-3" id="customEndDate" style="display: <?= $filter == 'custom' ? 'block' : 'none' ?>;">
+                    <label for="end_date" class="form-label">Tanggal Akhir</label>
+                    <input type="date" name="end_date" id="end_date" class="form-control" value="<?= htmlspecialchars($end_date) ?>">
+                </div>
+                
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary" style="background: var(--main-color); border: none;">
+                        <svg width="16" height="16" fill="currentColor" class="bi bi-search me-1" viewBox="0 0 16 16">
+                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                        </svg>
+                        Filter
+                    </button>
+                    <?php if ($filter != 'all'): ?>
+                        <a href="transaction_list.php" class="btn btn-secondary">Reset</a>
+                    <?php endif; ?>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="card shadow-sm">
         <div class="card-header">Semua Transaksi</div>
 
@@ -219,7 +187,7 @@ $active_page = "transaction_list";
                 </thead>
 
                 <tbody>
-                <?php while ($row = mysqli_fetch_assoc($query)) : ?>
+                <?php foreach ($transactions as $row) : ?>
                     <tr>
                         <td><strong><?= $row['id']; ?></strong></td>
                         <td><?= $row['nama_pelanggan']; ?></td>
@@ -323,7 +291,7 @@ $active_page = "transaction_list";
                         </div>
                     </div>
 
-                <?php endwhile; ?>
+                <?php endforeach; ?>
                 </tbody>
 
             </table>
@@ -334,5 +302,25 @@ $active_page = "transaction_list";
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function toggleCustomDate() {
+    const filterType = document.getElementById('filter').value;
+    const customDate = document.getElementById('customDate');
+    const customEndDate = document.getElementById('customEndDate');
+    
+    if (filterType === 'custom') {
+        customDate.style.display = 'block';
+        customEndDate.style.display = 'block';
+    } else {
+        customDate.style.display = 'none';
+        customEndDate.style.display = 'none';
+    }
+}
+
+// Set initial state on page load
+document.addEventListener('DOMContentLoaded', function() {
+    toggleCustomDate();
+});
+</script>
 </body>
 </html>

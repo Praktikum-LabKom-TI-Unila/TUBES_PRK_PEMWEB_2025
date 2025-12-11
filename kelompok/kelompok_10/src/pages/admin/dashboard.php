@@ -26,7 +26,7 @@ $page_title = "Dashboard";
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin - E-Laundry</title>
+    <title>Dashboard Admin - Zira Laundry</title>
     <link rel="stylesheet" href="../../assets/css/admin.css?v=<?php echo time(); ?>">
 </head>
 <body>

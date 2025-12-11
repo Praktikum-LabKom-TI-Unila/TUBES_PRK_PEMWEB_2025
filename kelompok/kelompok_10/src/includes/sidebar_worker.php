@@ -6,11 +6,8 @@ $active_page = $active_page ?? 'task_list';
 
 <div class="sidebar">
     <div class="sidebar-header">
-        <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M11 20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v16zM15 16h4a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-4v11z"/>
-            <circle cx="17" cy="11" r="2"/>
-        </svg>
-        <h1>E-LAUNDRY</h1>
+        <img src="../../assets/img/Zira_Laundry.jpg" alt="Zira Laundry" class="header-icon" style="width: 80px; height: 80px; object-fit: contain; border-radius: 10px;">
+        <h1>ZIRA LAUNDRY</h1>
         <p class="role-caption">Petugas Cuci</p>
     </div>
     <nav>
