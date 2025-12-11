@@ -37,10 +37,11 @@ File source code tersebut sebelumnya harus dimasukin di dalam folder htdocs di C
 
 Dokumentasi website:
 1. Landing Page
-![alt text](image.png)
+![alt text](image-3.png)
 
 2. Login/Daftar
-![alt text](image-1.png)
+![alt text](image-4.png)
+![alt text](image-5.png)
 
 3. Dashboard Admin beserta Laman lainnya
 ![alt text](image-2.png)
