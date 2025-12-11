@@ -65,6 +65,10 @@ $router->get('/reports/export-transactions', function() {
     $controller = new ReportController();
     $controller->exportTransactions();
 });
+
+$router->get('/test-export', function() {
+    echo 'Test export route works!';
+});
 $router->get('/reports/transactions', function() {
     AuthMiddleware::check();
     require_once ROOT_PATH . '/models/Transaction.php';

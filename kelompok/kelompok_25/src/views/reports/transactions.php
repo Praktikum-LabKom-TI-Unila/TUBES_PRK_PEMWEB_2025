@@ -119,34 +119,30 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
     function applyFilter() {
-            const type = document.getElementById('typeFilter').value;
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            
-            const params = new URLSearchParams();
-            if (type !== 'all') params.append('type', type);
-            if (startDate) params.append('start_date', startDate);
-            if (endDate) params.append('end_date', endDate);
-            
-            window.location.href = '/reports/transactions?' + params.toString();
-        }
+        const type = document.getElementById('typeFilter').value;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        
+        const params = new URLSearchParams();
+        if (type !== 'all') params.append('type', type);
+        if (startDate) params.append('start_date', startDate);
+        if (endDate) params.append('end_date', endDate);
+        
+        window.location.href = '<?= BASE_URL ?>/reports/transactions?' + params.toString();
+    }
 
-        function exportExcel() {
-            const type = document.getElementById('typeFilter').value;
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            
-            const params = new URLSearchParams();
-            if (type !== 'all') params.append('type', type);
-            if (startDate) params.append('start_date', startDate);
-            if (endDate) params.append('end_date', endDate);
-            
-            window.location.href = '/reports/export-transactions?' + params.toString();
-        }Date);
-            if (endDate) params.append('end_date', endDate);
-            
-            window.location.href = '/reports/transactions/export?' + params.toString();
-        }
+    function exportExcel() {
+        const type = document.getElementById('typeFilter').value;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        
+        const params = new URLSearchParams();
+        if (type !== 'all') params.append('type', type);
+        if (startDate) params.append('start_date', startDate);
+        if (endDate) params.append('end_date', endDate);
+        
+        window.location.href = '<?= BASE_URL ?>/reports/export-transactions?' + params.toString();
+    }
 
     // Load chart after page loads
     window.addEventListener('load', function() {

@@ -139,7 +139,7 @@ function applyFilters() {
     if (category) params.append('category', category);
     if (status) params.append('status', status);
     
-    window.location.href = '?' + params.toString();
+    window.location.href = '<?= BASE_URL ?>/reports/stock?' + params.toString();
 }
 
 function exportExcel() {
@@ -152,6 +152,6 @@ function exportExcel() {
     if (category) params.append('category', category);
     if (status) params.append('status', status);
     
-    window.location.href = '/reports/export-excel?' + params.toString();
+    window.location.href = '<?= BASE_URL ?>/reports/export-excel?' + params.toString();
 }
 </script>
