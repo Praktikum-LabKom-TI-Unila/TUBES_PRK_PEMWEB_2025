@@ -31,6 +31,79 @@ LokaPOS adalah aplikasi Point of Sale yang berfokus pada kebutuhan penjual UMKM 
 
 ---
 
+## Cara Menjalankan Aplikasi
+
+### Persyaratan Sistem
+- PHP minimal versi 8.2.4 atau lebih tinggi
+- MySQL/MariaDB
+- Web Server (Apache/Nginx), disarankan menggunakan **XAMPP/Laragon**
+- Browser Web modern (Chrome, Firefox, Edge)
+
+### Langkah Instalasi
+
+#### 1. Clone atau Download Repository
+```bash
+git clone https://github.com/zachriek/TUBES_PRK_PEMWEB_2025.git
+```
+
+Atau download file ZIP dan ekstrak ke folder lokal Anda.
+
+#### 2. Pindahkan Project ke Direktori Web Server
+- **Jika menggunakan XAMPP:**
+  ```
+  C:\xampp\htdocs\TUBES_PRK_PEMWEB_2025\kelompok\kelompok_34\src
+  ```
+- **Jika menggunakan Laragon:**
+  ```
+  C:\laragon\www\TUBES_PRK_PEMWEB_2025\kelompok\kelompok_34\src
+  ```
+
+#### 3. Buat Database
+1. Buka **phpMyAdmin** melalui browser:
+   ```
+   http://localhost/phpmyadmin
+   ```
+2. Klik **"New"** untuk membuat database baru
+3. Beri nama database: `lokapos`
+4. Pilih collation: `utf8mb4_general_ci`
+5. Klik **"Create"**
+
+#### 4. Import Database
+1. Setelah database dibuat, klik nama database `lokapos` di panel kiri
+2. Klik tab **"Import"** di menu atas
+3. Klik **"Choose File"** dan pilih file:
+   ```
+   TUBES_PRK_PEMWEB_2025/kelompok/kelompok_34/database/lokapos.sql
+   ```
+4. Scroll ke bawah dan klik **"Import"**
+5. Tunggu hingga muncul pesan sukses
+
+#### 5. Konfigurasi Koneksi Database
+Buka file konfigurasi database di:
+```
+src/app/config/database.php
+```
+
+Pastikan pengaturan sesuai dengan konfigurasi MySQL Anda:
+```php
+$host = '127.0.0.1';      // Host database
+$name = 'lokapos';         // Nama database
+$user = 'root';            // Username MySQL (default: root)
+$pass = '';                // Password MySQL (default: kosong)
+```
+
+Jika MySQL Anda menggunakan username atau password yang berbeda, sesuaikan nilai `$user` dan `$pass`.
+
+#### 6. Jalankan Aplikasi
+1. Pastikan Apache dan MySQL sudah berjalan di XAMPP/Laragon
+2. Buka browser dan akses:
+   ```
+   http://localhost/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_34/src/
+   ```
+3. Anda akan diarahkan ke halaman home
+
+---
+
 ## Petunjuk Penggunaan Aplikasi
 
 ### Akun Demo untuk Testing
@@ -257,7 +330,350 @@ Menampilkan daftar lengkap transaksi dengan informasi:
    - Cara membuat dan mencetak laporan
    - Best practices untuk admin
 
+---
 
+## Screenshot Aplikasi
+
+### 1. Halaman Home
+<p align="center">
+  <img src="screenshots/start.png" alt="Halaman Awal" width="80%"/>
+  <br>
+  <em>Tampilan Awal aplikasi LokaPOS</em>
+</p>
+
+### 2. Login & Registrasi
+<p align="center">
+  <img src="screenshots/login.png" alt="Halaman Login" width="45%"/>
+  <img src="screenshots/register.png" alt="Halaman Registrasi" width="45%"/>
+  <br>
+  <em>Halaman Login dan Registrasi</em>
+</p>
+
+### 3. Kasir (Point of Sale)
+<p align="center">
+  <img src="screenshots/pos-kasir.png" alt="Tampilan Kasir" width="80%"/>
+  <br>
+  <em>Interface kasir untuk melakukan transaksi penjualan</em>
+</p>
+
+### 4. Proses Checkout
+<p align="center">
+  <img src="screenshots/checkout.png" alt="Proses Checkout" width="80%"/>
+  <br>
+  <em>Keranjang belanja dan proses checkout</em>
+</p>
+
+### 5. Struk Pembayaran
+<p align="center">
+  <img src="screenshots/print-nota.png" alt="Struk Pembayaran" width="60%"/>
+  <img src="screenshots/transaksi-selesai.png" alt="Transaksi Selesai" width="60%"/>
+  <br>
+  <em>Struk digital yang dapat dicetak</em>
+</p>
+
+### 6. Kelola Produk (Admin)
+<p align="center">
+  <img src="screenshots/daftar-produk.png" alt="Daftar Produk" width="80%"/>
+  <br>
+  <em>Halaman manajemen produk untuk admin</em>
+</p>
+
+### 7. Tambah/Edit Produk
+<p align="center">
+  <img src="screenshots/tambah-produk.png" alt="Tambah Produk" width="45%"/>
+  <br>
+  <em>Form tambah dan edit produk</em>
+</p>
+
+### 8. Dashboard Admin
+<p align="center">
+  <img src="screenshots/dashboard-admin.png" alt="Dashboard Admin" width="80%"/>
+  <br>
+  <em>Dashboard dengan statistik dan grafik penjualan</em>
+</p>
+
+### 9. Grafik Penjualan
+<p align="center">
+  <img src="screenshots/grafik.png" alt="Grafik Harian" width="45%"/>
+  <br>
+  <em>Grafik penjualan harian dan bulanan</em>
+</p>
+
+### 10. Laporan Penjualan
+<p align="center">
+  <img src="screenshots/laporan-penjualan.png" alt="Laporan Penjualan" width="80%"/>
+  <br>
+  <em>Halaman laporan dengan filter periode dan produk</em>
+</p>
+
+### 11. Print Laporan
+<p align="center">
+  <img src="screenshots/print-laporan.png" alt="Print Laporan" width="70%"/>
+  <br>
+  <em>Preview laporan siap cetak/export PDF</em>
+</p>
+
+### 12. Sistem Bantuan
+<p align="center">
+  <img src="screenshots/bantuan.png" alt="bantuan" width="45%"/>
+  <img src="screenshots/panduan-seller.png" alt="Panduan Seller" width="45%"/>
+  <img src="screenshots/FAQ.png" alt="FAQ" width="45%"/>
+  <br>
+  <em>FAQ dan Panduan untuk Seller</em>
+</p>
+
+<p align="center">
+  <img src="screenshots/panduan-admin.png" alt="Panduan Admin" width="80%"/>
+  <br>
+  <em>Panduan lengkap untuk Admin</em>
+</p>
+
+---
+
+## Troubleshooting
+
+### Masalah Login
+
+**Problem**: Tidak bisa login / Email atau Password salah
+
+**Solusi**:
+1. Pastikan database sudah di-import dengan benar
+2. Gunakan akun demo yang disediakan:
+   - Seller: `seller@gmail.com` / `seller123`
+   - Admin: `admin@gmail.com` / `admin123`
+3. Periksa tidak ada spasi di awal atau akhir email/password
+4. Cek koneksi database di `src/app/config/database.php`
+
+---
+
+### Masalah Database
+
+**Problem**: Database connection failed
+
+**Solusi**:
+1. Pastikan MySQL sudah running di XAMPP/Laragon
+2. Verifikasi kredensial database di `src/app/config/database.php`:
+   - Host: `127.0.0.1`
+   - Database: `lokapos`
+   - Username: `root` (default)
+   - Password: kosong (default)
+3. Cek apakah database `lokapos` sudah dibuat
+4. Pastikan port MySQL adalah 3306
+
+---
+
+### Masalah Gambar Produk
+
+**Problem**: Gambar produk tidak muncul / Error 404 saat mengakses gambar
+
+**Solusi**:
+1. Pastikan folder `src/public/uploads/products/` ada
+2. Cek permission folder (chmod 777 di Linux/Mac)
+3. Verifikasi BASE_URL di `src/app/config/config.php` sudah benar
+4. Cek apakah file gambar benar-benar ter-upload di folder tersebut
+5. Refresh browser dengan Ctrl+F5
+
+**Problem**: Error saat upload gambar
+
+**Solusi**:
+1. Cek ukuran file (maksimal 5MB)
+2. Pastikan format file didukung (JPG, PNG, GIF, WEBP)
+3. Cek permission folder `uploads/products/` harus writable
+4. Periksa setting PHP:
+   - `php.ini`: `upload_max_filesize = 5M`
+   - `php.ini`: `post_max_size = 5M`
+5. Restart Apache setelah mengubah php.ini
+
+---
+
+### Masalah Transaksi
+
+**Problem**: Stok tidak berkurang setelah checkout
+
+**Solusi**:
+1. Cek koneksi database
+2. Buka Console Browser (F12) dan periksa error
+3. Verifikasi fungsi `reduceStock()` di `app/models/Product.php` berjalan
+4. Cek tabel `products` di database apakah stok ter-update
+
+**Problem**: Struk tidak muncul setelah checkout
+
+**Solusi**:
+1. Pastikan pop-up blocker browser tidak aktif
+2. Allow pop-up untuk localhost di browser settings
+3. Coba browser lain (Chrome/Firefox recommended)
+4. Cek Console Browser untuk error JavaScript
+
+**Problem**: Produk dengan stok 0 masih bisa ditambah ke keranjang
+
+**Solusi**:
+1. Refresh halaman kasir (F5)
+2. Cek fungsi JavaScript `addToCart()` di `app/views/pos/index.php`
+3. Pastikan validasi stok berjalan dengan benar
+
+---
+
+### Masalah Dashboard & Laporan
+
+**Problem**: Dashboard tidak menampilkan data / Grafik kosong
+
+**Solusi**:
+1. Pastikan sudah ada transaksi di database
+2. Cek tabel `transactions` dan `transaction_details` di phpMyAdmin
+3. Refresh halaman dengan Ctrl+F5
+4. Buka Console Browser (F12) untuk cek error
+5. Pastikan Chart.js ter-load (cek tab Network di Console)
+
+**Problem**: Grafik tidak muncul
+
+**Solusi**:
+1. Pastikan koneksi internet aktif (Chart.js dari CDN)
+2. Cek Console Browser untuk error loading Chart.js
+3. Verifikasi data dari `app/models/Report.php` ter-return dengan benar
+4. Inspect element pada canvas grafik
+
+**Problem**: Print laporan tidak berfungsi
+
+**Solusi**:
+1. Pastikan pop-up tidak diblokir
+2. Coba tekan Ctrl+P manual di halaman preview
+3. Gunakan fitur "Save as PDF" sebagai alternatif
+4. Cek file `app/views/reports/print.php` ter-load dengan benar
+
+---
+
+### Masalah Routing & URL
+
+**Problem**: Error 404 Not Found pada semua halaman
+
+**Solusi**:
+1. Pastikan file `.htaccess` ada di folder `src/`
+2. Enable mod_rewrite di Apache:
+   - XAMPP: Edit `httpd.conf`, uncomment `LoadModule rewrite_module`
+   - Restart Apache
+3. Verifikasi BASE_URL di `src/app/config/config.php` sesuai struktur folder
+4. Cek file `src/app/core/App.php` untuk routing logic
+
+**Problem**: CSS/JavaScript tidak ter-load
+
+**Solusi**:
+1. Cek koneksi internet (Tailwind dan Lucide dari CDN)
+2. Verifikasi URL CDN di `src/app/views/layouts/header.php`
+3. Buka Console Browser tab Network untuk cek failed requests
+4. Clear browser cache (Ctrl+Shift+Del)
+
+---
+
+### Masalah Upload & File
+
+**Problem**: Permission denied saat upload gambar
+
+**Solusi Linux/Mac**:
+```bash
+chmod -R 777 src/public/uploads/
+```
+
+**Solusi Windows**:
+1. Klik kanan folder `uploads`
+2. Properties > Security
+3. Edit > Add > Everyone > Full Control
+
+---
+
+## Tips Penggunaan
+
+### Untuk Seller:
+- Selalu cek stok produk sebelum melakukan transaksi
+- Pastikan jumlah item di keranjang sudah benar sebelum checkout
+- Cetak struk sebagai bukti pembayaran untuk pelanggan
+- Logout setelah selesai shift untuk keamanan
+- Hubungi admin jika stok produk habis
+
+### Untuk Admin:
+- Rutin update stok produk agar tidak kehabisan
+- Pantau Dashboard Admin setiap hari untuk monitoring penjualan
+- Backup database secara berkala (export dari phpMyAdmin)
+- Export laporan penjualan bulanan untuk dokumentasi
+- Upload gambar produk berkualitas tinggi untuk tampilan menarik
+- Hapus produk yang sudah tidak dijual untuk menjaga data tetap relevan
+- Gunakan filter laporan untuk analisis penjualan per produk
+
+---
+
+## Struktur Folder Project
+```
+kelompok_34/
+│
+├── database/
+│   └── lokapos.sql           # File SQL untuk import
+│
+├── screenshots/              # Folder untuk screenshot aplikasi
+│   ├── bantuan.png
+│   ├── checkout.png
+│   ├── daftar-produk.png
+│   ├── dashboard-admin.png
+│   ├── faq.png
+│   ├── grafik.png
+│   ├── laporan-penjualan.png
+│   ├── login.png
+│   ├── panduan-admin.png
+│   ├── panduan-kasir.png
+│   ├── pos-kasir.png
+│   ├── print-laporan.png
+│   ├── print-nota.png
+│   ├── register.png
+│   ├── start.png
+│   ├── tambah-produk.png
+│   └── transaksi-selesai.png
+│
+└── src/
+    ├── .htaccess             # URL rewriting
+    ├── index.php             # Entry point
+    │
+    ├── app/
+    │   ├── config/
+    │   │   ├── config.php         # BASE_URL & APP_NAME
+    │   │   └── database.php       # Database connection
+    │   │
+    │   ├── controllers/
+    │   │   ├── AuthController.php
+    │   │   ├── HelpController.php
+    │   │   ├── HomeController.php
+    │   │   ├── PosController.php
+    │   │   ├── ProductController.php
+    │   │   └── ReportController.php
+    │   │
+    │   ├── core/
+    │   │   ├── App.php         # Routing
+    │   │   ├── Controller.php  # Base controller
+    │   │   └── Model.php       # Base model
+    │   │
+    │   ├── helpers/
+    │   │   ├── auth_helper.php
+    │   │   └── product_helper.php
+    │   │
+    │   ├── models/
+    │   │   ├── Product.php
+    │   │   ├── Report.php
+    │   │   ├── Transaction.php
+    │   │   └── User.php
+    │   │
+    │   └── views/
+    │       ├── layouts/
+    │       ├── assets/
+    │       ├── auth/
+    │       ├── home/
+    │       ├── pos/
+    │       ├── products/
+    │       ├── reports/
+    │       ├── help/
+    │       └── errors/
+    │
+    └── public/
+        ├── .htaccess
+        └── uploads/
+            └── products/
+```
 ---
 
 **© 2025 LokaPOS - Kelompok 34 | Universitas Lampung**

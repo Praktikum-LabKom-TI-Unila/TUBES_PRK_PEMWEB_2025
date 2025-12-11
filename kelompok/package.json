@@ -1,0 +1,13 @@
+{
+  "name": "kelompok",
+  "version": "1.0.0",
+  "description": "Silahkan fork repository ini dan buat folder baru sesuai dengan nomor kelompok. ex: kelompok_01",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
