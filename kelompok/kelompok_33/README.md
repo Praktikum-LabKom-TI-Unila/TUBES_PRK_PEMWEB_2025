@@ -31,7 +31,29 @@ Aplikasi ini menerapkan konsep **Smart City** untuk meningkatkan efisiensi penge
 
 ---
 
-## 🚀 Cara Menjalankan Aplikasi
+## �️ Database Design (ERD)
+
+![ERD CleanSpot](./src/assets/ERD.jpg)
+
+### Database Schema Overview
+CleanSpot menggunakan 4 tabel utama yang saling berelasi:
+
+1. **pengguna** - Menyimpan data user (admin, petugas, warga)
+2. **laporan** - Data laporan sampah dari warga
+3. **penugasan** - Tracking penugasan petugas ke laporan
+4. **log_aktivitas** - Audit trail semua aktivitas sistem
+
+**Relasi:**
+- Satu user bisa membuat banyak laporan (1:M)
+- Satu laporan bisa memiliki banyak penugasan/history (1:M)
+- Satu petugas bisa menerima banyak tugas (1:M)
+- Semua aktivitas user tercatat di log (1:M)
+
+Detail lengkap struktur database ada di [Database Design Section](#️-database-design-erd-1) di bawah.
+
+---
+
+## �🚀 Cara Menjalankan Aplikasi
 
 ### Prerequisites
 - PHP 8.0 atau lebih tinggi
@@ -274,6 +296,72 @@ Laporan: baru -> diproses -> selesai
 Penugasan: ditugaskan -> dikerjakan -> selesai
 Labels: "Tugas Baru" -> "Sedang Dikerjakan" -> "Selesai"
 ```
+
+---
+
+## 🗄️ Database Design (ERD)
+
+### Entity Relationship Diagram
+
+![ERD CleanSpot](./screenshots/erd-cleanspot.png)
+
+### Tabel Utama
+
+#### 1. pengguna
+Menyimpan data user dengan role-based access
+```sql
+- id_pengguna (PK)
+- nama_lengkap
+- email (UNIQUE)
+- password (BCRYPT)
+- role (admin/petugas/warga)
+- no_telepon
+- alamat
+- foto_profil
+- tanggal_registrasi
+```
+
+#### 2. laporan
+Menyimpan data laporan sampah dari warga
+```sql
+- id_laporan (PK)
+- id_pengguna (FK -> pengguna)
+- judul
+- deskripsi
+- latitude, longitude
+- foto_path
+- status (baru/diproses/selesai)
+- tanggal_laporan
+```
+
+#### 3. penugasan
+Tracking penugasan petugas ke laporan
+```sql
+- id_penugasan (PK)
+- id_laporan (FK -> laporan)
+- id_petugas (FK -> pengguna)
+- status (ditugaskan/dikerjakan/selesai)
+- tanggal_ditugaskan
+- tanggal_selesai
+- keterangan
+- foto_bukti
+```
+
+#### 4. log_aktivitas
+Audit trail untuk semua aktivitas sistem
+```sql
+- id_log (PK)
+- id_pengguna (FK -> pengguna)
+- aktivitas
+- detail
+- tanggal
+```
+
+### Relasi Antar Tabel
+- `pengguna` (1) ----< (M) `laporan` : Satu user bisa membuat banyak laporan
+- `laporan` (1) ----< (M) `penugasan` : Satu laporan bisa memiliki banyak penugasan (history)
+- `pengguna` (1) ----< (M) `penugasan` : Satu petugas bisa menerima banyak tugas
+- `pengguna` (1) ----< (M) `log_aktivitas` : Semua aktivitas user tercatat
 
 ---
 
