@@ -2,16 +2,29 @@
 session_start();
 require_once '../../config/database.php';
 
-if (!isset($_SESSION['role']) || $_SESSION['role'] != 'learner') {
+if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'learner') {
     header("Location: ../../frontend/pages/auth/login.php?error=unauthorized");
     exit();
 }
+
+$user_email = isset($_SESSION['user_email']) ? $_SESSION['user_email'] : $_SESSION['email'];
+
+// Get siswa_id from email
+$siswa_query = "SELECT id FROM siswa WHERE email = '$user_email' LIMIT 1";
+$siswa_result = mysqli_query($conn, $siswa_query);
+$siswa_data = mysqli_fetch_assoc($siswa_result);
+
+if (!$siswa_data) {
+    header("Location: ../../frontend/pages/auth/login.php");
+    exit();
+}
+
+$learner_id = $siswa_data['id'];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $booking_id = intval($_POST['booking_id'] ?? 0);
     $rating = intval($_POST['rating'] ?? 0);
     $review_text = htmlspecialchars(trim($_POST['review_text'] ?? ''));
-    $learner_id = $_SESSION['user_id'];
     
     // Validasi input
     if (empty($booking_id) || $rating < 1 || $rating > 5) {

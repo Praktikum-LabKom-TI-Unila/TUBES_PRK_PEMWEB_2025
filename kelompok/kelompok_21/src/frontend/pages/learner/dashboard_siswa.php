@@ -99,7 +99,7 @@ $top_tutors_result = mysqli_query($conn, $top_tutors_query);
             <li><a href="dashboard_siswa.php" class="active">Beranda</a></li>
             <li><a href="../public/search_result.php">Cari Tutor</a></li>
             <li><a href="sesi_saya.php">Sesi Saya</a></li>
-            <li><a href="#testimoni">Testimoni</a></li>
+            <li><a href="riwayat.php">Riwayat Booking</a></li>
         </ul>
 
         <!-- User Profile -->
@@ -937,7 +937,7 @@ window.onclick = function(event) {
         <div class="recent-bookings">
             <div class="recent-bookings-header">
                 <h2>Booking Terbaru</h2>
-                <a href="#" class="view-all-link">Lihat Semua →</a>
+                <a href="sesi_saya.php" class="view-all-link">Lihat Semua →</a>
             </div>
             <?php if ($recent_bookings_result && mysqli_num_rows($recent_bookings_result) > 0): ?>
                 <?php while ($booking = mysqli_fetch_assoc($recent_bookings_result)): 
@@ -988,35 +988,6 @@ window.onclick = function(event) {
                     </p>
                 </div>
             <?php endif; ?>
-        </div>
-
-        <div style="background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); margin-bottom: 30px;">
-            <h3 style="margin: 0 0 20px 0; color: #0C4A60; display: flex; align-items: center; gap: 10px;">
-                <span>📝</span>
-                <span>Profil Siswa</span>
-            </h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-                <div style="padding: 15px; background: #f8f9fa; border-radius: 8px;">
-                    <p style="margin: 0; color: #666; font-size: 14px; margin-bottom: 5px;">NIM</p>
-                    <p style="margin: 0; font-weight: 600; color: #333;"><?php echo $siswa_data['nim']; ?></p>
-                </div>
-                <div style="padding: 15px; background: #f8f9fa; border-radius: 8px;">
-                    <p style="margin: 0; color: #666; font-size: 14px; margin-bottom: 5px;">Sekolah</p>
-                    <p style="margin: 0; font-weight: 600; color: #333;"><?php echo htmlspecialchars($siswa_data['sekolah'] ?? 'Belum diisi'); ?></p>
-                </div>
-                <div style="padding: 15px; background: #f8f9fa; border-radius: 8px;">
-                    <p style="margin: 0; color: #666; font-size: 14px; margin-bottom: 5px;">Jenjang & Kelas</p>
-                    <p style="margin: 0; font-weight: 600; color: #333;"><?php echo $siswa_data['jenjang'] . ' - ' . $siswa_data['kelas']; ?></p>
-                </div>
-                <div style="padding: 15px; background: #f8f9fa; border-radius: 8px;">
-                    <p style="margin: 0; color: #666; font-size: 14px; margin-bottom: 5px;">Email</p>
-                    <p style="margin: 0; font-weight: 600; color: #333; font-size: 14px;"><?php echo htmlspecialchars($siswa_data['email']); ?></p>
-                </div>
-                <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; grid-column: span 2;">
-                    <p style="margin: 0; color: #666; font-size: 14px; margin-bottom: 5px;">Minat Belajar</p>
-                    <p style="margin: 0; font-weight: 600; color: #333;"><?php echo htmlspecialchars($siswa_data['minat'] ?? 'Belum diisi'); ?></p>
-                </div>
-            </div>
         </div>
     </div>
 </div>

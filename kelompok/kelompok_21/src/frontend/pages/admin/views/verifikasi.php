@@ -178,13 +178,22 @@ $historyResult = mysqli_query($conn, $historyQuery);
                             $dateFormatted = date('d M Y, H:i', strtotime($history['register_date']));
                             
                             // Time ago
-                            $timeAgo = time() - strtotime($history['register_date']);
-                            if ($timeAgo < 3600) {
+                            $registerTimestamp = strtotime($history['register_date']);
+                            $currentTimestamp = time();
+                            $timeAgo = abs($currentTimestamp - $registerTimestamp); // Use absolute value to prevent negative numbers
+                            
+                            if ($timeAgo < 60) {
+                                $timeText = 'Baru saja';
+                            } else if ($timeAgo < 3600) {
                                 $timeText = floor($timeAgo / 60) . ' menit lalu';
                             } else if ($timeAgo < 86400) {
                                 $timeText = floor($timeAgo / 3600) . ' jam lalu';
-                            } else {
+                            } else if ($timeAgo < 604800) {
                                 $timeText = floor($timeAgo / 86400) . ' hari lalu';
+                            } else if ($timeAgo < 2592000) {
+                                $timeText = floor($timeAgo / 604800) . ' minggu lalu';
+                            } else {
+                                $timeText = floor($timeAgo / 2592000) . ' bulan lalu';
                             }
                         ?>
                         <div class="list-group-item border-0 border-bottom py-3">
@@ -204,10 +213,6 @@ $historyResult = mysqli_query($conn, $historyQuery);
                                 <div class="text-end">
                                     <?= $statusBadge ?>
                                 </div>
-                            </div>
-                        </div>
-                                </div>
-                                <?= $statusBadge ?>
                             </div>
                         </div>
                         <?php endwhile; ?>

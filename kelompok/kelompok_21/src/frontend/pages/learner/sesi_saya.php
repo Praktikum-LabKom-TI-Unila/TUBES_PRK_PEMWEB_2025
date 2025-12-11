@@ -70,7 +70,7 @@ $bookings_result = mysqli_query($conn, $bookings_query);
             <li><a href="dashboard_siswa.php">Beranda</a></li>
             <li><a href="../public/search_result.php">Cari Tutor</a></li>
             <li><a href="sesi_saya.php" class="active">Sesi Saya</a></li>
-            <li><a href="#testimoni">Testimoni</a></li>
+            <li><a href="riwayat.php">Riwayat Booking</a></li>
         </ul>
         <div style="display: flex; gap: 10px; align-items: center;">
             <div style="position: relative;">
@@ -383,18 +383,16 @@ $bookings_result = mysqli_query($conn, $bookings_query);
 
                 <?php if ($booking['status'] == 'completed'): ?>
                 <div style="margin-top: 15px; text-align: right;">
-                    <button class="btn" style="background: linear-gradient(135deg, #FF6B35, #F7931E); color: white; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer;">
+                    <button onclick="openReviewModal(<?php echo $booking['id']; ?>)" class="btn" style="background: linear-gradient(135deg, #FF6B35, #F7931E); color: white; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer;">
                         <i class="bi bi-star"></i> Beri Review
                     </button>
                 </div>
                 <?php elseif ($booking['status'] == 'confirmed' || $booking['status'] == 'pending'): ?>
                 <div style="margin-top: 15px; display: flex; gap: 10px; justify-content: flex-end;">
-                    <button class="btn" style="background: linear-gradient(135deg, #0C4A60, #9AD4D6); color: white; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer;">
-                        <i class="bi bi-camera-video"></i> Link Zoom
-                    </button>
-                    <button class="btn" style="background: #28A745; color: white; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer;">
-                        <i class="bi bi-whatsapp"></i> Chat Tutor
-                    </button>
+                    <a href="https://wa.me/6281368410208?text=Halo,%20saya%20ingin%20bertanya%20tentang%20sesi%20belajar%20<?php echo urlencode($booking['subject_name']); ?>%20pada%20<?php echo date('d/m/Y', strtotime($booking['booking_date'])); ?>%20jam%20<?php echo substr($booking['booking_time'], 0, 5); ?>" 
+                       target="_blank" class="btn" style="background: #28A745; color: white; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                        <i class="bi bi-whatsapp"></i> Chat Admin
+                    </a>
                 </div>
                 <?php endif; ?>
             </div>
@@ -425,7 +423,80 @@ window.onclick = function(event) {
         }
     }
 }
+
+function openReviewModal(bookingId) {
+    document.getElementById('reviewBookingId').value = bookingId;
+    document.getElementById('reviewModal').classList.add('active');
+}
+
+function closeReviewModal() {
+    document.getElementById('reviewModal').classList.remove('active');
+    document.getElementById('reviewForm').reset();
+}
 </script>
 
-</body>
-</html>
+<!-- Review Modal -->
+<div class="review-modal" id="reviewModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+    <div class="review-modal-content" style="background: white; padding: 40px; border-radius: 20px; max-width: 500px; width: 90%; position: relative;">
+        <button onclick="closeReviewModal()" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 30px; cursor: pointer; color: #999;">&times;</button>
+        <div style="margin-bottom: 30px;">
+            <h2 style="color: #0C4A60; margin: 0 0 10px 0;">Beri Rating & Review</h2>
+            <p style="color: #666; margin: 0;">Bagikan pengalaman belajar Anda</p>
+        </div>
+        <form id="reviewForm" action="../../../backend/learner/submit_review.php" method="POST">
+            <input type="hidden" name="booking_id" id="reviewBookingId">
+            
+            <div style="margin-bottom: 25px; text-align: center;">
+                <div class="rating-input" style="display: flex; flex-direction: row-reverse; justify-content: center; gap: 10px;">
+                    <input type="radio" name="rating" value="5" id="rating5" required style="display: none;">
+                    <label for="rating5" style="font-size: 40px; cursor: pointer; transition: all 0.3s;" onclick="selectRating(5)">⭐</label>
+                    <input type="radio" name="rating" value="4" id="rating4" style="display: none;">
+                    <label for="rating4" style="font-size: 40px; cursor: pointer; transition: all 0.3s;" onclick="selectRating(4)">⭐</label>
+                    <input type="radio" name="rating" value="3" id="rating3" style="display: none;">
+                    <label for="rating3" style="font-size: 40px; cursor: pointer; transition: all 0.3s;" onclick="selectRating(3)">⭐</label>
+                    <input type="radio" name="rating" value="2" id="rating2" style="display: none;">
+                    <label for="rating2" style="font-size: 40px; cursor: pointer; transition: all 0.3s;" onclick="selectRating(2)">⭐</label>
+                    <input type="radio" name="rating" value="1" id="rating1" style="display: none;">
+                    <label for="rating1" style="font-size: 40px; cursor: pointer; transition: all 0.3s;" onclick="selectRating(1)">⭐</label>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 25px;">
+                <label style="display: block; font-weight: 600; color: #333; margin-bottom: 8px;">Review</label>
+                <textarea name="review_text" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; font-family: inherit;" rows="5" 
+                          placeholder="Tuliskan pengalaman belajar Anda dengan tutor ini..." required></textarea>
+            </div>
+            
+            <div style="display: flex; gap: 15px; justify-content: flex-end;">
+                <button type="button" onclick="closeReviewModal()" style="padding: 12px 30px; background: #f0f0f0; color: #333; border: none; border-radius: 25px; cursor: pointer; font-weight: 600;">Batal</button>
+                <button type="submit" style="padding: 12px 30px; background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%); color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: 600;">Kirim Review</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function selectRating(rating) {
+    document.getElementById('rating' + rating).checked = true;
+    // Highlight selected stars
+    for (let i = 1; i <= 5; i++) {
+        const label = document.querySelector(`label[for="rating${i}"]`);
+        if (i <= rating) {
+            label.style.filter = 'none';
+            label.style.opacity = '1';
+        } else {
+            label.style.filter = 'grayscale(100%)';
+            label.style.opacity = '0.3';
+        }
+    }
+}
+
+// Show/hide modal
+document.getElementById('reviewModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeReviewModal();
+    }
+});
+</script>
+
+<?php require_once '../../layouts/footer.php'; ?>

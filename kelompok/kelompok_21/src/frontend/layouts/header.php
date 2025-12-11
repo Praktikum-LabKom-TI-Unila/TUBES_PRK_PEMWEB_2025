@@ -3,6 +3,11 @@ if (!isset($assetPath)) {
   $assetPath = "../../../assets/";
 }
 
+// Gunakan absolute path untuk logo agar konsisten
+if (!isset($logoPath)) {
+  $logoPath = "/kelompok/kelompok_21/src/assets/img/logo.png";
+}
+
 if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
@@ -37,18 +42,29 @@ $userRole = $_SESSION['user_role'] ?? '';
 
     <!-- Logo/Brand -->
     <div class="sb-brand">
-      <img src="../../../assets/img/logo.png" alt="ScholarBridge Logo" class="logo">
+      <img src="<?php echo $logoPath; ?>" alt="ScholarBridge Logo" class="logo">
       <span>ScholarBridge</span>
     </div>
 
     <!-- Menu -->
     <ul class="sb-menu">
-      <li><a href="../public/landing_page.php">Beranda</a></li>
-      <li><a href="../public/search_result.php">Cari Tutor</a></li>
-      <li><a href="#kategori">Kategori</a></li>
-      <li><a href="#testimoni">Testimoni</a></li>
-      <?php if ($isLoggedIn && $userRole === 'tutor'): ?>
-      <li><a href="#kelas-saya">Kelas Saya</a></li>
+      <?php if ($isLoggedIn && $userRole === 'learner'): ?>
+        <!-- Menu untuk Siswa yang sudah login -->
+        <li><a href="../learner/dashboard_siswa.php">Beranda</a></li>
+        <li><a href="../public/search_result.php">Cari Tutor</a></li>
+        <li><a href="../learner/sesi_saya.php">Sesi Saya</a></li>
+        <li><a href="../learner/riwayat.php">Riwayat Booking</a></li>
+      <?php elseif ($isLoggedIn && $userRole === 'tutor'): ?>
+        <!-- Menu untuk Tutor yang sudah login -->
+        <li><a href="../tutor/dashboard_tutor.php">Beranda</a></li>
+        <li><a href="../public/search_result.php">Cari Tutor</a></li>
+        <li><a href="#kelas-saya">Kelas Saya</a></li>
+      <?php else: ?>
+        <!-- Menu untuk Guest (belum login) -->
+        <li><a href="../public/landing_page.php">Beranda</a></li>
+        <li><a href="../public/search_result.php">Cari Tutor</a></li>
+        <li><a href="../public/categories.php">Kategori</a></li>
+        <li><a href="../public/testimoni.php">Testimoni</a></li>
       <?php endif; ?>
     </ul>
 
@@ -56,22 +72,29 @@ $userRole = $_SESSION['user_role'] ?? '';
     <div style="display: flex; gap: 10px; align-items: center;">
       <?php if ($isLoggedIn): ?>
         <?php if ($userRole === 'tutor'): ?>
-          <a href="#" class="sb-login" style="background: linear-gradient(135deg, #0C4A60, #9AD4D6); color: white; padding: 8px 20px; border-radius: 20px; text-decoration: none;">
+          <a href="../tutor/dashboard_tutor.php" class="sb-login" style="background: linear-gradient(135deg, #0C4A60, #9AD4D6); color: white; padding: 8px 20px; border-radius: 20px; text-decoration: none;">
             <i class="bi bi-person-workspace"></i> Dashboard Tutor
           </a>
         <?php endif; ?>
         <div style="position: relative;">
-          <button onclick="toggleDropdown()" class="sb-daftar" style="display: flex; align-items: center; gap: 8px; cursor: pointer; border: none;">
+          <button onclick="toggleDropdown()" class="sb-daftar" style="display: flex; align-items: center; gap: 8px; cursor: pointer; border: none; background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%); color: white;">
             <i class="bi bi-person-circle"></i> <?php echo htmlspecialchars($userName); ?>
           </button>
-          <div id="userDropdown" style="display: none; position: absolute; right: 0; top: 100%; margin-top: 8px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 180px; z-index: 1000;">
-            <a href="#profil" style="display: block; padding: 12px 16px; color: #333; text-decoration: none; border-bottom: 1px solid #eee;">
-              <i class="bi bi-person"></i> Profil Saya
-            </a>
-            <?php if ($userRole === 'siswa'): ?>
-            <a href="#kelas" style="display: block; padding: 12px 16px; color: #333; text-decoration: none; border-bottom: 1px solid #eee;">
-              <i class="bi bi-book"></i> Kelas Saya
-            </a>
+          <div id="userDropdown" style="display: none; position: absolute; right: 0; top: 100%; margin-top: 8px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 200px; z-index: 1000;">
+            <?php if ($userRole === 'learner'): ?>
+              <div style="padding: 12px 16px; border-bottom: 1px solid #eee;">
+                <p style="margin: 0; font-weight: 600; color: #333;"><?php echo htmlspecialchars($userName); ?></p>
+              </div>
+              <a href="../learner/profil.php" style="display: block; padding: 12px 16px; color: #333; text-decoration: none; border-bottom: 1px solid #eee;">
+                <i class="bi bi-person"></i> Profil Saya
+              </a>
+              <a href="../learner/sesi_saya.php" style="display: block; padding: 12px 16px; color: #333; text-decoration: none; border-bottom: 1px solid #eee;">
+                <i class="bi bi-calendar-check"></i> Sesi Belajar
+              </a>
+            <?php else: ?>
+              <a href="#profil" style="display: block; padding: 12px 16px; color: #333; text-decoration: none; border-bottom: 1px solid #eee;">
+                <i class="bi bi-person"></i> Profil Saya
+              </a>
             <?php endif; ?>
             <a href="../../../backend/auth/logout.php" style="display: block; padding: 12px 16px; color: #dc3545; text-decoration: none;">
               <i class="bi bi-box-arrow-right"></i> Logout
