@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS event_registrations (
 
 -- Admin utama (password: admin123)
 INSERT INTO users (username, email, password, role, is_approved) 
-VALUES ('admin', 'admin@simora.com', '$2y$10$kFXheGvJM5FNOsOGmgrcnuMo9jf5Ee8R21y1ip0yKmB3VWRk8oViS', 'admin', 1);
+VALUES ('admin', 'admin@simora.com', '$2y$10$PKOr10iKzojO7XD1j3EU4OsnmU.uGhzzhtmGCgMXXs16sDUJvazEi', 'admin', 1);
 
 INSERT INTO profiles (user_id, full_name, department, activity_status)
 VALUES (1, 'Super Admin', 'Inti', 'aktif');

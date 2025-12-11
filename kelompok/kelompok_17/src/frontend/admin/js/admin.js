@@ -282,8 +282,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td class="px-4 py-3">${member.npm || '-'}</td>
                     <td class="px-4 py-3">
                         <span class="text-xs font-semibold px-2.5 py-0.5 rounded cursor-pointer hover:opacity-80 ${badgeClass}" 
-                              onclick="openChangeStatusModal(${member.user_id}, '${escapedName}', '${member.activity_status || 'aktif'}')"
-                              title="Klik untuk ubah status">
+                                onclick="openChangeStatusModal(${member.user_id}, '${escapedName}', '${member.activity_status || 'aktif'}')"
+                                title="Klik untuk ubah status">
                             ${statusText}
                         </span>
                     </td>
