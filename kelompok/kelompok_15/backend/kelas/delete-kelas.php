@@ -1,6 +1,15 @@
 <?php
 /**
  * FITUR 2: MANAJEMEN KELAS - DELETE
+ * Tanggung Jawab: SURYA (Backend Developer)
+ * 
+ * Deskripsi: Hapus kelas dan semua data terkait
+ * - Validasi ownership
+ * - Delete cascade (kelas, materi, tugas, submissions)
+ */~
+
+session_start();
+header('Content-Type: application/json');
  * Delete kelas dan cascade delete semua data terkait
  */
 
@@ -14,6 +23,18 @@ require_once __DIR__ . '/../auth/session-check.php';
 $response = ['success' => false, 'message' => ''];
 
 try {
+    requireRole('dosen');
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        throw new Exception('Method not allowed');
+    }
+
+    if (empty($_POST['id_kelas'])) {
+        throw new Exception('id_kelas harus diberikan');
+    }
+
+    $id_kelas = intval($_POST['id_kelas']);
+    $id_dosen = getUserId();
+
     requireDosen();
     validatePostMethod();
 
@@ -38,6 +59,13 @@ try {
     $kelas = $stmt->fetch();
     
     if (!$kelas) {
+        throw new Exception('Kelas tidak ditemukan');
+    }
+    if ($kelas['id_dosen'] != $id_dosen) {
+        throw new Exception('Anda tidak memiliki akses untuk menghapus kelas ini');
+    }
+
+    // Delete cascade akan otomatis via foreign key ON DELETE CASCADE
         throw new Exception('Kelas tidak ditemukan', 404);
     }
     

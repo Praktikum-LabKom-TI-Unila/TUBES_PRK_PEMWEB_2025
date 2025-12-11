@@ -297,6 +297,7 @@
             </a>
 
             <!-- Kelola Kelas Card -->
+            <a href="#daftar-kelas" class="group block bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl shadow-xl p-8 hover:shadow-2xl hover:scale-105 transition-all duration-300 overflow-hidden relative">
             <button onclick="openKelolaMaterModal()" class="group block w-full text-left bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl shadow-xl p-8 hover:shadow-2xl hover:scale-105 transition-all duration-300 overflow-hidden relative border-0 cursor-pointer">
                 <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full"></div>
                 <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full"></div>
@@ -321,6 +322,7 @@
                         </div>
                     </div>
                 </div>
+            </a>
             </button>
         </div>
 

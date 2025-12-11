@@ -189,6 +189,10 @@
                     <p class="text-gray-500 text-sm">Lengkapi data diri Anda untuk mendaftar</p>
                 </div>
 
+                <form id="registerForm" class="space-y-3.5">
+                    <!-- Alert Message -->
+                    <div id="alertMessage" class="hidden p-3 rounded-xl text-sm font-medium"></div>
+
                 <!-- Alert Container -->
                 <div id="alertContainer"></div>
 
@@ -335,6 +339,7 @@
                     <!-- Register Button -->
                     <button 
                         type="submit"
+                        id="btnRegister"
                         id="registerBtn"
                         class="btn-gradient w-full py-4 rounded-xl text-white font-bold text-lg"
                     >
@@ -428,6 +433,66 @@
             }
         }
 
+        // Show alert message
+        function showAlert(message, type = 'error') {
+            const alert = document.getElementById('alertMessage');
+            alert.textContent = message;
+            alert.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700');
+            
+            if (type === 'success') {
+                alert.classList.add('bg-green-100', 'text-green-700');
+            } else {
+                alert.classList.add('bg-red-100', 'text-red-700');
+            }
+            
+            // Scroll to alert
+            alert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Handle form submission with AJAX
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('btnRegister');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses...';
+
+            const formData = new FormData(this);
+
+            // Client-side validation
+            const password = formData.get('password');
+            const confirmPassword = formData.get('confirm_password');
+            
+            if (password !== confirmPassword) {
+                showAlert('Konfirmasi password tidak cocok', 'error');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                return;
+            }
+
+            try {
+                const response = await fetch('../backend/auth/register.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                } else {
+                    showAlert(result.message, 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            } catch (error) {
+                showAlert('Gagal terhubung ke server. Silakan coba lagi.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
         // Handle register form submission
         document.getElementById('registerForm').addEventListener('submit', async function(e) {
             e.preventDefault();

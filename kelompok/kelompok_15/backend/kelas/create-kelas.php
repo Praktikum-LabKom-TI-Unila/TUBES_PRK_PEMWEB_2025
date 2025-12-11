@@ -4,6 +4,8 @@
  * Handle pembuatan kelas baru untuk dosen
  */
 
+session_start();
+header('Content-Type: application/json');
 require_once __DIR__ . '/../auth/session-helper.php';
 header('Content-Type: application/json');
 header('Access-Control-Allow-Credentials: true');
@@ -11,6 +13,47 @@ header('Access-Control-Allow-Credentials: true');
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../auth/session-check.php';
 
+// Response structure
+$response = [
+    'success' => false,
+    'message' => '',
+    'data' => null
+];
+
+try {
+    // 1. Cek session dosen
+    requireRole('dosen');
+    
+    // Validasi method POST
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        throw new Exception('Method not allowed');
+    }
+
+    // 2. Validasi input POST
+    if (empty($_POST['nama_matakuliah']) || empty($_POST['kode_matakuliah']) || 
+        empty($_POST['semester']) || empty($_POST['tahun_ajaran'])) {
+        throw new Exception('Semua field harus diisi');
+    }
+
+    $nama_matakuliah = trim($_POST['nama_matakuliah']);
+    $kode_matakuliah = trim($_POST['kode_matakuliah']);
+    $semester = trim($_POST['semester']);
+    $tahun_ajaran = trim($_POST['tahun_ajaran']);
+    $deskripsi = isset($_POST['deskripsi']) ? trim($_POST['deskripsi']) : '';
+    $kapasitas = isset($_POST['kapasitas']) ? intval($_POST['kapasitas']) : 50;
+    
+    // Validasi panjang
+    if (strlen($nama_matakuliah) < 3) {
+        throw new Exception('Nama matakuliah minimal 3 karakter');
+    }
+    if (strlen($kode_matakuliah) < 2) {
+        throw new Exception('Kode matakuliah minimal 2 karakter');
+    }
+    if ($kapasitas < 1 || $kapasitas > 500) {
+        throw new Exception('Kapasitas harus antara 1-500');
+    }
+
+    // 3. Generate kode_kelas unique 6 karakter
 $response = ['success' => false, 'message' => '', 'data' => null];
 
 try {
@@ -70,6 +113,10 @@ try {
     }
     
     if (!$kode_valid) {
+        throw new Exception('Gagal generate kode kelas unik');
+    }
+
+    // 4. Insert ke tabel kelas
         throw new Exception('Gagal generate kode kelas unik', 500);
     }
 
@@ -92,6 +139,7 @@ try {
 
     $id_kelas = $pdo->lastInsertId();
 
+    // 5. Return JSON dengan kode_kelas & id_kelas
     // Return success response
     http_response_code(201);
     $response['success'] = true;
@@ -104,6 +152,8 @@ try {
     ];
 
 } catch(Exception $e) {
+    $response['success'] = false;
+    $response['message'] = $e->getMessage();
     $code = $e->getCode() ?: 500;
     if ($code === 0) $code = 500;
     http_response_code($code);

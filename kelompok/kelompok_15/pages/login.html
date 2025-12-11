@@ -179,6 +179,10 @@
                     <p class="text-gray-500 text-sm">Masuk ke akun Anda untuk melanjutkan</p>
                 </div>
 
+                <form id="loginForm" class="space-y-4">
+                    <!-- Alert Message -->
+                    <div id="alertMessage" class="hidden p-3 rounded-xl text-sm font-medium"></div>
+
                 <!-- Alert Container -->
                 <div id="alertContainer"></div>
 
@@ -192,6 +196,11 @@
                             </div>
                             <input 
                                 type="email" 
+                                name="email" 
+                                id="email"
+                                required
+                                class="input-field w-full pl-10 pr-3 py-2.5 rounded-xl bg-gray-50 text-sm"
+                                placeholder="Masukkan email"
                                 id="email"
                                 name="email" 
                                 required
@@ -240,6 +249,7 @@
                     <!-- Login Button -->
                     <button 
                         type="submit"
+                        id="btnLogin"
                         id="loginBtn"
                         class="btn-gradient w-full py-3 rounded-xl text-white font-bold text-base"
                     >
@@ -273,6 +283,52 @@
             }
         }
 
+        // Show alert message
+        function showAlert(message, type = 'error') {
+            const alert = document.getElementById('alertMessage');
+            alert.textContent = message;
+            alert.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700');
+            
+            if (type === 'success') {
+                alert.classList.add('bg-green-100', 'text-green-700');
+            } else {
+                alert.classList.add('bg-red-100', 'text-red-700');
+            }
+        }
+
+        // Handle form submission with AJAX
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('btnLogin');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses...';
+
+            const formData = new FormData(this);
+
+            try {
+                const response = await fetch('../backend/auth/login.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    setTimeout(() => {
+                        window.location.href = result.redirect;
+                    }, 1000);
+                } else {
+                    showAlert(result.message, 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            } catch (error) {
+                showAlert('Gagal terhubung ke server. Silakan coba lagi.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
         // Handle login form submission
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
