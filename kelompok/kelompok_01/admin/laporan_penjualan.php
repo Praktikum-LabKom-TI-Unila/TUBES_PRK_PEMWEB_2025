@@ -20,8 +20,8 @@ $stmt->execute();
 $admin = $stmt->get_result()->fetch_assoc();
 
 $foto_display = 'https://ui-avatars.com/api/?name=' . urlencode($admin['nama'] ?? 'Admin') . '&background=B7A087&color=fff';
-if (!empty($admin['profile_picture']) && file_exists('../' . $admin['profile_picture'])) {
-    $foto_display = '../' . $admin['profile_picture'];
+if (!empty($admin['profile_picture']) && file_exists($admin['profile_picture'])) {
+    $foto_display = $admin['profile_picture'];
 }
 
 $start_date = $_GET['start_date'] ?? date('Y-m-01');
