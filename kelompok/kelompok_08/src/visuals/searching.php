@@ -20,8 +20,8 @@ echo getNavbar("visuals");
                     <button onclick="genSorted()" class="px-4 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg text-sm">Reset (Sorted)</button>
                     <div class="w-px h-8 bg-gray-200 hidden md:block"></div>
                     <input type="number" id="target" value="42" class="w-20 px-3 py-2 border rounded-lg text-center font-bold" placeholder="Cari">
-                    <button onclick="linearSearch()" class="px-6 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 shadow">Linear (O(n))</button>
-                    <button onclick="binarySearch()" class="px-6 py-2 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 shadow">Binary (O(log n))</button>
+                    <button onclick="linearSearch()" class="px-6 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 shadow">Linear Searching</button>
+                    <button onclick="binarySearch()" class="px-6 py-2 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 shadow">Binary Searching</button>
                 </div>
             </div>
 

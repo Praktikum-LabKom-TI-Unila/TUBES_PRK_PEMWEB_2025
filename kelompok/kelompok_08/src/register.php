@@ -9,7 +9,7 @@ if (isset($_POST['register'])) {
         echo "<script>alert('Berhasil! Silakan login.'); window.location='index.php';</script>";
     }
 }
-echo getHeader("Register - EduStruct");
+echo getHeader("Register");
 ?>
 <body class="flex items-center justify-center min-h-screen bg-gray-100 p-4">
     <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 animate-fade-in border border-gray-100">

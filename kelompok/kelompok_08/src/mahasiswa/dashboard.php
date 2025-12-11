@@ -13,7 +13,7 @@ if(isset($_POST['join'])) {
         } else echo "<script>alert('Sudah join!');</script>";
     } else echo "<script>alert('Kode salah!');</script>";
 }
-echo getHeader("Lobby"); echo getNavbar("mahasiswa");
+echo getHeader("Dashboard Mahasiswa"); echo getNavbar("mahasiswa");
 ?>
 <body class="bg-gray-100 flex flex-col min-h-screen">
     <main class="flex-1 container mx-auto px-8 py-8 max-w-8xl">

@@ -30,8 +30,8 @@ echo getNavbar("visuals");
                 </div>
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-wrap gap-4 items-center justify-center">
                     <input type="number" id="val" value="10" class="w-24 px-4 py-3 border rounded-xl text-center font-bold text-lg outline-none focus:ring-2 focus:ring-primary shadow-inner">
-                    <button onclick="push()" class="px-8 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primaryDark transition shadow-lg transform active:scale-95 flex items-center gap-2">📥 Push</button>
-                    <button onclick="pop()" class="px-8 py-3 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition shadow-lg transform active:scale-95 flex items-center gap-2">📤 Pop</button>
+                    <button onclick="push()" class="px-8 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primaryDark transition shadow-lg transform active:scale-95 flex items-center gap-2">Push</button>
+                    <button onclick="pop()" class="px-8 py-3 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition shadow-lg transform active:scale-95 flex items-center gap-2">Pop</button>
                     <button onclick="clearStack()" class="px-6 py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transition">Reset</button>
                 </div>
             </div>
