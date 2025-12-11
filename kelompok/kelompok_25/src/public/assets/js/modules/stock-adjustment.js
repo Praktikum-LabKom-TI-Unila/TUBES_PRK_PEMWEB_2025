@@ -173,7 +173,7 @@ const StockAdjustmentModule = {
         if (this.state.adjustments.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="8" class="text-center">Tidak ada data stock adjustment</td>
+                    <td colspan="6" class="text-center">Tidak ada data stock adjustment</td>
                 </tr>
             `;
             return;
@@ -182,27 +182,25 @@ const StockAdjustmentModule = {
         tbody.innerHTML = this.state.adjustments.map((adj, index) => {
             const no = (this.state.currentPage - 1) * 20 + index + 1;
             const difference = parseFloat(adj.difference || 0);
-            const diffClass = difference >= 0 ? 'text-success' : 'text-danger';
+            const diffClass = difference >= 0 ? 'text-emerald-600' : 'text-rose-600';
             const diffIcon = difference >= 0 ? '+' : '';
             
             return `
-                <tr>
-                    <td>${no}</td>
-                    <td>${adj.material_code ? adj.material_code + '<br>' : ''}${adj.material_name || '-'}</td>
-                    <td class="text-end">${parseFloat(adj.old_stock || 0).toFixed(2)}</td>
-                    <td class="text-end">${parseFloat(adj.new_stock || 0).toFixed(2)}</td>
-                    <td class="text-end ${diffClass}">
-                        <strong>${diffIcon}${difference.toFixed(2)}</strong>
+                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                    <td class="py-4 px-4 text-slate-600">${no}</td>
+                    <td class="py-4 px-4">
+                        <div class="font-medium text-slate-900">${adj.material_name || '-'}</div>
+                        ${adj.material_code ? `<div class="text-xs text-slate-500 mt-1">${adj.material_code}</div>` : ''}
                     </td>
-                    <td><span class="badge bg-info">${this.getReasonLabel(adj.reason)}</span></td>
-                    <td>
-                        <small>${new Date(adj.adjusted_at).toLocaleString('id-ID')}</small><br>
-                        <small class="text-muted">oleh: ${adj.adjusted_by_name || '-'}</small>
+                    <td class="py-4 px-4 text-right text-slate-900">${parseFloat(adj.old_stock || 0).toFixed(2)}</td>
+                    <td class="py-4 px-4 text-right text-slate-900">${parseFloat(adj.new_stock || 0).toFixed(2)}</td>
+                    <td class="py-4 px-4 text-right ${diffClass} font-semibold">
+                        ${diffIcon}${difference.toFixed(2)}
                     </td>
-                    <td>
-                        <button class="btn btn-sm btn-info" onclick="StockAdjustmentModule.viewDetail(${adj.id})">
-                            <i class="bi bi-eye"></i>
-                        </button>
+                    <td class="py-4 px-4">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            ${this.getReasonLabel(adj.reason)}
+                        </span>
                     </td>
                 </tr>
             `;

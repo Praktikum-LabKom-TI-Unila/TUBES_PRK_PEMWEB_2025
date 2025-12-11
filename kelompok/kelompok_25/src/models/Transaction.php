@@ -38,7 +38,7 @@ class Transaction extends Model {
                     so.quantity,
                     m.unit,
                     0 as value,
-                    so.usage_type as supplier_name
+                    '-' as supplier_name
                 FROM stock_out so
                 JOIN materials m ON so.material_id = m.id
                 WHERE 1=1";
@@ -59,7 +59,7 @@ class Transaction extends Model {
                     sa.id,
                     sa.adjustment_date as date,
                     m.name as material_name,
-                    sa.difference as quantity,
+                    0 as quantity,
                     m.unit,
                     0 as value,
                     sa.reason as supplier_name

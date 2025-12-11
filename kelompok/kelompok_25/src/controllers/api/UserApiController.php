@@ -104,8 +104,7 @@ class UserApiController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => $validated['password'],
-            'is_active' => isset($input['is_active']) ? (int)$input['is_active'] : 1,
-            'avatar_url' => $input['avatar_url'] ?? null
+            'is_active' => isset($input['is_active']) ? (int)$input['is_active'] : 1
         ];
 
         $this->userModel->beginTransaction();
@@ -156,8 +155,7 @@ class UserApiController extends Controller
 
         $updateData = [
             'name' => $validated['name'],
-            'email' => $validated['email'],
-            'avatar_url' => $input['avatar_url'] ?? $existing['avatar_url'] ?? null
+            'email' => $validated['email']
         ];
 
         if (array_key_exists('is_active', $input)) {

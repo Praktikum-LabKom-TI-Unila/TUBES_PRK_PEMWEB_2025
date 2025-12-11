@@ -11,7 +11,6 @@ class Material extends Model {
                     m.unit,
                     m.current_stock,
                     m.min_stock,
-                    m.image_url,
                     c.name as category_name,
                     COALESCE(
                         (SELECT unit_price FROM stock_in WHERE material_id = m.id ORDER BY created_at DESC LIMIT 1),

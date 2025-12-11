@@ -20,10 +20,10 @@
             <table class="w-full text-sm">
                 <thead class="text-slate-500 border-b">
                     <tr>
-                        <th class="py-3 text-left">No</th>
-                        <th class="text-left">Material</th>
-                        <th class="text-right">Jumlah</th>
-                        <th class="text-left">Tanggal</th>
+                        <th class="py-3 px-4 text-left w-16">No</th>
+                        <th class="py-3 px-4 text-left">Material</th>
+                        <th class="py-3 px-4 text-right w-32">Jumlah</th>
+                        <th class="py-3 px-4 text-left w-48">Tanggal</th>
                     </tr>
                 </thead>
                 <tbody class="text-slate-700" id="stockOutTableBody">

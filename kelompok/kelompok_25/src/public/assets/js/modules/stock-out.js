@@ -239,13 +239,18 @@ const StockOutModule = {
             const no = (this.state.currentPage - 1) * 20 + index + 1;
             
             return `
-                <tr>
-                    <td>${no}</td>
-                    <td>${so.material_code ? so.material_code + '<br>' : ''}${so.material_name || '-'}</td>
-                    <td class="text-end"><strong>${parseFloat(so.quantity || 0).toFixed(2)}</strong></td>
-                    <td>
-                        <small>${new Date(so.transaction_date).toLocaleDateString('id-ID')}</small><br>
-                        <small class="text-muted">oleh: ${so.created_by_name || '-'}</small>
+                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                    <td class="py-4 px-4 text-slate-600">${no}</td>
+                    <td class="py-4 px-4">
+                        <div class="font-medium text-slate-900">${so.material_name || '-'}</div>
+                        ${so.material_code ? `<div class="text-xs text-slate-500 mt-1">${so.material_code}</div>` : ''}
+                    </td>
+                    <td class="py-4 px-4 text-right">
+                        <span class="font-semibold text-slate-900">${parseFloat(so.quantity || 0).toFixed(2)}</span>
+                    </td>
+                    <td class="py-4 px-4">
+                        <div class="text-slate-900">${new Date(so.transaction_date).toLocaleDateString('id-ID')}</div>
+                        <div class="text-xs text-slate-500 mt-1">oleh: ${so.created_by_name || '-'}</div>
                     </td>
                 </tr>
             `;
