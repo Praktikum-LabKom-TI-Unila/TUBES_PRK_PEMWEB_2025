@@ -17,8 +17,8 @@ echo getHeader("Login - EduStruct");
 <body class="flex items-center justify-center min-h-screen bg-gray-100 p-4">
     <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 animate-fade-in">
         <div class="text-center mb-6">
-            <h1 class="text-3xl font-bold text-primary">EduStruct</h1>
-            <p class="text-gray-500 text-sm mt-1">Masuk untuk melanjutkan pembelajaran</p>
+            <h1 class="text-3xl font-bold text-primary">Codevis</h1>
+            <p class="text-gray-500 text-sm mt-1">Masuk untuk mulai belajar</p>
         </div>
         <?php if(isset($err)) echo "<div class='bg-red-50 text-red-600 p-3 rounded mb-4 text-sm text-center'>$err</div>"; ?>
         <form method="POST" class="space-y-4">

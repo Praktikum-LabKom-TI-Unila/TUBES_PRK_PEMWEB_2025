@@ -18,7 +18,7 @@ echo getHeader("Lobby"); echo getNavbar("mahasiswa");
 <body class="bg-gray-100 flex flex-col min-h-screen">
     <main class="flex-1 container mx-auto px-8 py-8 max-w-8xl">
         
-        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-lg mb-8">
+        <div class="bg-gradient-to-r bg-indigo-600 rounded-2xl p-6 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-lg mb-8">
             <div>
                 <h2 class="text-xl font-bold">Gabung Kelas</h2>
                 <p class="text-sm opacity-90">Masukkan kode unik dari dosen.</p>

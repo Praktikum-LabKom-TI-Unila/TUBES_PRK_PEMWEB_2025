@@ -15,7 +15,7 @@ echo getHeader("Register - EduStruct");
     <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 animate-fade-in border border-gray-100">
         <div class="text-center mb-6">
             <h1 class="text-2xl font-bold text-gray-800">Buat Akun Baru</h1>
-            <p class="text-gray-500 text-sm">Bergabung dengan kelas interaktif</p>
+            <p class="text-gray-500 text-sm">Bergabung dengan Codevis</p>
         </div>
         <?php if(isset($err)) echo "<div class='bg-red-50 text-red-600 p-3 rounded mb-4 text-sm text-center'>$err</div>"; ?>
         <form method="POST" class="space-y-4">

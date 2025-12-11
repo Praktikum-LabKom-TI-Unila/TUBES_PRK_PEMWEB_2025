@@ -73,8 +73,7 @@ function getNavbar($section) {
                 
                 <div class="flex items-center gap-4">
                     <a href="'.$homeLink.'" class="flex items-center gap-2 group">
-                        <div class="w-9 h-9 bg-gradient-to-br from-primary to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md group-hover:shadow-lg transition transform group-hover:rotate-3">E</div>
-                        <span class="font-bold text-xl text-gray-800 tracking-tight hidden sm:block">Edu<span class="text-primary">Struct</span></span>
+                        <span class="text-primary font-bold text-xl text-gray-800 tracking-tight hidden sm:block">Codevis</span></span>
                     </a>
 
                     <div class="h-6 w-px bg-gray-300 mx-2 hidden sm:block"></div>
@@ -113,7 +112,7 @@ function getFooter() {
     return '
     <footer class="bg-white border-t border-gray-200 mt-auto">
         <div class="container mx-auto px-4 py-6 text-center text-sm text-gray-500">
-            &copy; ' . date('Y') . ' <span class="font-bold text-primary">EduStruct</span>. All rights reserved.
+            &copy; ' . date('Y') . ' <span class="font-bold text-primary">Codevis</span>. All rights reserved.
         </div>
     </footer>';
 }
