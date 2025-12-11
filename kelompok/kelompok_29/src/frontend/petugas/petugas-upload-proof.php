@@ -25,7 +25,7 @@ $isEdit = !empty($task['completionImageUrl']);
     
     <div class="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div class="max-w-4xl mx-auto p-4 flex items-center gap-3">
-            <a href="petugas-task-detail.php?id=<?php echo htmlspecialchars($task['id']); ?>" class="w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded-lg text-gray-700 text-xl transition-colors">&larr;</a>
+            <a href="petugas-task-detail.php?id=<?php echo htmlspecialchars($task['id']); ?>" class="w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded-lg text-gray-700 text-xl transition-colors">←</a>
             <div>
                 <h1 class="text-xl font-semibold text-gray-900">Upload Bukti Penyelesaian</h1>
                 <p class="text-gray-600 text-sm">#<?php echo htmlspecialchars($task['id']); ?></p>
@@ -37,8 +37,8 @@ $isEdit = !empty($task['completionImageUrl']);
         <div class="max-w-4xl mx-auto p-4">
             <form id="uploadProofForm" class="space-y-6">
                 
-                <div class="bg-white rounded-xl p-6 border border-gray-200">
-                    <h2 class="mb-4 text-xl font-semibold">Tugas yang Diselesaikan</h2>
+                <div class="bg-white rounded-xl p-4 border border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-700 mb-3">Tugas yang Diselesaikan</h2>
                     <div class="flex gap-4">
                         <div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
                             <img src="<?php echo htmlspecialchars($task['imageUrl']); ?>" alt="<?php echo htmlspecialchars($task['title']); ?>" class="w-full h-full object-cover" />
@@ -46,16 +46,21 @@ $isEdit = !empty($task['completionImageUrl']);
                         <div>
                             <p class="text-gray-900 font-medium mb-1"><?php echo htmlspecialchars($task['title']); ?></p>
                             <p class="text-gray-600 text-sm"><?php echo htmlspecialchars($task['category']); ?></p>
-                            <p class="text-gray-500 text-xs mt-2"><?php echo htmlspecialchars($task['location']); ?></p>
+                            <p class="text-gray-500 text-xs mt-1"><?php echo htmlspecialchars($task['location']); ?></p>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-xl p-6 border border-gray-200">
-                    <label class="block text-gray-900 font-medium mb-2">
+                <div class="bg-white rounded-xl p-4 border border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-700 mb-4">Foto Kondisi Sebelum</h3>
+                    <img src="<?php echo htmlspecialchars($task['imageUrl']); ?>" alt="Sebelum" class="w-full h-64 object-cover rounded-lg" />
+                </div>
+
+                <div class="bg-white rounded-xl p-4 border border-gray-200">
+                    <label class="block text-gray-900 font-medium mb-2 text-sm">
                         Foto Bukti Penyelesaian <span class="text-red-500">*</span>
                     </label>
-                    <p class="text-gray-600 mb-4 text-sm">
+                    <p class="text-gray-600 mb-4 text-xs">
                         Upload foto kondisi infrastruktur setelah diperbaiki
                     </p>
                     
@@ -63,11 +68,11 @@ $isEdit = !empty($task['completionImageUrl']);
                         </div>
                 </div>
 
-                <div class="bg-white rounded-xl p-6 border border-gray-200">
-                    <label for="notes" class="block text-gray-900 font-medium mb-2">
+                <div class="bg-white rounded-xl p-4 border border-gray-200">
+                    <label for="notes" class="block text-gray-900 font-medium mb-2 text-sm">
                         Catatan Penyelesaian <span class="text-red-500">*</span>
                     </label>
-                    <p class="text-gray-600 mb-4 text-sm">
+                    <p class="text-gray-600 mb-4 text-xs">
                         Jelaskan pekerjaan yang telah dilakukan
                     </p>
                     <textarea
@@ -84,22 +89,22 @@ $isEdit = !empty($task['completionImageUrl']);
                         <i class="material-icons text-xl text-blue-600 flex-shrink-0 mt-0.5">info</i>
                         <div>
                             <p class="font-medium mb-1">Informasi Penting</p>
-                            <p class="text-blue-700">Setelah submit, tugas akan ditandai sebagai menunggu validasi admin. Pastikan foto dan catatan sudah sesuai sebelum mengirim.</p>
+                            <p class="text-blue-700 text-xs">Setelah submit, tugas akan ditandai sebagai menunggu validasi admin. Pastikan foto dan catatan sudah sesuai sebelum mengirim.</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="flex gap-3">
+                <div class="flex gap-3 pt-2">
                     <button
                         type="button"
                         onclick="window.location.href='petugas-task-detail.php?id=<?php echo htmlspecialchars($task['id']); ?>'"
-                        class="flex-1 bg-white border border-gray-300 text-gray-700 py-4 rounded-lg hover:bg-gray-50 font-semibold"
+                        class="flex-1 bg-white border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50 font-semibold"
                     >
                         Batal
                     </button>
                     <button
                         type="submit"
-                        class="flex-1 bg-green-600 text-white py-4 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2 font-semibold"
+                        class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2 font-semibold"
                     >
                         <i class="material-icons text-xl">check_circle</i> Kirim Bukti Penyelesaian
                     </button>
@@ -110,10 +115,12 @@ $isEdit = !empty($task['completionImageUrl']);
 
     <script src="js/petugas-upload-proof.js"></script>
     <script>
+        // Data PHP di-pass ke JavaScript
         window.taskInitialData = {
             id: '<?php echo $task['id']; ?>',
             completionImageUrl: <?php echo json_encode($task['completionImageUrl']); ?>,
-            imageUrlBefore: '<?php echo $task['imageUrl']; ?>'
+            imageUrlBefore: '<?php echo $task['imageUrl']; ?>',
+            officerNotes: '<?php echo $task['officerNotes']; ?>'
         };
     </script>
 </body>
