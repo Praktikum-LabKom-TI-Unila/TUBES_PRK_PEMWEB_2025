@@ -108,9 +108,6 @@ CREATE TABLE notifications (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
--- ==========================================
--- SEEDING DATA (DATA DUMMY)
--- ==========================================
 
 -- Insert Categories
 INSERT INTO categories (id, name) VALUES
@@ -147,17 +144,12 @@ INSERT INTO locations (id, name) VALUES
 (19, 'Asrama Mahasiswa'),
 (20, 'Lainnya');
 
--- Insert Users
--- Password semua user: password123
--- Hash: $2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi
 INSERT INTO users (id, name, identity_number, email, password, phone, role, is_active) VALUES
 (1, 'Administrator', 'ADMIN001', 'admin@unila.ac.id', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '081234567890', 'admin', 1),
 (2, 'Budi Santoso', '1817051001', 'budi@students.unila.ac.id', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '08987654321', 'user', 1),
 (3, 'Siti Aminah', '1817051002', 'siti@students.unila.ac.id', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '08111222333', 'user', 1),
 (4, 'Spammer Jahat', '1817051003', 'hacker@students.unila.ac.id', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '000000000', 'user', 0); -- User is_active = 0 (banned)
 
--- Insert Items
--- Assumed IDs: Budi=2, Siti=3
 INSERT INTO items (user_id, category_id, location_id, title, description, type, status, image_path, incident_date, created_at) VALUES
 (2, 1, 6, 'Laptop ASUS ROG', 'Laptop gaming hilang di ruang kelas gedung teknik, warna hitam dengan stiker Apple di belakang. Kondisi masih mulus, spesifikasi i7 gen 10.', 'lost', 'open', 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=400', CURDATE(), NOW()),
 (3, 2, 3, 'KTM dan KTP', 'Dokumen penting berupa KTM Unila dan KTP hilang di area perpustakaan pusat lantai 2. Nama tercantum: Siti Aminah. Mohon bantuannya.', 'lost', 'open', 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=400', CURDATE(), NOW()),
