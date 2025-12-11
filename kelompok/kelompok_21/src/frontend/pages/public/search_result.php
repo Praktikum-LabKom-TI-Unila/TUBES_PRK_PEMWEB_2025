@@ -42,20 +42,29 @@ $result = mysqli_query($conn, $query);
 $tutorsData = [];
 if ($result && mysqli_num_rows($result) > 0) {
     while ($row = mysqli_fetch_assoc($result)) {
-        // Ambil mata pelajaran pertama dari tutor_mapel
-        $mapelQuery = "SELECT nama_mapel FROM tutor_mapel WHERE tutor_id = {$row['id']} LIMIT 1";
+        // Ambil semua jenjang dari tutor_mapel
+        $mapelQuery = "SELECT DISTINCT jenjang FROM tutor_mapel WHERE tutor_id = {$row['id']}";
         $mapelResult = mysqli_query($conn, $mapelQuery);
         
-        $mapel = $row['keahlian']; // default
+        $jenjangList = [];
         if ($mapelResult && mysqli_num_rows($mapelResult) > 0) {
-            $mapelRow = mysqli_fetch_assoc($mapelResult);
-            $mapel = $mapelRow['nama_mapel'];
+            while ($mapelRow = mysqli_fetch_assoc($mapelResult)) {
+                $jenjangList[] = $mapelRow['jenjang'];
+            }
         }
         
+        // Jika tidak ada data di tutor_mapel, set default
+        if (empty($jenjangList)) {
+            $jenjangList = ['SD', 'SMP', 'SMA', 'Umum'];
+        }
+        
+        // Simpan tutor sekali saja dengan array jenjang
         $tutorsData[] = [
             'id' => (int)$row['id'],
             'nama' => $row['nama'],
-            'mapel' => $mapel,
+            'mapel' => $row['keahlian'],
+            'jenjang_list' => $jenjangList, // Array of all jenjang
+            'jenjang' => implode(', ', $jenjangList), // String for display
             'harga' => (int)($row['harga_per_sesi'] ?? 100000),
             'rating' => (float)($row['rating'] ?? 4.5)
         ];
@@ -65,14 +74,14 @@ if ($result && mysqli_num_rows($result) > 0) {
 // Jika database kosong, gunakan data dummy
 if (empty($tutorsData)) {
     $tutorsData = [
-        ['id' => 1, 'nama' => 'Rizky Ramadhan', 'mapel' => 'Matematika', 'harga' => 350000, 'rating' => 4.9],
-        ['id' => 2, 'nama' => 'Aulia Putri', 'mapel' => 'Bahasa Inggris', 'harga' => 420000, 'rating' => 5.0],
-        ['id' => 3, 'nama' => 'Dimas Wahyu', 'mapel' => 'Fisika', 'harga' => 300000, 'rating' => 4.7],
-        ['id' => 4, 'nama' => 'Nadia Fitri', 'mapel' => 'Kimia', 'harga' => 400000, 'rating' => 4.8],
-        ['id' => 5, 'nama' => 'Farhan Akbar', 'mapel' => 'Biologi', 'harga' => 320000, 'rating' => 4.6],
-        ['id' => 6, 'nama' => 'Sinta Maharani', 'mapel' => 'Bahasa Indonesia', 'harga' => 280000, 'rating' => 4.5],
-        ['id' => 7, 'nama' => 'Adi Pratama', 'mapel' => 'Ekonomi', 'harga' => 330000, 'rating' => 4.7],
-        ['id' => 8, 'nama' => 'Maya Sari', 'mapel' => 'Sejarah', 'harga' => 260000, 'rating' => 4.4]
+        ['id' => 1, 'nama' => 'Rizky Ramadhan', 'mapel' => 'Matematika', 'jenjang' => 'SMA', 'harga' => 350000, 'rating' => 4.9],
+        ['id' => 2, 'nama' => 'Aulia Putri', 'mapel' => 'Bahasa Inggris', 'jenjang' => 'SMP', 'harga' => 420000, 'rating' => 5.0],
+        ['id' => 3, 'nama' => 'Dimas Wahyu', 'mapel' => 'Fisika', 'jenjang' => 'SMA', 'harga' => 300000, 'rating' => 4.7],
+        ['id' => 4, 'nama' => 'Nadia Fitri', 'mapel' => 'Kimia', 'jenjang' => 'SMA', 'harga' => 400000, 'rating' => 4.8],
+        ['id' => 5, 'nama' => 'Farhan Akbar', 'mapel' => 'Biologi', 'jenjang' => 'SMP', 'harga' => 320000, 'rating' => 4.6],
+        ['id' => 6, 'nama' => 'Sinta Maharani', 'mapel' => 'Bahasa Indonesia', 'jenjang' => 'SD', 'harga' => 280000, 'rating' => 4.5],
+        ['id' => 7, 'nama' => 'Adi Pratama', 'mapel' => 'Ekonomi', 'jenjang' => 'SMA', 'harga' => 330000, 'rating' => 4.7],
+        ['id' => 8, 'nama' => 'Maya Sari', 'mapel' => 'Sejarah', 'jenjang' => 'Kuliah', 'harga' => 260000, 'rating' => 4.4]
     ];
 }
 ?>
@@ -178,38 +187,49 @@ window.onclick = function(event) {
         </button>
       </form>
 
-      <!-- FILTERS -->
-      <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 8px; color: #64748b; font-weight: 600; margin-right: 5px;">
-          <i class="bi bi-funnel" style="font-size: 16px;"></i>
-          <span>Filter:</span>
+      <!-- FILTERS - Clean Horizontal Design -->
+      <div style="display: flex; gap: 10px; align-items: center; background: #f8fafc; padding: 14px 18px; border-radius: 12px; border: 1px solid #e2e8f0; overflow-x: auto; flex-wrap: wrap;">
+        
+        <!-- Filter Icon & Label -->
+        <div style="display: flex; align-items: center; gap: 8px; padding-right: 10px;">
+          <i class="bi bi-sliders" style="color: #FF6B35; font-size: 18px;"></i>
+          <span style="color: #334155; font-size: 15px; font-weight: 600; white-space: nowrap;">Filter:</span>
         </div>
         
-        <button class="filter-btn" data-filter="SD">SD</button>
-        <button class="filter-btn" data-filter="SMP">SMP</button>
-        <button class="filter-btn active" data-filter="SMA">SMA</button>
-        <button class="filter-btn" data-filter="Kuliah">Kuliah</button>
+        <!-- Jenjang Pills -->
+        <button class="filter-pill jenjang-filter active" data-jenjang="Semua">Lihat Semua</button>
+        <button class="filter-pill jenjang-filter" data-jenjang="SD">SD</button>
+        <button class="filter-pill jenjang-filter" data-jenjang="SMP">SMP</button>
+        <button class="filter-pill jenjang-filter" data-jenjang="SMA">SMA</button>
+        <button class="filter-pill jenjang-filter" data-jenjang="Kuliah">Kuliah</button>
         
-        <select id="mapelFilter" style="padding: 10px 18px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; font-size: 14px; color: #1e293b; font-weight: 500; outline: none;">
-          <option value="">Matematika</option>
+        <div style="width: 1px; height: 24px; background: #cbd5e1; margin: 0 4px;"></div>
+        
+        <!-- Mapel Dropdown -->
+        <select id="mapelFilter" style="padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; cursor: pointer; font-size: 14px; color: #334155; font-weight: 500; outline: none; min-width: 140px;">
+          <option value="">Lihat Semua</option>
+          <option value="Matematika">Matematika</option>
           <option value="Fisika">Fisika</option>
           <option value="Kimia">Kimia</option>
           <option value="Biologi">Biologi</option>
           <option value="Bahasa Inggris">Bahasa Inggris</option>
+          <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+          <option value="Ekonomi">Ekonomi</option>
         </select>
 
-        <button class="rating-filter active">4.5+ ⭐</button>
-        <button class="rating-filter">4.0+ ⭐</button>
-        
-        <div style="display: flex; align-items: center; gap: 10px; margin-left: 5px;">
-          <span style="color: #64748b; font-weight: 500; font-size: 14px;">Harga Maks:</span>
-          <input type="range" id="priceRange" min="0" max="200" value="100" style="width: 140px; cursor: pointer;">
-          <span id="priceLabel" style="background: #FF6B35; color: white; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; min-width: 50px; text-align: center;">100k</span>
+        <div style="width: 1px; height: 24px; background: #cbd5e1; margin: 0 4px;"></div>
+
+        <!-- Price Slider -->
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="color: #334155; font-weight: 500; font-size: 14px; white-space: nowrap;">Harga Maks:</span>
+          <input type="range" id="priceRange" min="0" max="500" value="100" step="50" style="width: 120px; cursor: pointer;">
+          <span id="priceLabel" style="background: #FF6B35; color: white; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; min-width: 60px; text-align: center;">100k</span>
         </div>
 
-        <button onclick="resetFilters()" style="background: transparent; border: 2px solid #e2e8f0; color: #64748b; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-left: auto; font-size: 14px; transition: all 0.2s;"
+        <!-- Reset Button -->
+        <button onclick="resetFilters()" style="background: white; border: 1px solid #cbd5e1; color: #64748b; padding: 8px 16px; border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s; white-space: nowrap; margin-left: auto; display: flex; align-items: center; gap: 6px;"
                 onmouseover="this.style.borderColor='#FF6B35'; this.style.color='#FF6B35'"
-                onmouseout="this.style.borderColor='#e2e8f0'; this.style.color='#64748b'">
+                onmouseout="this.style.borderColor='#cbd5e1'; this.style.color='#64748b'">
           <i class="bi bi-arrow-clockwise"></i> Reset
         </button>
       </div>
@@ -229,14 +249,17 @@ window.onclick = function(event) {
     </div>
 
     <!-- SEARCH RESULT GRID -->
-    <div id="resultContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; padding-bottom: 60px;">
+    <div id="resultContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; margin-bottom: 40px;">
       <!-- JS render -->
+    </div>
+
+    <!-- PAGINATION -->
+    <div id="paginationContainer" style="display: flex; justify-content: center; align-items: center; gap: 8px; padding: 40px 0 60px 0;">
+      <!-- JS render pagination -->
     </div>
 
   </div>
 </main>
-
-<?php include '../../layouts/footer.php'; ?>
 
 
 <!-- ================= JS: DATA TUTOR + SEARCH ================= -->
@@ -255,14 +278,30 @@ function getAvatarColor(name) {
   return colors[index];
 }
 
-// RENDER RESULT
+// PAGINATION
+let currentPage = 1;
+const itemsPerPage = 20;
+let filteredData = [...tutorsData];
+
+// RENDER RESULT with Pagination
 function renderResults(list){
+  filteredData = list;
+  currentPage = 1; // Reset to page 1 when filter changes
+  renderPage();
+  renderPagination();
+}
+
+function renderPage() {
   const container = document.getElementById('resultContainer');
   container.innerHTML = "";
   
-  document.getElementById('resultCount').textContent = list.length;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const pageData = filteredData.slice(startIndex, endIndex);
+  
+  document.getElementById('resultCount').textContent = filteredData.length;
 
-  if(list.length === 0){
+  if(filteredData.length === 0){
     container.innerHTML = `
       <p style="grid-column:1/-1;text-align:center;color:#64748b;padding:60px 20px;">
         Tidak ada tutor ditemukan. Coba ubah filter pencarian Anda.
@@ -271,7 +310,7 @@ function renderResults(list){
     return;
   }
 
-  list.forEach(t => {
+  pageData.forEach(t => {
     const card = document.createElement("div");
     card.className = "tutor-card-modern";
     
@@ -358,6 +397,72 @@ function renderResults(list){
   });
 }
 
+function renderPagination() {
+  const paginationContainer = document.getElementById('paginationContainer');
+  paginationContainer.innerHTML = '';
+  
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  
+  if (totalPages <= 1) {
+    paginationContainer.style.display = 'none';
+    return;
+  }
+  
+  paginationContainer.style.display = 'flex';
+  
+  // Previous button
+  const prevBtn = document.createElement('button');
+  prevBtn.innerHTML = '<i class="bi bi-chevron-left"></i>';
+  prevBtn.className = 'pagination-btn';
+  prevBtn.disabled = currentPage === 1;
+  prevBtn.onclick = () => {
+    if (currentPage > 1) {
+      currentPage--;
+      renderPage();
+      renderPagination();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+  paginationContainer.appendChild(prevBtn);
+  
+  // Page numbers
+  const maxVisiblePages = 5;
+  let startPage = Math.max(1, currentPage - 2);
+  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+  
+  if (endPage - startPage < maxVisiblePages - 1) {
+    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  }
+  
+  for (let i = startPage; i <= endPage; i++) {
+    const pageBtn = document.createElement('button');
+    pageBtn.textContent = i;
+    pageBtn.className = 'pagination-btn' + (i === currentPage ? ' active' : '');
+    pageBtn.onclick = () => {
+      currentPage = i;
+      renderPage();
+      renderPagination();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    paginationContainer.appendChild(pageBtn);
+  }
+  
+  // Next button
+  const nextBtn = document.createElement('button');
+  nextBtn.innerHTML = '<i class="bi bi-chevron-right"></i>';
+  nextBtn.className = 'pagination-btn';
+  nextBtn.disabled = currentPage === totalPages;
+  nextBtn.onclick = () => {
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderPage();
+      renderPagination();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+  paginationContainer.appendChild(nextBtn);
+}
+
 // INITIAL RENDER
 renderResults(tutorsData);
 
@@ -377,66 +482,256 @@ document.querySelectorAll('.rating-filter').forEach(btn => {
   });
 });
 
+// Active filters state
+let activeFilters = {
+  jenjang: 'Semua',
+  mapel: '',
+  rating: 0,
+  maxPrice: 500,
+  search: '',
+  sort: 'recommended'
+};
+
+// Apply all filters
+function applyFilters() {
+  let filtered = [...tutorsData];
+  
+  // Filter by jenjang
+  if (activeFilters.jenjang !== 'Semua') {
+    filtered = filtered.filter(t => {
+      // Check if tutor teaches this jenjang (support both string and array)
+      if (Array.isArray(t.jenjang_list)) {
+        return t.jenjang_list.includes(activeFilters.jenjang);
+      }
+      return t.jenjang === activeFilters.jenjang || (t.jenjang && t.jenjang.includes(activeFilters.jenjang));
+    });
+  }
+  
+  // Filter by mapel
+  if (activeFilters.mapel) {
+    filtered = filtered.filter(t => {
+      const mapel = t.mapel || '';
+      return mapel.toLowerCase().includes(activeFilters.mapel.toLowerCase());
+    });
+  }
+  
+  // Filter by rating
+  if (activeFilters.rating > 0) {
+    filtered = filtered.filter(t => t.rating >= activeFilters.rating);
+  }
+  
+  // Filter by price
+  if (activeFilters.maxPrice < 500) {
+    filtered = filtered.filter(t => (t.harga / 1000) <= activeFilters.maxPrice);
+  }
+  
+  // Filter by search
+  if (activeFilters.search) {
+    const q = activeFilters.search.toLowerCase();
+    filtered = filtered.filter(t =>
+      t.nama.toLowerCase().includes(q) || 
+      (t.mapel && t.mapel.toLowerCase().includes(q))
+    );
+  }
+  
+  // Sort
+  switch(activeFilters.sort) {
+    case 'rating':
+      filtered.sort((a, b) => b.rating - a.rating);
+      break;
+    case 'price-low':
+      filtered.sort((a, b) => a.harga - b.harga);
+      break;
+    case 'price-high':
+      filtered.sort((a, b) => b.harga - a.harga);
+      break;
+  }
+  
+  renderResults(filtered);
+}
+
+// Jenjang filter buttons
+document.querySelectorAll('.jenjang-filter').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.jenjang-filter').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    activeFilters.jenjang = this.dataset.jenjang;
+    applyFilters();
+  });
+});
+
+// Rating filter buttons
+document.querySelectorAll('.rating-filter').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.rating-filter').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    activeFilters.rating = parseFloat(this.dataset.rating);
+    applyFilters();
+  });
+});
+
+// Mapel filter dropdown
+document.getElementById('mapelFilter').addEventListener('change', function() {
+  activeFilters.mapel = this.value;
+  applyFilters();
+});
+
 // Price range
 const priceRangeInput = document.getElementById('priceRange');
 const priceLabel = document.getElementById('priceLabel');
 priceRangeInput.addEventListener('input', function() {
-  priceLabel.textContent = this.value + 'k';
+  const value = parseInt(this.value);
+  priceLabel.textContent = value + 'k';
+  activeFilters.maxPrice = value;
+  applyFilters();
 });
 
 // Sort
 document.getElementById('sortBy').addEventListener('change', function() {
-  let sorted = [...tutorsData];
-  switch(this.value) {
-    case 'rating':
-      sorted.sort((a, b) => b.rating - a.rating);
-      break;
-    case 'price-low':
-      sorted.sort((a, b) => a.harga - b.harga);
-      break;
-    case 'price-high':
-      sorted.sort((a, b) => b.harga - a.harga);
-      break;
-  }
-  renderResults(sorted);
+  activeFilters.sort = this.value;
+  applyFilters();
 });
 
 // Live search
 document.getElementById('searchInput').addEventListener('input', function() {
-  const q = this.value.toLowerCase().trim();
-  const filtered = tutorsData.filter(t =>
-    t.nama.toLowerCase().includes(q) || 
-    (t.mapel && t.mapel.toLowerCase().includes(q))
-  );
-  renderResults(filtered);
+  activeFilters.search = this.value.trim();
+  applyFilters();
 });
 
 function resetFilters() {
+  // Reset state
+  activeFilters = {
+    jenjang: 'Semua',
+    mapel: '',
+    rating: 0,
+    maxPrice: 500,
+    search: '',
+    sort: 'recommended'
+  };
+  
+  // Reset UI
   document.getElementById('searchInput').value = '';
-  document.getElementById('priceRange').value = 100;
-  document.getElementById('priceLabel').textContent = '100k';
+  document.getElementById('priceRange').value = 500;
+  document.getElementById('priceLabel').textContent = '500k';
   document.getElementById('sortBy').value = 'recommended';
+  document.getElementById('mapelFilter').value = '';
+  
+  document.querySelectorAll('.jenjang-filter').forEach(b => b.classList.remove('active'));
+  document.querySelector('.jenjang-filter[data-jenjang="Semua"]').classList.add('active');
+  
+  document.querySelectorAll('.rating-filter').forEach(b => b.classList.remove('active'));
+  document.querySelector('.rating-filter[data-rating="0"]').classList.add('active');
+  
   renderResults(tutorsData);
 }
 </script>
 
 <style>
-.filter-btn {
-  padding: 10px 24px;
-  border: 2px solid #e2e8f0;
+/* Pagination Styles */
+.pagination-btn {
+  min-width: 44px;
+  height: 44px;
+  border: none;
   background: white;
-  border-radius: 8px;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 15px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #FFF5F0;
+  color: #FF6B35;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255,107,53,0.2);
+}
+
+.pagination-btn.active {
+  background: linear-gradient(135deg, #FF6B35, #F7931E);
+  color: white;
+  box-shadow: 0 4px 12px rgba(255,107,53,0.3);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Filter Pill Styles */
+.filter-pill {
+  padding: 8px 20px;
+  border: 1px solid #cbd5e1;
+  background: white;
+  border-radius: 20px;
   font-weight: 600;
   font-size: 14px;
   color: #64748b;
   cursor: pointer;
   transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.filter-pill:hover {
+  border-color: #FF6B35;
+  background: #FFF5F0;
+  color: #FF6B35;
+  transform: translateY(-1px);
+}
+
+.filter-pill.active {
+  background: #FF6B35;
+  color: white;
+  border-color: #FF6B35;
+}
+
+.rating-pill {
+  padding: 8px 16px;
+  border: 1px solid #FDE68A;
+  background: #FEF3C7;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #92400E;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.rating-pill:hover {
+  background: #FDE047;
+  border-color: #FDE047;
+  color: #713F12;
+  transform: translateY(-1px);
+}
+
+.rating-pill.active {
+  background: #FDE047;
+  color: #713F12;
+  border-color: #FDE047;
+}
+
+.filter-btn {
+  padding: 6px 16px;
+  border: 2px solid #e2e8f0;
+  background: white;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .filter-btn:hover {
   border-color: #FF6B35;
   color: #FF6B35;
-  transform: translateY(-1px);
 }
 
 .filter-btn.active {
@@ -446,7 +741,7 @@ function resetFilters() {
 }
 
 .rating-filter {
-  padding: 10px 20px;
+  padding: 6px 14px;
   border: 2px solid #e2e8f0;
   background: white;
   border-radius: 8px;

@@ -2,6 +2,16 @@
 $assetPath = "../../assets/";
 include '../../layouts/header.php'; 
 
+// Redirect tutor yang sudah login langsung ke dashboard
+if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] && isset($_SESSION['user_role'])) {
+    if ($_SESSION['user_role'] === 'tutor') {
+        header("Location: ../tutor/dashboard_tutor.php");
+        exit();
+    } elseif ($_SESSION['user_role'] === 'learner') {
+        // Learner boleh akses landing page
+    }
+}
+
 // Koneksi database
 require_once '../../../config/database.php';
 

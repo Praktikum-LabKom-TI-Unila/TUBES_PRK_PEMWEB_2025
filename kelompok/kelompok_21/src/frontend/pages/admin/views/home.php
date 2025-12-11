@@ -10,9 +10,12 @@ $totalTutor = mysqli_fetch_assoc($qTutor)['total'];
 $qPending = mysqli_query($conn, "SELECT COUNT(*) as total FROM users WHERE role = 'tutor' AND status = 'pending'");
 $totalPending = mysqli_fetch_assoc($qPending)['total'];
 
-$totalKelas = 12; 
+// Query untuk booking aktif
+$qKelasAktif = mysqli_query($conn, "SELECT COUNT(*) as total FROM bookings WHERE status IN ('confirmed', 'pending')");
+$totalKelas = mysqli_fetch_assoc($qKelasAktif)['total'];
 
-$chartQuery = mysqli_query($conn, "SELECT keahlian, COUNT(*) as jumlah FROM tutor GROUP BY keahlian");
+// Query untuk sebaran keahlian tutor
+$chartQuery = mysqli_query($conn, "SELECT keahlian, COUNT(*) as jumlah FROM tutor WHERE status = 'Aktif' GROUP BY keahlian ORDER BY jumlah DESC LIMIT 8");
 
 $labels = [];
 $dataChart = [];
@@ -24,6 +27,37 @@ while($row = mysqli_fetch_assoc($chartQuery)) {
 
 $jsonLabels = json_encode($labels);
 $jsonData = json_encode($dataChart);
+
+// Query untuk data registrasi per bulan (12 bulan terakhir)
+$monthlyDataSiswa = [];
+$monthlyDataTutor = [];
+$monthLabels = [];
+
+for ($i = 11; $i >= 0; $i--) {
+    $date = date('Y-m', strtotime("-$i months"));
+    $monthName = date('M', strtotime("-$i months"));
+    $monthLabels[] = $monthName;
+    
+    // Count siswa per bulan
+    $qSiswaMonth = mysqli_query($conn, "SELECT COUNT(*) as total FROM siswa WHERE DATE_FORMAT(created_at, '%Y-%m') = '$date'");
+    $monthlyDataSiswa[] = (int)mysqli_fetch_assoc($qSiswaMonth)['total'];
+    
+    // Count tutor per bulan
+    $qTutorMonth = mysqli_query($conn, "SELECT COUNT(*) as total FROM tutor WHERE DATE_FORMAT(created_at, '%Y-%m') = '$date'");
+    $monthlyDataTutor[] = (int)mysqli_fetch_assoc($qTutorMonth)['total'];
+}
+
+$jsonMonthLabels = json_encode($monthLabels);
+$jsonMonthlySiswa = json_encode($monthlyDataSiswa);
+$jsonMonthlyTutor = json_encode($monthlyDataTutor);
+
+// Query untuk status booking
+$qBookingStatus = mysqli_query($conn, "SELECT status, COUNT(*) as total FROM bookings GROUP BY status");
+$bookingStatus = [];
+while($row = mysqli_fetch_assoc($qBookingStatus)) {
+    $bookingStatus[$row['status']] = (int)$row['total'];
+}
+$jsonBookingStatus = json_encode($bookingStatus);
 
 $logQuery = "SELECT id, name, email, role, status, created_at 
              FROM users 
@@ -99,7 +133,7 @@ $logResult = mysqli_query($conn, $logQuery);
     <div class="col-lg-8">
         <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #0C4A60 !important;">
             <div class="card-header py-3" style="background: linear-gradient(135deg, #0C4A60 0%, #0A5A70 100%); color: white;">
-                <h5 class="card-title mb-0 fw-bold"><i class="fas fa-chart-line me-2"></i>Tren Pendaftaran</h5>
+                <h5 class="card-title mb-0 fw-bold"><i class="fas fa-chart-line me-2"></i>Tren Pendaftaran (12 Bulan Terakhir)</h5>
             </div>
             <div class="card-body">
                 <canvas id="registrationChart" height="100"></canvas>
@@ -110,10 +144,10 @@ $logResult = mysqli_query($conn, $logQuery);
     <div class="col-lg-4">
         <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #9AD4D6 !important;">
             <div class="card-header py-3" style="background: linear-gradient(135deg, #9AD4D6 0%, #B5E5E7 100%); color: #0C4A60;">
-                <h5 class="card-title mb-0 fw-bold"><i class="fas fa-graduation-cap me-2"></i>Sebaran Keahlian</h5>
+                <h5 class="card-title mb-0 fw-bold"><i class="fas fa-graduation-cap me-2"></i>Sebaran Keahlian Tutor</h5>
             </div>
             <div class="card-body d-flex align-items-center justify-content-center">
-                <div style="width: 100%;">
+                <div style="width: 100%; max-height: 280px;">
                     <canvas id="categoryChart"></canvas>
                 </div>
             </div>
@@ -237,31 +271,119 @@ $logResult = mysqli_query($conn, $logQuery);
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+    // Grafik Tren Pendaftaran (Line Chart)
+    const monthLabels = <?= $jsonMonthLabels ?>;
+    const siswaData = <?= $jsonMonthlySiswa ?>;
+    const tutorData = <?= $jsonMonthlyTutor ?>;
+    
     const ctxReg = document.getElementById('registrationChart').getContext('2d');
     new Chart(ctxReg, {
         type: 'line',
         data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+            labels: monthLabels,
             datasets: [{
                 label: 'Siswa Baru',
-                data: [12, 19, 3, 5, 2, 3, 20, 45, 30, 55, 40, <?= $totalSiswa ?>], 
-                borderColor: '#0d6efd',
-                backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                borderWidth: 2, fill: true, tension: 0.4
+                data: siswaData,
+                borderColor: '#0C4A60',
+                backgroundColor: 'rgba(12, 74, 96, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 5,
+                pointBackgroundColor: '#0C4A60',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointHoverRadius: 7
             },
             {
                 label: 'Tutor Baru',
-                data: [2, 3, 1, 0, 1, 2, 5, 10, 8, 12, 5, <?= $totalTutor ?>], 
-                borderColor: '#198754',
-                backgroundColor: 'rgba(25, 135, 84, 0.1)',
-                borderWidth: 2, fill: true, tension: 0.4
+                data: tutorData,
+                borderColor: '#FF6B35',
+                backgroundColor: 'rgba(255, 107, 53, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 5,
+                pointBackgroundColor: '#FF6B35',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointHoverRadius: 7
             }]
         },
-        options: { responsive: true, plugins: { legend: { position: 'top' } } }
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 15,
+                        font: {
+                            size: 13,
+                            weight: '600'
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    titleFont: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
+                    displayColors: true,
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.parsed.y + ' orang';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1,
+                        font: {
+                            size: 12
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 12
+                        }
+                    }
+                }
+            }
+        }
     });
 
+    // Grafik Sebaran Keahlian (Doughnut Chart)
     const dbLabels = <?= $jsonLabels ?>; 
     const dbData = <?= $jsonData ?>;
+
+    const colors = [
+        '#0C4A60',
+        '#9AD4D6',
+        '#FF6B35',
+        '#F7DC6F',
+        '#4A90E2',
+        '#50C878',
+        '#9B59B6',
+        '#E67E22'
+    ];
 
     const ctxCat = document.getElementById('categoryChart').getContext('2d');
     new Chart(ctxCat, {
@@ -270,10 +392,61 @@ $logResult = mysqli_query($conn, $logQuery);
             labels: dbLabels,
             datasets: [{
                 data: dbData,
-                backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'],
-                borderWidth: 1
+                backgroundColor: colors.slice(0, dbLabels.length),
+                borderWidth: 3,
+                borderColor: '#fff',
+                hoverOffset: 10
             }]
         },
-        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        font: {
+                            size: 12,
+                            weight: '600'
+                        },
+                        usePointStyle: true,
+                        generateLabels: function(chart) {
+                            const data = chart.data;
+                            if (data.labels.length && data.datasets.length) {
+                                return data.labels.map((label, i) => {
+                                    const value = data.datasets[0].data[i];
+                                    return {
+                                        text: label + ' (' + value + ')',
+                                        fillStyle: data.datasets[0].backgroundColor[i],
+                                        hidden: false,
+                                        index: i
+                                    };
+                                });
+                            }
+                            return [];
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    titleFont: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
+                    callbacks: {
+                        label: function(context) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((context.parsed / total) * 100).toFixed(1);
+                            return context.label + ': ' + context.parsed + ' tutor (' + percentage + '%)';
+                        }
+                    }
+                }
+            }
+        }
     });
 </script>

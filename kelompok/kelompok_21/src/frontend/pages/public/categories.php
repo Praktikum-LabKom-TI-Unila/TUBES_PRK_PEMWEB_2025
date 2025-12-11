@@ -5,30 +5,25 @@ include '../../layouts/header.php';
 // Koneksi database
 require_once '../../../config/database.php';
 
-// Fetch all subjects with tutor count
-$query = "SELECT s.subject_name, COUNT(DISTINCT s.tutor_id) as tutor_count
-          FROM subjects s 
-          INNER JOIN tutor t ON s.tutor_id = t.id 
-          WHERE t.status = 'Aktif' 
-          GROUP BY s.subject_name 
-          ORDER BY tutor_count DESC, s.subject_name ASC";
+// Fetch all subjects with tutor count based on keahlian
+$query = "SELECT t.keahlian, COUNT(DISTINCT t.id) as tutor_count,
+          GROUP_CONCAT(DISTINCT tm.jenjang ORDER BY tm.jenjang SEPARATOR ', ') as jenjang_list
+          FROM tutor t
+          LEFT JOIN tutor_mapel tm ON t.id = tm.tutor_id
+          WHERE t.status = 'Aktif'
+          GROUP BY t.keahlian
+          ORDER BY tutor_count DESC, t.keahlian ASC";
 
 $result = mysqli_query($conn, $query);
 $allSubjects = [];
 if ($result && mysqli_num_rows($result) > 0) {
     while ($row = mysqli_fetch_assoc($result)) {
-        // Extract jenjang dari subject_name
-        $jenjangList = [];
-        if (stripos($row['subject_name'], 'SD') !== false) $jenjangList[] = 'SD';
-        if (stripos($row['subject_name'], 'SMP') !== false) $jenjangList[] = 'SMP';
-        if (stripos($row['subject_name'], 'SMA') !== false) $jenjangList[] = 'SMA';
-        if (stripos($row['subject_name'], 'UTBK') !== false) $jenjangList[] = 'UTBK';
-        if (stripos($row['subject_name'], 'SMK') !== false) $jenjangList[] = 'SMK';
+        $jenjangList = $row['jenjang_list'] ? explode(', ', $row['jenjang_list']) : ['Semua Jenjang'];
         
         $allSubjects[] = [
-            'subject_name' => $row['subject_name'],
+            'subject_name' => $row['keahlian'],
             'tutor_count' => $row['tutor_count'],
-            'jenjang_list' => !empty($jenjangList) ? implode(', ', $jenjangList) : 'Semua Jenjang'
+            'jenjang_list' => !empty($jenjangList) ? implode(', ', array_unique($jenjangList)) : 'Semua Jenjang'
         ];
     }
 }

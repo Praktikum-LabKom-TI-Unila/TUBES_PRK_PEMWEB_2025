@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($row['role'] == 'admin') {
                 header("Location: ../../frontend/pages/admin/dashboard.php");
             } elseif ($row['role'] == 'tutor') {
-                header("Location: ../../frontend/pages/tutor/dashboard.php");
+                header("Location: ../../frontend/pages/tutor/dashboard_tutor.php");
             } elseif ($row['role'] == 'learner') {
                 header("Location: ../../frontend/pages/learner/dashboard_siswa.php");
             } else {
