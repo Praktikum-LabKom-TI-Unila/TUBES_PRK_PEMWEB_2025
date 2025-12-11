@@ -6,13 +6,11 @@ if (!isset($assetPath)) {
 
 <div class="sb-sidebar">
   
-  <!-- Brand -->
   <div class="sb-side-header">
     <img src="<?php echo $assetPath ?>img/logo.png" class="sb-side-logo">
     <span class="sb-side-title">ScholarBridge</span>
   </div>
 
-  <!-- Menu -->
   <ul class="sb-side-menu">
 
     <li>

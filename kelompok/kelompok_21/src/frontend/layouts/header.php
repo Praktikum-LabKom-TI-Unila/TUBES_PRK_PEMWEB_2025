@@ -3,7 +3,6 @@ if (!isset($assetPath)) {
   $assetPath = "../../../assets/";
 }
 
-// Gunakan absolute path untuk logo agar konsisten
 if (!isset($logoPath)) {
   $logoPath = "/kelompok/kelompok_21/src/assets/img/logo.png";
 }
@@ -25,42 +24,34 @@ $userRole = $_SESSION['user_role'] ?? '';
 
   <title>ScholarBridge</title>
 
-  <!-- Bootstrap Icons -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
     rel="stylesheet">
 
-  <!-- Custom CSS -->
   <link rel="stylesheet" href="<?php echo $assetPath ?>css/style.css">
 </head>
 
 <body>
 
-<!-- NAVBAR -->
 <nav class="sb-navbar">
   <div class="sb-nav-container">
 
-    <!-- Logo/Brand -->
     <div class="sb-brand">
       <img src="<?php echo $logoPath; ?>" alt="ScholarBridge Logo" class="logo">
       <span>ScholarBridge</span>
     </div>
 
-    <!-- Menu -->
     <ul class="sb-menu">
       <?php if ($isLoggedIn && $userRole === 'learner'): ?>
-        <!-- Menu untuk Siswa yang sudah login -->
         <li><a href="../learner/dashboard_siswa.php">Beranda</a></li>
         <li><a href="../public/search_result.php">Cari Tutor</a></li>
         <li><a href="../learner/sesi_saya.php">Sesi Saya</a></li>
         <li><a href="../learner/riwayat.php">Riwayat Booking</a></li>
       <?php elseif ($isLoggedIn && $userRole === 'tutor'): ?>
-        <!-- Menu untuk Tutor yang sudah login -->
         <li><a href="../tutor/dashboard_tutor.php">Beranda</a></li>
         <li><a href="../public/search_result.php">Cari Tutor</a></li>
         <li><a href="#kelas-saya">Kelas Saya</a></li>
       <?php else: ?>
-        <!-- Menu untuk Guest (belum login) -->
         <li><a href="../public/landing_page.php">Beranda</a></li>
         <li><a href="../public/search_result.php">Cari Tutor</a></li>
         <li><a href="../public/categories.php">Kategori</a></li>
@@ -68,7 +59,6 @@ $userRole = $_SESSION['user_role'] ?? '';
       <?php endif; ?>
     </ul>
 
-    <!-- Action Buttons -->
     <div style="display: flex; gap: 10px; align-items: center;">
       <?php if ($isLoggedIn): ?>
         <?php if ($userRole === 'tutor'): ?>

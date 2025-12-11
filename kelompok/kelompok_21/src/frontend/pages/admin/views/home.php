@@ -10,11 +10,9 @@ $totalTutor = mysqli_fetch_assoc($qTutor)['total'];
 $qPending = mysqli_query($conn, "SELECT COUNT(*) as total FROM users WHERE role = 'tutor' AND status = 'pending'");
 $totalPending = mysqli_fetch_assoc($qPending)['total'];
 
-// Query untuk booking aktif
 $qKelasAktif = mysqli_query($conn, "SELECT COUNT(*) as total FROM bookings WHERE status IN ('confirmed', 'pending')");
 $totalKelas = mysqli_fetch_assoc($qKelasAktif)['total'];
 
-// Query untuk sebaran keahlian tutor
 $chartQuery = mysqli_query($conn, "SELECT keahlian, COUNT(*) as jumlah FROM tutor WHERE status = 'Aktif' GROUP BY keahlian ORDER BY jumlah DESC LIMIT 8");
 
 $labels = [];
@@ -28,7 +26,6 @@ while($row = mysqli_fetch_assoc($chartQuery)) {
 $jsonLabels = json_encode($labels);
 $jsonData = json_encode($dataChart);
 
-// Query untuk data registrasi per bulan (12 bulan terakhir)
 $monthlyDataSiswa = [];
 $monthlyDataTutor = [];
 $monthLabels = [];
@@ -38,11 +35,9 @@ for ($i = 11; $i >= 0; $i--) {
     $monthName = date('M', strtotime("-$i months"));
     $monthLabels[] = $monthName;
     
-    // Count siswa per bulan
     $qSiswaMonth = mysqli_query($conn, "SELECT COUNT(*) as total FROM siswa WHERE DATE_FORMAT(created_at, '%Y-%m') = '$date'");
     $monthlyDataSiswa[] = (int)mysqli_fetch_assoc($qSiswaMonth)['total'];
     
-    // Count tutor per bulan
     $qTutorMonth = mysqli_query($conn, "SELECT COUNT(*) as total FROM tutor WHERE DATE_FORMAT(created_at, '%Y-%m') = '$date'");
     $monthlyDataTutor[] = (int)mysqli_fetch_assoc($qTutorMonth)['total'];
 }
@@ -51,7 +46,6 @@ $jsonMonthLabels = json_encode($monthLabels);
 $jsonMonthlySiswa = json_encode($monthlyDataSiswa);
 $jsonMonthlyTutor = json_encode($monthlyDataTutor);
 
-// Query untuk status booking
 $qBookingStatus = mysqli_query($conn, "SELECT status, COUNT(*) as total FROM bookings GROUP BY status");
 $bookingStatus = [];
 while($row = mysqli_fetch_assoc($qBookingStatus)) {
@@ -216,7 +210,6 @@ $logResult = mysqli_query($conn, $logQuery);
                             $timeAgo = $days . ' hari lalu';
                         }
                         
-                        // Tentukan warna status
                         $statusClass = 'secondary';
                         $statusText = 'Baru';
                         if ($log['role'] == 'tutor' && $log['status'] == 'pending') {
@@ -271,7 +264,6 @@ $logResult = mysqli_query($conn, $logQuery);
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    // Grafik Tren Pendaftaran (Line Chart)
     const monthLabels = <?= $jsonMonthLabels ?>;
     const siswaData = <?= $jsonMonthlySiswa ?>;
     const tutorData = <?= $jsonMonthlyTutor ?>;
@@ -370,7 +362,6 @@ $logResult = mysqli_query($conn, $logQuery);
         }
     });
 
-    // Grafik Sebaran Keahlian (Doughnut Chart)
     const dbLabels = <?= $jsonLabels ?>; 
     const dbData = <?= $jsonData ?>;
 

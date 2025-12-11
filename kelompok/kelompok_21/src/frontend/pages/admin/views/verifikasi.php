@@ -1,8 +1,6 @@
 <?php
 global $conn;
 
-// Query untuk tutor yang menunggu verifikasi
-// Menggunakan INNER JOIN karena data tutor HARUS ada di kedua tabel
 $pendingQuery = "SELECT t.*, u.status as user_status, u.created_at as register_date, u.name as user_name
                  FROM users u
                  INNER JOIN tutor t ON u.email = t.email
@@ -12,7 +10,6 @@ $pendingQuery = "SELECT t.*, u.status as user_status, u.created_at as register_d
 $pendingResult = mysqli_query($conn, $pendingQuery);
 $totalPending = mysqli_num_rows($pendingResult);
 
-// Query untuk riwayat verifikasi (tutor yang sudah disetujui atau ditolak)
 $historyQuery = "SELECT t.*, u.status as user_status, u.created_at as register_date, u.name as user_name,
                  CASE 
                      WHEN u.status = 'active' AND t.status = 'Aktif' THEN 'approved'
@@ -180,7 +177,7 @@ $historyResult = mysqli_query($conn, $historyQuery);
                             // Time ago
                             $registerTimestamp = strtotime($history['register_date']);
                             $currentTimestamp = time();
-                            $timeAgo = abs($currentTimestamp - $registerTimestamp); // Use absolute value to prevent negative numbers
+                            $timeAgo = abs($currentTimestamp - $registerTimestamp); 
                             
                             if ($timeAgo < 60) {
                                 $timeText = 'Baru saja';
