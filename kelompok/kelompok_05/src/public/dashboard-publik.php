@@ -1,12 +1,7 @@
 <?php
-/**
- * LampungSmart - Dashboard Publik Real-Time
- * Public Dashboard & Priority Voting
- * Zero-Auth | WCAG 2.2 AA Compliant
- */
-
 session_start();
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -26,8 +21,9 @@ session_start();
     <link href="../assets/css/landing-page.css" rel="stylesheet">
     <link href="../assets/css/logo-navbar.css" rel="stylesheet">
     <link href="../assets/css/dashboard-voting.css" rel="stylesheet">
+    <link href="../assets/css/dashboard-publik-custom.css" rel="stylesheet">
 </head>
-<body>
+<body <?php echo (isset($_SESSION['login']) && $_SESSION['login'] === true) ? 'data-logged-in="true"' : ''; ?>>
 
     <?php include '../layouts/navbar-landing.php'; ?>
 
@@ -55,9 +51,9 @@ session_start();
                 <div class="col-12 text-center">
                     <h2 class="section-title">Metrik Real-Time</h2>
                     <p class="section-subtitle">
-                        Pantau aktivitas platform secara langsung
-                        <span class="badge bg-lampung-gold-light text-lampung-gold ms-2">
-                            <i class="bi bi-broadcast"></i> Data Simulasi
+                        Pantau aktivitas platform secara transparan berdasarkan data aktual
+                        <span class="badge bg-success text-white ms-2">
+                            <i class="bi bi-database-check"></i> Data Real Database
                         </span>
                     </p>
                 </div>
@@ -93,40 +89,29 @@ session_start();
                     </div>
                 </div>
                 
-                <!-- Response Time Gauge -->
+                <!-- Total UMKM Aktif -->
                 <div class="col-md-6">
                     <div class="card shadow-lampung-md border-0 h-100">
                         <div class="card-body p-4">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div>
                                     <h5 class="card-title text-lampung-green-dark mb-1">
-                                        <i class="bi bi-speedometer2"></i> Waktu Respons Rata-Rata
+                                        <i class="bi bi-shop-window"></i> Total Pendaftaran UMKM Aktif
                                     </h5>
-                                    <p class="text-muted small mb-0">Target: &lt; 4 jam</p>
+                                    <p class="text-muted small mb-0">Status: Approved</p>
                                 </div>
                                 <span class="badge bg-lampung-green-light text-lampung-green">
-                                    <i class="bi bi-check-circle"></i> Optimal
+                                    <i class="bi bi-arrow-clockwise"></i> Live
                                 </span>
                             </div>
                             <div class="text-center py-4">
-                                <div class="response-gauge-container position-relative d-inline-block">
-                                    <svg width="180" height="180" viewBox="0 0 180 180" class="response-gauge">
-                                        <circle cx="90" cy="90" r="75" fill="none" stroke="#e9ecef" stroke-width="15"/>
-                                        <circle id="response-gauge" cx="90" cy="90" r="75" fill="none" 
-                                                stroke="#009639" stroke-width="15" stroke-linecap="round"
-                                                stroke-dasharray="471" stroke-dashoffset="118"
-                                                transform="rotate(-90 90 90)" 
-                                                style="transition: stroke-dashoffset 0.5s ease;"/>
-                                    </svg>
-                                    <div class="position-absolute top-50 start-50 translate-middle text-center">
-                                        <div id="response-time" class="fs-1 fw-bold text-lampung-green">2.5</div>
-                                        <div class="text-muted small">jam</div>
-                                    </div>
-                                </div>
+                                <div id="umkm-counter" class="display-2 fw-bold text-lampung-green mb-2" 
+                                     aria-live="polite" aria-atomic="true">0</div>
+                                <div class="text-muted">UMKM terdaftar</div>
                             </div>
                             <div class="text-center">
                                 <small class="text-muted">
-                                    <i class="bi bi-info-circle"></i> Diperbarui secara real-time
+                                    <i class="bi bi-clock-history"></i> Update setiap 5 detik
                                 </small>
                             </div>
                         </div>
@@ -141,56 +126,107 @@ session_start();
         <div class="container">
             <div class="row mb-4">
                 <div class="col-lg-8 mx-auto text-center">
-                    <h2 class="section-title">Bantu Prioritaskan Pengaduan</h2>
+                    <h2 class="section-title">Pengaduan Teratas Berdasarkan Vote Warga</h2>
                     <p class="section-subtitle">
-                        Vote pengaduan paling mendesak menurut Anda. Suara Anda membantu kami memprioritaskan penanganan.
+                        Ini adalah pengaduan yang paling banyak di-vote oleh warga. 
+                        <?php if (isset($_SESSION['login']) && $_SESSION['login'] === true): ?>
+                            Vote pengaduan yang menurut Anda paling mendesak untuk membantu prioritas penanganan.
+                        <?php else: ?>
+                            <a href="../auth/login.php" class="text-lampung-blue fw-bold">Login</a> untuk ikut vote dan prioritaskan pengaduan mendesak.
+                        <?php endif; ?>
                     </p>
                     <div class="mt-3">
-                        <span class="badge bg-lampung-blue text-white px-3 py-2">
-                            <i class="bi bi-hand-thumbs-up"></i> <span id="votes-remaining">3 votes remaining</span>
+                        <span class="badge bg-lampung-blue-light text-lampung-blue px-3 py-2">
+                            <i class="bi bi-trophy"></i> Transparansi Prioritas Publik
                         </span>
                     </div>
                 </div>
             </div>
             
             <?php
-            // Mock complaints data (ethical simulation)
-            $mockComplaints = [
-                [
-                    'id' => 'cmp-001',
-                    'title' => 'Jalan Berlubang Besar di Jl. Merdeka (Fiktif)',
-                    'description' => 'Lubang ukuran 2x3 meter menyebabkan kemacetan dan risiko kecelakaan',
-                    'urgency' => 85,
-                    'votes' => 247,
-                    'location' => 'Jl. Merdeka No. 100 (Lokasi Contoh)',
-                    'icon' => 'cone-striped',
-                    'color' => 'red'
-                ],
-                [
-                    'id' => 'cmp-002',
-                    'title' => 'Lampu Jalan Mati - Area Pasar (Simulasi)',
-                    'description' => 'Total 15 lampu mati, area gelap total sejak 3 hari lalu',
-                    'urgency' => 72,
-                    'votes' => 189,
-                    'location' => 'Dekat Pasar Tradisional (Data Demo)',
-                    'icon' => 'lightbulb',
-                    'color' => 'blue'
-                ],
-                [
-                    'id' => 'cmp-003',
-                    'title' => 'Sampah Menumpuk Jl. Raya Utara (Test Data)',
-                    'description' => 'Tumpukan sampah belum diangkut 3 hari, bau menyengat',
-                    'urgency' => 68,
-                    'votes' => 156,
-                    'location' => 'Jl. Raya Utara Km 5 (Contoh)',
-                    'icon' => 'trash',
-                    'color' => 'green'
-                ]
-            ];
+            // Load pengaduan dari database (bukan mock)
+            require '../config/config.php';
+            
+            // Query pengaduan dengan join upvotes
+            // HANYA TAMPILKAN PENGADUAN YANG PUNYA VOTES (transparansi prioritas)
+            $query = "
+                SELECT 
+                    p.id,
+                    p.judul,
+                    p.deskripsi,
+                    p.lokasi,
+                    p.status,
+                    p.created_at,
+                    COUNT(DISTINCT uv.id) as total_upvotes,
+                    CASE 
+                        WHEN EXISTS (
+                            SELECT 1 FROM pengaduan_upvotes 
+                            WHERE pengaduan_id = p.id 
+                            AND user_id = " . (isset($_SESSION['user_id']) ? intval($_SESSION['user_id']) : 0) . "
+                        ) THEN 1 
+                        ELSE 0 
+                    END as user_upvoted
+                FROM pengaduan p
+                LEFT JOIN pengaduan_upvotes uv ON p.id = uv.pengaduan_id
+                WHERE p.status IN ('pending', 'proses')
+                GROUP BY p.id
+                HAVING total_upvotes > 0
+                ORDER BY total_upvotes DESC, p.created_at DESC
+                LIMIT 6
+            ";
+            
+            $result = mysqli_query($conn, $query);
+            $realComplaints = [];
+            
+            if ($result && mysqli_num_rows($result) > 0) {
+                while ($row = mysqli_fetch_assoc($result)) {
+                    // Determine icon and color based on keywords
+                    $icon = 'exclamation-triangle';
+                    $color = 'blue';
+                    
+                    if (stripos($row['judul'], 'jalan') !== false || stripos($row['judul'], 'lubang') !== false) {
+                        $icon = 'cone-striped';
+                        $color = 'red';
+                    } elseif (stripos($row['judul'], 'lampu') !== false || stripos($row['judul'], 'listrik') !== false) {
+                        $icon = 'lightbulb';
+                        $color = 'gold';
+                    } elseif (stripos($row['judul'], 'sampah') !== false || stripos($row['judul'], 'kebersihan') !== false) {
+                        $icon = 'trash';
+                        $color = 'green';
+                    }
+                    
+                    // Calculate urgency based on upvotes and age
+                    $days_old = (time() - strtotime($row['created_at'])) / (60 * 60 * 24);
+                    $urgency = min(100, ($row['total_upvotes'] * 5) + (max(0, 10 - $days_old) * 3));
+                    
+                    $realComplaints[] = [
+                        'id' => $row['id'],
+                        'title' => htmlspecialchars($row['judul']),
+                        'description' => htmlspecialchars(substr($row['deskripsi'], 0, 100) . '...'),
+                        'urgency' => round($urgency),
+                        'votes' => intval($row['total_upvotes']),
+                        'location' => htmlspecialchars($row['lokasi']),
+                        'icon' => $icon,
+                        'color' => $color,
+                        'user_upvoted' => $row['user_upvoted'] == 1
+                    ];
+                }
+            }
+            
+            // Jika tidak ada data, tampilkan pesan
+            if (empty($realComplaints)) {
+                echo '<div class="col-12"><div class="alert alert-info text-center">';
+                echo '<i class="bi bi-info-circle"></i> Belum ada pengaduan dengan vote dari warga saat ini.';
+                echo '<br><small class="text-muted">Vote akan muncul di sini setelah warga memberikan vote pada pengaduan.</small>';
+                if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
+                    echo '<br><a href="../auth/login.php" class="btn btn-primary mt-3">Login untuk Vote & Buat Pengaduan</a>';
+                }
+                echo '</div></div>';
+            }
             ?>
             
-            <div class="row g-4">
-                <?php foreach ($mockComplaints as $index => $complaint): ?>
+            <div class="row g-4" id="pengaduan-list">
+                <?php foreach ($realComplaints as $index => $complaint): ?>
                 <div class="col-lg-4">
                     <div class="complaint-card">
                         <div class="d-flex justify-content-between align-items-start mb-3">
@@ -215,14 +251,20 @@ session_start();
                         </div>
                         
                         <div class="d-flex justify-content-between align-items-center">
-                            <button class="vote-btn btn btn-primary btn-sm" 
-                                    data-complaint-id="<?php echo $complaint['id']; ?>"
+                            <button class="vote-btn btn <?php echo $complaint['user_upvoted'] ? 'btn-success' : 'btn-primary'; ?> btn-sm" 
+                                    data-pengaduan-id="<?php echo $complaint['id']; ?>"
+                                    data-upvoted="<?php echo $complaint['user_upvoted'] ? '1' : '0'; ?>"
+                                    <?php if (!isset($_SESSION['login']) || $_SESSION['login'] !== true): ?>
+                                    title="Login untuk vote pengaduan ini"
+                                    data-bs-toggle="tooltip"
+                                    <?php endif; ?>
                                     aria-label="Vote untuk pengaduan ini">
-                                <i class="bi bi-hand-thumbs-up"></i> Vote
+                                <i class="bi bi-hand-thumbs-up<?php echo $complaint['user_upvoted'] ? '-fill' : ''; ?>"></i> 
+                                <?php echo $complaint['user_upvoted'] ? 'Voted' : 'Vote'; ?>
                             </button>
                             <span class="vote-count-badge badge bg-lampung-gold text-dark" 
                                   id="vote-count-<?php echo $complaint['id']; ?>">
-                                <i class="bi bi-people-fill"></i> <?php echo $complaint['votes']; ?>
+                                <i class="bi bi-people-fill"></i> <span class="vote-number"><?php echo $complaint['votes']; ?></span>
                             </span>
                         </div>
                     </div>
@@ -230,14 +272,19 @@ session_start();
                 <?php endforeach; ?>
             </div>
             
+            <?php if (!empty($realComplaints)): ?>
             <div class="row mt-4">
                 <div class="col-12 text-center">
                     <div class="alert alert-lampung-info border-left-lampung-blue">
                         <i class="bi bi-info-circle"></i> 
-                        <strong>Demo Mode:</strong> Voting menggunakan sessionStorage. Data akan reset setelah browser ditutup.
+                        <strong>Data Real-Time:</strong> Pengaduan diurutkan berdasarkan jumlah vote dan tingkat urgensi.
+                        <?php if (!isset($_SESSION['login']) || !$_SESSION['login']): ?>
+                        <br><a href="../auth/login.php" class="btn btn-sm btn-primary mt-2">Login untuk Vote</a>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
+            <?php endif; ?>
         </div>
     </section>
     
@@ -296,70 +343,25 @@ session_start();
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
+    <!-- Initialize Bootstrap Tooltips -->
+    <script>
+        // Enable Bootstrap tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+    
     <!-- Dashboard Live Updates -->
     <script src="../assets/js/dashboard-live.js"></script>
     
+    <!-- Upvote Handler (Real Data) -->
+    <script src="../assets/js/upvote-handler.js"></script>
+    
     <!-- Voting Widget -->
     <script src="../assets/js/voting-widget.js"></script>
-    
-    <!-- Custom Hover Effects -->
-    <style>
-        /* Card hover animations */
-        .card {
-            transition: all 0.3s ease-in-out;
-        }
-        .card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 24px rgba(0, 48, 143, 0.15) !important;
-        }
-        
-        /* Complaint card hover */
-        .complaint-card {
-            transition: all 0.3s ease-in-out;
-            cursor: pointer;
-        }
-        .complaint-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 48, 143, 0.2) !important;
-            border-color: var(--lampung-blue) !important;
-        }
-        
-        /* Icon hover effect */
-        .complaint-icon {
-            transition: all 0.3s ease-in-out;
-        }
-        .complaint-card:hover .complaint-icon {
-            transform: scale(1.1) rotate(5deg);
-        }
-        
-        /* Vote button pulse effect */
-        @keyframes pulse-vote {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        .vote-btn:hover {
-            animation: pulse-vote 0.6s ease-in-out;
-        }
-        
-        /* Footer links hover */
-        footer a {
-            transition: all 0.3s ease-in-out;
-        }
-        footer a:hover {
-            color: var(--lampung-gold) !important;
-            transform: translateX(5px);
-            display: inline-block;
-        }
-        
-        /* Social media icons hover */
-        footer .d-flex a {
-            transition: all 0.3s ease-in-out;
-        }
-        footer .d-flex a:hover {
-            transform: translateY(-3px) scale(1.2);
-            color: var(--lampung-gold) !important;
-        }
-    </style>
 
 </body>
 </html>

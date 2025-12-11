@@ -3,10 +3,18 @@ session_start();
 require '../config/config.php';
 
 if (isset($_SESSION['login'])) {
-    if ($_SESSION['role'] == 'admin') {
-        header("Location: ../admin/index.php");
+    // Cek apakah ada redirect yang disimpan sebelumnya
+    if (isset($_SESSION['redirect_after_login'])) {
+        $redirect = $_SESSION['redirect_after_login'];
+        unset($_SESSION['redirect_after_login']);
+        header("Location: $redirect");
     } else {
-        header("Location: ../dashboard/dashboard_warga.php");
+        // Redirect berdasarkan role jika tidak ada redirect tersimpan
+        if ($_SESSION['role'] == 'admin') {
+            header("Location: ../admin/index.php");
+        } else {
+            header("Location: ../dashboard/dashboard_warga.php");
+        }
     }
     exit;
 }
@@ -29,10 +37,18 @@ if (isset($_POST['login'])) {
             $_SESSION['role'] = $row['role'];
             $_SESSION['profile_photo'] = $row['profile_photo'] ?? 'default.jpg'; 
 
-            if ($row['role'] == 'admin') {
-                header("Location: ../admin/index.php");
+            // Cek apakah ada redirect yang disimpan sebelumnya
+            if (isset($_SESSION['redirect_after_login'])) {
+                $redirect = $_SESSION['redirect_after_login'];
+                unset($_SESSION['redirect_after_login']);
+                header("Location: $redirect");
             } else {
-                header("Location: ../dashboard/dashboard_warga.php");
+                // Redirect berdasarkan role jika tidak ada redirect tersimpan
+                if ($row['role'] == 'admin') {
+                    header("Location: ../admin/index.php");
+                } else {
+                    header("Location: ../dashboard/dashboard_warga.php");
+                }
             }
             exit;
         }
