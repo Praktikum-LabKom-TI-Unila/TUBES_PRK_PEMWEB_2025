@@ -132,3 +132,127 @@ Admin menangani pengelolaan data dan konfigurasi sistem.
 2. Mengelola data dokter, pasien, poli, jadwal, dan pengumuman
 3. Melihat daftar pengguna sistem
 4. Mengatur konfigurasi layanan klinik
+
+Struktur Folder
+Berikut adalah struktur direktori utama dari Sistem Informasi Puskesmas:
+
+public/
+│
+├── admin/
+│   ├── modals/
+│   │   ├── modal_dokter.php
+│   │   ├── modal_pengumuman.php
+│   │   └── modal_poli.php
+│   │
+│   ├── cetak_rujukan_pdf.php
+│   ├── dashboard.php
+│   ├── data_dokter.php
+│   ├── data_pasien.php
+│   ├── data_poli.php
+│   ├── jadwal_praktik.php
+│   ├── pengumuman.php
+│   ├── profil.php
+│   ├── rujukan.php
+│   └── sidebar.php
+│
+├── dokter/
+│   ├── cetak_rujukan.php
+│   ├── daftar_pasien.php
+│   ├── dashboard.php
+│   ├── detail_rekam_medis.php
+│   ├── header.php
+│   ├── pemeriksaan.php
+│   ├── profil_dokter.php
+│   ├── proses_pemeriksaan.php
+│   ├── rekam_medis.php
+│   └── sidebar.php
+│
+├── pasien/
+│   ├── forgot_password.php
+│   ├── index.php
+│   ├── login.php
+│   ├── logout.php
+│   ├── register.php
+│   └── reset_password.php
+│
+├── img/
+│   └── (asset icon dan gambar)
+│
+└── partials/
+    ├── footer.php
+    ├── header.php
+    └── logout_modal.php
+
+src/
+│
+├── config/
+│   ├── database.php
+│   └── mail.php
+│
+└── helpers/
+    ├── auth.php
+    └── icon_helper.php
+Instalasi Sistem
+1. Clone Repository
+git clone <repository-url>
+cd sistem-puskesmas
+2. Konfigurasi Database
+Buat database baru di MySQL/MariaDB (misal nama: puskesmas_db).
+Import file SQL yang ada pada folder project (biasanya bernama database.sql atau sejenisnya).
+Sesuaikan koneksi database pada file konfigurasi:
+Contoh PHP Native:
+
+config/database.php
+Contoh CodeIgniter:
+
+app/Config/Database.php
+Contoh Node.js:
+
+config/db.js
+Atur sesuai kebutuhan:
+
+DB_HOST=localhost
+DB_USER=root
+DB_PASS=
+DB_NAME=puskesmas_db
+3. Menjalankan Server
+Jika PHP Native / CI / tanpa framework:
+Jalankan melalui XAMPP / Laragon:
+
+Pindahkan folder project ke:
+htdocs/   (untuk XAMPP)
+www/      (untuk WAMP)
+Start Apache dan MySQL
+Akses aplikasi melalui browser:
+http://localhost/sistem-puskesmas
+Jika berbasis Node.js:
+Jalankan:
+
+npm install
+npm start
+Akses aplikasi:
+
+http://localhost:3000
+Cara Menjalankan Aplikasi
+1. Persiapan
+Pastikan web server aktif (Apache/Nginx)
+Pastikan database sudah terhubung
+Pastikan semua file konfigurasi sudah benar
+2. Jalankan Sistem
+Akses melalui browser:
+
+http://localhost/sistem-puskesmas
+3. Login Pengguna
+Jika terdapat akun default (bergantung pada database.sql):
+
+Admin
+
+Username: admin
+Password: admin123 (contoh)
+Dokter
+
+Username: dokter1
+Password: dokter123 (contoh)
+Pasien
+
+Registrasi langsung melalui halaman pendaftaran
