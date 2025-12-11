@@ -13,8 +13,6 @@
 
 <div align="center">
 
-![myUnila Lost & Found]()
-
 **Sistem Manajemen Barang Hilang & Temuan Berbasis Web**  
 *Praktikum Pemrograman Web 2025 - Universitas Lampung*
 
