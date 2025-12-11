@@ -80,3 +80,27 @@ Jika ingin menjalankan di `localhost` (XAMPP/Laragon):
     ```
 4.  Buka browser dan akses path proyek:
     `http://localhost/TUBES/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_01/src` jika pakai folder tambahan TUBES (bisa lebih rapih), kalo tidak pakai folder TUBES tidak perlu di masukan.
+
+## Tampilan
+Kasir
+https://github.com/AlyaNayraSyafiqa/TUBES_PRK_PEMWEB_2025/blob/master/kelompok/kelompok_01/tampilanweb/dashboardkasir.png
+https://github.com/AlyaNayraSyafiqa/TUBES_PRK_PEMWEB_2025/blob/master/kelompok/kelompok_01/tampilanweb/cetakstrukkasir.png
+https://github.com/AlyaNayraSyafiqa/TUBES_PRK_PEMWEB_2025/blob/master/kelompok/kelompok_01/tampilanweb/laporankasir.png
+https://github.com/AlyaNayraSyafiqa/TUBES_PRK_PEMWEB_2025/blob/master/kelompok/kelompok_01/tampilanweb/profilekasir.png
+https://github.com/AlyaNayraSyafiqa/TUBES_PRK_PEMWEB_2025/blob/master/kelompok/kelompok_01/tampilanweb/riwayatkasir.png 
+
+Admin
+https://github.com/AlyaNayraSyafiqa/TUBES_PRK_PEMWEB_2025/blob/master/kelompok/kelompok_01/tampilanweb/dashboardadmin1.png
+https://github.com/AlyaNayraSyafiqa/TUBES_PRK_PEMWEB_2025/blob/master/kelompok/kelompok_01/tampilanweb/dashboardadmin2.png
+https://github.com/AlyaNayraSyafiqa/TUBES_PRK_PEMWEB_2025/blob/master/kelompok/kelompok_01/tampilanweb/menemenuadmin.png
+https://github.com/AlyaNayraSyafiqa/TUBES_PRK_PEMWEB_2025/blob/master/kelompok/kelompok_01/tampilanweb/meneuseradmin.png
+https://github.com/AlyaNayraSyafiqa/TUBES_PRK_PEMWEB_2025/blob/master/kelompok/kelompok_01/tampilanweb/profiladmin.png
+https://github.com/AlyaNayraSyafiqa/TUBES_PRK_PEMWEB_2025/blob/master/kelompok/kelompok_01/tampilanweb/menetransaksi.png
+
+Owner 
+https://github.com/AlyaNayraSyafiqa/TUBES_PRK_PEMWEB_2025/blob/master/kelompok/kelompok_01/tampilanweb/dashboardowner1.jpg
+https://github.com/AlyaNayraSyafiqa/TUBES_PRK_PEMWEB_2025/blob/master/kelompok/kelompok_01/tampilanweb/dashboardowner2.jpg
+https://github.com/AlyaNayraSyafiqa/TUBES_PRK_PEMWEB_2025/blob/master/kelompok/kelompok_01/tampilanweb/laporanowner.jpg
+https://github.com/AlyaNayraSyafiqa/TUBES_PRK_PEMWEB_2025/blob/master/kelompok/kelompok_01/tampilanweb/menuowner.jpg 
+https://github.com/AlyaNayraSyafiqa/TUBES_PRK_PEMWEB_2025/blob/master/kelompok/kelompok_01/tampilanweb/profilowner.jpg
+https://github.com/AlyaNayraSyafiqa/TUBES_PRK_PEMWEB_2025/blob/master/kelompok/kelompok_01/tampilanweb/userowner.jpg
