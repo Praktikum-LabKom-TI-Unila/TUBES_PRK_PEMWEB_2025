@@ -201,7 +201,7 @@ $kategori_result->data_seek(0);
                 <div class="overflow-hidden text-white">
                     <p class="font-bold text-sm truncate leading-tight"><?= htmlspecialchars($owner['nama'] ?? 'Owner') ?></p>
                     <p class="text-xs opacity-90"><?= ucfirst($owner['role'] ?? 'Admin') ?></p>
-                    <a href="logout.php" class="text-xs text-red-200 hover:text-white flex items-center gap-1 mt-1 transition-colors">
+                    <a href="../logout.php" class="text-xs text-red-200 hover:text-white flex items-center gap-1 mt-1 transition-colors">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a>
                 </div>
