@@ -18,7 +18,7 @@ function getMasterBundleId($koneksi, $user1, $user2) {
     return $d['id'] ?? null;
 }
 
-// KIRIM REQUEST / AJAK KOLABORASI
+// 1. KIRIM REQUEST / AJAK KOLABORASI
 if ($action == 'create_request') {
     $mitra_id    = mysqli_real_escape_string($koneksi, $_POST['mitra_id']);
     $nama_bundle = mysqli_real_escape_string($koneksi, $_POST['nama_bundle'] ?? 'Kolaborasi Baru');
@@ -44,7 +44,7 @@ if ($action == 'create_request') {
     }
 }
 
-// KIRIM PESAN CHAT (+ FILE UPLOAD)
+// 2. KIRIM PESAN CHAT (+ FILE UPLOAD)
 if ($action == 'send_message') {
     $bundle_id = mysqli_real_escape_string($koneksi, $_POST['bundle_id']);
     $message   = mysqli_real_escape_string($koneksi, $_POST['message']);
@@ -81,8 +81,12 @@ if ($action == 'send_message') {
         $master_chat_id = getMasterBundleId($koneksi, $my_id, $partner_id);
         if(!$master_chat_id) $master_chat_id = $bundle_id;
 
+        // PERBAIKAN: Handle NULL value untuk attachment agar tidak error 'Data truncated'
+        $sql_attachment = $attachment ? "'$attachment'" : "NULL";
+        $sql_type       = $attachment_type ? "'$attachment_type'" : "NULL";
+
         $q_chat = "INSERT INTO chats (bundle_id, sender_id, message, attachment, attachment_type, created_at) 
-                   VALUES ('$master_chat_id', '$my_id', '$message', '$attachment', '$attachment_type', NOW())";
+                   VALUES ('$master_chat_id', '$my_id', '$message', $sql_attachment, $sql_type, NOW())";
         
         if (mysqli_query($koneksi, $q_chat)) {
             header("Location: chat_room.php?bundle_id=$master_chat_id"); exit;
@@ -94,7 +98,7 @@ if ($action == 'send_message') {
     }
 }
 
-// TERIMA REQUEST (ACCEPT)
+// 3. TERIMA REQUEST (ACCEPT)
 if ($action == 'accept') {
     $bundle_id = $_POST['bundle_id'];
     $update = mysqli_query($koneksi, "UPDATE bundles SET status='active' WHERE id='$bundle_id' AND mitra_id='$my_id'");
@@ -108,14 +112,14 @@ if ($action == 'accept') {
     }
 }
 
-// TOLAK REQUEST (REJECT)
+// 4. TOLAK REQUEST (REJECT)
 if ($action == 'reject') {
     $bundle_id = $_POST['bundle_id'];
     mysqli_query($koneksi, "UPDATE bundles SET status='rejected' WHERE id='$bundle_id' AND mitra_id='$my_id'");
     echo "<script>alert('Kolaborasi Ditolak.'); window.location='request.php';</script>";
 }
 
-// AJUKAN KESEPAKATAN / DEAL (PROPOSAL)
+// 5. AJUKAN KESEPAKATAN / DEAL (PROPOSAL)
 if ($action == 'propose_deal') {
     $bundle_id = mysqli_real_escape_string($koneksi, $_POST['bundle_id']);
     
@@ -139,7 +143,7 @@ if ($action == 'propose_deal') {
 }
 
 
-// TERIMA KESEPAKATAN (ACCEPT DEAL) - VALIDASI DUPLIKAT & UPDATE STATUS
+// 6. TERIMA KESEPAKATAN (ACCEPT DEAL)
 if ($action == 'accept_deal_proposal') {
     $chat_id = $_POST['chat_id'];
     
@@ -205,7 +209,7 @@ if ($action == 'accept_deal_proposal') {
     }
 }
 
-// BATALKAN (CANCEL)
+// 7. BATALKAN (CANCEL)
 if ($action == 'cancel_bundle') {
     $bundle_id = mysqli_real_escape_string($koneksi, $_POST['bundle_id']);
     
@@ -225,7 +229,7 @@ if ($action == 'cancel_bundle') {
     }
 }
 
-// AJUKAN VOUCHER (PROPOSAL)
+// 8. AJUKAN VOUCHER (PROPOSAL)
 if ($action == 'create_voucher') {
     $target_bundle_id = mysqli_real_escape_string($koneksi, $_POST['bundle_id']);
     $kode_voucher     = strtoupper(mysqli_real_escape_string($koneksi, $_POST['kode_voucher']));
@@ -250,7 +254,7 @@ if ($action == 'create_voucher') {
     echo "<script>window.location='chat_room.php?bundle_id=$master_chat_id';</script>";
 }
 
-// TERIMA VOUCHER (ACCEPT) - VALIDASI DUPLIKAT & UPDATE STATUS
+// 9. TERIMA VOUCHER (ACCEPT)
 if ($action == 'accept_voucher_proposal') {
     $chat_id = $_POST['chat_id'];
     
