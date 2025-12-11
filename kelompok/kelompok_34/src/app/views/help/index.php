@@ -74,28 +74,40 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div class="bg-white/10 p-6 rounded-xl hover:bg-white/15 transition-all">
-        <div class="bg-gradient-to-br from-blue-500/30 to-purple-500/30 rounded-xl aspect-video mb-4 flex items-center justify-center">
-          <i data-lucide="play-circle" class="w-16 h-16 text-white/80"></i>
+        <div class="rounded-xl aspect-video mb-4 overflow-hidden">
+          <iframe
+            width="100%"
+            height="100%"
+            src="https://www.youtube.com/embed/eCOtHb_pzI4"
+            title="Cara Memulai Transaksi"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            class="rounded-xl">
+          </iframe>
         </div>
         <h4 class="font-bold mb-2">Cara Memulai Transaksi</h4>
         <p class="text-sm text-gray-200 mb-3">Panduan lengkap untuk penjual pemula</p>
-        <button class="text-blue-300 hover:text-blue-200 text-sm font-semibold flex items-center gap-2 transition">
-          <i data-lucide="play" class="w-4 h-4"></i>
-          Tonton Sekarang
-        </button>
       </div>
 
-      <div class="bg-white/10 p-6 rounded-xl hover:bg-white/15 transition-all">
-        <div class="bg-gradient-to-br from-green-500/30 to-teal-500/30 rounded-xl aspect-video mb-4 flex items-center justify-center">
-          <i data-lucide="play-circle" class="w-16 h-16 text-white/80"></i>
+      <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+        <div class="bg-white/10 p-6 rounded-xl hover:bg-white/15 transition-all">
+          <div class="rounded-xl aspect-video mb-4 overflow-hidden">
+            <iframe
+              width="100%"
+              height="100%"
+              src="https://www.youtube.com/embed/yi_Vmm4B5oQ"
+              title="Mengelola Produk (Admin)"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              class="rounded-xl">
+            </iframe>
+          </div>
+          <h4 class="font-bold mb-2">Mengelola Produk (Admin)</h4>
+          <p class="text-sm text-gray-200 mb-3">Tambah, edit, dan hapus produk dengan mudah</p>
         </div>
-        <h4 class="font-bold mb-2">Mengelola Produk (Admin)</h4>
-        <p class="text-sm text-gray-200 mb-3">Tambah, edit, dan hapus produk dengan mudah</p>
-        <button class="text-green-300 hover:text-green-200 text-sm font-semibold flex items-center gap-2 transition">
-          <i data-lucide="play" class="w-4 h-4"></i>
-          Tonton Sekarang
-        </button>
-      </div>
+      <?php endif; ?>
     </div>
   </div>
 
