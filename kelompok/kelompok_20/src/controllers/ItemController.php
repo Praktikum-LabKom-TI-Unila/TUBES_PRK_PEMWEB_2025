@@ -2,16 +2,19 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../models/Item.php';
+require_once __DIR__ . '/../models/Notification.php';
 
 final class ItemController
 {
     private Item $itemModel;
+    private Notification $notificationModel;
     private string $uploadDir;
     private int $itemsPerPage = 12;
 
     public function __construct()
     {
         $this->itemModel = new Item();
+        $this->notificationModel = new Notification();
         $this->uploadDir = __DIR__ . '/../assets/uploads/items/';
     }
 
@@ -230,6 +233,19 @@ final class ItemController
             redirect('index.php?page=items&action=create');
             return;
         }
+
+        // Notifikasi 1: Konfirmasi laporan berhasil dibuat
+        $typeLabel = $type === 'lost' ? 'kehilangan' : 'penemuan';
+        $this->notificationModel->create(
+            $_SESSION['user_id'],
+            '✅ Laporan Berhasil Dipublikasikan',
+            "Laporan {$typeLabel} \"{$title}\" telah berhasil dipublikasikan dan dapat dilihat oleh pengguna lain.",
+            "index.php?page=items&action=show&id={$itemId}",
+            'item_created'
+        );
+
+        // Notifikasi 2: Cek item matching dan beri notifikasi ke pemilik item yang cocok
+        $this->notifyMatchingItems($itemId, $type, $title, $categoryId, $locationId);
 
         flash('message', 'Laporan berhasil dibuat!', 'success');
         redirect('index.php?page=items&action=show&id=' . $itemId);
@@ -478,5 +494,50 @@ final class ItemController
         $isOwner = (int) $item['user_id'] === $currentUserId;
 
         return $isOwner || isAdmin();
+    }
+
+    /**
+     * Mencari item yang cocok dan memberi notifikasi ke pemilik item tersebut
+     * Ketika ada laporan baru, cek apakah ada item dengan tipe berlawanan (lost vs found)
+     * yang cocok berdasarkan kategori dan lokasi
+     */
+    private function notifyMatchingItems(int $newItemId, string $type, string $title, int $categoryId, int $locationId): void
+    {
+        // Ambil data item yang baru dibuat
+        $newItem = $this->itemModel->getById($newItemId);
+        if (!$newItem) {
+            return;
+        }
+        
+        // Cari item yang cocok menggunakan findMatches
+        $matches = $this->itemModel->findMatches($newItem, 5);
+        
+        if (empty($matches)) {
+            return;
+        }
+
+        $typeLabel = $type === 'lost' ? 'kehilangan' : 'penemuan';
+        $oppositeLabel = $oppositeType === 'lost' ? 'kehilangan' : 'penemuan';
+        
+        // Notifikasi ke pemilik item yang cocok (tanpa duplikasi)
+        $notifiedUsers = [];
+        foreach ($matches as $match) {
+            $matchOwnerId = (int) $match['user_id'];
+            
+            // Skip jika user yang sama atau sudah dinotifikasi
+            if ($matchOwnerId === $_SESSION['user_id'] || in_array($matchOwnerId, $notifiedUsers, true)) {
+                continue;
+            }
+            
+            $this->notificationModel->create(
+                $matchOwnerId,
+                '🔍 Ada Barang yang Cocok!',
+                "Laporan {$typeLabel} baru \"{$title}\" mungkin cocok dengan laporan {$oppositeLabel} Anda. Cek sekarang!",
+                "index.php?page=items&action=show&id={$newItemId}",
+                'item_match'
+            );
+            
+            $notifiedUsers[] = $matchOwnerId;
+        }
     }
 }

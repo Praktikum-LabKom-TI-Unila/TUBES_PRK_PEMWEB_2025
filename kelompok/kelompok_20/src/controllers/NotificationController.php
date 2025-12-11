@@ -23,8 +23,22 @@ final class NotificationController
             return;
         }
 
-        $notifications = $this->notificationModel->getAllByUserId($_SESSION['user_id'], 50);
+        // Ambil filter dari query parameter
+        $current_filter = clean($_GET['filter'] ?? 'all');
+        $validFilters = ['all', 'unread', 'claims', 'reports'];
+        if (!in_array($current_filter, $validFilters, true)) {
+            $current_filter = 'all';
+        }
+
+        // Ambil notifikasi berdasarkan filter
+        $typeFilter = $current_filter === 'all' ? null : $current_filter;
+        $notifications = $this->notificationModel->getAllByUserId($_SESSION['user_id'], 50, $typeFilter);
+        
+        // Hitung per kategori
         $unread_count = $this->notificationModel->countUnread($_SESSION['user_id']);
+        $reports_count = $this->notificationModel->countByType($_SESSION['user_id'], 'reports');
+        $claims_count = $this->notificationModel->countByType($_SESSION['user_id'], 'claims');
+        $all_count = $this->notificationModel->countByType($_SESSION['user_id'], 'all');
 
         $pageTitle = 'Notifikasi - myUnila Lost & Found';
 

@@ -77,12 +77,15 @@ final class CommentController
             return;
         }
 
+        // Notifikasi: Beri tahu pemilik item bahwa ada komentar baru (jika bukan komentar sendiri)
         if ((int) $item['user_id'] !== $_SESSION['user_id']) {
+            $commenterName = $_SESSION['user']['name'] ?? 'Seseorang';
             $this->notificationModel->create(
                 (int) $item['user_id'],
-                'Komentar Baru',
-                $_SESSION['user']['name'] . ' mengomentari laporan Anda: "' . $item['title'] . '"',
-                'index.php?page=items&action=show&id=' . $itemId . '#comment-' . $commentId
+                '💬 Komentar Baru di Laporan Anda',
+                "{$commenterName} mengomentari laporan \"{$item['title']}\". Lihat komentar sekarang!",
+                'index.php?page=items&action=show&id=' . $itemId . '#comments',
+                'item_comment'
             );
         }
 

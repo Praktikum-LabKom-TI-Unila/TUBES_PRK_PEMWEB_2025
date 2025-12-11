@@ -37,10 +37,10 @@ declare(strict_types=1);
             <div class="flex space-x-3 pb-2">
                 <?php
                 $filters = [
-                    'all' => ['label' => 'Semua', 'count' => count($notifications)],
+                    'all' => ['label' => 'Semua', 'count' => $all_count ?? count($notifications)],
                     'unread' => ['label' => 'Belum Dibaca', 'count' => $unread_count],
-                    'claims' => ['label' => 'Klaim', 'count' => array_reduce($notifications, fn($c, $n) => $c + (str_contains($n['type'] ?? '', 'claim')), 0)],
-                    'reports' => ['label' => 'Laporan Saya', 'count' => array_reduce($notifications, fn($c, $n) => $c + (str_contains($n['type'] ?? '', 'item') || str_contains($n['type'] ?? '', 'new_claim')), 0)],
+                    'claims' => ['label' => 'Klaim', 'count' => $claims_count ?? 0],
+                    'reports' => ['label' => 'Laporan Saya', 'count' => $reports_count ?? 0],
                 ];
                 $active_filter = $current_filter ?? 'all'; 
                 ?>
