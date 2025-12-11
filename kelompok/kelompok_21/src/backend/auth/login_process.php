@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } elseif ($row['role'] == 'tutor') {
                 header("Location: ../../frontend/pages/tutor/dashboard.php");
             } elseif ($row['role'] == 'learner') {
-                header("Location: ../../frontend/pages/learner/dashboard.php");
+                header("Location: ../../frontend/pages/learner/dashboard_siswa.php");
             } else {
                 header("Location: ../../frontend/pages/public/landing_page.php");
             }
