@@ -297,7 +297,7 @@
             </a>
 
             <!-- Kelola Kelas Card -->
-            <a href="#daftar-kelas" class="group block bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl shadow-xl p-8 hover:shadow-2xl hover:scale-105 transition-all duration-300 overflow-hidden relative">
+            <button onclick="showKelasList()" class="group w-full text-left bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl shadow-xl p-8 hover:shadow-2xl hover:scale-105 transition-all duration-300 overflow-hidden relative">
                 <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full"></div>
                 <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full"></div>
                 <div class="relative flex items-center justify-between">
@@ -321,7 +321,7 @@
                         </div>
                     </div>
                 </div>
-            </a>
+            </button>
         </div>
 
         <!-- Daftar Kelas -->
@@ -377,9 +377,14 @@
                             </span>
                             <span class="text-purple-700 text-sm font-semibold">32 Mhs</span>
                         </div>
-                        <a href="detail-kelas-dosen.php?id=1" class="block w-full text-center bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
-                            Lihat Detail
-                        </a>
+                        <div class="flex gap-2">
+                            <a href="detail-kelas-dosen.php?id=1" class="flex-1 text-center bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                Lihat Detail
+                            </a>
+                            <button onclick="goToKelolaMaterI(1)" class="flex-1 text-center bg-gradient-to-r from-pink-600 to-pink-700 hover:from-pink-700 hover:to-pink-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                Kelola Materi
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -405,9 +410,14 @@
                             </span>
                             <span class="text-pink-700 text-sm font-semibold">28 Mhs</span>
                         </div>
-                        <a href="detail-kelas-dosen.php?id=2" class="block w-full text-center bg-gradient-to-r from-pink-600 to-pink-700 hover:from-pink-700 hover:to-pink-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
-                            Lihat Detail
-                        </a>
+                        <div class="flex gap-2">
+                            <a href="detail-kelas-dosen.php?id=2" class="flex-1 text-center bg-gradient-to-r from-pink-600 to-pink-700 hover:from-pink-700 hover:to-pink-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                Lihat Detail
+                            </a>
+                            <button onclick="goToKelolaMaterI(2)" class="flex-1 text-center bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                Kelola Materi
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -433,9 +443,14 @@
                             </span>
                             <span class="text-blue-700 text-sm font-semibold">35 Mhs</span>
                         </div>
-                        <a href="detail-kelas-dosen.php?id=3" class="block w-full text-center bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
-                            Lihat Detail
-                        </a>
+                        <div class="flex gap-2">
+                            <a href="detail-kelas-dosen.php?id=3" class="flex-1 text-center bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                Lihat Detail
+                            </a>
+                            <button onclick="goToKelolaMaterI(3)" class="flex-1 text-center bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                Kelola Materi
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -461,9 +476,14 @@
                             </span>
                             <span class="text-yellow-700 text-sm font-semibold">30 Mhs</span>
                         </div>
-                        <a href="detail-kelas-dosen.php?id=4" class="block w-full text-center bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
-                            Lihat Detail
-                        </a>
+                        <div class="flex gap-2">
+                            <a href="detail-kelas-dosen.php?id=4" class="flex-1 text-center bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                Lihat Detail
+                            </a>
+                            <button onclick="goToKelolaMaterI(4)" class="flex-1 text-center bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                Kelola Materi
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -489,9 +509,14 @@
                             </span>
                             <span class="text-green-700 text-sm font-semibold">26 Mhs</span>
                         </div>
-                        <a href="detail-kelas-dosen.php?id=5" class="block w-full text-center bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
-                            Lihat Detail
-                        </a>
+                        <div class="flex gap-2">
+                            <a href="detail-kelas-dosen.php?id=5" class="flex-1 text-center bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                Lihat Detail
+                            </a>
+                            <button onclick="goToKelolaMaterI(5)" class="flex-1 text-center bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                Kelola Materi
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -517,9 +542,14 @@
                             </span>
                             <span class="text-indigo-700 text-sm font-semibold">29 Mhs</span>
                         </div>
-                        <a href="detail-kelas-dosen.php?id=6" class="block w-full text-center bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
-                            Lihat Detail
-                        </a>
+                        <div class="flex gap-2">
+                            <a href="detail-kelas-dosen.php?id=6" class="flex-1 text-center bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                Lihat Detail
+                            </a>
+                            <button onclick="goToKelolaMaterI(6)" class="flex-1 text-center bg-gradient-to-r from-violet-600 to-violet-700 hover:from-violet-700 hover:to-violet-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                Kelola Materi
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -545,9 +575,14 @@
                             </span>
                             <span class="text-orange-700 text-sm font-semibold">31 Mhs</span>
                         </div>
-                        <a href="detail-kelas-dosen.php?id=7" class="block w-full text-center bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
-                            Lihat Detail
-                        </a>
+                        <div class="flex gap-2">
+                            <a href="detail-kelas-dosen.php?id=7" class="flex-1 text-center bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                Lihat Detail
+                            </a>
+                            <button onclick="goToKelolaMaterI(7)" class="flex-1 text-center bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                Kelola Materi
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -573,9 +608,14 @@
                             </span>
                             <span class="text-teal-700 text-sm font-semibold">27 Mhs</span>
                         </div>
-                        <a href="detail-kelas-dosen.php?id=8" class="block w-full text-center bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
-                            Lihat Detail
-                        </a>
+                        <div class="flex gap-2">
+                            <a href="detail-kelas-dosen.php?id=8" class="flex-1 text-center bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                Lihat Detail
+                            </a>
+                            <button onclick="goToKelolaMaterI(8)" class="flex-1 text-center bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                Kelola Materi
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -601,9 +641,14 @@
                             </span>
                             <span class="text-yellow-700 text-sm font-semibold">24 Mhs</span>
                         </div>
-                        <a href="detail-kelas-dosen.php?id=9" class="block w-full text-center bg-gradient-to-r from-yellow-600 to-amber-700 hover:from-yellow-700 hover:to-amber-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
-                            Lihat Detail
-                        </a>
+                        <div class="flex gap-2">
+                            <a href="detail-kelas-dosen.php?id=9" class="flex-1 text-center bg-gradient-to-r from-yellow-600 to-amber-700 hover:from-yellow-700 hover:to-amber-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                Lihat Detail
+                            </a>
+                            <button onclick="goToKelolaMaterI(9)" class="flex-1 text-center bg-gradient-to-r from-orange-500 to-yellow-600 hover:from-orange-600 hover:to-yellow-700 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                Kelola Materi
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -629,9 +674,14 @@
                             </span>
                             <span class="text-cyan-700 text-sm font-semibold">28 Mhs</span>
                         </div>
-                        <a href="detail-kelas-dosen.php?id=10" class="block w-full text-center bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-700 hover:to-cyan-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
-                            Lihat Detail
-                        </a>
+                        <div class="flex gap-2">
+                            <a href="detail-kelas-dosen.php?id=10" class="flex-1 text-center bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-700 hover:to-cyan-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                Lihat Detail
+                            </a>
+                            <button onclick="goToKelolaMaterI(10)" class="flex-1 text-center bg-gradient-to-r from-sky-600 to-sky-700 hover:from-sky-700 hover:to-sky-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                Kelola Materi
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -657,9 +707,14 @@
                             </span>
                             <span class="text-lime-700 text-sm font-semibold">33 Mhs</span>
                         </div>
-                        <a href="detail-kelas-dosen.php?id=11" class="block w-full text-center bg-gradient-to-r from-lime-600 to-lime-700 hover:from-lime-700 hover:to-lime-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
-                            Lihat Detail
-                        </a>
+                        <div class="flex gap-2">
+                            <a href="detail-kelas-dosen.php?id=11" class="flex-1 text-center bg-gradient-to-r from-lime-600 to-lime-700 hover:from-lime-700 hover:to-lime-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                Lihat Detail
+                            </a>
+                            <button onclick="goToKelolaMaterI(11)" class="flex-1 text-center bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                Kelola Materi
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -685,9 +740,14 @@
                             </span>
                             <span class="text-rose-700 text-sm font-semibold">25 Mhs</span>
                         </div>
-                        <a href="detail-kelas-dosen.php?id=12" class="block w-full text-center bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
-                            Lihat Detail
-                        </a>
+                        <div class="flex gap-2">
+                            <a href="detail-kelas-dosen.php?id=12" class="flex-1 text-center bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                Lihat Detail
+                            </a>
+                            <button onclick="goToKelolaMaterI(12)" class="flex-1 text-center bg-gradient-to-r from-pink-600 to-pink-700 hover:from-pink-700 hover:to-pink-800 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                Kelola Materi
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1164,6 +1224,19 @@
                 closeDeleteModal();
             }
         });
+
+        // Navigate to Kelola Materi page
+        function goToKelolaMaterI(idKelas) {
+            window.location.href = 'kelola-materi.php?id_kelas=' + idKelas;
+        }
+
+        // Scroll to Kelas List section
+        function showKelasList() {
+            const kelasSection = document.getElementById('kelasGrid');
+            if (kelasSection) {
+                kelasSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
     </script>
 </body>
 </html>
