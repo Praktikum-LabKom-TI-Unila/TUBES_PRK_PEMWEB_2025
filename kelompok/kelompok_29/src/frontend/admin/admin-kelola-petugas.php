@@ -78,7 +78,7 @@
             
         </div>
     </main>
-
+        <div id="detail-modal-container"></div>
     <script src="js/admin-kelola-petugas.js"></script>
 </body>
 </html>
