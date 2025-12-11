@@ -1,5 +1,5 @@
 <?php
-include 'config.php';
+include '../config.php';
 
 // Ambil data pengguna
 $users_result = $conn->query("SELECT * FROM users ORDER BY id_user");

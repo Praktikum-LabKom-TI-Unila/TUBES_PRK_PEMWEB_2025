@@ -1,5 +1,5 @@
 <?php
-include 'config.php';
+include '../config.php';
 
 $admin_id = $_SESSION['id_user'];
 $admin = $conn->query("SELECT * FROM users WHERE id_user = $admin_id")->fetch_assoc();

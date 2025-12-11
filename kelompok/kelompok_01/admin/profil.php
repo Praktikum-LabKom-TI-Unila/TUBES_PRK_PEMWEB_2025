@@ -1,5 +1,5 @@
 <?php
-include 'config.php';
+include '../config.php';
 
 // Ambil data admin berdasarkan session
 $user_id = $_SESSION['id_user'];

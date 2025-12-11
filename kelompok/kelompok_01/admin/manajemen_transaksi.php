@@ -1,5 +1,5 @@
 <?php
-include 'config.php';
+include '../config.php';
 
 $start_date = $_GET['start_date'] ?? date('Y-m-01');
 $end_date = $_GET['end_date'] ?? date('Y-m-t');
