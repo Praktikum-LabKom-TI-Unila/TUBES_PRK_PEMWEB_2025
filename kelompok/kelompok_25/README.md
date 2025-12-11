@@ -1,4 +1,252 @@
 
+# 📦 Sistem Manajemen Inventori Bahan Baku
+
+Aplikasi web untuk mengelola inventori bahan baku dengan fitur manajemen supplier, kategori, material, stok masuk/keluar, dan pelaporan.
+
+---
+
+## 🚀 Cara Menjalankan Proyek
+
+### **1. Prerequisites (Persyaratan Sistem)**
+
+Pastikan sistem Anda sudah terinstal:
+
+- **PHP 8.0 atau lebih tinggi** (Disarankan PHP 8.4)
+- **MySQL 5.7 atau lebih tinggi** (atau MariaDB)
+- **Web Server** (Apache/Nginx) atau PHP Built-in Server
+- **Composer** (optional, untuk dependency management)
+- **Git** (untuk clone repository)
+
+**Cek versi PHP:**
+```powershell
+php -v
+```
+
+**Cek versi MySQL:**
+```powershell
+mysql --version
+```
+
+---
+
+### **2. Clone Repository**
+
+```powershell
+git clone <repository-url>
+cd TUBES_PRK_PEMWEB_2025/kelompok/kelompok_25
+```
+
+---
+
+### **3. Setup Database**
+
+#### **A. Buat Database Baru**
+
+Buka MySQL client atau phpMyAdmin, kemudian jalankan:
+
+```sql
+CREATE DATABASE inventory_system;
+```
+
+#### **B. Import Database Schema**
+
+**Via Command Line:**
+```powershell
+mysql -u root -p inventory_system < database.sql
+```
+
+**Via phpMyAdmin:**
+1. Buka phpMyAdmin
+2. Pilih database `inventory_system`
+3. Klik tab "Import"
+4. Pilih file `database.sql`
+5. Klik "Go"
+
+---
+
+### **4. Konfigurasi Database**
+
+Edit file `src/config/database.php` sesuai dengan konfigurasi MySQL Anda:
+
+```php
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'inventory_system');
+define('DB_USER', 'root');           // Sesuaikan dengan username MySQL Anda
+define('DB_PASS', '');               // Sesuaikan dengan password MySQL Anda
+define('DB_CHARSET', 'utf8mb4');
+```
+
+---
+
+### **5. Setup Folder Upload**
+
+Pastikan folder upload memiliki permission yang tepat:
+
+```powershell
+# Buat folder jika belum ada
+mkdir -p src/public/assets/uploads/materials
+mkdir -p src/public/assets/uploads/profiles
+```
+
+**Untuk Linux/Mac:**
+```bash
+chmod -R 755 src/public/assets/uploads
+```
+
+---
+
+### **6. Jalankan Server**
+
+#### **Opsi 1: PHP Built-in Server (Recommended untuk Development)**
+
+```powershell
+cd kelompok_25
+php -S localhost:8000 -t src/public
+```
+
+Akses aplikasi di: **http://localhost:8000**
+
+#### **Opsi 2: Apache/Nginx**
+
+Konfigurasikan document root ke folder `src/public/`
+
+**Apache VirtualHost Example:**
+```apache
+<VirtualHost *:80>
+    ServerName inventory.local
+    DocumentRoot "D:/path/to/kelompok_25/src/public"
+    <Directory "D:/path/to/kelompok_25/src/public">
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+```
+
+---
+
+### **7. Login ke Aplikasi**
+
+Buka browser dan akses: **http://localhost:8000**
+
+#### **Default Login Credentials:**
+
+**Admin:**
+- Email: `admin@example.com`
+- Password: `admin123`
+
+**Manager:**
+- Email: `manager@example.com`
+- Password: `manager123`
+
+**Staff:**
+- Email: `staff@example.com`
+- Password: `staff123`
+
+---
+
+### **8. Verifikasi Instalasi**
+
+Setelah login, cek beberapa hal berikut:
+
+✅ Dashboard menampilkan statistik dengan benar  
+✅ Menu sidebar dapat diakses  
+✅ Halaman Supplier, Category, Material dapat dibuka  
+✅ Data sample sudah muncul (3 suppliers, 5 categories, 10 materials)  
+
+---
+
+## 📁 Struktur Proyek
+
+```
+kelompok_25/
+├── src/
+│   ├── config/              # Konfigurasi (database, app)
+│   ├── core/                # Core classes (Auth, Router, Model)
+│   ├── controllers/         # Controllers (web & api)
+│   │   ├── api/            # API controllers
+│   │   └── web/            # Web controllers
+│   ├── models/              # Models (User, Supplier, Category, Material)
+│   ├── views/               # Views (Blade-like templates)
+│   │   ├── auth/           # Login, register
+│   │   ├── dashboard/      # Dashboard
+│   │   ├── suppliers/      # Supplier management
+│   │   ├── categories/     # Category management
+│   │   ├── materials/      # Material management
+│   │   ├── stock-in/       # Stock in management
+│   │   ├── stock-out/      # Stock out management
+│   │   ├── layouts/        # Layout templates
+│   │   └── partials/       # Reusable components
+│   ├── middleware/          # Middleware (Auth, Role)
+│   ├── helpers/             # Helper functions
+│   ├── routes/              # Route definitions (web.php, api.php)
+│   └── public/              # Public assets (CSS, JS, images)
+│       └── assets/
+│           ├── css/        # Tailwind CSS
+│           ├── js/         # JavaScript modules
+│           └── uploads/    # Upload folder
+├── database.sql            # Database schema & sample data
+└── README.md              # Dokumentasi ini
+```
+
+---
+
+## 🛠️ Troubleshooting
+
+### **❌ Error: SQLSTATE[HY000] [2002] No such file or directory**
+**Solusi:**
+- Pastikan MySQL server sudah running
+- Cek konfigurasi di `src/config/database.php`
+- Gunakan `127.0.0.1` bukan `localhost` jika perlu
+
+### **❌ Error: Column not found**
+**Solusi:**
+- Pastikan Anda sudah import `database.sql` dengan benar
+- Drop database dan import ulang jika perlu
+```sql
+DROP DATABASE inventory_system;
+CREATE DATABASE inventory_system;
+```
+
+### **❌ Error: Permission denied untuk folder uploads**
+**Solusi:**
+```powershell
+chmod -R 755 src/public/assets/uploads  # Linux/Mac
+icacls src\public\assets\uploads /grant Users:F  # Windows
+```
+
+### **❌ Error: Class not found**
+**Solusi:**
+- Pastikan path `ROOT_PATH` sudah benar di `src/public/index.php`
+- Cek case-sensitive pada nama file (Linux/Mac case-sensitive)
+
+### **❌ Halaman tidak ada CSS/JS**
+**Solusi:**
+- Pastikan menjalankan server dengan document root di `src/public/`
+- Cek path asset di browser console (F12)
+
+---
+
+## 🧪 Testing API
+
+Gunakan file `*.http` untuk testing API dengan REST Client extension di VS Code:
+
+- `SUPPLIER_API_TEST.http` - Test supplier endpoints
+- `CATEGORY_API_TEST.http` - Test category endpoints
+- `MATERIAL_API_TEST.http` - Test material endpoints
+
+**Atau gunakan curl:**
+
+```powershell
+# Login untuk mendapat token
+curl -X POST http://localhost:8000/api/auth/login `
+  -H "Content-Type: application/json" `
+  -d '{"email":"admin@example.com","password":"admin123"}'
+
+# Get suppliers
+curl http://localhost:8000/api/suppliers `
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
 ---
 
 ## 📊 PROGRESS OVERVIEW
