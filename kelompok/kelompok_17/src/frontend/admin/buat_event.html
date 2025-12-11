@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="css/admin.css">
 
     <style>
-        /* Mendefinisikan Variable Warna Utama */
         :root {
             --clr-primary-brand: #01A29D;
             --clr-hover-dark: #005A54;
@@ -23,7 +22,6 @@
         }
         .d-none { display: none !important; }
 
-        /* Style untuk menjaga item sidebar Kelola Event aktif */
         .nav-item-data-event.active-dark-bg { 
             background-color: var(--clr-menu-active-bg-dark); 
             color: white; 
@@ -125,7 +123,7 @@
                 
                 <h1 class="text-xl font-semibold text-gray-800 mb-4">Formulir Event Baru</h1>
                 
-                <form id="form-buat-event" class="space-y-6">
+                <form id="form-buat-event" class="space-y-6" enctype="multipart/form-data">
                     
                     <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
                         <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Detail Acara</h2>
@@ -138,15 +136,51 @@
                                 <label for="deskripsi_event" class="form-label font-medium text-gray-700">Deskripsi Singkat</label>
                                 <textarea class="form-control" id="deskripsi_event" rows="3" placeholder="Jelaskan ringkasan atau tujuan acara."></textarea>
                             </div>
+                            
+                            <div>
+                                <label for="banner_event" class="form-label font-medium text-gray-700">Pamflet/Banner Kegiatan</label>
+                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-teal-500 transition-colors cursor-pointer" id="banner_upload_area" onclick="document.getElementById('banner_event').click()">
+                                    <input type="file" class="hidden" id="banner_event" accept="image/jpeg,image/png,image/gif,image/webp" onchange="previewBanner(this)">
+                                    <div id="banner_preview_container" class="hidden">
+                                        <img id="banner_preview" class="max-h-48 mx-auto rounded-lg mb-2" alt="Preview">
+                                        <button type="button" class="text-red-500 hover:text-red-700 text-sm" onclick="removeBanner(event)">
+                                            <i class="fas fa-times mr-1"></i>Hapus Gambar
+                                        </button>
+                                    </div>
+                                    <div id="banner_placeholder">
+                                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
+                                        <p class="text-gray-500">Klik untuk upload pamflet kegiatan</p>
+                                        <p class="text-xs text-gray-400">Format: JPG, PNG, GIF, WebP (Max 2MB)</p>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="row">
                                 <div class="col-md-6 mb-3 mb-md-0">
-                                    <label for="tanggal_mulai" class="form-label font-medium text-gray-700">Tanggal Mulai</label>
+                                    <label for="tanggal_mulai" class="form-label font-medium text-gray-700">Tanggal Event (Wajib)</label>
                                     <input type="date" class="form-control" id="tanggal_mulai" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="tanggal_selesai" class="form-label font-medium text-gray-700">Tanggal Selesai</label>
-                                    <input type="date" class="form-control" id="tanggal_selesai">
+                                    <label for="lokasi_event" class="form-label font-medium text-gray-700">Lokasi Event</label>
+                                    <input type="text" class="form-control" id="lokasi_event" placeholder="Contoh: Aula Gedung A, Lt. 3">
                                 </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6 mb-3 mb-md-0">
+                                    <label for="waktu_mulai" class="form-label font-medium text-gray-700">Waktu Mulai (Wajib)</label>
+                                    <input type="time" class="form-control" id="waktu_mulai" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="waktu_selesai" class="form-label font-medium text-gray-700">Waktu Selesai</label>
+                                    <input type="time" class="form-control" id="waktu_selesai">
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <label for="status_event" class="form-label font-medium text-gray-700">Status Event</label>
+                                <select class="form-control" id="status_event">
+                                    <option value="published">Publish (Tampil ke anggota)</option>
+                                    <option value="draft">Draft (Simpan sebagai konsep)</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -214,20 +248,198 @@
     </div>
 
     <script>
-        // Fungsi untuk menampilkan/menyembunyikan opsi Pendaftaran Panitia
+        const hostname = window.location.hostname;
+        const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+        const isDotTest = hostname.endsWith('.test');
+        
+        let basePath = '';
+        if (isLocalhost) {
+            basePath = '/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src';
+        } else if (isDotTest) {
+            basePath = '/kelompok/kelompok_17/src';
+        }
+        
+        const API_BASE = `${basePath}/backend/api`;
+        let pendingFormData = null;
+        let pendingEventTitle = '';
+        let pendingEventStatus = '';
+
+        function previewBanner(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                
+                if (file.size > 2 * 1024 * 1024) {
+                    showErrorModal('Ukuran file terlalu besar. Maksimal 2MB.');
+                    input.value = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('banner_preview').src = e.target.result;
+                    document.getElementById('banner_preview_container').classList.remove('hidden');
+                    document.getElementById('banner_placeholder').classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeBanner(event) {
+            event.stopPropagation();
+            document.getElementById('banner_event').value = '';
+            document.getElementById('banner_preview').src = '';
+            document.getElementById('banner_preview_container').classList.add('hidden');
+            document.getElementById('banner_placeholder').classList.remove('hidden');
+        }
+
+        document.getElementById('form-buat-event').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('judul_event').value.trim();
+            const description = document.getElementById('deskripsi_event').value.trim();
+            const eventDate = document.getElementById('tanggal_mulai').value;
+            const startTime = document.getElementById('waktu_mulai').value;
+            const endTime = document.getElementById('waktu_selesai').value;
+            const location = document.getElementById('lokasi_event').value.trim();
+            const status = document.getElementById('status_event').value;
+            const bannerFile = document.getElementById('banner_event').files[0];
+            
+            const togglePanitia = document.getElementById('toggle_pendaftaran_panitia');
+            const openRegistration = togglePanitia ? togglePanitia.checked : false;
+            const deadlineInput = document.getElementById('batas_waktu_pendaftaran');
+            const registrationDeadline = deadlineInput ? deadlineInput.value : null;
+            const specificRadio = document.getElementById('panitia_jumlah_spesifik');
+            const maxParticipantsInput = document.getElementById('jumlah_panitia_required');
+            let maxParticipants = null;
+            if (openRegistration && specificRadio && specificRadio.checked && maxParticipantsInput) {
+                maxParticipants = parseInt(maxParticipantsInput.value) || null;
+            }
+            
+            if (!title || !eventDate || !startTime) {
+                showErrorModal('Mohon lengkapi semua field yang wajib diisi (Judul, Tanggal, Waktu Mulai).');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('description', description);
+            formData.append('event_date', eventDate);
+            formData.append('start_time', startTime);
+            if (endTime) formData.append('end_time', endTime);
+            formData.append('location', location);
+            formData.append('status', status);
+            formData.append('open_registration', openRegistration ? '1' : '0');
+            if (registrationDeadline) formData.append('registration_deadline', registrationDeadline);
+            if (maxParticipants) formData.append('max_participants', maxParticipants);
+            
+            if (bannerFile) {
+                formData.append('banner', bannerFile);
+            }
+            
+            pendingFormData = formData;
+            pendingEventTitle = title;
+            pendingEventStatus = status;
+            
+            const statusText = status === 'published' ? 'dan akan dipublikasikan ke anggota' : 'sebagai draft';
+            document.getElementById('confirmMessage').textContent = 
+                `Anda akan menyimpan event "${title}" ${statusText}. Lanjutkan?`;
+            showConfirmModal();
+        });
+
+        async function submitEvent() {
+            if (!pendingFormData) return;
+            
+            const btnSubmit = document.getElementById('btnConfirmSubmit');
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menyimpan...';
+            btnSubmit.disabled = true;
+            
+            try {
+                const response = await fetch(`${API_BASE}/events.php?action=create`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: pendingFormData
+                });
+                
+                const result = await response.json();
+                
+                closeConfirmModal();
+                
+                if (response.ok && result.status === 'success') {
+                    const statusText = pendingEventStatus === 'published' 
+                        ? 'Event telah dipublikasikan dan akan tampil di halaman anggota.' 
+                        : 'Event disimpan sebagai draft.';
+                    document.getElementById('successMessage').textContent = statusText;
+                    showSuccessModal();
+                } else {
+                    const errorMsg = result.message || (result.errors ? Object.values(result.errors).join(', ') : 'Terjadi kesalahan saat menyimpan event.');
+                    showErrorModal(errorMsg);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                closeConfirmModal();
+                showErrorModal('Gagal terhubung ke server. Silakan coba lagi.');
+            } finally {
+                btnSubmit.innerHTML = '<i class="fas fa-check mr-2"></i>Ya, Simpan';
+                btnSubmit.disabled = false;
+            }
+        }
+
+        function showConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('hidden');
+            document.getElementById('confirmModal').classList.add('flex');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.add('hidden');
+            document.getElementById('confirmModal').classList.remove('flex');
+        }
+
+        function showSuccessModal() {
+            document.getElementById('successModal').classList.remove('hidden');
+            document.getElementById('successModal').classList.add('flex');
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.add('hidden');
+            document.getElementById('successModal').classList.remove('flex');
+        }
+
+        function showErrorModal(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorModal').classList.remove('hidden');
+            document.getElementById('errorModal').classList.add('flex');
+        }
+
+        function closeErrorModal() {
+            document.getElementById('errorModal').classList.add('hidden');
+            document.getElementById('errorModal').classList.remove('flex');
+        }
+
+        function resetFormAndCloseModal() {
+            closeSuccessModal();
+            document.getElementById('form-buat-event').reset();
+            pendingFormData = null;
+            pendingEventTitle = '';
+            pendingEventStatus = '';
+            document.getElementById('banner_event').value = '';
+            document.getElementById('banner_preview').src = '';
+            document.getElementById('banner_preview_container').classList.add('hidden');
+            document.getElementById('banner_placeholder').classList.remove('hidden');
+            document.getElementById('opsi_pendaftaran_panitia').classList.add('hidden');
+            document.getElementById('input_jumlah_panitia').classList.add('hidden');
+        }
+
         function togglePanitiaOptions(checkbox) {
             const optionsDiv = document.getElementById('opsi_pendaftaran_panitia');
             if (checkbox.checked) {
                 optionsDiv.classList.remove('hidden');
             } else {
                 optionsDiv.classList.add('hidden');
-                // Reset ke default (Tak Terbatas) saat ditutup
                 document.getElementById('panitia_tak_terbatas').checked = true;
                 document.getElementById('input_jumlah_panitia').classList.add('hidden');
             }
         }
 
-        // Fungsi untuk menampilkan/menyembunyikan input jumlah spesifik
         function toggleJumlahSpesifik() {
             const specificRadio = document.getElementById('panitia_jumlah_spesifik');
             const inputDiv = document.getElementById('input_jumlah_panitia');
@@ -236,19 +448,16 @@
                 inputDiv.classList.remove('hidden');
             } else {
                 inputDiv.classList.add('hidden');
-                document.getElementById('jumlah_panitia_required').value = ''; // Kosongkan input
+                document.getElementById('jumlah_panitia_required').value = '';
             }
         }
         
-        // Pastikan input jumlah spesifik tersembunyi saat halaman dimuat
         document.addEventListener('DOMContentLoaded', () => {
-            // Asumsi toggleMobileSidebar dan fungsi lain ada di admin.js
             if(document.getElementById('panitia_tak_terbatas') && document.getElementById('panitia_jumlah_spesifik')) {
                 toggleJumlahSpesifik();
             }
         });
         
-        // Sidebar Toggle (Harus diimplementasikan atau di-link dari admin.js)
         window.toggleMobileSidebar = function() {
             const sidebar = document.getElementById('sidebar-mobile');
             const overlay = document.getElementById('sidebar-mobile-overlay');
@@ -259,6 +468,65 @@
         };
     </script>
     <div id="sidebar-mobile-overlay" class="fixed inset-0 bg-black opacity-50 z-40 hidden lg:hidden" onclick="toggleMobileSidebar()"></div>
+
+    <div id="confirmModal" class="fixed inset-0 z-50 hidden items-center justify-center">
+        <div class="fixed inset-0 bg-black bg-opacity-50" onclick="closeConfirmModal()"></div>
+        <div class="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4 relative z-10 transform transition-all">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-teal-100 mb-4">
+                    <i class="fas fa-calendar-plus text-3xl text-teal-600"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Konfirmasi Simpan Event</h3>
+                <p class="text-gray-600 mb-6" id="confirmMessage">Apakah Anda yakin ingin menyimpan event ini?</p>
+                <div class="flex justify-center space-x-3">
+                    <button type="button" onclick="closeConfirmModal()" class="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                        Batal
+                    </button>
+                    <button type="button" onclick="submitEvent()" id="btnConfirmSubmit" class="px-6 py-2.5 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 transition-colors">
+                        <i class="fas fa-check mr-2"></i>Ya, Simpan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="successModal" class="fixed inset-0 z-50 hidden items-center justify-center">
+        <div class="fixed inset-0 bg-black bg-opacity-50"></div>
+        <div class="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4 relative z-10 transform transition-all">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+                    <i class="fas fa-check-circle text-3xl text-green-600"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Event Berhasil Disimpan!</h3>
+                <p class="text-gray-600 mb-6" id="successMessage">Event baru telah ditambahkan ke sistem.</p>
+                <div class="flex justify-center space-x-3">
+                    <button type="button" onclick="window.location.href='kelola_event.html'" class="px-6 py-2.5 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 transition-colors">
+                        <i class="fas fa-list mr-2"></i>Lihat Daftar Event
+                    </button>
+                    <button type="button" onclick="resetFormAndCloseModal()" class="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                        Buat Event Lagi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="errorModal" class="fixed inset-0 z-50 hidden items-center justify-center">
+        <div class="fixed inset-0 bg-black bg-opacity-50" onclick="closeErrorModal()"></div>
+        <div class="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4 relative z-10 transform transition-all">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+                    <i class="fas fa-exclamation-circle text-3xl text-red-600"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Gagal Menyimpan Event</h3>
+                <p class="text-gray-600 mb-6" id="errorMessage">Terjadi kesalahan saat menyimpan event.</p>
+                <button type="button" onclick="closeErrorModal()" class="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
     <aside id="sidebar-mobile" class="sidebar-custom fixed top-0 left-0 h-full w-64 transform -translate-x-full z-50 lg:hidden transition-transform duration-300 ease-in-out">
         <div class="p-4 flex items-center justify-start h-16">
             <span class="text-2xl font-extrabold text-white">SIMORA</span>
@@ -277,6 +545,7 @@
         </div>
     </aside>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/logout-helper.js"></script>
     <script src="js/admin.js"></script> 
 </body>
 </html>

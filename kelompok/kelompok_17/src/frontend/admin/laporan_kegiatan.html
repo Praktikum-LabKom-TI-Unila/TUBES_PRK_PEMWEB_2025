@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="css/admin.css">
 
     <style>
-        /* Mendefinisikan Variable Warna Utama */
         :root {
             --clr-primary-brand: #01A29D;
             --clr-hover-dark: #005A54;
@@ -25,7 +24,6 @@
         }
         .d-none { display: none !important; }
         
-        /* Laporan Kegiatan AKTIF */
         .nav-item-laporan-kegiatan.active-dark-bg { 
             background-color: var(--clr-menu-active-bg-dark); 
             color: white; 
@@ -34,7 +32,6 @@
             padding-left: calc(1rem - 4px);
         }
         
-        /* Style untuk filter dan ringkasan */
         .summary-card {
             background-color: white;
             border-radius: 0.5rem;
@@ -48,7 +45,6 @@
         .status-sakit { color: #3B82F6; }
         .status-alpa { color: #EF4444; }
         
-        /* Style untuk Judul Event di Tabel */
         .event-title-link {
             color: var(--clr-primary-brand);
             font-weight: 600;
@@ -98,6 +94,10 @@
                         <a href="buat_event.html" class="btn-action-orange p-2 font-semibold text-white flex items-center h-10">
                             <i class="fas fa-plus mr-2"></i> Buat Event Baru
                         </a>
+
+                        <button id="btn-download-report" class="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center h-10" title="Download Laporan">
+                            <i class="fas fa-download mr-2"></i> Download Laporan
+                        </button>
 
                         <a href="notifikasi.html" id="notification-link" class="text-gray-600 hover:text-gray-900 relative p-2">
                             <i class="fas fa-bell text-xl"></i>
@@ -149,7 +149,7 @@
                                 <option>Tahun Ini (2025)</option>
                             </select>
                         </div>
-                        <button class="btn btn-primary btn-sm">Download Laporan (.xlsx)</button>
+                        <button id="btn-download-filter" class="btn btn-primary btn-sm">Download Laporan (.xlsx)</button>
                     </div>
 
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
@@ -241,14 +241,25 @@
     </aside>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="js/logout-helper.js"></script>
     
     <script>
-        // Logika JavaScript Laporan Kegiatan
+        const hostname = window.location.hostname;
+        const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+        const isDotTest = hostname.endsWith('.test');
         
-        // --- URL Konfigurasi (Placeholder) ---
-        const LOGIN_PAGE_URL = "http://localhost/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src/frontend/auth/login.html"; 
+        let basePath = '';
+        if (isLocalhost) {
+            basePath = '/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_17/src';
+        } else if (isDotTest) {
+            basePath = '/kelompok/kelompok_17/src';
+        }
         
-        // Elemen Halaman
+        const API_BASE = `${basePath}/backend/api`;
+        const LOGIN_PAGE_URL = `${basePath}/frontend/auth/login.html`;
+        const UPLOAD_BASE = basePath.replace('/src', '/upload');
+        
         const laporanList = document.getElementById('laporan-list');
         const summaryTotalEvent = document.getElementById('summary-total-event');
         const summaryHadir = document.getElementById('summary-hadir');
@@ -260,49 +271,85 @@
         const logoutButtonMobile = document.getElementById('btn-logout-mobile');
         const logoutButtonDesktop = document.getElementById('btn-logout-desktop');
         
-        // Cek halaman
         const IS_REPORT_PAGE = !!laporanList;
 
-        // --- DATA DUMMY: LAPORAN KEGIATAN ---
-        const reportData = [
-            { 
-                id: 1,
-                date: "10 Des 2025", 
-                title: "Rapat Koordinasi Akhir Tahun", 
-                total_members: 40,
-                hadir: 35, izin: 3, sakit: 1, alpa: 1,
-                bahasan: "Finalisasi anggaran 2026, Penunjukan PJ Event Besar.",
-                absensi: [
-                    { name: "Budi Santoso", status: "HADIR", time: "09:00 WIB", bukti: null },
-                    { name: "Siti Aisyah", status: "IZIN", time: "-", bukti: { photo: "path/to/surat_izin_siti.jpg", note: "Ada Ujian Susulan" } },
-                    { name: "Michael Chen", status: "ALPA", time: "-", bukti: null },
-                    { name: "Fahmi Rasyid", status: "SAKIT", time: "-", bukti: { photo: "path/to/surat_dokter_fahmi.jpg", note: "Surat Dokter terlampir" } },
-                    { name: "Ahmad Yani", status: "HADIR", time: "09:05 WIB", bukti: null },
-                    // ... 35 anggota lainnya
-                ]
-            },
-            { 
-                id: 2,
-                date: "03 Des 2025", 
-                title: "Pelatihan Dasar Kepemimpinan", 
-                total_members: 120,
-                hadir: 108, izin: 5, sakit: 3, alpa: 4,
-                bahasan: "Workshop kepemimpinan, Pembagian mentor kelompok.",
-                absensi: [] // Placeholder
-            },
-            { 
-                id: 3,
-                date: "01 Des 2025", 
-                title: "Rapat Pleno Awal Tahun", 
-                total_members: 38,
-                hadir: 30, izin: 5, sakit: 2, alpa: 1,
-                bahasan: "Pembahasan RKP Divisi, Jadwal Launching Program Besar.",
-                absensi: [] // Placeholder
-            },
-        ];
-        // ---------------------------------------------
+        let reportData = [];
 
-        // --- HELPER UNTUK MODAL ABSENSI ---
+        async function loadReportDataFromAPI() {
+            try {
+                const eventsResponse = await fetch(`${API_BASE}/events.php?action=list&limit=100`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                const eventsResult = await eventsResponse.json();
+                
+                if (eventsResponse.ok && eventsResult.status === 'success' && eventsResult.data && eventsResult.data.data) {
+                    const events = eventsResult.data.data;
+                    
+                    reportData = await Promise.all(events.map(async (event) => {
+                        let attendanceStats = { hadir: 0, izin: 0, sakit: 0, alpha: 0, total: 0, attendees: [] };
+                        
+                        try {
+                            const attResponse = await fetch(`${API_BASE}/attendance.php?action=event-attendance&event_id=${event.event_id}`, {
+                                method: 'GET',
+                                credentials: 'include'
+                            });
+                            const attResult = await attResponse.json();
+                            
+                            if (attResponse.ok && attResult.status === 'success' && attResult.data) {
+                                const data = attResult.data;
+                                attendanceStats = {
+                                    hadir: data.statistics?.hadir || 0,
+                                    izin: data.statistics?.izin || 0,
+                                    sakit: data.statistics?.sakit || 0,
+                                    alpha: data.statistics?.alpha || 0,
+                                    total: data.statistics?.total || 0,
+                                    attendees: data.attendance || []
+                                };
+                            }
+                        } catch (err) {
+                            console.error('Error loading attendance for event', event.event_id, err);
+                        }
+                        
+                        const eventDate = new Date(event.event_date);
+                        const options = { day: '2-digit', month: 'short', year: 'numeric' };
+                        const formattedDate = eventDate.toLocaleDateString('id-ID', options);
+                        
+                        return {
+                            id: event.event_id,
+                            date: formattedDate,
+                            title: event.title,
+                            total_members: attendanceStats.total || 0,
+                            hadir: attendanceStats.hadir,
+                            izin: attendanceStats.izin,
+                            sakit: attendanceStats.sakit,
+                            alpa: attendanceStats.alpha,
+                            bahasan: event.description || 'Tidak ada deskripsi',
+                            absensi: attendanceStats.attendees.map(att => ({
+                                name: att.full_name || att.username || 'Unknown',
+                                status: (att.status || 'HADIR').toUpperCase(),
+                                time: att.check_in_time ? att.check_in_time.substring(0, 5) + ' WIB' : '-',
+                                bukti: att.photo_path ? { photo: att.photo_path, note: att.notes || '' } : null
+                            })),
+                            raw_date: event.event_date
+                        };
+                    }));
+                    
+                    const today = new Date().toISOString().split('T')[0];
+                    reportData = reportData.filter(report => {
+                        return true; 
+                    });
+                } else {
+                    reportData = [];
+                }
+            } catch (error) {
+                console.error('Error loading report data:', error);
+                reportData = [];
+            }
+            
+            return reportData;
+        }
+
         function getStatusClass(status) {
             switch (status) {
                 case 'HADIR': return 'absensi-row-hadir';
@@ -322,11 +369,7 @@
                 default: return 'fas fa-question-circle';
             }
         }
-        // ------------------------------------
 
-
-        // --- LOGIKA UTAMA LAPORAN KEGIATAN ---
-        
         function updateSummary(data) {
             if (!summaryTotalEvent) return;
 
@@ -357,6 +400,7 @@
             laporanList.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">Memuat data laporan...</td></tr>';
             
             try {
+                await loadReportDataFromAPI();
                 const reports = reportData;
                 
                 if (reports.length === 0) {
@@ -377,6 +421,8 @@
                             <td class="px-4 py-3 text-sm text-gray-700">${report.bahasan}</td>
                             <td class="px-4 py-3 whitespace-nowrap">
                                 <button class="text-blue-600 hover:text-blue-800 text-sm" data-bs-toggle="modal" data-bs-target="#absensiDetailModal" data-event-id="${report.id}">Lihat Absensi</button>
+                                &nbsp;|&nbsp;
+                                <button class="text-green-600 hover:text-green-800 text-sm btn-download-event" data-event-id="${report.id}">Download</button>
                             </td>
                         </tr>
                     `;
@@ -392,13 +438,10 @@
             }
         }
         
-        // --- Logika Logout (Sederhana) ---
         async function handleLogout(e) {
             e.preventDefault();
             setTimeout(() => { window.location.href = LOGIN_PAGE_URL; }, 500);
         }
-        
-        // --- Modal Absensi Detail Logic ---
         
         document.getElementById('absensiDetailModal').addEventListener('show.bs.modal', function (event) {
             const button = event.relatedTarget;
@@ -444,16 +487,34 @@
             }
         });
         
-        // Modal Foto Bukti Logic
         document.getElementById('buktiModal').addEventListener('show.bs.modal', function (event) {
              const button = event.relatedTarget;
              const photoUrl = button.getAttribute('data-bukti-photo');
              const note = button.getAttribute('data-bukti-note');
 
-             document.getElementById('bukti-image').src = photoUrl || 'path/to/default_no_image.png';
+             let fullPhotoUrl = '';
+             if (photoUrl) {
+                if (photoUrl.startsWith('http') || photoUrl.startsWith('https')) {
+                    fullPhotoUrl = photoUrl;
+                } else if (photoUrl.startsWith('/')) {
+                    fullPhotoUrl = photoUrl;
+                } else if (photoUrl.startsWith('upload/')) {
+                    fullPhotoUrl = `${UPLOAD_BASE}/${photoUrl.replace('upload/', '')}`;
+                } else {
+                    fullPhotoUrl = `${UPLOAD_BASE}/absensi/${photoUrl}`;
+                 }
+             }
+
+             console.log('Photo URL:', photoUrl, '-> Full URL:', fullPhotoUrl);
+
+             const buktiImage = document.getElementById('bukti-image');
+             buktiImage.src = fullPhotoUrl || '';
+             buktiImage.onerror = function() {
+                 console.error('Failed to load image:', fullPhotoUrl);
+                 this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150" viewBox="0 0 200 150"><rect fill="%23f3f4f6" width="200" height="150"/><text fill="%239ca3af" font-family="sans-serif" font-size="14" x="50%" y="50%" text-anchor="middle" dy=".3em">Foto tidak tersedia</text></svg>';
+             };
              document.getElementById('bukti-keterangan').textContent = note || 'Tidak ada keterangan tambahan.';
              
-             // Sembunyikan modal pertama
              var absensiModal = bootstrap.Modal.getInstance(document.getElementById('absensiDetailModal'));
              if (absensiModal) {
                  absensiModal.hide();
@@ -461,37 +522,167 @@
         });
 
         document.getElementById('buktiModal').addEventListener('hide.bs.modal', function () {
-             // Tampilkan kembali modal pertama saat modal kedua ditutup
              var absensiModal = bootstrap.Modal.getInstance(document.getElementById('absensiDetailModal'));
              if (absensiModal) {
                  absensiModal.show();
              }
         });
 
+        function getFullPhotoUrl(photoUrl) {
+            if (!photoUrl) return '';
+            if (photoUrl.startsWith('http://') || photoUrl.startsWith('https://')) return photoUrl;
 
-        // --- Initialization ---
-        function initialize() {
-            if (IS_REPORT_PAGE) {
-                // Tambahkan lebih banyak data dummy agar modal tidak kosong
-                for(let i=0; i<35; i++) {
-                    reportData[0].absensi.push({
-                        name: `Anggota ${i + 5}`, // Nama Anggota 5 sampai 40
-                        status: i % 4 === 0 ? "HADIR" : (i % 4 === 1 ? "ALPA" : (i % 4 === 2 ? "SAKIT" : "IZIN")),
-                        time: i % 4 === 0 ? "09:02 WIB" : "-",
-                        bukti: (i % 4 === 2 || i % 4 === 3) ? { photo: "path/to/bukti_placeholder.jpg", note: `Keterangan anggota ${i+5}` } : null
+            const origin = window.location.origin;
+
+            if (photoUrl.startsWith('/')) {
+                return origin + photoUrl;
+            }
+
+            if (photoUrl.startsWith('upload/')) {
+                const base = UPLOAD_BASE.startsWith('/') ? UPLOAD_BASE : ('/' + UPLOAD_BASE);
+                return origin + base + '/' + photoUrl.replace(/^upload\//, '');
+            }
+
+            const base = UPLOAD_BASE.startsWith('/') ? UPLOAD_BASE : ('/' + UPLOAD_BASE);
+            return origin + base + '/absensi/' + photoUrl;
+        }
+
+        async function exportReportToExcel(options = {}) {
+            if (!reportData || reportData.length === 0) {
+                await fetchAndRenderActivityReport();
+            }
+
+            if (!reportData || reportData.length === 0) {
+                alert('Tidak ada data laporan untuk diunduh.');
+                return;
+            }
+
+            let toExport = [];
+            if (options.eventId) {
+                toExport = reportData.filter(r => r.id == options.eventId);
+            } else {
+                const filterSelect = document.getElementById('filter-waktu');
+                const filterValue = filterSelect ? filterSelect.value : '';
+
+                const m = filterValue.match(/\(([^)]+)\)/);
+                if (m && m[1]) {
+                    const monthYear = m[1].trim(); 
+                    const yearMatch = monthYear.match(/(\d{4})$/);
+                    if (yearMatch) {
+                        const year = parseInt(yearMatch[1], 10);
+                        const monthName = monthYear.replace(/\d{4}/, '').trim();
+                        const months = {
+                            'Januari':1,'Februari':2,'Maret':3,'April':4,'Mei':5,'Juni':6,'Juli':7,'Agustus':8,'September':9,'Oktober':10,'November':11,'Desember':12,
+                            'Jan':1,'Feb':2,'Mar':3,'Apr':4,'Mei':5,'Jun':6,'Jul':7,'Agu':8,'Sep':9,'Okt':10,'Nov':11,'Des':12,'Desember':12
+                        };
+                        let monthNum = null;
+                        Object.keys(months).forEach(k => {
+                            if (monthName.toLowerCase().includes(k.toLowerCase())) monthNum = months[k];
+                        });
+                        if (monthNum) {
+                            toExport = reportData.filter(r => {
+                                if (!r.raw_date) return false;
+                                const d = new Date(r.raw_date);
+                                return (d.getFullYear() === year && (d.getMonth()+1) === monthNum);
+                            });
+                        }
+                    } else {
+                        toExport = reportData.slice();
+                    }
+                } else {
+                    toExport = reportData.slice();
+                }
+            }
+
+            if (!toExport || toExport.length === 0) {
+                alert('Tidak ada data sesuai filter yang dipilih.');
+                return;
+            }
+
+            const rows = [];
+            rows.push(['Event ID', 'Event Title', 'Event Date', 'Participant Name', 'Status', 'Check-in Time', 'Notes', 'Photo URL']);
+
+            toExport.forEach(report => {
+                const eventId = report.id;
+                const eventTitle = report.title;
+                const eventDate = report.date;
+
+                if (report.absensi && report.absensi.length > 0) {
+                    report.absensi.forEach(a => {
+                        const name = a.name || '';
+                        const status = a.status || '';
+                        const time = a.time || '';
+                        const notes = (a.bukti && a.bukti.note) ? a.bukti.note : '';
+                        const photo = (a.bukti && a.bukti.photo) ? getFullPhotoUrl(a.bukti.photo) : '';
+
+                        rows.push([eventId, eventTitle, eventDate, name, status, time, notes, photo]);
                     });
+                } else {
+                    rows.push([eventId, eventTitle, eventDate, '', '', '', '', '']);
+                }
+            });
+
+            try {
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(rows);
+
+                try {
+                    for (let r = 1; r < rows.length; r++) {
+                        const photoCellAddr = XLSX.utils.encode_cell({c:7, r: r}); 
+                        const photoUrl = rows[r][7];
+                        if (photoUrl) {
+                            ws[photoCellAddr] = { t: 's', v: photoUrl, l: { Target: photoUrl, Tooltip: 'Buka foto bukti' } };
+                        }
+                    }
+                } catch (linkErr) {
+                    console.warn('Gagal set hyperlink di sheet:', linkErr);
                 }
 
+                XLSX.utils.book_append_sheet(wb, ws, 'Laporan Absensi');
 
+                const now = new Date();
+                const filename = `laporan_absensi_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}.xlsx`;
+                XLSX.writeFile(wb, filename);
+            } catch (err) {
+                console.error('Gagal mengekspor ke Excel:', err);
+                alert('Terjadi kesalahan saat menyiapkan file Excel. Cek console untuk detail.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const btnFilter = document.getElementById('btn-download-filter');
+            if (btnFilter) {
+                btnFilter.addEventListener('click', function() {
+                    exportReportToExcel();
+                });
+            }
+            const btnHeader = document.getElementById('btn-download-report');
+            if (btnHeader) {
+                btnHeader.addEventListener('click', function() {
+                    exportReportToExcel();
+                });
+            }
+
+            document.getElementById('laporan-list').addEventListener('click', function(e) {
+                const btn = e.target.closest('.btn-download-event');
+                if (btn) {
+                    const eventId = btn.getAttribute('data-event-id');
+                    if (eventId) {
+                        exportReportToExcel({ eventId: eventId });
+                    }
+                }
+            });
+        });
+
+        function initialize() {
+            if (IS_REPORT_PAGE) {
                 fetchAndRenderActivityReport();
             }
             
-            // Setup Logout Listeners
             if (logoutButtonDesktop) { logoutButtonDesktop.addEventListener('click', handleLogout); }
             if (logoutButtonMobile) { logoutButtonMobile.addEventListener('click', handleLogout); }
             if (logoutButtonDropdown) { logoutButtonDropdown.addEventListener('click', handleLogout); }
             
-             // Sidebar Toggle
             window.toggleMobileSidebar = function() { 
                 const sidebar = document.getElementById('sidebar-mobile');
                 const overlay = document.getElementById('sidebar-mobile-overlay');

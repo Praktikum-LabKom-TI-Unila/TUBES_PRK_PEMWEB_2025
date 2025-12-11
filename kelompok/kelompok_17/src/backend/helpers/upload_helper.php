@@ -69,6 +69,69 @@ function upload_event_banner(array $file, int $eventId = 0): array
     return upload_image($file, EVENT_UPLOAD_PATH, $prefix);
 }
 
+function upload_attendance_photo(array $file, int $eventId, int $userId): array
+{
+    // Validate file
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        return [
+            'success' => false,
+            'message' => get_upload_error_message($file['error'])
+        ];
+    }
+    
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mimeType = finfo_file($finfo, $file['tmp_name']);
+    finfo_close($finfo);
+    
+    if (!in_array($mimeType, ALLOWED_IMAGE_TYPES)) {
+        return [
+            'success' => false,
+            'message' => 'Tipe file tidak diizinkan. Gunakan JPG, PNG, GIF, atau WebP'
+        ];
+    }
+    
+    if ($file['size'] > MAX_FILE_SIZE) {
+        $maxMB = MAX_FILE_SIZE / 1024 / 1024;
+        return [
+            'success' => false,
+            'message' => "Ukuran file maksimal {$maxMB}MB"
+        ];
+    }
+    
+    $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    if (!in_array($extension, ALLOWED_IMAGE_EXTENSIONS)) {
+        return [
+            'success' => false,
+            'message' => 'Ekstensi file tidak diizinkan'
+        ];
+    }
+    
+    // Store in upload/absensi folder (existing structure)
+    $destination = dirname(UPLOAD_PATH) . '/upload/absensi';
+    
+    if (!is_dir($destination)) {
+        mkdir($destination, 0755, true);
+    }
+    
+    $filename = 'absensi_' . $eventId . '_' . $userId . '_' . time() . '_' . uniqid() . '.' . $extension;
+    $filepath = $destination . '/' . $filename;
+    
+    if (move_uploaded_file($file['tmp_name'], $filepath)) {
+        // Return just filename for backward compatibility
+        return [
+            'success'  => true,
+            'filename' => $filename,
+            'filepath' => $filepath,
+            'message'  => 'Upload berhasil'
+        ];
+    }
+    
+    return [
+        'success' => false,
+        'message' => 'Gagal menyimpan file'
+    ];
+}
+
 function delete_file(string $filepath): bool
 {
     if (file_exists($filepath) && is_file($filepath)) {
