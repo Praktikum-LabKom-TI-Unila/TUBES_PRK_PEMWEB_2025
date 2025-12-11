@@ -68,7 +68,8 @@ function filterAndRenderTable() {
         const matchesStatus = currentFilterStatus === 'all' || 
                               ticket.status.toLowerCase().replace(/ /g, '_') === currentFilterStatus.toLowerCase().replace(/ /g, '_');
         
-        const matchesSearch = ticket.title.toLowerCase().includes(currentSearchQuery) ||
+        // **PERBAIKAN KRITIS DI SINI:** Mengganti 'ticket.title' menjadi 'ticket.judul'
+        const matchesSearch = ticket.judul.toLowerCase().includes(currentSearchQuery) ||
                               ticket.id.toLowerCase().includes(currentSearchQuery) ||
                               ticket.pelapor.toLowerCase().includes(currentSearchQuery);
 
