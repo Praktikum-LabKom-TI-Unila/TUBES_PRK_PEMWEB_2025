@@ -22,7 +22,7 @@ if (isset($_POST['submit'])) {
     $gambar = null;
 
     // Folder upload (pastikan sudah dibuat)
-    $targetDir = "images/";
+    $targetDir = "../images/";
 
     if (!is_dir($targetDir)) {
         mkdir($targetDir, 0777, true);
