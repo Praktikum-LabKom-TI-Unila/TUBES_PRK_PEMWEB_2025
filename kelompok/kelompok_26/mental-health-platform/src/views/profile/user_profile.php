@@ -124,7 +124,7 @@ $interval = $createdAt->diff($now);
                                     <p class="text-sm" style="color: var(--text-secondary);">📧 <?= htmlspecialchars($user['email']) ?></p>
                                 </div>
                                 
-                                <img src="<?= isset($user['profile_picture']) && $user['profile_picture'] ? "../uploads/profile/".htmlspecialchars($user['profile_picture']) : 'https://via.placeholder.com/200x200?text=Profile' ?>" 
+                                <img src="<?= isset($user['profile_picture']) && $user['profile_picture'] ? "../uploads/images/user_profile_pictures/".htmlspecialchars($user['profile_picture']) : 'https://via.placeholder.com/200x200?text=Profile' ?>" 
                                      alt="profile" class="w-32 h-32 object-cover rounded-xl shadow-lg border-4 border-[#3AAFA9]">
                                 
                                 <div class="grid grid-cols-4 gap-2 w-full mt-4">

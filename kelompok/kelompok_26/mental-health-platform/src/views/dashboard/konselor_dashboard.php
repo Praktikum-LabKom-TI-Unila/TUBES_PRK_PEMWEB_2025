@@ -177,7 +177,7 @@ if ($stmt) {
             <div class="grid md:grid-cols-1 gap-8 mb-6">
                 <div class="card-gradient rounded-2xl soft-shadow p-6 card-animate">
                 <div class="flex items-center gap-4">
-                    <img src="<?= isset($konselor['profile_picture']) && $konselor['profile_picture'] ? "../uploads/konselor/".htmlspecialchars($konselor['profile_picture']) : 'https://via.placeholder.com/80x80?text=Konselor' ?>"
+                    <img src="<?= isset($konselor['profile_picture']) && $konselor['profile_picture'] ? "../uploads/images/konselor_profile_pictures/".htmlspecialchars($konselor['profile_picture']) : 'https://via.placeholder.com/80x80?text=Konselor' ?>"
                          alt="avatar" class="w-20 h-20 object-cover rounded-xl shadow-sm">
                     <div>
                         <div class="text-lg font-semibold" style="color: var(--text-primary);"><?= htmlspecialchars($konselor['name'] ?? $konselor['email']) ?></div>
@@ -218,7 +218,7 @@ if ($stmt) {
                     <?php foreach ($clients as $c): ?>
                         <div class="flex items-center justify-between gap-4 p-4 rounded-lg border bg-white">
                             <div class="flex items-center gap-4">
-                                <img src="<?= isset($c['profile_picture']) && $c['profile_picture'] ? "./uploads/profile/".htmlspecialchars($c['profile_picture']) : 'https://via.placeholder.com/56x56?text=User' ?>" class="w-12 h-12 object-cover rounded-lg">
+                                <img src="<?= isset($c['profile_picture']) && $c['profile_picture'] ? "../uploads/images/user_profile_pictures/".htmlspecialchars($c['profile_picture']) : 'https://via.placeholder.com/56x56?text=User' ?>" class="w-12 h-12 object-cover rounded-lg">
                                 <div>
                                     <div class="font-semibold"><?= htmlspecialchars($c['name']) ?></div>
                                     <div class="text-xs" style="color:var(--text-secondary);"><?= htmlspecialchars($c['email']) ?></div>
@@ -248,7 +248,7 @@ if ($stmt) {
                     <?php foreach ($sessions as $s): ?>
                         <div class="flex items-center justify-between gap-4 p-4 rounded-lg border bg-white">
                             <div class="flex items-center gap-4">
-                                <img src="<?= isset($s['user_pic']) && $s['user_pic'] ? "./uploads/profile/".htmlspecialchars($s['user_pic']) : 'https://via.placeholder.com/56x56?text=U' ?>" class="w-12 h-12 object-cover rounded-lg">
+                                <img src="<?= isset($s['user_pic']) && $s['user_pic'] ? "../uploads/images/user_profile_pictures/".htmlspecialchars($s['user_pic']) : 'https://via.placeholder.com/56x56?text=U' ?>" class="w-12 h-12 object-cover rounded-lg">
                                 <div>
                                     <div class="font-semibold"><?= htmlspecialchars($s['user_name']) ?></div>
                                     <div class="text-xs" style="color:var(--text-secondary);"><?= date('d M Y H:i', strtotime($s['started_at'] ?? $s['created_at'] ?? '-')) ?></div>

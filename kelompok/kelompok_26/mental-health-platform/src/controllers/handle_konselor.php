@@ -2,8 +2,19 @@
 // src/controllers/handle_konselor.php
 // Handler untuk Konselor - Menangani upload foto profil, update preferensi, password verification
 
-session_start();
+// Pastikan session sudah dimulai (index.php sudah memanggil session_start)
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Response selalu JSON
+header('Content-Type: application/json');
+
 global $conn;
+if (!$conn) {
+    // Fallback jika dipanggil langsung (should normally be included via index.php)
+    require_once __DIR__ . '/../config/database.php';
+}
 
 // Verifikasi session konselor
 if (!isset($_SESSION['konselor'])) {
@@ -54,7 +65,7 @@ if ($action === 'upload_photo') {
     // Generate nama file unik
     $ext = pathinfo($file_name, PATHINFO_EXTENSION);
     $new_filename = 'konselor_' . $konselor_id . '_' . time() . '.' . $ext;
-    $upload_dir = __DIR__ . '/../uploads/konselor/';
+    $upload_dir = __DIR__ . '/../../uploads/images/konselor_profile_pictures/';
 
     // Pastikan direktori ada
     if (!is_dir($upload_dir)) {
@@ -96,7 +107,7 @@ if ($action === 'upload_photo') {
     echo json_encode([
         'success' => true, 
         'message' => 'Photo uploaded successfully',
-        'photo_url' => '../uploads/konselor/' . $new_filename . '?t=' . time()
+        'photo_url' => './uploads/images/konselor_profile_pictures/' . $new_filename . '?t=' . time()
     ]);
     exit;
 }
@@ -190,7 +201,8 @@ elseif ($action === 'update_profile') {
             echo json_encode(['success' => false, 'message' => 'Database error']);
             exit;
         }
-        $stmt->bind_param("ssssiii", $name, $email, $specialization, $bio, $hashed_password, $experience_years, $konselor_id);
+        // name, email, specialization, bio, password (string), experience_years (int), konselor_id (int)
+        $stmt->bind_param("sssssii", $name, $email, $specialization, $bio, $hashed_password, $experience_years, $konselor_id);
     } else {
         // Update tanpa password
         $stmt = $conn->prepare("
@@ -202,7 +214,8 @@ elseif ($action === 'update_profile') {
             echo json_encode(['success' => false, 'message' => 'Database error']);
             exit;
         }
-        $stmt->bind_param("sssiii", $name, $email, $specialization, $bio, $experience_years, $konselor_id);
+        // name, email, specialization, bio, experience_years (int), konselor_id (int)
+        $stmt->bind_param("ssssii", $name, $email, $specialization, $bio, $experience_years, $konselor_id);
     }
 
     if (!$stmt->execute()) {

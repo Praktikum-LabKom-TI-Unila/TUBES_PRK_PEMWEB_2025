@@ -333,7 +333,7 @@ function selectPackage(planName, price) {
     const amountInput = document.querySelector('input[name="amount"]');
     
     // 1. Update informasi di Modal
-    info.innerHTML = `Anda telah memilih <strong>${planName.toUpperCase()}</strong> dengan total biaya <strong>Rp${price.toLocaleString('id-ID')}</strong>. Silakan lanjutkan ke pilihan pembayaran.`;
+    info.innerHTML = `Anda telah memilih <strong>${planName.toUpperCase()}</strong> dengan total biaya <strong>Rp${price.toLocaleString('id-ID')}</strong>. Sedang memproses...`;
     info.classList.remove('text-gray-600');
     info.classList.add('text-green-700', 'font-bold');
 
@@ -342,10 +342,40 @@ function selectPackage(planName, price) {
         amountInput.value = price;
     }
     
-    // 3. Tutup Modal
-    setTimeout(() => {
-        document.getElementById('packageModal').classList.add('hidden');
-    }, 1000); 
+    // 3. Kirim request ke server untuk membuat subscription
+    const formData = new FormData();
+    formData.append('action', 'create_subscription');
+    formData.append('plan', planName);
+    formData.append('price', price);
+
+    // Get current path to construct proper URL
+    const baseUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') - 5); // Remove /src from path
+    
+    fetch(baseUrl + '/src/index.php?p=handle_payment', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            info.innerHTML = `✓ Paket <strong>${planName.toUpperCase()}</strong> berhasil dipilih! Rp${price.toLocaleString('id-ID')}. Silakan lanjutkan ke pembayaran.`;
+            // 4. Tutup Modal
+            setTimeout(() => {
+                document.getElementById('packageModal').classList.add('hidden');
+                location.reload(); // Refresh untuk menampilkan subscription yang baru
+            }, 1500);
+        } else {
+            info.innerHTML = `✗ Error: ${data.message || 'Gagal memilih paket'}`;
+            info.classList.remove('text-green-700');
+            info.classList.add('text-red-700');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        info.innerHTML = '✗ Terjadi kesalahan saat memproses';
+        info.classList.remove('text-green-700');
+        info.classList.add('text-red-700');
+    });
 }
 
 // Fungsi yang DIMODIFIKASI untuk memilih metode pembayaran (Transfer/QRIS)

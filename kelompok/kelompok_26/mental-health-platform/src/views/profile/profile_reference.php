@@ -40,7 +40,7 @@ if ($fresh) $user = array_merge($user, $fresh);
                 <div class="bg-white rounded-2xl p-8 soft-shadow">
                     <div class="flex items-center gap-6">
                         <div>
-                            <img id="profilePreview" src="<?= isset($user['profile_picture']) && $user['profile_picture'] ? '../uploads/profile/'.htmlspecialchars($user['profile_picture']) : 'https://via.placeholder.com/120x120?text=Profile' ?>" class="w-28 h-28 object-cover rounded-2xl border-4 border-[#3AAFA9]">
+                            <img id="profilePreview" src="<?= isset($user['profile_picture']) && $user['profile_picture'] ? '../uploads/images/user_profile_pictures/'.htmlspecialchars($user['profile_picture']) : 'https://via.placeholder.com/120x120?text=Profile' ?>" class="w-28 h-28 object-cover rounded-2xl border-4 border-[#3AAFA9]">
                             <div class="mt-3">
                                 <label class="px-3 py-2 bg-[#f3faf9] rounded-md cursor-pointer text-sm">
                                     <input id="profileFile" type="file" accept="image/*" style="display:none" />

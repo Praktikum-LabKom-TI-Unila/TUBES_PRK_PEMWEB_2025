@@ -124,10 +124,13 @@ unset($_SESSION['success'], $_SESSION['error']);
                             
                             <div class="text-center">
                                 <div class="inline-block relative mb-6">
-                                    <img src="<?= isset($user['profile_picture']) && $user['profile_picture'] ? "../uploads/profile/".htmlspecialchars($user['profile_picture']) : 'https://via.placeholder.com/180x180?text=Profile' ?>" 
+                                    <img src="<?= isset($user['profile_picture']) && $user['profile_picture'] ? "../uploads/images/user_profile_pictures/".htmlspecialchars($user['profile_picture']) : 'https://via.placeholder.com/180x180?text=Profile' ?>" 
                                          alt="profile" class="w-48 h-48 object-cover rounded-2xl shadow-lg border-4 border-[#3AAFA9]">
                                     <div class="absolute bottom-0 right-0 bg-[#3AAFA9] text-white p-3 rounded-full shadow-lg">
-                                        
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                        </svg>
                                     </div>
                                 </div>
                             </div>

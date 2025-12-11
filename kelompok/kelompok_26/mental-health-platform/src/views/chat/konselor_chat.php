@@ -34,6 +34,7 @@ if ($user_id && !$session_id) {
 // Fetch session details
 $session = null;
 $user_info = null;
+$user_survey = null;
 if ($session_id) {
     $stmt = $conn->prepare("
         SELECT cs.*, u.name, u.email, u.profile_picture
@@ -52,8 +53,60 @@ if ($session_id) {
             'profile_picture' => $session['profile_picture'],
             'user_id' => $session['user_id']
         ];
+        // Fetch user's latest survey for communication/approach style
+        $surveyStmt = $conn->prepare("SELECT q1, q2, q3, q4 FROM user_survey WHERE user_id = ? ORDER BY survey_id DESC LIMIT 1");
+        if ($surveyStmt) {
+            $surveyStmt->bind_param("i", $session['user_id']);
+            $surveyStmt->execute();
+            $surveyRes = $surveyStmt->get_result();
+            if ($surveyRes && $surveyRes->num_rows) {
+                $user_survey = $surveyRes->fetch_assoc();
+            }
+        }
     }
 }
+
+// Helper function to format user preference description
+function getUserPreferenceDesc($survey) {
+    if (!$survey) return null;
+    
+    // Communication style from q1, q2, q3
+    $direct_count = 0;
+    $gentle_count = 0;
+    foreach ([$survey['q1'], $survey['q2'], $survey['q3']] as $ans) {
+        if ($ans == 1) $direct_count++;
+        if ($ans == 2) $gentle_count++;
+    }
+    
+    if ($direct_count >= 2) {
+        $comm_label = "Komunikator Tegas";
+        $comm_desc = "Lebih nyaman dengan komunikasi langsung & jelas";
+    } elseif ($gentle_count >= 2) {
+        $comm_label = "Komunikator Empatik";
+        $comm_desc = "Lebih nyaman dengan komunikasi lembut & hangat";
+    } else {
+        $comm_label = "Komunikator Seimbang";
+        $comm_desc = "Fleksibel dengan gaya komunikasi";
+    }
+    
+    // Emotional approach from q4
+    if (($survey['q4'] ?? 0) == 1) {
+        $approach_label = "Pemikir Logis";
+        $approach_desc = "Lebih suka pendekatan rasional & analitis";
+    } else {
+        $approach_label = "Perasa Emosional";
+        $approach_desc = "Lebih suka pendekatan hangat & suportif";
+    }
+    
+    return [
+        'comm_label' => $comm_label,
+        'comm_desc' => $comm_desc,
+        'approach_label' => $approach_label,
+        'approach_desc' => $approach_desc
+    ];
+}
+
+$userPreference = getUserPreferenceDesc($user_survey);
 
 // Fetch messages
 $messages = [];
@@ -113,7 +166,7 @@ if ($stmt) {
                         <?php foreach ($clients as $c): ?>
                             <a href="index.php?p=konselor_chat&user_id=<?= intval($c['user_id']) ?>" 
                                style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; text-decoration: none; transition: all 0.2s; background: <?= (isset($user_info) && $user_info['user_id'] == $c['user_id']) ? 'rgba(58, 175, 169, 0.15)' : 'transparent' ?>; border-left: 3px solid <?= (isset($user_info) && $user_info['user_id'] == $c['user_id']) ? '#3AAFA9' : 'transparent' ?>;">
-                                <img src="<?= isset($c['profile_picture']) && $c['profile_picture'] ? "./uploads/profile/".htmlspecialchars($c['profile_picture']) : 'https://via.placeholder.com/40x40?text=U' ?>" 
+                                <img src="<?= isset($c['profile_picture']) && $c['profile_picture'] ? "../uploads/images/user_profile_pictures/".htmlspecialchars($c['profile_picture']) : 'https://via.placeholder.com/40x40?text=U' ?>" 
                                      style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                                 <div style="flex: 1; min-width: 0;">
                                     <div style="color: var(--text-primary); font-weight: 500; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?= htmlspecialchars($c['name']) ?></div>
@@ -135,18 +188,36 @@ if ($stmt) {
             
             <?php if ($session && $user_info): ?>
                 <!-- Chat Header -->
-                <div style="border-bottom: 1px solid var(--border-color); padding: 20px; background: var(--bg-card); display: flex; align-items: center; justify-content: space-between;">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <img src="<?= isset($user_info['profile_picture']) && $user_info['profile_picture'] ? "./uploads/profile/".htmlspecialchars($user_info['profile_picture']) : 'https://via.placeholder.com/50x50?text=User' ?>" 
-                             style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
-                        <div>
-                            <h2 style="color: var(--text-primary); font-weight: 600; font-size: 18px;"><?= htmlspecialchars($user_info['name']) ?></h2>
-                            <p style="color: var(--text-secondary); font-size: 14px;">Status: <strong><?= htmlspecialchars(ucfirst($session['status'] ?? '-')) ?></strong></p>
+                <div style="border-bottom: 1px solid var(--border-color); padding: 20px; background: var(--bg-card);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <img src="<?= isset($user_info['profile_picture']) && $user_info['profile_picture'] ? "../uploads/images/user_profile_pictures/".htmlspecialchars($user_info['profile_picture']) : 'https://via.placeholder.com/50x50?text=User' ?>" 
+                                 style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                            <div>
+                                <h2 style="color: var(--text-primary); font-weight: 600; font-size: 18px;"><?= htmlspecialchars($user_info['name']) ?></h2>
+                                <p style="color: var(--text-secondary); font-size: 14px;">Status: <strong><?= htmlspecialchars(ucfirst($session['status'] ?? '-')) ?></strong></p>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <p style="color: var(--text-secondary); font-size: 12px;">Mulai: <?= date('d M Y H:i', strtotime($session['started_at'] ?? date('Y-m-d H:i'))) ?></p>
                         </div>
                     </div>
-                    <div style="text-align: right;">
-                        <p style="color: var(--text-secondary); font-size: 12px;">Mulai: <?= date('d M Y H:i', strtotime($session['started_at'] ?? date('Y-m-d H:i'))) ?></p>
+                    
+                    <!-- User Preference Description -->
+                    <?php if ($userPreference): ?>
+                    <div style="padding: 12px; background: rgba(58, 175, 169, 0.1); border-radius: 8px; border-left: 3px solid #3AAFA9;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div>
+                                <p style="color: var(--text-primary); font-weight: 600; font-size: 13px; margin: 0 0 4px 0;"><?= htmlspecialchars($userPreference['comm_label']) ?></p>
+                                <p style="color: var(--text-secondary); font-size: 13px; margin: 0;"><?= htmlspecialchars($userPreference['comm_desc']) ?></p>
+                            </div>
+                            <div>
+                                <p style="color: var(--text-primary); font-weight: 600; font-size: 13px; margin: 0 0 4px 0;"><?= htmlspecialchars($userPreference['approach_label']) ?></p>
+                                <p style="color: var(--text-secondary); font-size: 13px; margin: 0;"><?= htmlspecialchars($userPreference['approach_desc']) ?></p>
+                            </div>
+                        </div>
                     </div>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Messages Area -->
@@ -157,8 +228,8 @@ if ($stmt) {
                         </div>
                     <?php else: ?>
                         <?php foreach ($messages as $msg): ?>
-                            <div style="display: flex; justify-content: <?= $msg['sender_role'] === 'konselor' ? 'flex-end' : 'flex-start' ?>;">
-                                <div style="background: <?= $msg['sender_role'] === 'konselor' ? '#3AAFA9' : '#e0e7ff' ?>; color: <?= $msg['sender_role'] === 'konselor' ? 'white' : 'var(--text-primary)' ?>; padding: 12px 16px; border-radius: 12px; max-width: 60%; word-wrap: break-word;">
+                            <div data-message-id="<?= $msg['message_id'] ?>" style="display: flex; justify-content: <?= $msg['sender_type'] === 'konselor' ? 'flex-end' : 'flex-start' ?>;">
+                                <div style="background: <?= $msg['sender_type'] === 'konselor' ? '#3AAFA9' : '#E8F8F6' ?>; color: <?= $msg['sender_type'] === 'konselor' ? '#FFFFFF' : '#17252A' ?>; padding: 12px 16px; border-radius: 12px; max-width: 60%; word-wrap: break-word;">
                                     <p style="margin: 0; font-size: 14px;"><?= htmlspecialchars($msg['message']) ?></p>
                                     <small style="opacity: 0.7; font-size: 12px; display: block; margin-top: 4px;"><?= date('H:i', strtotime($msg['created_at'])) ?></small>
                                 </div>
@@ -191,21 +262,89 @@ if ($stmt) {
 </div>
 
 <script>
+const sessionId = <?= json_encode($session_id) ?>;
+let lastMessageId = 0;
+
+// Fetch messages (polling)
+async function fetchMessages() {
+    if (!sessionId) return;
+    try {
+        const res = await fetch('?p=api_chat&action=fetch&session_id=' + sessionId);
+        const data = await res.json();
+        if (data.success && data.messages) {
+            const messagesArea = document.getElementById('messagesArea');
+            if (!messagesArea) return;
+            
+            // Check if new messages arrived
+            const newMessages = data.messages.filter(m => m.message_id > lastMessageId);
+            if (newMessages.length > 0) {
+                newMessages.forEach(msg => {
+                    appendMessage(msg);
+                    lastMessageId = Math.max(lastMessageId, msg.message_id);
+                });
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+            }
+        }
+    } catch (e) {
+        console.error('fetchMessages', e);
+    }
+}
+
+function appendMessage(msg) {
+    const messagesArea = document.getElementById('messagesArea');
+    if (!messagesArea) return;
+    
+    const isKonselor = msg.sender_type === 'konselor';
+    
+    // Create wrapper with flexbox (sama seperti PHP render)
+    const wrapper = document.createElement('div');
+    wrapper.setAttribute('data-message-id', msg.message_id);
+    wrapper.style.display = 'flex';
+    wrapper.style.justifyContent = isKonselor ? 'flex-end' : 'flex-start';
+    
+    // Create bubble container
+    const bubble = document.createElement('div');
+    bubble.style.background = isKonselor ? '#3AAFA9' : '#E8F8F6';
+    bubble.style.color = isKonselor ? '#FFFFFF' : '#17252A';
+    bubble.style.padding = '12px 16px';
+    bubble.style.borderRadius = '12px';
+    bubble.style.maxWidth = '60%';
+    bubble.style.wordWrap = 'break-word';
+    
+    // Create message text
+    const messageText = document.createElement('p');
+    messageText.style.margin = '0';
+    messageText.style.fontSize = '14px';
+    messageText.textContent = msg.message;
+    
+    // Create timestamp
+    const timestamp = document.createElement('small');
+    timestamp.style.opacity = '0.7';
+    timestamp.style.fontSize = '12px';
+    timestamp.style.display = 'block';
+    timestamp.style.marginTop = '4px';
+    const msgDate = new Date(msg.created_at);
+    timestamp.textContent = msgDate.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+    
+    // Assemble
+    bubble.appendChild(messageText);
+    bubble.appendChild(timestamp);
+    wrapper.appendChild(bubble);
+    messagesArea.appendChild(wrapper);
+}
+
 function sendMessage() {
     const messageInput = document.getElementById('messageInput');
     const message = messageInput.value.trim();
     
     if (!message) return;
-
-    const sessionId = <?= json_encode($session_id) ?>;
     
     const formData = new FormData();
-    formData.append('action', 'send_message');
+    formData.append('action', 'send');
     formData.append('session_id', sessionId);
     formData.append('message', message);
-    formData.append('sender_role', 'konselor');
 
-    fetch('index.php?p=api_chat', {
+    fetch('?p=api_chat', {
         method: 'POST',
         body: formData
     })
@@ -213,15 +352,29 @@ function sendMessage() {
     .then(data => {
         if (data.success) {
             messageInput.value = '';
-            location.reload();
+            // Message will appear via polling
+            fetchMessages();
         } else {
-            alert('Error: ' + (data.message || 'Gagal mengirim pesan'));
+            alert('Error: ' + (data.error || data.message || 'Gagal mengirim pesan'));
         }
     })
     .catch(error => {
         console.error('Error:', error);
         alert('Terjadi kesalahan saat mengirim pesan.');
     });
+}
+
+// Initialize
+if (sessionId) {
+    // Get initial last message ID
+    const messages = document.querySelectorAll('[data-message-id]');
+    messages.forEach(el => {
+        const id = parseInt(el.getAttribute('data-message-id'));
+        lastMessageId = Math.max(lastMessageId, id);
+    });
+    
+    // Start polling
+    setInterval(fetchMessages, 3000);
 }
 
 // Auto scroll to bottom
