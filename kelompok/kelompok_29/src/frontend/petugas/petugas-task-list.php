@@ -20,10 +20,7 @@
               <h1 id="dashboardName" class="text-2xl font-semibold">-</h1>
               <p id="dashboardDepartment" class="text-blue-100 text-sm">Petugas Lapangan</p>
             </div>
-            <div class="flex gap-2">
-              <a href="petugas-edit-profil.php" class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center hover:bg-blue-400 text-xl transition-colors" title="Edit Profil">
-                <i class="material-icons">person</i>
-              </a>
+            <div>
               <button type="button" id="logoutButton" class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center hover:bg-blue-400 text-xl transition-colors" title="Logout">
                 <i class="material-icons">logout</i>
               </button>

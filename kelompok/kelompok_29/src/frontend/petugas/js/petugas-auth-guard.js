@@ -7,31 +7,70 @@
     };
     const LOGIN_PAGE = 'petugas-login.php';
     const DASHBOARD_PAGE = 'petugas-task-list.php';
-    const API_BASE_URL = 'http://localhost:9090/api';
-    const FILE_BASE_URL = 'http://localhost:9090';
+
+    const resolveBackendBaseUrl = () => {
+        const metaOverride = document.querySelector('meta[name=\"sipinda-backend-url\"]');
+        if (metaOverride?.content) {
+            return metaOverride.content.trim().replace(/\/+$/, '');
+        }
+        const globalOverride = window.SIPINDA_BACKEND_URL || window.__SIPINDA_BACKEND_URL__;
+        if (typeof globalOverride === 'string' && globalOverride.trim()) {
+            return globalOverride.trim().replace(/\/+$/, '');
+        }
+        const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+        const hostname = window.location.hostname || 'localhost';
+        if (hostname === 'localhost' || hostname === '127.0.0.1') {
+            return `${protocol}//${hostname}:9090`;
+        }
+        const port = window.location.port ? `:${window.location.port}` : '';
+        return `${protocol}//${hostname}${port}`;
+    };
+
+    const BACKEND_BASE_URL = resolveBackendBaseUrl();
+    const API_BASE_URL = `${BACKEND_BASE_URL.replace(/\/+$/, '')}/api`;
+    const FILE_BASE_URL = BACKEND_BASE_URL.replace(/\/+$/, '');
+
+    const storageEngines = [];
+    try {
+        if (window.localStorage) storageEngines.push(window.localStorage);
+    } catch (error) {
+        console.warn('[PetugasAuth] localStorage tidak tersedia', error);
+    }
+    try {
+        if (window.sessionStorage) storageEngines.push(window.sessionStorage);
+    } catch (error) {
+        console.warn('[PetugasAuth] sessionStorage tidak tersedia', error);
+    }
 
     const storage = {
         get(key) {
-            try {
-                return localStorage.getItem(key);
-            } catch (error) {
-                console.warn('[PetugasAuth] Gagal baca storage', error);
-                return null;
+            for (const engine of storageEngines) {
+                try {
+                    const value = engine.getItem(key);
+                    if (value) return value;
+                } catch (error) {
+                    console.warn('[PetugasAuth] Gagal baca storage', error);
+                }
             }
+            return null;
         },
         set(key, value) {
-            try {
-                localStorage.setItem(key, value);
-            } catch (error) {
-                console.warn('[PetugasAuth] Gagal tulis storage', error);
-            }
+            storageEngines.forEach(engine => {
+                try {
+                    engine.setItem(key, value);
+                } catch (error) {
+                    console.warn('[PetugasAuth] Gagal tulis storage', error);
+                }
+            });
         },
         remove(key) {
-            try {
-                localStorage.removeItem(key);
-            } catch (error) {
-                console.warn('[PetugasAuth] Gagal hapus storage', error);
-            }
+            storageEngines.forEach(engine => {
+                try {
+                    engine.removeItem(key);
+                } catch (error) {
+                    console.warn('[PetugasAuth] Gagal hapus storage', error);
+                }
+            });
         }
     };
 
@@ -42,7 +81,8 @@
             return storage.get(KEYS.token);
         },
         getRole() {
-            return storage.get(KEYS.role);
+            const stored = storage.get(KEYS.role);
+            return stored ? stored.toLowerCase() : '';
         },
         getUser() {
             const raw = storage.get(KEYS.user);
@@ -57,7 +97,8 @@
         setSession(token, user) {
             if (!token) return;
             storage.set(KEYS.token, token);
-            storage.set(KEYS.role, user?.role || '');
+            const normalizedRole = (user?.role || '').toLowerCase();
+            storage.set(KEYS.role, normalizedRole);
             storage.set(KEYS.user, JSON.stringify(user || {}));
         },
         clearSession() {
@@ -66,7 +107,11 @@
             storage.remove(KEYS.user);
         },
         isOfficer() {
-            return !!(this.getToken() && this.getRole() === 'officer');
+            const role = this.getRole();
+            const normalizedRole = role.replace(/\s+/g, '_');
+            const allowedRoles = ['officer', 'petugas', 'field_officer', 'petugas_lapangan'];
+            const matches = allowedRoles.includes(normalizedRole) || normalizedRole.includes('officer');
+            return !!(this.getToken() && matches);
         },
         getAuthHeaders() {
             const token = this.getToken();
@@ -77,9 +122,25 @@
         },
         resolveFileUrl(path) {
             if (!path) return '';
-            if (/^https?:\/\//i.test(path)) return path;
-            if (path.startsWith('/')) return `${FILE_BASE_URL}${path}`;
-            return `${FILE_BASE_URL}/${path}`;
+            let sanitizedPath = path.trim();
+            sanitizedPath = sanitizedPath.replace(/\/admin(?=\/uploads)/gi, '');
+            const baseUrl = new URL(FILE_BASE_URL);
+            try {
+                const parsed = new URL(sanitizedPath, FILE_BASE_URL);
+                parsed.protocol = baseUrl.protocol;
+                parsed.hostname = baseUrl.hostname;
+                const fallbackPort =
+                    baseUrl.hostname === 'localhost'
+                        ? baseUrl.port || '9090'
+                        : baseUrl.port || (baseUrl.protocol === 'https:' ? '443' : '80');
+                parsed.port = fallbackPort;
+                return parsed.toString();
+            } catch (error) {
+                if (sanitizedPath.startsWith('/')) {
+                    return `${FILE_BASE_URL}${sanitizedPath}`;
+                }
+                return `${FILE_BASE_URL}/${sanitizedPath}`;
+            }
         },
         requireOfficer() {
             if (!this.isOfficer()) {

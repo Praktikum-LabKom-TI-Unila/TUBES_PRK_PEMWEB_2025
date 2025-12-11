@@ -62,17 +62,20 @@ function formatDate(dateString) {
 function renderStats(stats = {}) {
     if (!DOM.statsContainer) return;
     DOM.statsLoader?.classList.add('hidden');
+    const total = stats.total_assignments ?? stats.total_tasks ?? 0;
+    const active = stats.active_tasks ?? stats.active ?? 0;
+    const completed = stats.completed_tasks ?? stats.finished_tasks ?? stats.total_completed ?? 0;
     DOM.statsContainer.innerHTML = `
         <div class="bg-white rounded-xl p-4 border border-gray-200 text-center">
-            <div class="text-gray-900 font-bold mb-1 text-2xl">${stats.total_assignments ?? 0}</div>
+            <div class="text-gray-900 font-bold mb-1 text-2xl">${total}</div>
             <p class="text-gray-600 text-sm">Total Tugas</p>
         </div>
         <div class="bg-white rounded-xl p-4 border border-yellow-200 text-center">
-            <div class="text-yellow-600 font-bold mb-1 text-2xl">${stats.active_tasks ?? 0}</div>
+            <div class="text-yellow-600 font-bold mb-1 text-2xl">${active}</div>
             <p class="text-gray-600 text-sm">Aktif</p>
         </div>
         <div class="bg-white rounded-xl p-4 border border-green-200 text-center">
-            <div class="text-green-600 font-bold mb-1 text-2xl">${stats.completed_tasks ?? 0}</div>
+            <div class="text-green-600 font-bold mb-1 text-2xl">${completed}</div>
             <p class="text-gray-600 text-sm">Selesai</p>
         </div>
     `;
@@ -92,7 +95,6 @@ function renderTasks(records, container, emptyContainer, loader, type) {
     records.forEach(record => {
         const id = record.task_id ?? record.complaint_id ?? record.id;
         const badge = getStatusBadgeHtml(record.status || '');
-        const cover = PetugasAuth.resolveFileUrl(record.photos?.before || record.cover_photo || '') || placeholderImage;
         const location = record.address || record.location || 'Lokasi belum tersedia';
 
         const card = document.createElement('div');
@@ -105,9 +107,6 @@ function renderTasks(records, container, emptyContainer, loader, type) {
 
         card.innerHTML = `
             <div class="flex items-start gap-4">
-                <div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
-                    <img src="${cover}" alt="${record.title || 'Tugas Infrastruktur'}" class="w-full h-full object-cover" onerror="this.src='${placeholderImage}'"/>
-                </div>
                 <div class="flex-1 min-w-0">
                     <div class="flex items-start justify-between gap-2 mb-3">
                         <div>
@@ -160,7 +159,9 @@ async function loadStats() {
     try {
         clearAlert();
         const payload = await PetugasAPI.request('/officer/dashboard/stats');
-        renderStats(payload.data || {});
+        console.log('[PetugasDashboard] stats payload:', payload);
+        const data = payload?.data || payload || {};
+        renderStats(data);
     } catch (error) {
         console.error('[Dashboard] stats error', error);
         DOM.statsLoader?.classList.add('hidden');
@@ -178,7 +179,8 @@ async function loadActiveTasks() {
                 limit: paginationState.active.limit
             }
         });
-        const data = payload.data || {};
+        console.log('[PetugasDashboard] active tasks payload:', payload);
+        const data = payload?.data || payload || {};
         paginationState.active.total_page = data.total_page || 1;
         renderTasks(data.records || [], DOM.activeList, DOM.noActive, DOM.activeLoader, 'active');
         renderPagination(DOM.activePagination, paginationState.active, 'active');
@@ -199,7 +201,8 @@ async function loadCompletedTasks() {
                 limit: paginationState.completed.limit
             }
         });
-        const data = payload.data || {};
+        console.log('[PetugasDashboard] completed tasks payload:', payload);
+        const data = payload?.data || payload || {};
         paginationState.completed.total_page = data.total_page || 1;
         renderTasks(data.records || [], DOM.completedList, DOM.noCompleted, DOM.completedLoader, 'completed');
         renderPagination(DOM.completedPagination, paginationState.completed, 'completed');

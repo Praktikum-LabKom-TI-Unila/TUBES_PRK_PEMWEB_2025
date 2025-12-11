@@ -80,12 +80,23 @@ function fetch_task_timeline(PDO $pdo, int $complaintId): array
     return $timeline;
 }
 
-function list_officer_tasks_with_status(PDO $pdo, int $officerId, array $statuses, int $page, int $limit): array
+function list_officer_tasks_with_status(PDO $pdo, int $officerId, ?array $statuses, int $page, int $limit): array
 {
-    $placeholders = implode(',', array_fill(0, count($statuses), '?'));
-    $countSql = 'SELECT COUNT(*) FROM officer_tasks ot JOIN complaints c ON c.id = ot.complaint_id WHERE ot.officer_id = ? AND c.status IN (' . $placeholders . ')';
+    $hasStatuses = !empty($statuses);
+    $conditions = ['ot.officer_id = ?'];
+    $params = [$officerId];
+
+    if ($hasStatuses) {
+        $placeholders = implode(',', array_fill(0, count($statuses), '?'));
+        $conditions[] = 'c.status IN (' . $placeholders . ')';
+        $params = array_merge($params, $statuses);
+    }
+
+    $whereClause = implode(' AND ', $conditions);
+
+    $countSql = 'SELECT COUNT(*) FROM officer_tasks ot JOIN complaints c ON c.id = ot.complaint_id WHERE ' . $whereClause;
     $countStmt = $pdo->prepare($countSql);
-    $countStmt->execute(array_merge([$officerId], $statuses));
+    $countStmt->execute($params);
     $totalData = (int) $countStmt->fetchColumn();
 
     $dataSql = 'SELECT ot.id AS task_id, c.id AS complaint_id, c.title, c.category, c.status, c.address,
@@ -93,7 +104,7 @@ function list_officer_tasks_with_status(PDO $pdo, int $officerId, array $statuse
                        ot.started_at, ot.finished_at
                 FROM officer_tasks ot
                 JOIN complaints c ON c.id = ot.complaint_id
-                WHERE ot.officer_id = ? AND c.status IN (' . $placeholders . ')
+                WHERE ' . $whereClause . '
                 ORDER BY c.updated_at DESC
                 LIMIT ? OFFSET ?';
 
@@ -101,9 +112,12 @@ function list_officer_tasks_with_status(PDO $pdo, int $officerId, array $statuse
     $stmt = $pdo->prepare($dataSql);
 
     $paramIndex = 1;
-    $stmt->bindValue($paramIndex++, $officerId, PDO::PARAM_INT);
-    foreach ($statuses as $status) {
-        $stmt->bindValue($paramIndex++, $status, PDO::PARAM_STR);
+    foreach ($params as $param) {
+        $stmt->bindValue(
+            $paramIndex++,
+            $param,
+            is_int($param) ? PDO::PARAM_INT : PDO::PARAM_STR
+        );
     }
     $stmt->bindValue($paramIndex++, $limit, PDO::PARAM_INT);
     $stmt->bindValue($paramIndex++, $offset, PDO::PARAM_INT);

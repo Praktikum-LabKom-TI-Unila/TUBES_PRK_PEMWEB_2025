@@ -43,8 +43,9 @@ form.addEventListener('submit', async function(event) {
 
         if (response.ok && payload?.status === 'success') {
             const user = payload.data?.user;
-            const role = user?.role;
-            if (role !== 'officer') {
+            const role = (user?.role || '').toLowerCase();
+            const allowedRoles = ['officer', 'petugas', 'field_officer', 'petugas_lapangan'];
+            if (!allowedRoles.includes(role) && !role.includes('officer')) {
                 setFeedback('Hanya petugas lapangan yang bisa login.');
                 return;
             }

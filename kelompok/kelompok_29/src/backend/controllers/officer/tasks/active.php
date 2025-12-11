@@ -18,7 +18,15 @@ if ($limit < 1) {
 }
 $limit = min($limit, 50);
 
-$data = list_officer_tasks_with_status($pdo, $officer['officer_id'], ['ditugaskan_ke_petugas', 'dalam_proses'], $page, $limit);
+$statusParam = isset($_GET['status']) ? trim((string) $_GET['status']) : '';
+$requestedStatuses = array_values(array_filter(array_map('trim', explode(',', $statusParam))));
+$statusLower = array_map('strtolower', $requestedStatuses);
+
+if (empty($requestedStatuses) || in_array('all', $statusLower, true) || in_array('*', $statusLower, true)) {
+    $requestedStatuses = null;
+}
+
+$data = list_officer_tasks_with_status($pdo, $officer['officer_id'], $requestedStatuses, $page, $limit);
 
 response_success(200, 'Daftar tugas aktif berhasil diambil.', $data);
 
