@@ -1,4 +1,10 @@
 <?php
+/**
+ * Form Tambah Servis
+ * Halaman input data servis baru (Pelanggan, Barang, Keluhan).
+ * Menghasilkan No. Resi otomatis.
+ */
+session_start();
 require_once '../config.php';
 
 // Ambil data teknisi untuk dropdown
@@ -42,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Input Servis Baru - FixTrack</title>
+    <title>Edit Data Servis - RepairinBro</title>
     <!-- Tailwind CSS (CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -58,15 +64,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <a href="index.php" class="bg-white p-3 rounded-xl shadow-sm border border-slate-200 text-slate-500 hover:text-blue-600 transition-colors">
                 <i class="fas fa-arrow-left"></i>
             </a>
-            <div>
-                <h1 class="text-2xl font-bold text-slate-800">Input Servis Baru</h1>
-                <p class="text-slate-500 text-sm">Masukkan data barang masuk dari pelanggan</p>
-            </div>
+            <h1 class="text-xl font-bold text-slate-800">
+                RepairinBro <span class="text-blue-600">Admin</span>
+            </h1>
+            <p class="text-slate-500 text-sm">Masukkan data barang masuk dari pelanggan</p>
         </div>
 
         <?php if (isset($success_msg)): ?>
             <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-r" role="alert">
-                <p><?php echo $success_msg; ?></p>
+                <h1>RepairinBro Electronic Service</h1><p><?php echo $success_msg; ?></p>
             </div>
         <?php endif; ?>
 
@@ -145,6 +151,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Footer Action -->
             <div class="bg-slate-50 px-8 py-5 border-t border-slate-100 flex justify-end gap-4">
+                <a href="index.php" class="px-6 py-3 rounded-xl font-medium text-slate-600 hover:bg-white hover:text-slate-800 transition-colors border border-transparent hover:border-slate-200 flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i> Kembali
+                </a>
                 <button type="reset" class="px-6 py-3 rounded-xl font-medium text-slate-600 hover:bg-white hover:text-slate-800 transition-colors border border-transparent hover:border-slate-200">
                     Reset
                 </button>

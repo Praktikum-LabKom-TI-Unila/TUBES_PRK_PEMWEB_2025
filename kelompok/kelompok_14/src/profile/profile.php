@@ -23,8 +23,11 @@ $user = $res->fetch_assoc();
 $stmt->close();
 
 // Tentukan link dashboard berdasarkan role (relatif dari src/profile)
+// Tentukan link dashboard berdasarkan role (relatif dari src/profile)
 if (isset($user['role']) && $user['role'] === 'admin') {
     $dashboard_link = '../halaman-admin/index.php';
+} elseif (isset($user['role']) && $user['role'] === 'superadmin') {
+    $dashboard_link = '../super-admin/superadmin_dashboard.php';
 } else {
     $dashboard_link = '../halaman-teknisi/index.php';
 }
@@ -34,7 +37,7 @@ if (isset($user['role']) && $user['role'] === 'admin') {
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Profil Saya - FixTrack</title>
+    <title>Profil Saya - RepairinBro</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -49,8 +52,8 @@ if (isset($user['role']) && $user['role'] === 'admin') {
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center gap-4">
                     <a href="<?= $dashboard_link; ?>" class="flex items-center gap-3">
-                        <img src="../assets/photos/logo.png" alt="FixTrack" class="h-10 w-10 object-contain">
-                        <span class="font-semibold text-lg text-slate-800">FixTrack</span>
+                        <img src="../assets/photos/logo.png" alt="RepairinBro" class="h-10 w-10 object-contain">
+                        <span class="font-semibold text-lg text-slate-800">RepairinBro</span>
                     </a>
                 </div>
 
@@ -87,7 +90,7 @@ if (isset($user['role']) && $user['role'] === 'admin') {
                         <div class="ml-0 sm:ml-6 mt-4 sm:mt-0 mb-2 text-center sm:text-left">
                             <h1 class="text-2xl font-bold text-slate-800"><?= htmlspecialchars($user['nama']); ?></h1>
                             <span class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide
-                                <?= ($user['role'] === 'admin') ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' ?>">
+                                <?= ($user['role'] === 'admin') ? 'bg-green-100 text-green-800' : (($user['role'] === 'superadmin') ? 'bg-purple-100 text-purple-800' : 'bg-yellow-100 text-yellow-800') ?>">
                                 <?= ucfirst($user['role']); ?> System
                             </span>
                         </div>

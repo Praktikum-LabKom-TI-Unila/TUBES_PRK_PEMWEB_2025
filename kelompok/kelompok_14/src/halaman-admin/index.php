@@ -1,4 +1,9 @@
 <?php
+/**
+ * Dashboard Admin
+ * Halaman utama untuk Admin. Menampilkan statistik ringkas (total antrian, servis selesai, dll)
+ * dan menu navigasi.
+ */
 session_start();
 require_once '../config.php';
 
@@ -51,7 +56,7 @@ $recent_result = $conn->query($sql_recent);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - FixTrack</title>
+    <title>Admin Dashboard - RepairinBro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -62,9 +67,9 @@ $recent_result = $conn->query($sql_recent);
     <!-- Navbar -->
 <nav class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center shadow-sm sticky top-0 z-30">
     <div class="flex items-center gap-3">
-        <img src="../assets/photos/logo.png" alt="FixTrack" class="h-16 w-16 object-contain">
+        <img src="../assets/photos/logo.png" alt="RepairinBro" class="h-16 w-16 object-contain">
         <h1 class="text-xl font-bold text-slate-800">
-            FixTrack <span class="text-blue-600">Admin</span>
+            RepairinBro <span class="text-blue-600">Admin</span>
         </h1>
     </div>
 

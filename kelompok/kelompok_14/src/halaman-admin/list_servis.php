@@ -1,9 +1,14 @@
 <?php
 require_once '../config.php';
 
-// Fitur Pencarian & Filter
-$search = $_GET['search'] ?? '';
-$status_filter = $_GET['status'] ?? '';
+// Konfigurasi Pagination
+$limit = 10;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$start = ($page > 1) ? ($page * $limit) - $limit : 0;
+
+// Filter pencarian
+$search = isset($_GET['search']) ? $_GET['search'] : '';
+$status_filter = isset($_GET['status']) ? $_GET['status'] : '';
 
 $query = "SELECT servis.*, users.nama as nama_teknisi 
           FROM servis 
@@ -23,7 +28,7 @@ $result = $conn->query($query);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Servis - FixTrack</title>
+    <title>Daftar Servis - RepairinBro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -35,10 +40,12 @@ $result = $conn->query($query);
     <!-- Navbar -->
     <nav class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center shadow-sm sticky top-0 z-30">
         <div class="flex items-center gap-3">
-             <a href="index.php" class="text-slate-500 hover:text-blue-600 transition-colors">
-                <i class="fas fa-arrow-left text-xl"></i>
+             <a href="index.php" class="bg-white p-3 rounded-xl shadow-sm border border-slate-200 text-slate-500 hover:text-blue-600 transition-colors">
+                <i class="fas fa-arrow-left"></i>
             </a>
-            <h1 class="text-xl font-bold text-slate-800">Daftar Servis</h1>
+            <h1 class="text-xl font-bold text-slate-800">
+                RepairinBro <span class="text-blue-600">Admin</span>
+            </h1>
         </div>
         <a href="tambah_servis.php" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             <i class="fas fa-plus mr-2"></i> Baru
@@ -170,17 +177,77 @@ $result = $conn->query($query);
 <script>
 function konfirmasiDiambil(id) {
     Swal.fire({
-        title: 'Konfirmasi Pengambilan',
-        text: 'Barang sudah diambil pelanggan dan pembayaran lunas?',
-        icon: 'question',
+        title: 'Verifikasi Pengambilan',
+        html: `
+            <div class="text-left">
+                <p class="mb-4 text-sm text-slate-500">Silakan lengkapi data pembayaran sebelum menyerahkan barang.</p>
+                
+                <label class="block text-sm font-medium text-slate-700 mb-1">Metode Pembayaran</label>
+                <select id="swal-metode" class="w-full mb-4 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="" disabled selected>Pilih Metode...</option>
+                    <option value="Cash">Cash / Tunai</option>
+                    <option value="Transfer">Transfer Bank</option>
+                    <option value="QRIS">QRIS</option>
+                    <option value="Debit/Kredit">Debit / Kredit</option>
+                </select>
+
+                <label class="block text-sm font-medium text-slate-700 mb-1">Bukti Pembayaran</label>
+                <input type="file" id="swal-bukti" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" accept="image/*">
+                <p class="text-xs text-red-500 mt-1">* Wajib upload foto bukti/struk.</p>
+            </div>
+        `,
         showCancelButton: true,
         confirmButtonColor: '#16a34a',
         cancelButtonColor: '#64748b',
-        confirmButtonText: 'Ya, Sudah Diambil',
-        cancelButtonText: 'Batal'
+        confirmButtonText: 'Proses & Simpan',
+        cancelButtonText: 'Batal',
+        preConfirm: () => {
+            const metode = document.getElementById('swal-metode').value;
+            const bukti = document.getElementById('swal-bukti').files[0];
+
+            if (!metode) {
+                Swal.showValidationMessage('Harap pilih metode pembayaran');
+                return false;
+            }
+            if (!bukti) {
+                Swal.showValidationMessage('Harap upload bukti pembayaran');
+                return false;
+            }
+
+            const formData = new FormData();
+            formData.append('id_servis', id);
+            formData.append('metode_pembayaran', metode);
+            formData.append('bukti_pembayaran', bukti);
+
+            return fetch('proses_ambil.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'error') {
+                    throw new Error(data.message);
+                }
+                return data;
+            })
+            .catch(error => {
+                Swal.showValidationMessage(`Request failed: ${error}`);
+            });
+        }
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = 'update_status.php?id=' + id + '&status=Diambil';
+            Swal.fire({
+                title: 'Berhasil!',
+                text: 'Status barang telah diupdate menjadi Diambil.',
+                icon: 'success'
+            }).then(() => {
+                location.reload();
+            });
         }
     });
 }
