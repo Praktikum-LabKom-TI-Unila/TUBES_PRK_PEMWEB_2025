@@ -25,12 +25,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $departemen_id = trim((string)($_POST['departemen_id'] ?? ''));
         $divisi_id = trim((string)($_POST['divisi_id'] ?? ''));
 
-        // If updating and no new foto file uploaded, preserve existing foto from database
-        if ($isUpdate && empty($_FILES['foto_file']['name']) && empty($foto)) {
+        // If updating and no new foto file uploaded, check if user wants to delete or preserve
+        if ($isUpdate && empty($_FILES['foto_file']['name'])) {
             $old_data = db_fetch('SELECT foto FROM anggota WHERE id = ?', [$anggota_id]);
-            if ($old_data && !empty($old_data['foto'])) {
+            if (!empty($foto)) {
+                // User explicitly provided a foto value (existing photo), preserve it
+                // Do nothing, $foto already has the value
+            } elseif ($old_data && !empty($old_data['foto'])) {
+                // User didn't provide foto and didn't upload new file, preserve existing
                 $foto = $old_data['foto'];
             }
+            // If $foto is empty and no old file, it means user removed the photo
         }
 
         // Handle foto file upload
@@ -96,6 +101,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $setSql = 'nama = :nama, npm = :npm, username = :username, password = :password, foto = :foto, updated_at = :updated_at';
                     }
                     db_execute("UPDATE anggota SET $setSql WHERE id = :id", $params);
+                    
+                    // Delete old photo file if user removed the photo (foto is now empty)
+                    if (empty($foto)) {
+                        $old_data = db_fetch('SELECT foto FROM anggota WHERE id = ?', [$anggota_id]);
+                        if ($old_data && !empty($old_data['foto'])) {
+                            $old_foto_filename = basename($old_data['foto']);
+                            $old_path = __DIR__ . '/../files/' . $old_foto_filename;
+                            if (file_exists($old_path)) {
+                                @unlink($old_path);
+                            }
+                        }
+                    }
                     
                     // Only update anggota_jabatan if departemen or divisi was explicitly changed
                     // If both are empty strings, preserve existing jabatan assignments
@@ -541,6 +558,9 @@ try {
                             </div>
                             <i class="fa-solid fa-cloud-arrow-up text-xl text-muted"></i>
                         </div>
+                        <button type="button" id="removeFotoBtn" class="absolute top-2 right-2 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center hidden transition" onclick="removeFoto(event)">
+                            <i class="fa-solid fa-xmark text-sm"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -644,6 +664,26 @@ try {
                     document.removeEventListener('keydown', escHandler);
                     escHandler = null;
                 }
+                // Reset form when closing
+                if (form) {
+                    form.reset();
+                    // Clear all inputs explicitly
+                    const fotoHidden = document.getElementById('fotoHidden');
+                    if (fotoHidden) fotoHidden.value = '';
+                    const pwdInput = form.querySelector('input[name="password"]');
+                    if (pwdInput) pwdInput.value = '';
+                    // Clear photo preview
+                    const fotoPreview = document.getElementById('fotoPreview');
+                    const fotoPlaceholder = document.getElementById('fotoPlaceholder');
+                    if (fotoPreview) {
+                        fotoPreview.src = '';
+                        fotoPreview.classList.add('hidden');
+                    }
+                    if (fotoPlaceholder) fotoPlaceholder.classList.remove('hidden');
+                    // Hide remove button
+                    const removeFotoBtn = document.getElementById('removeFotoBtn');
+                    if (removeFotoBtn) removeFotoBtn.classList.add('hidden');
+                }
             }
 
             function overlayClick(e) {
@@ -716,9 +756,22 @@ try {
         function openCreateModal() {
             const form = document.getElementById('formTambahAnggota');
             if (!form) return;
-            form.reset();
+            
+            // Reset action and ID first
             document.querySelector('input[name="action"]').value = 'create_anggota';
             document.getElementById('anggotaIdInput').value = '';
+            
+            // Reset all form fields
+            form.reset();
+            
+            // Clear password field explicitly
+            const pwdInput = form.querySelector('input[name="password"]');
+            if (pwdInput) pwdInput.value = '';
+            
+            // Clear hidden foto field
+            const fotoHidden = document.getElementById('fotoHidden');
+            if (fotoHidden) fotoHidden.value = '';
+            
             const submitBtn = document.getElementById('submitAnggotaBtn');
             if (submitBtn) submitBtn.textContent = 'Simpan Anggota';
             
@@ -726,14 +779,23 @@ try {
             const fotoFileInput = document.getElementById('fotoFileInput');
             const fotoPreview = document.getElementById('fotoPreview');
             const fotoPlaceholder = document.getElementById('fotoPlaceholder');
+            const removeFotoBtn = document.getElementById('removeFotoBtn');
             if (fotoFileInput) fotoFileInput.value = '';
-            fotoPreview.classList.add('hidden');
-            fotoPlaceholder.classList.remove('hidden');
+            if (fotoPreview) fotoPreview.src = '';
+            if (fotoPreview) fotoPreview.classList.add('hidden');
+            if (fotoPlaceholder) fotoPlaceholder.classList.remove('hidden');
+            if (removeFotoBtn) removeFotoBtn.classList.add('hidden');
+            
+            // reset departemen and divisi selects
+            const depSelect = document.getElementById('selectDepartemen');
+            const divSelect = document.getElementById('selectDivisi');
+            if (depSelect) depSelect.value = '';
+            if (divSelect) divSelect.value = '';
             
             // apply divisi filter after reset
             const evt = new Event('change');
-            const dep = document.getElementById('selectDepartemen');
-            if (dep) dep.dispatchEvent(evt);
+            if (depSelect) depSelect.dispatchEvent(evt);
+            
             window.toggleModal(true);
         }
 
@@ -768,18 +830,21 @@ try {
             const fotoPreview = document.getElementById('fotoPreview');
             const fotoPlaceholder = document.getElementById('fotoPlaceholder');
             const fotoHidden = document.getElementById('fotoHidden');
+            const removeFotoBtn = document.getElementById('removeFotoBtn');
             
             if (fotoFileInput) fotoFileInput.value = '';
-            fotoHidden.value = '';
+            fotoHidden.value = foto;  // Store the existing foto path in hidden field
             
             if (foto) {
                 // show existing foto preview from files directory
                 fotoPreview.src = '../files/' + foto.split('/').pop();
                 fotoPreview.classList.remove('hidden');
                 fotoPlaceholder.classList.add('hidden');
+                if (removeFotoBtn) removeFotoBtn.classList.remove('hidden');
             } else {
                 fotoPreview.classList.add('hidden');
                 fotoPlaceholder.classList.remove('hidden');
+                if (removeFotoBtn) removeFotoBtn.classList.add('hidden');
             }
             
             // set departemen and trigger divisi filter
@@ -969,12 +1034,41 @@ try {
     </script>
 
     <script>
+        // Function to remove selected foto
+        function removeFoto(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const fotoFileInput = document.getElementById('fotoFileInput');
+            const fotoPreview = document.getElementById('fotoPreview');
+            const fotoPlaceholder = document.getElementById('fotoPlaceholder');
+            const fotoHidden = document.getElementById('fotoHidden');
+            const removeFotoBtn = document.getElementById('removeFotoBtn');
+            
+            // Clear file input
+            if (fotoFileInput) fotoFileInput.value = '';
+            
+            // Clear hidden foto field (for editing existing photos)
+            if (fotoHidden) fotoHidden.value = '';
+            
+            // Hide preview and show placeholder
+            if (fotoPreview) {
+                fotoPreview.src = '';
+                fotoPreview.classList.add('hidden');
+            }
+            if (fotoPlaceholder) fotoPlaceholder.classList.remove('hidden');
+            
+            // Hide remove button
+            if (removeFotoBtn) removeFotoBtn.classList.add('hidden');
+        }
+
         // file preview handler for foto input
         (function(){
             const fotoFileInput = document.getElementById('fotoFileInput');
             const fotoPreview = document.getElementById('fotoPreview');
             const fotoPlaceholder = document.getElementById('fotoPlaceholder');
             const fotoContainer = document.getElementById('fotoPreviewContainer');
+            const removeFotoBtn = document.getElementById('removeFotoBtn');
 
             if (!fotoFileInput || !fotoContainer) return;
 
@@ -997,6 +1091,7 @@ try {
                     this.value = ''; // Reset input
                     fotoPreview.classList.add('hidden');
                     fotoPlaceholder.classList.remove('hidden');
+                    if (removeFotoBtn) removeFotoBtn.classList.add('hidden');
                     return;
                 }
 
@@ -1007,6 +1102,7 @@ try {
                     this.value = ''; // Reset input
                     fotoPreview.classList.add('hidden');
                     fotoPlaceholder.classList.remove('hidden');
+                    if (removeFotoBtn) removeFotoBtn.classList.add('hidden');
                     return;
                 }
 
@@ -1016,12 +1112,14 @@ try {
                     fotoPreview.src = readerEvent.target.result;
                     fotoPreview.classList.remove('hidden');
                     fotoPlaceholder.classList.add('hidden');
+                    if (removeFotoBtn) removeFotoBtn.classList.remove('hidden');
                 };
                 reader.onerror = function() {
                     alert('Gagal membaca file.');
                     fotoFileInput.value = '';
                     fotoPreview.classList.add('hidden');
                     fotoPlaceholder.classList.remove('hidden');
+                    if (removeFotoBtn) removeFotoBtn.classList.add('hidden');
                 };
                 reader.readAsDataURL(file);
             }, false);
