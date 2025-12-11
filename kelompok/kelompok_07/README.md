@@ -1,3 +1,9 @@
+Anggota Kelompok
+Najlaa' Nafisha Aulia	2355061001
+Iin Sumarni	2315061040
+Putri Naiya Ramadhani	2315061025
+Dyvta Avryansyah	2315061128
+
 # CareU – Sistem Donasi dan Pengelolaan Kegiatan Sosial Mahasiswa
 
 CareU adalah sebuah platform berbasis web yang dirancang untuk mendukung kegiatan sosial mahasiswa, seperti penggalangan dana, dokumentasi kegiatan, dan distribusi donasi. Sistem ini memungkinkan mahasiswa maupun pihak terkait untuk melakukan kontribusi secara transparan, mudah, dan terorganisir.
