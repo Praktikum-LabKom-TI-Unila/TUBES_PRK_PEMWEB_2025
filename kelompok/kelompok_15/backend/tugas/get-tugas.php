@@ -1,13 +1,10 @@
 <?php
 /**
- * FITUR 4: MANAJEMEN TUGAS - GET TUGAS (DOSEN)
- * Tanggung Jawab: SURYA (Backend Developer)
- * 
- * Deskripsi: Get semua tugas kelas untuk dosen
- * - Query tugas per kelas
- * - Hitung jumlah submission
- * - Check status (active jika deadline > now)
+ * GET TUGAS - List semua tugas dalam kelas
  */
+header('Content-Type: application/json');
+require_once __DIR__ . '/../auth/session-helper.php';
+require_once __DIR__ . '/../config/database.php';
 
 session_start();
 header('Content-Type: application/json');

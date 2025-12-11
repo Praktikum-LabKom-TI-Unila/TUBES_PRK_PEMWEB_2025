@@ -1,12 +1,10 @@
 <?php
 /**
- * FITUR 4: MANAJEMEN TUGAS - CREATE
- * Tanggung Jawab: SURYA (Backend Developer)
- * 
- * Deskripsi: Buat tugas baru
- * - Insert tugas dengan deadline validation
- * - Set default status 'active'
+ * CREATE TUGAS
  */
+header('Content-Type: application/json');
+require_once __DIR__ . '/../auth/session-helper.php';
+require_once __DIR__ . '/../config/database.php';
 
 session_start();
 header('Content-Type: application/json');
