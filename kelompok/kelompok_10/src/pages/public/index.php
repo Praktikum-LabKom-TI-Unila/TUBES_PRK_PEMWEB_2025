@@ -12,16 +12,10 @@ $total_packages = count($packages);
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <?php
-    $page_title = "Beranda";
-    ?>
-    <!DOCTYPE html>
-    <html lang="id">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title><?php echo $page_title; ?> - E-LAUNDRY</title>
-        <style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $page_title; ?> - E-LAUNDRY</title>
+    <link rel="stylesheet" href="../../assets/css/public.css?v=<?php echo time(); ?>">
+    <style>
             * {
                 margin: 0;
                 padding: 0;
@@ -35,40 +29,6 @@ $total_packages = count($packages);
                 line-height: 1.6;
             }
 
-            /* Header */
-            header {
-                background-color: #008080;
-                color: white;
-                padding: 1rem 2rem;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                box-shadow: 0 2px 8px rgba(0, 128, 128, 0.15);
-            }
-
-            .logo-section {
-                display: flex;
-                align-items: center;
-                gap: 0.8rem;
-            }
-
-            .logo-icon {
-                font-size: 2rem;
-            }
-
-            .logo-text h1 {
-                font-size: 1.2rem;
-                margin: 0;
-                letter-spacing: 0.5px;
-                font-weight: 700;
-            }
-
-            .logo-text p {
-                font-size: 0.65rem;
-                margin: 0.1rem 0 0 0;
-                opacity: 0.9;
-                letter-spacing: 0.8px;
-            }
 /* Feature Section Styling */
 .feature-card {
     background: white;
@@ -121,9 +81,6 @@ $total_packages = count($packages);
     font-size: 0.95rem;
     line-height: 1.5;
 }
-            .header-right {
-                /* Kosong sesuai permintaan */
-            }
 
             /* Hero Section */
             .hero {
@@ -603,17 +560,7 @@ $total_packages = count($packages);
     </head>
     <body>
         <!-- Header -->
-        <header>
-            <div class="logo-section">
-                <div class="logo-text">
-                    <h1>E-LAUNDRY</h1>
-                    <p>PROFESSIONAL LAUNDRY SERVICE</p>
-                </div>
-            </div>
-            <div class="header-right">
-                <!-- Kosong sesuai permintaan -->
-            </div>
-        </header>
+        <?php include '../../includes/header_public.php'; ?>
 
         <!-- Hero Section -->
         <section class="hero">
