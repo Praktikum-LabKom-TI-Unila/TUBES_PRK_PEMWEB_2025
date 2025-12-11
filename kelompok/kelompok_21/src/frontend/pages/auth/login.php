@@ -11,26 +11,82 @@ if (file_exists($dbPath)) {
 }
 
 if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] === true) {
-    header("Location: ../admin/dashboard.php");
+    if ($_SESSION['user_role'] === 'admin') {
+        header("Location: ../admin/dashboard.php");
+    } else if ($_SESSION['user_role'] === 'learner') {
+        header("Location: ../learner/dashboard_siswa.php");
+    } else if ($_SESSION['user_role'] === 'tutor') {
+        header("Location: ../public/landing_page.php");
+    }
     exit;
 }
 
 $error = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = trim($_POST['username'] ?? '');
+    $email = trim($_POST['email'] ?? '');
     $password = trim($_POST['password'] ?? '');
 
-    if ($username === 'admin' && $password === '123') {
-        
+    // Hardcoded admin login
+    if ($email === 'admin@scholarbridge.com' && $password === 'admin123') {
         $_SESSION['is_logged_in'] = true;
         $_SESSION['user_role'] = 'admin'; 
-        $_SESSION['user_name'] = $username;
+        $_SESSION['user_name'] = 'Administrator';
+        $_SESSION['user_email'] = $email;
+        $_SESSION['user_id'] = 0;
 
         header("Location: ../admin/dashboard.php");
         exit;
+    }
+
+    // Validasi input
+    if (empty($email) || empty($password)) {
+        $error = "Email dan password harus diisi.";
     } else {
-        $error = "Username atau Password yang Anda masukkan salah.";
+        // Query database untuk user
+        $query = "SELECT id, name, email, password, role, status FROM users WHERE email = ?";
+        $stmt = mysqli_prepare($conn, $query);
+        mysqli_stmt_bind_param($stmt, "s", $email);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+
+        if ($result && mysqli_num_rows($result) > 0) {
+            $user = mysqli_fetch_assoc($result);
+
+            // Verifikasi password
+            if (password_verify($password, $user['password'])) {
+                
+                // Cek status akun
+                if ($user['status'] === 'banned') {
+                    $error = "Akun Anda telah dinonaktifkan. Hubungi admin untuk informasi lebih lanjut.";
+                } else if ($user['status'] === 'pending' && $user['role'] === 'tutor') {
+                    $error = "Akun tutor Anda masih menunggu verifikasi dari admin.";
+                } else {
+                    // Login berhasil
+                    $_SESSION['is_logged_in'] = true;
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['user_name'] = $user['name'];
+                    $_SESSION['user_email'] = $user['email'];
+                    $_SESSION['user_role'] = $user['role'];
+                    $_SESSION['user_status'] = $user['status'];
+
+                    if ($user['role'] === 'admin') {
+                        header("Location: ../admin/dashboard.php");
+                    } else if ($user['role'] === 'learner') {
+                        header("Location: ../learner/dashboard_siswa.php");
+                    } else if ($user['role'] === 'tutor') {
+                        header("Location: ../public/landing_page.php");
+                    } else {
+                        header("Location: ../public/landing_page.php");
+                    }
+                    exit;
+                }
+            } else {
+                $error = "Email atau password yang Anda masukkan salah.";
+            }
+        } else {
+            $error = "Email atau password yang Anda masukkan salah.";
+        }
     }
 }
 ?>
@@ -69,11 +125,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
             <?php endif; ?>
 
+            <!-- Success Message -->
+            <?php if (isset($_GET['success'])): ?>
+                <div class="alert alert-success">
+                    <?php
+                        if ($_GET['success'] == 'registered') {
+                            echo "Pendaftaran berhasil! Silakan masuk dengan akun Anda.";
+                        } else if ($_GET['success'] == 'registered_pending') {
+                            echo "Pendaftaran berhasil! Akun tutor Anda menunggu verifikasi admin.";
+                        }
+                    ?>
+                </div>
+            <?php endif; ?>
+
             <!-- Login Form -->
             <form method="POST" action="">
                 <div class="form-group">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" class="form-input" id="username" name="username" placeholder="Masukkan username" required autofocus>
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-input" id="email" name="email" placeholder="nama@email.com" required autofocus>
                 </div>
                 
                 <div class="form-group">

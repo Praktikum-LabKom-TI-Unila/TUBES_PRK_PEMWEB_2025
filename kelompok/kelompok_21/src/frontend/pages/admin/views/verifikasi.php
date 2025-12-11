@@ -1,134 +1,217 @@
-<h2 class="mb-4">Verifikasi Akun Tutor</h2>
+<?php
+global $conn;
 
-<ul class="nav nav-tabs mb-4" id="verifTabs" role="tablist">
+// Query untuk tutor yang menunggu verifikasi
+// Menggunakan INNER JOIN karena data tutor HARUS ada di kedua tabel
+$pendingQuery = "SELECT t.*, u.status as user_status, u.created_at as register_date, u.name as user_name
+                 FROM users u
+                 INNER JOIN tutor t ON u.email = t.email
+                 WHERE u.role = 'tutor' 
+                 AND u.status = 'pending'
+                 ORDER BY u.created_at DESC";
+$pendingResult = mysqli_query($conn, $pendingQuery);
+$totalPending = mysqli_num_rows($pendingResult);
+
+// Query untuk riwayat verifikasi (tutor yang sudah disetujui atau ditolak)
+$historyQuery = "SELECT t.*, u.status as user_status, u.created_at as register_date, u.name as user_name,
+                 CASE 
+                     WHEN u.status = 'active' AND t.status = 'Aktif' THEN 'approved'
+                     WHEN u.status = 'banned' THEN 'rejected'
+                     ELSE 'unknown'
+                 END as decision_status
+                 FROM users u
+                 INNER JOIN tutor t ON u.email = t.email
+                 WHERE u.role = 'tutor'
+                 AND (u.status = 'active' OR u.status = 'banned')
+                 ORDER BY u.created_at DESC
+                 LIMIT 20";
+$historyResult = mysqli_query($conn, $historyQuery);
+?>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1 fw-bold" style="color: #0C4A60;"><i class="fas fa-shield-alt me-2"></i>Verifikasi Akun Tutor</h2>
+        <p class="text-muted mb-0">Kelola persetujuan akun tutor yang mendaftar</p>
+    </div>
+</div>
+
+<ul class="nav nav-tabs border-0 mb-4" id="verifTabs" role="tablist" style="gap: 10px;">
   <li class="nav-item">
-    <button class="nav-link active fw-bold" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending-content" type="button">
-        Menunggu Review <span class="badge bg-danger ms-1" id="count-pending">2</span>
+    <button class="nav-link active fw-bold border-0 rounded-pill shadow-sm" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending-content" type="button" 
+            style="background: linear-gradient(135deg, #FF6B35 0%, #FF8C61 100%); color: white;">
+        <i class="fas fa-clock me-2"></i>Menunggu Review <span class="badge bg-white text-danger ms-2" id="count-pending"><?= $totalPending ?></span>
     </button>
   </li>
   <li class="nav-item">
-    <button class="nav-link text-muted" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-content" type="button">
-        Riwayat Keputusan
+    <button class="nav-link border-0 rounded-pill" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-content" type="button" 
+            style="background: #f8f9fa; color: #0C4A60;">
+        <i class="fas fa-history me-2"></i>Riwayat Keputusan
     </button>
   </li>
 </ul>
+
+<style>
+    .nav-tabs .nav-link:not(.active):hover {
+        background: linear-gradient(135deg, #9AD4D6 0%, #B5E5E7 100%) !important;
+        color: #0C4A60 !important;
+    }
+</style>
 
 <div class="tab-content">
     
     <div class="tab-pane fade show active" id="pending-content">
         <div class="row" id="pending-list">
             
-            <div class="col-md-6 mb-4" id="card-rizky">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                        <div>
-                            <span class="badge bg-warning text-dark me-2">Pending</span>
-                            <span class="badge bg-light text-dark border">ID: REG-2025-001</span>
-                        </div>
-                        <small class="text-muted"><i class="far fa-clock me-1"></i> 2 jam lalu</small>
+            <?php if ($totalPending == 0): ?>
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> Tidak ada tutor yang menunggu verifikasi.
                     </div>
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-4 border-bottom pb-3">
-                            <img src="https://ui-avatars.com/api/?name=Rizky+Febian&background=random" class="rounded-circle me-3" width="60">
+                </div>
+            <?php else: ?>
+                <?php 
+                $counter = 1;
+                while($tutor = mysqli_fetch_assoc($pendingResult)): 
+                    $timeAgo = time() - strtotime($tutor['register_date']);
+                    if ($timeAgo < 3600) {
+                        $timeText = floor($timeAgo / 60) . ' menit lalu';
+                    } else if ($timeAgo < 86400) {
+                        $timeText = floor($timeAgo / 3600) . ' jam lalu';
+                    } else {
+                        $timeText = floor($timeAgo / 86400) . ' hari lalu';
+                    }
+                    
+                    $regId = 'REG-' . date('Y') . '-' . str_pad($tutor['id'], 3, '0', STR_PAD_LEFT);
+                    $initials = strtoupper(substr($tutor['nama_lengkap'], 0, 1));
+                ?>
+                <div class="col-md-6 mb-4" id="card-tutor-<?= $tutor['id'] ?>">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                             <div>
-                                <h5 class="mb-1 fw-bold">Rizky Febian</h5>
-                                <p class="text-muted mb-0 small">Mendaftar sebagai: <strong>Tutor Musik</strong></p>
-                                <small class="text-secondary"><i class="fas fa-university me-1"></i> Univ. Pendidikan Indonesia</small>
+                                <span class="badge bg-warning text-dark me-2">Pending</span>
+                                <span class="badge bg-light text-dark border">ID: <?= $regId ?></span>
                             </div>
+                            <small class="text-muted"><i class="far fa-clock me-1"></i> <?= $timeText ?></small>
                         </div>
-                        
-                        <h6 class="fw-bold text-uppercase small text-muted mb-3">Dokumen Persyaratan</h6>
-                        <ul class="list-group list-group-flush mb-4 small">
-                            <li class="list-group-item d-flex justify-content-between align-items-center bg-light rounded mb-2 border-0">
-                                <div><i class="fas fa-file-pdf text-danger me-2"></i> Curriculum Vitae (CV)</div>
-                                <button class="btn btn-sm btn-outline-primary bg-white" onclick="viewDoc('CV - Rizky')">Lihat</button>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center bg-light rounded mb-2 border-0">
-                                <div><i class="fas fa-image text-success me-2"></i> Scan KTM / KTP</div>
-                                <button class="btn btn-sm btn-outline-primary bg-white" onclick="viewDoc('KTM - Rizky')">Lihat</button>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center bg-light rounded border-0">
-                                <div><i class="fas fa-file-alt text-primary me-2"></i> Transkrip Nilai</div>
-                                <button class="btn btn-sm btn-outline-primary bg-white" onclick="viewDoc('Transkrip - Rizky')">Lihat</button>
-                            </li>
-                        </ul>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-4 border-bottom pb-3">
+                                <img src="https://ui-avatars.com/api/?name=<?= urlencode($tutor['nama_lengkap']) ?>&background=random" class="rounded-circle me-3" width="60">
+                                <div>
+                                    <h5 class="mb-1 fw-bold"><?= htmlspecialchars($tutor['nama_lengkap']) ?></h5>
+                                    <p class="text-muted mb-0 small">Mendaftar sebagai: <strong>Tutor <?= htmlspecialchars($tutor['keahlian']) ?></strong></p>
+                                    <?php if ($tutor['pendidikan']): ?>
+                                        <small class="text-secondary"><i class="fas fa-university me-1"></i> <?= htmlspecialchars($tutor['pendidikan']) ?></small>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            
+                            <h6 class="fw-bold text-uppercase small text-muted mb-3">Informasi Tutor</h6>
+                            <div class="small mb-4">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Email:</span>
+                                    <span class="fw-bold"><?= htmlspecialchars($tutor['email']) ?></span>
+                                </div>
+                                <?php if ($tutor['telepon']): ?>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Telepon:</span>
+                                    <span class="fw-bold"><?= htmlspecialchars($tutor['telepon']) ?></span>
+                                </div>
+                                <?php endif; ?>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Pengalaman:</span>
+                                    <span class="fw-bold"><?= $tutor['pengalaman_mengajar'] ?? 0 ?> Tahun</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Harga:</span>
+                                    <span class="fw-bold">Rp <?= number_format($tutor['harga_per_sesi'] ?? 0, 0, ',', '.') ?>/sesi</span>
+                                </div>
+                            </div>
 
-                        <div class="d-grid gap-2 d-md-flex">
-                            <button class="btn btn-success flex-grow-1 py-2" onclick="processVerif('card-rizky', 'Rizky Febian', 'Tutor Musik', 'Diterima')">
-                                <i class="fas fa-check-circle me-2"></i> Terima Pengajuan
-                            </button>
-                            <button class="btn btn-outline-danger flex-grow-1 py-2" onclick="processVerif('card-rizky', 'Rizky Febian', 'Tutor Musik', 'Ditolak')">
-                                <i class="fas fa-times-circle me-2"></i> Tolak
-                            </button>
+                            <?php if ($tutor['deskripsi']): ?>
+                            <div class="mb-4">
+                                <h6 class="fw-bold text-uppercase small text-muted mb-2">Deskripsi</h6>
+                                <p class="small text-secondary"><?= nl2br(htmlspecialchars($tutor['deskripsi'])) ?></p>
+                            </div>
+                            <?php endif; ?>
+
+                            <div class="d-grid gap-2 d-md-flex">
+                                <button class="btn btn-success flex-grow-1 py-2" onclick="verifyTutor(<?= $tutor['id'] ?>, '<?= addslashes($tutor['nama_lengkap']) ?>', 'approve')">
+                                    <i class="fas fa-check-circle me-2"></i> Terima
+                                </button>
+                                <button class="btn btn-outline-danger flex-grow-1 py-2" onclick="verifyTutor(<?= $tutor['id'] ?>, '<?= addslashes($tutor['nama_lengkap']) ?>', 'reject')">
+                                    <i class="fas fa-times-circle me-2"></i> Tolak
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+                <?php 
+                $counter++;
+                endwhile; 
+                ?>
+            <?php endif; ?>
 
-            <div class="col-md-6 mb-4" id="card-sarah">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                        <div>
-                            <span class="badge bg-warning text-dark me-2">Pending</span>
-                            <span class="badge bg-light text-dark border">ID: REG-2025-002</span>
-                        </div>
-                        <small class="text-muted"><i class="far fa-clock me-1"></i> 1 hari lalu</small>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-4 border-bottom pb-3">
-                            <img src="https://ui-avatars.com/api/?name=Sarah+V&background=random" class="rounded-circle me-3" width="60">
-                            <div>
-                                <h5 class="mb-1 fw-bold">Sarah Viloid</h5>
-                                <p class="text-muted mb-0 small">Mendaftar sebagai: <strong>Tutor E-Sport</strong></p>
-                                <small class="text-secondary"><i class="fas fa-university me-1"></i> Binus University</small>
-                            </div>
-                        </div>
-                        
-                        <h6 class="fw-bold text-uppercase small text-muted mb-3">Dokumen Persyaratan</h6>
-                        <ul class="list-group list-group-flush mb-4 small">
-                            <li class="list-group-item d-flex justify-content-between align-items-center bg-light rounded mb-2 border-0">
-                                <div><i class="fas fa-file-pdf text-danger me-2"></i> Portfolio_Game.pdf</div>
-                                <button class="btn btn-sm btn-outline-primary bg-white" onclick="viewDoc('Portfolio - Sarah')">Lihat</button>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center bg-light rounded border-0">
-                                <div><i class="fas fa-image text-success me-2"></i> Sertifikat Kompetensi</div>
-                                <button class="btn btn-sm btn-outline-primary bg-white" onclick="viewDoc('Sertifikat - Sarah')">Lihat</button>
-                            </li>
-                        </ul>
-                        
-                        <div class="alert alert-danger py-2 px-3 small mb-4">
-                            <i class="fas fa-exclamation-triangle me-1"></i> <strong>Catatan Sistem:</strong> Scan KTP terlihat buram.
-                        </div>
-
-                        <div class="d-grid gap-2 d-md-flex">
-                            <button class="btn btn-success flex-grow-1 py-2" onclick="processVerif('card-sarah', 'Sarah Viloid', 'Tutor E-Sport', 'Diterima')">
-                                <i class="fas fa-check-circle me-2"></i> Terima
-                            </button>
-                            <button class="btn btn-outline-danger flex-grow-1 py-2" onclick="processVerif('card-sarah', 'Sarah Viloid', 'Tutor E-Sport', 'Ditolak')">
-                                <i class="fas fa-times-circle me-2"></i> Tolak
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-        
-        <div id="empty-msg" class="alert alert-success text-center d-none p-5">
-            <div class="mb-3"><i class="fas fa-check-double fa-3x text-success opacity-50"></i></div>
-            <h5 class="fw-bold">Semua Beres!</h5>
-            <p class="text-muted">Tidak ada permintaan verifikasi baru saat ini.</p>
         </div>
     </div>
-
+    
+    <!-- Riwayat Tab -->
     <div class="tab-pane fade" id="history-content">
-        <div class="card border-0 shadow-sm">
+        <div class="card border-0 shadow-sm" style="border-left: 4px solid #9AD4D6 !important; border-radius: 12px;">
+            <div class="card-header py-3" style="background: linear-gradient(135deg, rgba(154, 212, 214, 0.15) 0%, rgba(181, 229, 231, 0.15) 100%);">
+                <h5 class="mb-0 fw-bold" style="color: #0C4A60;">
+                    <i class="fas fa-history me-2"></i>Riwayat Verifikasi
+                </h5>
+            </div>
             <div class="card-body p-0">
-                <div class="list-group list-group-flush" id="history-list">
-                    <div class="text-center text-muted py-5" id="history-empty">
-                        <i class="fas fa-history fa-2x mb-3 opacity-25"></i>
-                        <p>Belum ada riwayat verifikasi hari ini.</p>
-                    </div>
+                <div class="list-group list-group-flush">
+                    <?php if (mysqli_num_rows($historyResult) == 0): ?>
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-history fa-3x mb-3 opacity-25"></i>
+                            <p class="mb-0">Belum ada riwayat verifikasi.</p>
+                        </div>
+                    <?php else: ?>
+                        <?php while($history = mysqli_fetch_assoc($historyResult)): 
+                            $isApproved = ($history['decision_status'] == 'approved');
+                            $statusBadge = $isApproved ? 
+                                '<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Disetujui</span>' : 
+                                '<span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>Ditolak</span>';
+                            $dateFormatted = date('d M Y, H:i', strtotime($history['register_date']));
+                            
+                            // Time ago
+                            $timeAgo = time() - strtotime($history['register_date']);
+                            if ($timeAgo < 3600) {
+                                $timeText = floor($timeAgo / 60) . ' menit lalu';
+                            } else if ($timeAgo < 86400) {
+                                $timeText = floor($timeAgo / 3600) . ' jam lalu';
+                            } else {
+                                $timeText = floor($timeAgo / 86400) . ' hari lalu';
+                            }
+                        ?>
+                        <div class="list-group-item border-0 border-bottom py-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center flex-grow-1">
+                                    <img src="https://ui-avatars.com/api/?name=<?= urlencode($history['nama_lengkap']) ?>&background=random" class="rounded-circle me-3 shadow-sm" width="50" height="50">
+                                    <div>
+                                        <h6 class="mb-1 fw-bold"><?= htmlspecialchars($history['nama_lengkap']) ?></h6>
+                                        <div class="small text-muted">
+                                            <i class="fas fa-graduation-cap me-1"></i>Tutor <?= htmlspecialchars($history['keahlian']) ?>
+                                        </div>
+                                        <div class="small text-muted">
+                                            <i class="far fa-clock me-1"></i><?= $timeText ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <?= $statusBadge ?>
+                                </div>
+                            </div>
+                        </div>
+                                </div>
+                                <?= $statusBadge ?>
+                            </div>
+                        </div>
+                        <?php endwhile; ?>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -136,22 +219,17 @@
 </div>
 
 <script>
-    function viewDoc(docName) {
-        Swal.fire({
-            title: docName,
-            text: 'Ini adalah simulasi tampilan dokumen PDF/Gambar.',
-            icon: 'info',
-            confirmButtonText: 'Tutup Preview'
-        });
-    }
-
-    function processVerif(cardId, nama, role, keputusan) {
-        let confirmColor = keputusan === 'Diterima' ? '#198754' : '#dc3545';
-        let confirmText = keputusan === 'Diterima' ? 'Ya, Aktifkan Akun' : 'Ya, Tolak Pengajuan';
+    function verifyTutor(tutorId, nama, action) {
+        let confirmColor = action === 'approve' ? '#198754' : '#dc3545';
+        let confirmText = action === 'approve' ? 'Ya, Aktifkan Akun' : 'Ya, Tolak Pengajuan';
+        let title = action === 'approve' ? 'Terima Tutor' : 'Tolak Tutor';
+        let message = action === 'approve' ? 
+            `Anda akan mengaktifkan akun <b>${nama}</b> sebagai tutor.` : 
+            `Anda akan menolak pengajuan <b>${nama}</b>.`;
 
         Swal.fire({
-            title: 'Konfirmasi Keputusan',
-            html: `Anda akan menandai <b>${nama}</b> sebagai <b style="color:${confirmColor}">${keputusan}</b>.<br>Tindakan ini tidak dapat dibatalkan.`,
+            title: title,
+            html: message + '<br>Tindakan ini tidak dapat dibatalkan.',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: confirmColor,
@@ -159,19 +237,79 @@
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                const cardElement = document.getElementById(cardId);
-                cardElement.style.transition = "all 0.5s ease";
-                cardElement.style.transform = "translateX(100px)";
-                cardElement.style.opacity = "0";
-                
-                setTimeout(() => {
-                    cardElement.classList.add('d-none'); 
-                    updateBadgeCount(); 
-                }, 500);
+                // Show loading
+                Swal.fire({
+                    title: 'Memproses...',
+                    html: 'Mohon tunggu sebentar',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
 
-                addToHistory(nama, role, keputusan);
+                // Send AJAX request to backend
+                const formData = new FormData();
+                formData.append('tutor_id', tutorId);
+                formData.append('action', action);
 
-                showToast(`Status ${nama} diperbarui: ${keputusan}`, keputusan === 'Diterima' ? 'success' : 'error');
+                fetch('../../../backend/admin/verify_tutor.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data);
+                    
+                    if (data.success) {
+                        const cardElement = document.getElementById('card-tutor-' + tutorId);
+                        cardElement.style.transition = "all 0.5s ease";
+                        cardElement.style.transform = "translateX(100px)";
+                        cardElement.style.opacity = "0";
+                        
+                        setTimeout(() => {
+                            cardElement.remove();
+                            updateBadgeCount();
+                            
+                            // Check if no more pending
+                            if (document.querySelectorAll('[id^="card-tutor-"]').length === 0) {
+                                document.getElementById('pending-list').innerHTML = `
+                                    <div class="col-12">
+                                        <div class="alert alert-success text-center p-5">
+                                            <div class="mb-3"><i class="fas fa-check-double fa-3x text-success opacity-50"></i></div>
+                                            <h5 class="fw-bold">Semua Beres!</h5>
+                                            <p class="text-muted">Tidak ada permintaan verifikasi baru saat ini.</p>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        }, 500);
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: data.message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: data.message || 'Terjadi kesalahan'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Terjadi kesalahan sistem: ' + error.message
+                    });
+                });
             }
         });
     }
@@ -179,40 +317,10 @@
     function updateBadgeCount() {
         let badge = document.getElementById('count-pending');
         let count = parseInt(badge.innerText) - 1;
-        badge.innerText = count;
-
-        if(count <= 0) {
-            badge.style.display = 'none'; 
-            document.getElementById('empty-msg').classList.remove('d-none');
-        }
-    }
-
-    function addToHistory(nama, role, keputusan) {
-        const historyContainer = document.getElementById('history-list');
-        const emptyMsg = document.getElementById('history-empty');
-        if(emptyMsg) emptyMsg.style.display = 'none';
-
-        let badgeClass = keputusan === 'Diterima' ? 'bg-success' : 'bg-danger';
-        let iconClass = keputusan === 'Diterima' ? 'check' : 'times';
-
-        const historyItem = `
-            <div class="list-group-item d-flex justify-content-between align-items-center p-3 border-bottom animate__animated animate__fadeInDown">
-                <div class="d-flex align-items-center">
-                    <img src="https://ui-avatars.com/api/?name=${nama}&background=random" class="rounded-circle me-3" width="40">
-                    <div>
-                        <h6 class="mb-0 fw-bold">${nama}</h6>
-                        <small class="text-muted">${role}</small>
-                    </div>
-                </div>
-                <div class="text-end">
-                    <span class="badge ${badgeClass} mb-1">
-                        <i class="fas fa-${iconClass} me-1"></i> ${keputusan}
-                    </span>
-                    <div class="small text-muted" style="font-size: 0.75rem;">Baru saja</div>
-                </div>
-            </div>
-        `;
+        badge.innerText = count > 0 ? count : 0;
         
-        historyContainer.insertAdjacentHTML('afterbegin', historyItem);
+        if(count <= 0) {
+            badge.style.display = 'none';
+        }
     }
 </script>

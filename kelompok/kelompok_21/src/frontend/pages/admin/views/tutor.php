@@ -6,10 +6,14 @@ $query = "SELECT * FROM tutor ORDER BY id DESC";
 $result = mysqli_query($conn, $query);
 ?>
 
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Data Tutor (Pengajar)</h1>
-    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalTutor">
-        <i class="fas fa-plus"></i> Tambah Tutor
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
+    <div>
+        <h2 class="mb-1 fw-bold" style="color: #0C4A60;"><i class="fas fa-chalkboard-teacher me-2"></i>Data Tutor (Pengajar)</h2>
+        <p class="text-muted mb-0">Kelola data tutor yang terdaftar</p>
+    </div>
+    <button class="btn btn-sm rounded-pill shadow-sm" onclick="window.print()" 
+            style="background: linear-gradient(135deg, #9AD4D6 0%, #B5E5E7 100%); color: #0C4A60; border: none; font-weight: 600;">
+        <i class="fas fa-download me-1"></i>Export Data
     </button>
 </div>
 
@@ -19,16 +23,20 @@ $result = mysqli_query($conn, $query);
             <div class="col-md-3">
                 <select id="filterKategori" class="form-select border-0 bg-light" onchange="filterTable()">
                     <option value="">Semua Keahlian</option>
-                    <option value="Matematika">Matematika</option>
-                    <option value="Bahasa Inggris">Bahasa Inggris</option>
-                    <option value="Koding">Koding</option>
-                    <option value="Fisika">Fisika</option>
+                    <?php
+                    // Ambil keahlian unik dari database
+                    $keahlianQuery = mysqli_query($conn, "SELECT DISTINCT keahlian FROM tutor WHERE keahlian IS NOT NULL ORDER BY keahlian");
+                    while($k = mysqli_fetch_assoc($keahlianQuery)) {
+                        echo '<option value="'.htmlspecialchars($k['keahlian']).'">'.htmlspecialchars($k['keahlian']).'</option>';
+                    }
+                    ?>
                 </select>
             </div>
             <div class="col-md-3">
                 <select id="filterStatus" class="form-select border-0 bg-light" onchange="filterTable()">
                     <option value="">Semua Status</option>
                     <option value="Aktif">Aktif</option>
+                    <option value="Non-Aktif">Non-Aktif</option>
                     <option value="Cuti">Cuti</option>
                 </select>
             </div>
@@ -42,11 +50,11 @@ $result = mysqli_query($conn, $query);
     </div>
 </div>
 
-<div class="card border-0 shadow-sm">
+<div class="card border-0 shadow" style="border-left: 5px solid #9AD4D6 !important; border-radius: 12px;">
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0" id="tutorTable">
-                <thead class="bg-light">
+                <thead style="background: linear-gradient(135deg, #0C4A60 0%, #0A5A70 100%); color: white;">
                     <tr>
                         <th class="ps-4">Tutor</th>
                         <th>Keahlian</th>
@@ -141,7 +149,8 @@ $result = mysqli_query($conn, $query);
                         <label class="form-label">Status</label>
                         <select class="form-select" id="inputStatus">
                             <option value="Aktif">Aktif</option>
-                            <option value="Cuti">Non-Aktif/Cuti</option>
+                            <option value="Non-Aktif">Non-Aktif</option>
+                            <option value="Cuti">Cuti</option>
                         </select>
                     </div>
                 </form>
@@ -207,8 +216,8 @@ $result = mysqli_query($conn, $query);
 
     function filterTable() {
         let inputSearch = document.getElementById("searchInput").value.toLowerCase();
-        let inputKategori = document.getElementById("filterKategori").value.toLowerCase();
-        let inputStatus = document.getElementById("filterStatus").value.toLowerCase();
+        let inputKategori = document.getElementById("filterKategori").value;
+        let inputStatus = document.getElementById("filterStatus").value;
         
         let table = document.getElementById("tutorTable");
         let tr = table.getElementsByTagName("tr");
@@ -220,14 +229,16 @@ $result = mysqli_query($conn, $query);
 
             if(nameEl && catEl && statEl) {
                 let tdName = nameEl.textContent.toLowerCase();
-                let tdCat = catEl.textContent.toLowerCase();
-                let tdStat = statEl.textContent.toLowerCase();
-
+                let tdCat = catEl.textContent.trim();
+                let tdStat = statEl.textContent.trim();
+                let tdEmail = tr[i].querySelector('.small.text-muted') ? tr[i].querySelector('.small.text-muted').textContent.toLowerCase() : '';
                 let tdKampus = tr[i].cells[2].textContent.toLowerCase(); 
 
-                if ((tdName.includes(inputSearch) || tdKampus.includes(inputSearch)) && 
-                    (inputKategori === "" || tdCat.includes(inputKategori)) &&
-                    (inputStatus === "" || tdStat.includes(inputStatus))) {
+                let matchSearch = tdName.includes(inputSearch) || tdKampus.includes(inputSearch) || tdEmail.includes(inputSearch);
+                let matchKategori = inputKategori === "" || tdCat === inputKategori;
+                let matchStatus = inputStatus === "" || tdStat === inputStatus;
+
+                if (matchSearch && matchKategori && matchStatus) {
                     tr[i].style.display = "";
                 } else {
                     tr[i].style.display = "none";

@@ -7,7 +7,7 @@ $totalSiswa = mysqli_fetch_assoc($qSiswa)['total'];
 $qTutor = mysqli_query($conn, "SELECT COUNT(*) as total FROM tutor");
 $totalTutor = mysqli_fetch_assoc($qTutor)['total'];
 
-$qPending = mysqli_query($conn, "SELECT COUNT(*) as total FROM tutor WHERE status != 'Aktif'");
+$qPending = mysqli_query($conn, "SELECT COUNT(*) as total FROM users WHERE role = 'tutor' AND status = 'pending'");
 $totalPending = mysqli_fetch_assoc($qPending)['total'];
 
 $totalKelas = 12; 
@@ -25,82 +25,81 @@ while($row = mysqli_fetch_assoc($chartQuery)) {
 $jsonLabels = json_encode($labels);
 $jsonData = json_encode($dataChart);
 
-$logQuery = "
-(SELECT nama_lengkap, 'Mendaftar sebagai Siswa' as aksi, created_at, 'primary' as warna FROM siswa)
-UNION
-(SELECT nama_lengkap, 'Mendaftar sebagai Tutor' as aksi, created_at, 'success' as warna FROM tutor)
-ORDER BY created_at DESC LIMIT 5
-";
+$logQuery = "SELECT id, name, email, role, status, created_at 
+             FROM users 
+             WHERE role IN ('learner', 'tutor')
+             ORDER BY created_at DESC 
+             LIMIT 10";
 $logResult = mysqli_query($conn, $logQuery);
 ?>
 
-<div class="row g-3 mb-4">
+<div class="row g-4 mb-4">
     <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
+        <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #0C4A60 0%, #0A5A70 100%); color: white;">
             <div class="card-body d-flex align-items-center">
-                <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3 text-primary">
-                    <i class="fas fa-user-graduate fa-2x"></i>
+                <div class="bg-white bg-opacity-20 p-3 rounded-circle me-3">
+                    <i class="fas fa-user-graduate fa-2x text-white"></i>
                 </div>
                 <div>
-                    <h6 class="text-muted mb-1 small text-uppercase fw-bold">Total Siswa</h6>
-                    <h3 class="mb-0 fw-bold"><?= $totalSiswa ?></h3>
-                    <small class="text-success"><i class="fas fa-check"></i> Data Realtime</small>
+                    <h6 class="mb-1 small text-uppercase fw-bold opacity-75">Total Siswa</h6>
+                    <h2 class="mb-0 fw-bold"><?= $totalSiswa ?></h2>
+                    <small class="opacity-75"><i class="fas fa-check-circle"></i> Data Realtime</small>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
+        <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #9AD4D6 0%, #B5E5E7 100%);">
             <div class="card-body d-flex align-items-center">
-                <div class="bg-success bg-opacity-10 p-3 rounded-circle me-3 text-success">
+                <div class="bg-white bg-opacity-50 p-3 rounded-circle me-3" style="color: #0C4A60;">
                     <i class="fas fa-chalkboard-teacher fa-2x"></i>
                 </div>
-                <div>
-                    <h6 class="text-muted mb-1 small text-uppercase fw-bold">Total Tutor</h6>
-                    <h3 class="mb-0 fw-bold"><?= $totalTutor ?></h3>
-                    <small class="text-success"><i class="fas fa-check"></i> Data Realtime</small>
+                <div style="color: #0C4A60;">
+                    <h6 class="mb-1 small text-uppercase fw-bold opacity-75">Total Tutor</h6>
+                    <h2 class="mb-0 fw-bold"><?= $totalTutor ?></h2>
+                    <small class="opacity-75"><i class="fas fa-check-circle"></i> Data Realtime</small>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
+        <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #F7DC6F 0%, #F9E79F 100%);">
             <div class="card-body d-flex align-items-center">
-                <div class="bg-warning bg-opacity-10 p-3 rounded-circle me-3 text-warning">
+                <div class="bg-white bg-opacity-50 p-3 rounded-circle me-3" style="color: #856404;">
                     <i class="fas fa-book-open fa-2x"></i>
                 </div>
-                <div>
-                    <h6 class="text-muted mb-1 small text-uppercase fw-bold">Kelas Aktif</h6>
-                    <h3 class="mb-0 fw-bold"><?= $totalKelas ?></h3>
-                    <small class="text-muted">Sedang berjalan</small>
+                <div style="color: #856404;">
+                    <h6 class="mb-1 small text-uppercase fw-bold opacity-75">Kelas Aktif</h6>
+                    <h2 class="mb-0 fw-bold"><?= $totalKelas ?></h2>
+                    <small class="opacity-75">Sedang berjalan</small>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
+        <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #FF6B35 0%, #FF8C61 100%); color: white;">
             <div class="card-body d-flex align-items-center">
-                <div class="bg-danger bg-opacity-10 p-3 rounded-circle me-3 text-danger">
-                    <i class="fas fa-bell fa-2x"></i>
+                <div class="bg-white bg-opacity-20 p-3 rounded-circle me-3">
+                    <i class="fas fa-bell fa-2x text-white"></i>
                 </div>
                 <div>
-                    <h6 class="text-muted mb-1 small text-uppercase fw-bold">Status Non-Aktif</h6>
-                    <h3 class="mb-0 fw-bold"><?= $totalPending ?></h3>
-                    <small class="text-danger fw-bold">Butuh Tindakan</small>
+                    <h6 class="mb-1 small text-uppercase fw-bold opacity-75">Perlu Verifikasi</h6>
+                    <h2 class="mb-0 fw-bold"><?= $totalPending ?></h2>
+                    <small class="opacity-75 fw-bold">Butuh Tindakan</small>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row g-3 mb-4">
+<div class="row g-4 mb-4">
     <div class="col-lg-8">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white py-3">
-                <h5 class="card-title mb-0 fw-bold">Tren Pendaftaran (Simulasi)</h5>
+        <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #0C4A60 !important;">
+            <div class="card-header py-3" style="background: linear-gradient(135deg, #0C4A60 0%, #0A5A70 100%); color: white;">
+                <h5 class="card-title mb-0 fw-bold"><i class="fas fa-chart-line me-2"></i>Tren Pendaftaran</h5>
             </div>
             <div class="card-body">
                 <canvas id="registrationChart" height="100"></canvas>
@@ -109,9 +108,9 @@ $logResult = mysqli_query($conn, $logQuery);
     </div>
 
     <div class="col-lg-4">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white py-3">
-                <h5 class="card-title mb-0 fw-bold">Sebaran Keahlian Tutor</h5>
+        <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #9AD4D6 !important;">
+            <div class="card-header py-3" style="background: linear-gradient(135deg, #9AD4D6 0%, #B5E5E7 100%); color: #0C4A60;">
+                <h5 class="card-title mb-0 fw-bold"><i class="fas fa-graduation-cap me-2"></i>Sebaran Keahlian</h5>
             </div>
             <div class="card-body d-flex align-items-center justify-content-center">
                 <div style="width: 100%;">
@@ -122,30 +121,31 @@ $logResult = mysqli_query($conn, $logQuery);
     </div>
 </div>
 
-<div class="card border-0 shadow-sm">
-    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-    <h5 class="mb-0 fw-bold">Pendaftaran Terbaru</h5>
+<div class="card border-0 shadow-sm" style="border-left: 4px solid #F7DC6F !important;">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, rgba(247, 220, 111, 0.15) 0%, rgba(249, 231, 159, 0.15) 100%);">
+    <h5 class="mb-0 fw-bold" style="color: #0C4A60;"><i class="fas fa-history me-2"></i>Pendaftaran Terbaru</h5>
     
     <div class="dropdown">
-        <button class="btn btn-sm btn-outline-primary rounded-pill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Lihat Semua
+        <button class="btn btn-sm rounded-pill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" 
+                style="background: #0C4A60; color: white; border: none;">
+            <i class="fas fa-eye me-1"></i>Lihat Semua
         </button>
-        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
-            <li><h6 class="dropdown-header text-uppercase small text-muted">Pilih Data</h6></li>
+        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+            <li><h6 class="dropdown-header text-uppercase small" style="color: #0C4A60;">Pilih Data</h6></li>
             <li>
                 <a class="dropdown-item" href="?page=siswa">
-                    <i class="fas fa-user-graduate me-2 text-primary"></i> Data Siswa
+                    <i class="fas fa-user-graduate me-2" style="color: #0C4A60;"></i> Data Siswa
                 </a>
             </li>
             <li>
                 <a class="dropdown-item" href="?page=tutor">
-                    <i class="fas fa-chalkboard-teacher me-2 text-success"></i> Data Tutor
+                    <i class="fas fa-chalkboard-teacher me-2" style="color: #9AD4D6;"></i> Data Tutor
                 </a>
             </li>
             <li><hr class="dropdown-divider"></li>
             <li>
                 <a class="dropdown-item" href="?page=verifikasi">
-                    <i class="fas fa-check-circle me-2 text-warning"></i> Cek Verifikasi
+                    <i class="fas fa-check-circle me-2" style="color: #FF6B35;"></i> Cek Verifikasi
                 </a>
             </li>
         </ul>
@@ -163,21 +163,71 @@ $logResult = mysqli_query($conn, $logQuery);
             </thead>
             <tbody>
                 <?php if(mysqli_num_rows($logResult) > 0): ?>
-                    <?php while($log = mysqli_fetch_assoc($logResult)): ?>
+                    <?php while($log = mysqli_fetch_assoc($logResult)): 
+                        // Hitung waktu lalu
+                        $createdTime = strtotime($log['created_at']);
+                        $now = time();
+                        $diff = $now - $createdTime;
+                        $minutes = floor($diff / 60);
+                        $hours = floor($diff / 3600);
+                        $days = floor($diff / 86400);
+                        
+                        if ($minutes < 1) {
+                            $timeAgo = 'Baru saja';
+                        } elseif ($minutes < 60) {
+                            $timeAgo = $minutes . ' menit lalu';
+                        } elseif ($hours < 24) {
+                            $timeAgo = $hours . ' jam lalu';
+                        } else {
+                            $timeAgo = $days . ' hari lalu';
+                        }
+                        
+                        // Tentukan warna status
+                        $statusClass = 'secondary';
+                        $statusText = 'Baru';
+                        if ($log['role'] == 'tutor' && $log['status'] == 'pending') {
+                            $statusClass = 'warning';
+                            $statusText = 'Menunggu Verifikasi';
+                        } elseif ($log['status'] == 'active') {
+                            $statusClass = 'success';
+                            $statusText = 'Aktif';
+                        } elseif ($log['status'] == 'banned') {
+                            $statusClass = 'danger';
+                            $statusText = 'Ditolak';
+                        }
+                    ?>
                     <tr>
                         <td>
                             <div class="d-flex align-items-center">
-                                <img src="https://ui-avatars.com/api/?name=<?= urlencode($log['nama_lengkap']) ?>&background=random" class="rounded-circle me-2" width="32" height="32">
-                                <strong><?= htmlspecialchars($log['nama_lengkap']) ?></strong>
+                                <img src="https://ui-avatars.com/api/?name=<?= urlencode($log['name']) ?>&background=random" class="rounded-circle me-2" width="32" height="32">
+                                <div>
+                                    <strong><?= htmlspecialchars($log['name']) ?></strong>
+                                    <br><small class="text-muted"><?= htmlspecialchars($log['email']) ?></small>
+                                </div>
                             </div>
                         </td>
-                        <td><?= $log['aksi'] ?></td>
-                        <td class="text-muted"><?= date('d M Y H:i', strtotime($log['created_at'])) ?></td>
-                        <td><span class="badge bg-<?= $log['warna'] ?>">Baru</span></td>
+                        <td>
+                            <?php if ($log['role'] == 'learner'): ?>
+                                <span class="badge bg-primary-subtle text-primary">
+                                    <i class="fas fa-user-graduate me-1"></i> Siswa Baru
+                                </span>
+                            <?php else: ?>
+                                <span class="badge bg-success-subtle text-success">
+                                    <i class="fas fa-chalkboard-teacher me-1"></i> Tutor Baru
+                                </span>
+                            <?php endif; ?>
+                        </td>
+                        <td class="text-muted small">
+                            <i class="far fa-clock me-1"></i><?= $timeAgo ?>
+                        </td>
+                        <td><span class="badge bg-<?= $statusClass ?>"><?= $statusText ?></span></td>
                     </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
-                    <tr><td colspan="4" class="text-center">Belum ada aktivitas.</td></tr>
+                    <tr><td colspan="4" class="text-center py-4 text-muted">
+                        <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                        Belum ada aktivitas registrasi
+                    </td></tr>
                 <?php endif; ?>
             </tbody>
         </table>

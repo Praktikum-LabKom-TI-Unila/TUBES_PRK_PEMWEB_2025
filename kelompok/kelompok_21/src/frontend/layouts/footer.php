@@ -1,8 +1,32 @@
-</main> <footer style="background-color: var(--color-primary); color: white; padding: 20px 0; text-align: center; margin-top: auto;">
-        <div class="container">
-            <p>&copy; <?php echo date("Y"); ?> ScholarBridge. Final Project Pemrograman Web.</p>
-        </div>
-    </footer>
+<?php 
+if (!isset($assetPath)) {
+  $assetPath = "../../../assets/";
+}
+?>
 
-    </body>
+<footer class="sb-footer">
+  <div class="footer-inner">
+
+    <!-- Logo Text -->
+    <div class="footer-logo-big">ScholarBridge</div>
+
+    <p class="footer-desc">
+      Platform Bimbingan Belajar Terpercaya di Lampung
+    </p>
+
+    <div class="footer-links">
+      <a href="#tentang">Tentang Kami</a>
+      <a href="#kebijakan">Kebijakan</a>
+      <a href="#bantuan">Bantuan</a>
+      <a href="#kontak">Kontak</a>
+    </div>
+
+    <small class="footer-copy">
+      © <?php echo date("Y"); ?> ScholarBridge. All Rights Reserved.
+    </small>
+
+  </div>
+</footer>
+
+</body>
 </html>

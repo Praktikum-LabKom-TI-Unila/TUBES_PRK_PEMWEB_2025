@@ -16,25 +16,25 @@ if (!isset($assetPath)) {
   <ul class="sb-side-menu">
 
     <li>
-      <a href="../tutor/dashboard_tutor.php">
+      <a href="../public/landing_page.php">
         <i class="bi bi-speedometer2"></i> Dashboard
       </a>
     </li>
 
     <li>
-      <a href="../tutor/form_iklan.php">
+      <a href="#" onclick="alert('Fitur sedang dalam pengembangan'); return false;">
         <i class="bi bi-megaphone"></i> Buat Iklan
       </a>
     </li>
 
     <li>
-      <a href="../tutor/update_profile.php">
+      <a href="#" onclick="alert('Fitur sedang dalam pengembangan'); return false;">
         <i class="bi bi-person"></i> Profil Saya
       </a>
     </li>
 
     <li>
-      <a href="#">
+      <a href="#" onclick="alert('Fitur sedang dalam pengembangan'); return false;">
         <i class="bi bi-chat-text"></i> Pesan
       </a>
     </li>
