@@ -22,13 +22,23 @@ if ($p === 'api_chat') {
     exit;
 }
 
+if ($p === 'test_simple') {
+    require_once __DIR__ . '/controllers/test_simple.php';
+    exit;
+}
+
 if ($p === 'handle_payment') {
-    require_once __DIR__ . '/controllers/handle_payment.php';
+    require_once __DIR__ . '/controllers/handle_payment_simple.php';
     exit;
 }
 
 if ($p === 'handle_konselor') {
     require_once __DIR__ . '/controllers/handle_konselor.php';
+    exit;
+}
+
+if ($p === 'handle_rating') {
+    require_once __DIR__ . '/controllers/handle_rating.php';
     exit;
 }
 

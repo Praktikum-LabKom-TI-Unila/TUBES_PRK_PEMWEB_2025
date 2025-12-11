@@ -163,6 +163,7 @@ if ($stmt) {
 
                         <div class="bg-white rounded-2xl soft-shadow p-6">
                             <h4 class="font-semibold mb-2">Aksi Cepat</h4>
+                            <button onclick="openRatingModal()" class="w-full px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg mb-2 text-center font-semibold transition">⭐ Rating Konselor</button>
                             <a href="index.php?p=match" class="block px-3 py-2 bg-[#3AAFA9] text-white rounded-lg mb-2 text-center">Ganti Konselor</a>
                             <a href="index.php?p=user_settings" class="block px-3 py-2 border border-gray-200 rounded-lg text-center">Pengaturan Sesi</a>
                         </div>
@@ -265,6 +266,128 @@ document.addEventListener('DOMContentLoaded', function(){
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 send.click();
+            }
+        });
+    }
+});
+</script>
+
+<!-- Rating Modal -->
+<div id="ratingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+        <h2 class="text-2xl font-bold mb-4 text-[#17252A]">Rating Konselor</h2>
+        
+        <div class="mb-6 text-center">
+            <p class="text-gray-600 mb-4">Berapa rating untuk konselor ini?</p>
+            <div class="flex justify-center gap-2 mb-4">
+                <button onclick="setRating(1)" class="text-4xl rating-btn cursor-pointer opacity-40 transition-all" data-rating="1">⭐</button>
+                <button onclick="setRating(2)" class="text-4xl rating-btn cursor-pointer opacity-40 transition-all" data-rating="2">⭐</button>
+                <button onclick="setRating(3)" class="text-4xl rating-btn cursor-pointer opacity-40 transition-all" data-rating="3">⭐</button>
+                <button onclick="setRating(4)" class="text-4xl rating-btn cursor-pointer opacity-40 transition-all" data-rating="4">⭐</button>
+                <button onclick="setRating(5)" class="text-4xl rating-btn cursor-pointer opacity-40 transition-all" data-rating="5">⭐</button>
+            </div>
+            <p id="ratingText" class="text-gray-500">Pilih rating</p>
+        </div>
+        
+        <div class="flex gap-3">
+            <button onclick="submitRating()" class="flex-1 px-4 py-2 bg-[#3AAFA9] text-white rounded-lg font-semibold hover:bg-[#2a8b87] transition">Kirim Rating</button>
+            <button onclick="closeRatingModal()" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">Batal</button>
+        </div>
+    </div>
+</div>
+
+<style>
+#ratingModal .rating-btn.active {
+    opacity: 1;
+    filter: drop-shadow(0 0 3px gold);
+}
+</style>
+
+<script>
+let selectedRating = 0;
+const konselorId = <?= isset($konselor['konselor_id']) ? intval($konselor['konselor_id']) : 0 ?>;
+
+function openRatingModal() {
+    if (konselorId === 0) {
+        alert('Konselor tidak ditemukan');
+        return;
+    }
+    document.getElementById('ratingModal').classList.remove('hidden');
+    selectedRating = 0;
+    updateRatingDisplay();
+}
+
+function closeRatingModal() {
+    document.getElementById('ratingModal').classList.add('hidden');
+}
+
+function setRating(rating) {
+    selectedRating = rating;
+    updateRatingDisplay();
+}
+
+function updateRatingDisplay() {
+    const btns = document.querySelectorAll('.rating-btn');
+    btns.forEach(btn => {
+        const btnRating = parseInt(btn.getAttribute('data-rating'));
+        if (btnRating <= selectedRating) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+    
+    const ratingTexts = ['Pilih rating', 'Sangat Buruk', 'Buruk', 'Biasa', 'Baik', 'Sangat Baik'];
+    document.getElementById('ratingText').textContent = ratingTexts[selectedRating] || 'Pilih rating';
+}
+
+async function submitRating() {
+    if (selectedRating === 0) {
+        alert('Pilih rating terlebih dahulu');
+        return;
+    }
+    
+    const fd = new FormData();
+    fd.append('action', 'submit_rating');
+    fd.append('konselor_id', konselorId);
+    fd.append('rating', selectedRating);
+    // include session_id for traceability
+    try {
+        const sid = <?= $session_id ? intval($session_id) : 0 ?>;
+        if (sid) fd.append('session_id', sid);
+    } catch (e) {}
+    
+    try {
+        const res = await fetch('index.php?p=handle_rating', {
+            method: 'POST',
+            body: fd
+        });
+        const text = await res.text();
+        let data;
+        try { data = JSON.parse(text); } catch (e) {
+            alert('Error: Unexpected response, not JSON.');
+            console.error('Rating response text:', text);
+            return;
+        }
+        
+        if (data.success) {
+            alert('✓ ' + data.message);
+            closeRatingModal();
+        } else {
+            alert('✗ ' + (data.message || 'Gagal submit rating'));
+        }
+    } catch (e) {
+        alert('Error: ' + e.message);
+    }
+}
+
+// Close modal when clicking outside
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('ratingModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeRatingModal();
             }
         });
     }

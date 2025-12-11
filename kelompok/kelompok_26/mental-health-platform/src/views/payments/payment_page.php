@@ -1,7 +1,5 @@
 <?php
 // src/views/payments/payment_page.php
-// ... (Bagian PHP tidak berubah)
-// Pastikan file ini memiliki akses ke Tailwind CSS framework
 
 global $conn;
 
@@ -47,8 +45,8 @@ $packages = [
 $subscription = null;
 $payment = null;
 
-// 1. Ambil langganan aktif terbaru (abaikan yang pending/expired)
-$subQuery = $conn->prepare("SELECT * FROM subscription WHERE user_id = ? AND status = 'active' ORDER BY end_date DESC LIMIT 1");
+// 1. Ambil langganan aktif TERBARU (berdasarkan created_at, bukan end_date)
+$subQuery = $conn->prepare("SELECT * FROM subscription WHERE user_id = ? AND status = 'active' ORDER BY created_at DESC LIMIT 1");
 if ($subQuery) {
     $subQuery->bind_param('i', $user_id);
     $subQuery->execute();
@@ -339,9 +337,8 @@ unset($_SESSION['success'], $_SESSION['error']);
     filter: blur(0.5px);
 }
 
-/* Dark mode adjustments (dipertahankan) */
 html.dark-mode .bg-white { background-color: var(--bg-card) !important; }
-/* ... (lanjutan dark mode styles) ... */
+
 </style>
 
 <script>
@@ -371,23 +368,36 @@ function selectPackage(planName, price) {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            info.innerHTML = `✓ Paket <strong>${planName.toUpperCase()}</strong> berhasil dipilih! Rp${price.toLocaleString('id-ID')}. Silakan lanjutkan ke pembayaran.`;
-            // Tutup modal & paste nominal tanpa reload
-            document.getElementById('packageModal').classList.add('hidden');
-            if (amountInput) amountInput.value = price;
-            if (subscriptionIdInput && data.subscription_id) subscriptionIdInput.value = data.subscription_id;
-        } else {
-            info.innerHTML = `✗ Error: ${data.message || 'Gagal memilih paket'}`;
+    .then(response => {
+        // Log the response status dan type
+        console.log('Response status:', response.status, 'type:', response.type);
+        return response.text(); // Get as text first
+    })
+    .then(text => {
+        console.log('Response text:', text); // Log raw response
+        try {
+            const data = JSON.parse(text); // Try to parse as JSON
+            if (data.success) {
+                info.innerHTML = `✓ Paket <strong>${planName.toUpperCase()}</strong> berhasil dipilih! Rp${price.toLocaleString('id-ID')}. Silakan lanjutkan ke pembayaran.`;
+                // Tutup modal & paste nominal tanpa reload
+                document.getElementById('packageModal').classList.add('hidden');
+                if (amountInput) amountInput.value = price;
+                if (subscriptionIdInput && data.subscription_id) subscriptionIdInput.value = data.subscription_id;
+            } else {
+                info.innerHTML = `✗ Error: ${data.message || 'Gagal memilih paket'}`;
+                info.classList.remove('text-green-700');
+                info.classList.add('text-red-700');
+            }
+        } catch (e) {
+            console.error('JSON parse error:', e, 'text was:', text);
+            info.innerHTML = `✗ JSON parse error: ${text}`;
             info.classList.remove('text-green-700');
             info.classList.add('text-red-700');
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        info.innerHTML = '✗ Terjadi kesalahan saat memproses';
+        console.error('Fetch error:', error);
+        info.innerHTML = '✗ Terjadi kesalahan saat memproses (fetch error)';
         info.classList.remove('text-green-700');
         info.classList.add('text-red-700');
     });
