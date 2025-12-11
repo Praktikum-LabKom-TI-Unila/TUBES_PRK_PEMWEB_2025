@@ -143,6 +143,12 @@ Anda akan melihat halaman utama aplikasi.
 
 <img width="1896" height="906" alt="gambar" src="https://github.com/user-attachments/assets/df92ad64-d7d9-48dd-8938-7f7f400cc78b" />
 
+<img width="1890" height="909" alt="gambar" src="https://github.com/user-attachments/assets/3833a475-21fe-48d8-871e-52c614cef0b9" />
+
+<img width="1890" height="906" alt="gambar" src="https://github.com/user-attachments/assets/b64558b6-fdd2-4d9a-8980-f364c7461c2b" />
+
+
+
 
 
 
