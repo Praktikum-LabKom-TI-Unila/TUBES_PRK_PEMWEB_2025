@@ -11,57 +11,85 @@ $router->post('/api/auth/logout', 'api/AuthApiController@logout');
 $router->get('/api/auth/me', 'api/AuthApiController@me');
 $router->get('/api/auth/check', 'api/AuthApiController@check');
 
-// Materials API routes
-$router->get('/api/materials', function() {
-    AuthMiddleware::check();
-    Response::success('Materials API endpoint', []);
-});
+// Supplier API routes
+$router->get('/api/suppliers', 'api/SupplierApiController@index');
+$router->get('/api/suppliers/search', 'api/SupplierApiController@search');
+$router->get('/api/suppliers/{id}', 'api/SupplierApiController@show');
+$router->post('/api/suppliers', 'api/SupplierApiController@store');
+$router->post('/api/suppliers/{id}', 'api/SupplierApiController@update');
+$router->post('/api/suppliers/{id}/delete', 'api/SupplierApiController@destroy');
 
-$router->get('/api/materials/{id}', function($id) {
-    AuthMiddleware::check();
-    Response::success('Material detail', ['id' => $id]);
-});
+// Category API routes
+$router->get('/api/categories', 'api/CategoryApiController@index');
+$router->get('/api/categories/search', 'api/CategoryApiController@search');
+$router->get('/api/categories/{id}', 'api/CategoryApiController@show');
+$router->post('/api/categories', 'api/CategoryApiController@store');
+$router->post('/api/categories/{id}', 'api/CategoryApiController@update');
+$router->post('/api/categories/{id}/delete', 'api/CategoryApiController@destroy');
 
-$router->post('/api/materials', function() {
-    AuthMiddleware::check();
-    RoleMiddleware::staff();
-    Response::success('Create material endpoint', []);
-});
+// Material API routes
+$router->get('/api/materials', 'api/MaterialApiController@index');
+$router->get('/api/materials/search', 'api/MaterialApiController@search');
+$router->get('/api/materials/low-stock', 'api/MaterialApiController@lowStock');
+$router->get('/api/materials/out-of-stock', 'api/MaterialApiController@outOfStock');
+$router->get('/api/materials/stats', 'api/MaterialApiController@stats');
+$router->get('/api/materials/category/{categoryId}', 'api/MaterialApiController@byCategory');
+$router->get('/api/materials/supplier/{supplierId}', 'api/MaterialApiController@bySupplier');
+$router->get('/api/materials/{id}', 'api/MaterialApiController@show');
+$router->post('/api/materials', 'api/MaterialApiController@store');
+$router->post('/api/materials/{id}', 'api/MaterialApiController@update');
+$router->post('/api/materials/{id}/delete', 'api/MaterialApiController@destroy');
 
-$router->post('/api/materials/{id}', function($id) {
-    AuthMiddleware::check();
-    RoleMiddleware::staff();
-    Response::success('Update material', ['id' => $id]);
-});
+// Material Images API routes
+$router->get('/api/materials/{id}/images', 'api/MaterialImageApiController@index');
+$router->post('/api/materials/{id}/images', 'api/MaterialImageApiController@upload');
+$router->post('/api/materials/images/{id}/set-primary', 'api/MaterialImageApiController@setPrimary');
+$router->post('/api/materials/images/{id}/delete', 'api/MaterialImageApiController@destroy');
 
-$router->post('/api/materials/{id}/delete', function($id) {
-    AuthMiddleware::check();
-    RoleMiddleware::manager();
-    Response::success('Delete material', ['id' => $id]);
-});
+// Stock In API routes
+$router->get('/api/stock-in', 'api/StockInApiController@index');
+$router->get('/api/stock-in/today', 'api/StockInApiController@today');
+$router->get('/api/stock-in/stats', 'api/StockInApiController@stats');
+$router->get('/api/stock-in/top-materials', 'api/StockInApiController@topMaterials');
+$router->get('/api/stock-in/top-suppliers', 'api/StockInApiController@topSuppliers');
+$router->get('/api/stock-in/monthly/{year}', 'api/StockInApiController@monthly');
+$router->get('/api/stock-in/{id}', 'api/StockInApiController@show');
+$router->post('/api/stock-in', 'api/StockInApiController@store');
+$router->put('/api/stock-in/{id}', 'api/StockInApiController@update');
+$router->delete('/api/stock-in/{id}', 'api/StockInApiController@destroy');
 
-// Stock API routes
-$router->get('/api/stock', function() {
-    AuthMiddleware::check();
-    Response::success('Stock API endpoint', []);
-});
+// Stock Adjustment API routes
+$router->get('/api/stock-adjustments', 'api/StockAdjustmentApiController@index');
+$router->get('/api/stock-adjustments/stats', 'api/StockAdjustmentApiController@stats');
+$router->get('/api/stock-adjustments/report', 'api/StockAdjustmentApiController@report');
+$router->get('/api/stock-adjustments/material/{id}', 'api/StockAdjustmentApiController@material');
+$router->get('/api/stock-adjustments/reason/{reason}', 'api/StockAdjustmentApiController@reason');
+$router->get('/api/stock-adjustments/{id}', 'api/StockAdjustmentApiController@show');
+$router->post('/api/stock-adjustments', 'api/StockAdjustmentApiController@store');
+$router->delete('/api/stock-adjustments/{id}', 'api/StockAdjustmentApiController@destroy');
 
-$router->post('/api/stock/in', function() {
-    AuthMiddleware::check();
-    RoleMiddleware::staff();
-    Response::success('Stock in endpoint', []);
-});
-
-$router->post('/api/stock/out', function() {
-    AuthMiddleware::check();
-    RoleMiddleware::staff();
-    Response::success('Stock out endpoint', []);
-});
+// Stock Out API routes
+$router->get('/api/stock-out', 'api/StockOutApiController@index');
+$router->get('/api/stock-out/stats', 'api/StockOutApiController@stats');
+$router->get('/api/stock-out/report', 'api/StockOutApiController@report');
+$router->get('/api/stock-out/material/{id}', 'api/StockOutApiController@material');
+$router->get('/api/stock-out/usage/{type}', 'api/StockOutApiController@usage');
+$router->get('/api/stock-out/{id}', 'api/StockOutApiController@show');
+$router->post('/api/stock-out', 'api/StockOutApiController@store');
+$router->delete('/api/stock-out/{id}', 'api/StockOutApiController@destroy');
 
 // Reports API routes
 $router->get('/api/reports/stock', function() {
     AuthMiddleware::check();
     Response::success('Stock report endpoint', []);
+});
+
+$router->get('/api/transactions/trend', function() {
+    AuthMiddleware::check();
+    require_once ROOT_PATH . '/models/Transaction.php';
+    require_once ROOT_PATH . '/controllers/web/TransactionController.php';
+    $controller = new TransactionController();
+    $controller->getTrendData();
 });
 
 $router->get('/api/reports/transactions', function() {

@@ -1,33 +1,51 @@
-<?php
-$materials = [
-    ['name' => 'Tepung Terigu Premium', 'category' => 'Tepung', 'stock' => '150 Kg', 'min_stock' => '50 Kg', 'price' => 'Rp 12.000', 'supplier' => 'PT Bogasari', 'status' => 'normal'],
-    ['name' => 'Gula Pasir', 'category' => 'Gula', 'stock' => '200 Kg', 'min_stock' => '80 Kg', 'price' => 'Rp 15.000', 'supplier' => 'CV Sumber Manis', 'status' => 'normal'],
-    ['name' => 'Minyak Goreng', 'category' => 'Minyak', 'stock' => '75 Liter', 'min_stock' => '30 Liter', 'price' => 'Rp 18.000', 'supplier' => 'CV Sumber Rejeki', 'status' => 'normal'],
-    ['name' => 'Coklat Bubuk', 'category' => 'Coklat', 'stock' => '5 Kg', 'min_stock' => '20 Kg', 'price' => 'Rp 85.000', 'supplier' => 'PT Coklat Nusantara', 'status' => 'low'],
-    ['name' => 'Telur Ayam', 'category' => 'Telur', 'stock' => '45 Kg', 'min_stock' => '40 Kg', 'price' => 'Rp 28.000', 'supplier' => 'Farm Fresh', 'status' => 'normal'],
-    ['name' => 'Mentega', 'category' => 'Dairy', 'stock' => '80 Kg', 'min_stock' => '25 Kg', 'price' => 'Rp 45.000', 'supplier' => 'PT Wijsman', 'status' => 'normal'],
-];
-?>
-
 <section class="p-6 md:p-10 space-y-6">
     <div class="flex flex-col gap-2">
         <h1 class="text-2xl font-semibold text-slate-900">Data Bahan Baku</h1>
         <p class="text-sm text-slate-500">Kelola semua bahan baku inventory Anda</p>
     </div>
 
-    <div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
-        <div class="relative flex-1">
-            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" /></svg>
-            </span>
-            <input type="text" placeholder="Cari bahan baku berdasarkan nama atau kategori..." class="w-full rounded-2xl border border-slate-200 pl-12 pr-4 py-3 shadow-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-400" />
+    <!-- FILTERS AND ADD BUTTON -->
+    <div class="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+        <div class="flex flex-col sm:flex-row gap-3 flex-1">
+            <div class="relative flex-1">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" /></svg>
+                </span>
+                <input id="searchInput" type="text" placeholder="Cari bahan baku..." class="w-full rounded-2xl border border-slate-200 pl-12 pr-4 py-3 shadow-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-400" />
+            </div>
+            <select id="categoryFilter" class="rounded-2xl border border-slate-200 px-4 py-3 shadow-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-400">
+                <option value="">Semua Kategori</option>
+            </select>
+            <select id="statusFilter" class="rounded-2xl border border-slate-200 px-4 py-3 shadow-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-400">
+                <option value="">Semua Status</option>
+                <option value="Aman">Aman</option>
+                <option value="Hampir Habis">Hampir Habis</option>
+                <option value="Habis">Habis</option>
+            </select>
         </div>
-        <button class="inline-flex items-center gap-2 bg-blue-600 text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-sm">
+        <button id="btnAddMaterial" class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-sm hover:shadow-md transition-all">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m7-7H5" /></svg>
             Tambah Bahan Baku
         </button>
     </div>
 
+    <!-- LOADING STATE -->
+    <div id="loadingState" class="hidden">
+        <div class="flex flex-col items-center justify-center py-12">
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
+            <p class="mt-4 text-slate-500">Memuat data material...</p>
+        </div>
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div id="emptyState" class="hidden">
+        <div class="flex flex-col items-center justify-center py-12 text-center">
+            <svg class="w-16 h-16 text-slate-300 mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>
+            <p id="emptyMessage" class="text-slate-500">Belum ada material yang ditambahkan</p>
+        </div>
+    </div>
+
+    <!-- MATERIAL TABLE -->
     <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
         <table class="min-w-full">
             <thead class="bg-slate-50 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
@@ -36,50 +54,189 @@ $materials = [
                     <th class="px-6 py-4">Kategori</th>
                     <th class="px-6 py-4">Stok</th>
                     <th class="px-6 py-4">Min. Stok</th>
-                    <th class="px-6 py-4">Harga/Unit</th>
                     <th class="px-6 py-4">Supplier</th>
                     <th class="px-6 py-4">Status</th>
                     <th class="px-6 py-4">Aksi</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100 text-sm text-slate-600">
-                <?php foreach ($materials as $material): ?>
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-blue-600">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 7l-9-4-9 4 9 4 9-4zm0 0v10l-9 4-9-4V7" /></svg>
-                                </span>
-                                <div>
-                                    <p class="font-semibold text-slate-800"><?= e($material['name']) ?></p>
-                                    <p class="text-xs text-slate-400">ID-<?= substr(md5($material['name']), 0, 6) ?></p>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-slate-500"><?= e($material['category']) ?></td>
-                        <td class="px-6 py-4 font-semibold text-slate-800"><?= e($material['stock']) ?></td>
-                        <td class="px-6 py-4 text-slate-500"><?= e($material['min_stock']) ?></td>
-                        <td class="px-6 py-4 text-slate-800"><?= e($material['price']) ?></td>
-                        <td class="px-6 py-4 text-slate-500"><?= e($material['supplier']) ?></td>
-                        <td class="px-6 py-4">
-                            <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold <?php if ($material['status'] === 'low'): ?>bg-rose-50 text-rose-500<?php else: ?>bg-emerald-50 text-emerald-600<?php endif; ?>">
-                                <span class="h-2 w-2 rounded-full <?php if ($material['status'] === 'low'): ?>bg-rose-500<?php else: ?>bg-emerald-500<?php endif; ?>"></span>
-                                <?= $material['status'] === 'low' ? 'Habis' : 'Normal' ?>
-                            </span>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3 text-blue-500">
-                                <button class="hover:text-blue-600" title="Edit">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5h2m-1 14v-4m0 0l-4-4m4 4l4-4" /></svg>
-                                </button>
-                                <button class="text-rose-500 hover:text-rose-600" title="Hapus">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 7h12M9 7V4h6v3m2 0v12a2 2 0 01-2 2H8a2 2 0 01-2-2V7h12z" /></svg>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
+            <tbody id="materialTable" class="divide-y divide-slate-100 text-sm text-slate-600"></tbody>
         </table>
     </div>
+
+    <!-- PAGINATION -->
+    <div id="paginationContainer" class="flex justify-center mt-8"></div>
 </section>
+
+<!-- MATERIAL MODAL -->
+<div id="materialModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <!-- Header -->
+        <div class="flex items-center justify-between p-6 border-b border-slate-100">
+            <h2 id="modalTitle" class="text-lg font-semibold text-slate-900">Tambah Bahan Baku</h2>
+            <button onclick="MaterialModule.closeModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+        </div>
+
+        <!-- Form -->
+        <form id="materialForm" class="p-6 space-y-4">
+            <input type="hidden" id="materialId" name="id" />
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Kode Material -->
+                <div>
+                    <label for="materialCode" class="block text-sm font-medium text-slate-700 mb-2">Kode Material</label>
+                    <input id="materialCode" name="code" type="text" placeholder="e.g., MAT-001" class="w-full rounded-lg border border-slate-200 px-4 py-2.5 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all" />
+                    <p id="codeError" class="hidden text-sm text-red-500 mt-1"></p>
+                </div>
+
+                <!-- Nama Material -->
+                <div>
+                    <label for="materialName" class="block text-sm font-medium text-slate-700 mb-2">Nama Material <span class="text-red-500">*</span></label>
+                    <input id="materialName" name="name" type="text" placeholder="e.g., Tepung Terigu" class="w-full rounded-lg border border-slate-200 px-4 py-2.5 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all" required />
+                    <p id="nameError" class="hidden text-sm text-red-500 mt-1"></p>
+                </div>
+
+                <!-- Kategori -->
+                <div>
+                    <label for="categoryId" class="block text-sm font-medium text-slate-700 mb-2">Kategori <span class="text-red-500">*</span></label>
+                    <select id="categoryId" name="category_id" class="w-full rounded-lg border border-slate-200 px-4 py-2.5 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all" required>
+                        <option value="">Pilih Kategori</option>
+                    </select>
+                    <p id="category_idError" class="hidden text-sm text-red-500 mt-1"></p>
+                </div>
+
+                <!-- Supplier -->
+                <div>
+                    <label for="supplierId" class="block text-sm font-medium text-slate-700 mb-2">Supplier Default</label>
+                    <select id="supplierId" name="default_supplier_id" class="w-full rounded-lg border border-slate-200 px-4 py-2.5 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all">
+                        <option value="">Pilih Supplier</option>
+                    </select>
+                    <p id="default_supplier_idError" class="hidden text-sm text-red-500 mt-1"></p>
+                </div>
+
+                <!-- Satuan -->
+                <div>
+                    <label for="unit" class="block text-sm font-medium text-slate-700 mb-2">Satuan <span class="text-red-500">*</span></label>
+                    <input id="unit" name="unit" type="text" placeholder="e.g., Kg, Liter, Pcs" class="w-full rounded-lg border border-slate-200 px-4 py-2.5 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all" required />
+                    <p id="unitError" class="hidden text-sm text-red-500 mt-1"></p>
+                </div>
+
+                <!-- Minimal Stok -->
+                <div>
+                    <label for="minStock" class="block text-sm font-medium text-slate-700 mb-2">Minimal Stok <span class="text-red-500">*</span></label>
+                    <input id="minStock" name="min_stock" type="number" step="0.01" placeholder="0" class="w-full rounded-lg border border-slate-200 px-4 py-2.5 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all" required />
+                    <p id="min_stockError" class="hidden text-sm text-red-500 mt-1"></p>
+                </div>
+
+                <!-- Stok Saat Ini -->
+                <div>
+                    <label for="currentStock" class="block text-sm font-medium text-slate-700 mb-2">Stok Saat Ini</label>
+                    <input id="currentStock" name="current_stock" type="number" step="0.01" placeholder="0" class="w-full rounded-lg border border-slate-200 px-4 py-2.5 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all" />
+                    <p id="current_stockError" class="hidden text-sm text-red-500 mt-1"></p>
+                </div>
+            </div>
+
+            <!-- Image Upload -->
+            <div>
+                <label for="imageUpload" class="block text-sm font-medium text-slate-700 mb-2">Gambar Material</label>
+                <input id="imageUpload" name="image" type="file" accept="image/*" class="w-full rounded-lg border border-slate-200 px-4 py-2.5 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all" />
+                <p class="text-xs text-slate-500 mt-1">Format: JPG, PNG, GIF. Maksimal 2MB</p>
+                <div id="imagePreview" class="mt-2 flex gap-2"></div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex gap-3 pt-4 border-t border-slate-100">
+                <button type="button" onclick="MaterialModule.closeModal()" class="flex-1 px-4 py-2.5 rounded-lg border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 transition-colors">
+                    Batal
+                </button>
+                <button id="btnSubmit" type="submit" class="flex-1 px-4 py-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium hover:opacity-90 transition-all inline-flex items-center justify-center gap-2">
+                    <span id="submitText">Simpan</span>
+                    <svg id="submitSpinner" class="hidden w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="15.7 47.1" /></svg>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- DELETE CONFIRMATION MODAL -->
+<div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full">
+        <div class="p-6 border-b border-slate-100">
+            <h2 class="text-lg font-semibold text-slate-900">Hapus Material</h2>
+        </div>
+        <div class="p-6">
+            <p class="text-slate-600">Apakah Anda yakin ingin menghapus material <strong id="deleteItemName"></strong>?</p>
+            <p class="text-sm text-slate-500 mt-2">Tindakan ini tidak dapat dibatalkan.</p>
+        </div>
+        <div class="flex gap-3 p-6 border-t border-slate-100">
+            <button onclick="MaterialModule.closeDeleteModal()" class="flex-1 px-4 py-2.5 rounded-lg border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 transition-colors">
+                Batal
+            </button>
+            <button id="btnConfirmDelete" onclick="MaterialModule.confirmDelete()" class="flex-1 px-4 py-2.5 rounded-lg bg-red-500 text-white font-medium hover:bg-red-600 transition-colors inline-flex items-center justify-center gap-2">
+                <span id="deleteText">Hapus</span>
+                <svg id="deleteSpinner" class="hidden w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="15.7 47.1" /></svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- IMAGE MANAGEMENT MODAL -->
+<div id="imageModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between p-6 border-b border-slate-100">
+            <div>
+                <h2 class="text-lg font-semibold text-slate-900">Kelola Gambar Material</h2>
+                <p id="imageModalMaterialName" class="text-sm text-slate-500 mt-1"></p>
+            </div>
+            <button onclick="MaterialModule.closeImageModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+        </div>
+
+        <div class="p-6 space-y-6">
+            <!-- Upload Form -->
+            <form id="imageUploadForm" class="bg-slate-50 rounded-xl p-4">
+                <div class="flex gap-3">
+                    <input id="imageFile" type="file" accept="image/*" class="flex-1 rounded-lg border border-slate-200 px-4 py-2 bg-white" required />
+                    <button id="imageUploadBtn" type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                        Upload
+                    </button>
+                </div>
+                <p class="text-xs text-slate-500 mt-2">Format: JPG, PNG, GIF. Maksimal 2MB</p>
+            </form>
+
+            <!-- Image Grid -->
+            <div id="imageGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toast" class="hidden fixed top-4 right-4 z-50 max-w-sm w-full">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 p-4 flex items-start gap-3">
+        <div id="toastIcon" class="flex-shrink-0"></div>
+        <div class="flex-1 min-w-0">
+            <h4 id="toastTitle" class="font-semibold text-slate-900 text-sm"></h4>
+            <p id="toastMessage" class="text-sm text-slate-600 mt-1"></p>
+        </div>
+        <button onclick="Toast.hide()" class="flex-shrink-0 text-slate-400 hover:text-slate-600">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="/assets/js/utils/api.js"></script>
+<script src="/assets/js/utils/toast.js"></script>
+<script src="/assets/js/utils/validator.js"></script>
+<script src="/assets/js/modules/material.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOM loaded, initializing MaterialModule...');
+        MaterialModule.init();
+    });
+</script>
