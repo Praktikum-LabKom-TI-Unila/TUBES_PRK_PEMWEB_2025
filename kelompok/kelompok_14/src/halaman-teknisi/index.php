@@ -49,7 +49,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
     $stmt->bind_param("sssii", $new_status, $tgl_mulai, $tgl_selesai, $servis_id, $teknisi_id);
     $stmt->execute();
     
-    header("Location: index.php?updated=1");
+    // Jika status berubah menjadi Selesai, redirect ke halaman riwayat
+    if ($new_status == 'Selesai') {
+        header("Location: riwayat.php?updated=1");
+    } else {
+        header("Location: index.php?updated=1");
+    }
     exit();
 }
 
@@ -57,13 +62,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
 $antrian = $conn->query("SELECT COUNT(*) as total FROM servis WHERE id_teknisi = $teknisi_id AND status IN ('Barang Masuk', 'Pengecekan')")->fetch_assoc()['total'];
 $proses = $conn->query("SELECT COUNT(*) as total FROM servis WHERE id_teknisi = $teknisi_id AND status IN ('Pengerjaan', 'Menunggu Sparepart')")->fetch_assoc()['total'];
 $selesai = $conn->query("SELECT COUNT(*) as total FROM servis WHERE id_teknisi = $teknisi_id AND status = 'Selesai'")->fetch_assoc()['total'];
-$omset = $conn->query("SELECT COALESCE(SUM(biaya), 0) as total FROM servis WHERE id_teknisi = $teknisi_id AND status IN ('Selesai', 'Diambil') AND MONTH(tgl_masuk) = MONTH(CURRENT_DATE())")->fetch_assoc()['total'];
+// Omset hanya dari biaya jasa yang sudah selesai
+$omset = $conn->query("SELECT COALESCE(SUM(bi.harga), 0) as total FROM biaya_item bi 
+    JOIN servis s ON bi.id_servis = s.id 
+    WHERE s.id_teknisi = $teknisi_id AND s.status IN ('Selesai', 'Diambil') AND bi.nama_item = 'Biaya Jasa' AND MONTH(s.tgl_selesai) = MONTH(CURRENT_DATE())")->fetch_assoc()['total'];
 
-// Daftar servis untuk teknisi ini
+// Daftar servis untuk teknisi ini (exclude status Selesai dan Diambil)
 $search = $_GET['search'] ?? '';
 $status_filter = $_GET['status'] ?? '';
 
-$query = "SELECT * FROM servis WHERE id_teknisi = $teknisi_id";
+$query = "SELECT * FROM servis WHERE id_teknisi = $teknisi_id AND status NOT IN ('Selesai', 'Diambil')";
 if ($search) {
     $query .= " AND (nama_pelanggan LIKE '%$search%' OR no_resi LIKE '%$search%' OR nama_barang LIKE '%$search%')";
 }
@@ -72,6 +80,15 @@ if ($status_filter) {
 }
 $query .= " ORDER BY tgl_masuk DESC";
 $servis_list = $conn->query($query);
+
+// Daftar riwayat servis
+$search_riwayat = $_GET['search_riwayat'] ?? '';
+$query_riwayat = "SELECT * FROM servis WHERE id_teknisi = $teknisi_id AND status IN ('Selesai', 'Diambil')";
+if ($search_riwayat) {
+    $query_riwayat .= " AND (nama_pelanggan LIKE '%$search_riwayat%' OR no_resi LIKE '%$search_riwayat%' OR nama_barang LIKE '%$search_riwayat%')";
+}
+$query_riwayat .= " ORDER BY tgl_selesai DESC";
+$riwayat_list = $conn->query($query_riwayat);
 ?>
 
 <!DOCTYPE html>
@@ -109,9 +126,18 @@ $servis_list = $conn->query($query);
     <main class="max-w-7xl mx-auto p-6 space-y-6">
         
         <?php if (isset($_GET['updated'])): ?>
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-r">
+            <div id="notification" class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-r transition-opacity duration-500">
                 <p class="font-medium">Status berhasil diupdate!</p>
             </div>
+            <script>
+                setTimeout(function() {
+                    const notification = document.getElementById('notification');
+                    notification.style.opacity = '0';
+                    setTimeout(function() {
+                        notification.style.display = 'none';
+                    }, 500);
+                }, 3000);
+            </script>
         <?php endif; ?>
         
         <!-- Page Title -->
@@ -164,7 +190,7 @@ $servis_list = $conn->query($query);
             <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
                 <div class="flex items-start justify-between">
                     <div>
-                        <p class="text-gray-500 text-sm mb-1">Omset</p>
+                        <p class="text-gray-500 text-sm mb-1">Pendapatan Teknisi</p>
                         <p class="text-2xl font-bold text-gray-800">Rp <?php echo number_format($omset, 0, ',', '.'); ?></p>
                         <p class="text-xs text-gray-400 mt-1">Bulan Ini</p>
                     </div>
@@ -177,98 +203,212 @@ $servis_list = $conn->query($query);
 
         <!-- Servis Table -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-bold text-gray-800">Daftar Servis Saya</h3>
+            <!-- Tab Navigation -->
+            <div class="px-6 py-4 border-b border-gray-200 flex gap-4">
+                <button onclick="showTab('daftar')" id="btn-daftar" class="px-4 py-2 font-semibold text-yellow-600 border-b-2 border-yellow-600 transition">
+                    <i class="fas fa-tasks mr-2"></i> Daftar Servis
+                </button>
+                <button onclick="showTab('riwayat')" id="btn-riwayat" class="px-4 py-2 font-semibold text-gray-500 border-b-2 border-transparent transition hover:text-gray-700">
+                    <i class="fas fa-history mr-2"></i> Riwayat Servis
+                </button>
             </div>
 
-            <!-- Search & Filter -->
-            <div class="px-6 py-4 border-b border-gray-100">
-                <form action="" method="GET" class="flex flex-wrap gap-3">
-                    <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>" 
-                        placeholder="Cari pelanggan / resi / barang..." 
-                        class="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none text-sm flex-1"
-                        onchange="this.form.submit()">
-                    <select name="status" class="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 outline-none text-sm" onchange="this.form.submit()">
-                        <option value="">Semua Status</option>
-                        <option value="Pengecekan" <?php echo $status_filter == 'Pengecekan' ? 'selected' : ''; ?>>Pengecekan</option>
-                        <option value="Menunggu Sparepart" <?php echo $status_filter == 'Menunggu Sparepart' ? 'selected' : ''; ?>>Menunggu Sparepart</option>
-                        <option value="Pengerjaan" <?php echo $status_filter == 'Pengerjaan' ? 'selected' : ''; ?>>Pengerjaan</option>
-                        <option value="Selesai" <?php echo $status_filter == 'Selesai' ? 'selected' : ''; ?>>Selesai</option>
-                        <option value="Batal" <?php echo $status_filter == 'Batal' ? 'selected' : ''; ?>>Batal</option>
-                    </select>
-                </form>
-            </div>
+            <!-- Tab 1: Daftar Servis -->
+            <div id="tab-daftar" class="block">
+                <!-- Search & Filter -->
+                <div class="px-6 py-4 border-b border-gray-100">
+                    <form action="" method="GET" class="flex flex-wrap gap-3">
+                        <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>" 
+                            placeholder="Cari pelanggan / resi / barang..." 
+                            class="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none text-sm flex-1"
+                            onchange="this.form.submit()">
+                        <select name="status" class="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-yellow-500 outline-none text-sm" onchange="this.form.submit()">
+                            <option value="">Semua Status</option>
+                            <option value="Barang Masuk" <?php echo $status_filter == 'Barang Masuk' ? 'selected' : ''; ?>>Barang Masuk</option>
+                            <option value="Pengecekan" <?php echo $status_filter == 'Pengecekan' ? 'selected' : ''; ?>>Pengecekan</option>
+                            <option value="Menunggu Sparepart" <?php echo $status_filter == 'Menunggu Sparepart' ? 'selected' : ''; ?>>Menunggu Sparepart</option>
+                            <option value="Pengerjaan" <?php echo $status_filter == 'Pengerjaan' ? 'selected' : ''; ?>>Pengerjaan</option>
+                            <option value="Batal" <?php echo $status_filter == 'Batal' ? 'selected' : ''; ?>>Batal</option>
+                        </select>
+                    </form>
+                </div>
 
-            <!-- Table -->
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-gray-50 border-b border-gray-200">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">No. Resi</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Pelanggan</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Barang</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Biaya</th>
-                            <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        <?php if ($servis_list && $servis_list->num_rows > 0): ?>
-                            <?php while($row = $servis_list->fetch_assoc()): ?>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4">
-                                        <div class="font-medium text-gray-800"><?php echo $row['no_resi']; ?></div>
-                                        <div class="text-xs text-gray-400"><?php echo date('d M Y', strtotime($row['tgl_masuk'])); ?></div>
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($row['nama_pelanggan']); ?></td>
-                                    <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($row['nama_barang']); ?></td>
-                                    <td class="px-6 py-4">
-                                        <!-- Dropdown Status -->
-                                        <form method="POST" class="inline">
-                                            <input type="hidden" name="update_status" value="1">
-                                            <input type="hidden" name="servis_id" value="<?php echo $row['id']; ?>">
-                                            <select name="new_status" onchange="this.form.submit()" 
-                                                class="px-3 py-2 text-sm border-2 rounded-lg focus:ring-2 focus:ring-green-500 bg-white cursor-pointer
-                                                <?php 
-                                                    if ($row['status'] == 'Selesai') echo 'border-green-500 text-green-700';
-                                                    elseif ($row['status'] == 'Pengerjaan') echo 'border-yellow-500 text-yellow-700';
-                                                    elseif ($row['status'] == 'Pengecekan') echo 'border-indigo-500 text-indigo-700';
-                                                    elseif ($row['status'] == 'Menunggu Sparepart') echo 'border-orange-500 text-orange-700';
-                                                    elseif ($row['status'] == 'Batal') echo 'border-red-500 text-red-700';
-                                                    else echo 'border-gray-300 text-gray-700';
-                                                ?>">
-                                                <option value="Pengecekan" <?php echo $row['status'] == 'Pengecekan' ? 'selected' : ''; ?>>Pengecekan</option>
-                                                <option value="Menunggu Sparepart" <?php echo $row['status'] == 'Menunggu Sparepart' ? 'selected' : ''; ?>>Menunggu Sparepart</option>
-                                                <option value="Pengerjaan" <?php echo $row['status'] == 'Pengerjaan' ? 'selected' : ''; ?>>Pengerjaan</option>
-                                                <option value="Selesai" <?php echo $row['status'] == 'Selesai' ? 'selected' : ''; ?>>Selesai</option>
-                                                <option value="Batal" <?php echo $row['status'] == 'Batal' ? 'selected' : ''; ?>>Batal</option>
-                                            </select>
-                                        </form>
-                                    </td>
-                                    <td class="px-6 py-4 text-sm font-medium text-gray-800">
-                                        <?php echo $row['biaya'] ? 'Rp ' . number_format($row['biaya'], 0, ',', '.') : '-'; ?>
-                                    </td>
-                                    <td class="px-6 py-4 text-center">
-                                        <a href="update_servis.php?id=<?php echo $row['id']; ?>" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
-                                            <i class="fas fa-edit mr-1"></i> Detail
-                                        </a>
+                <!-- Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-yellow-50 border-b border-gray-200">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">No. Resi</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Pelanggan</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Barang</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Biaya</th>
+                                <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <?php if ($servis_list && $servis_list->num_rows > 0): ?>
+                                <?php while($row = $servis_list->fetch_assoc()): ?>
+                                    <tr class="hover:bg-yellow-50">
+                                        <td class="px-6 py-4">
+                                            <div class="font-medium text-gray-800"><?php echo $row['no_resi']; ?></div>
+                                            <div class="text-xs text-gray-400"><?php echo date('d M Y', strtotime($row['tgl_masuk'])); ?></div>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($row['nama_pelanggan']); ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($row['nama_barang']); ?></td>
+                                        <td class="px-6 py-4">
+                                            <form method="POST" class="inline">
+                                                <input type="hidden" name="update_status" value="1">
+                                                <input type="hidden" name="servis_id" value="<?php echo $row['id']; ?>">
+                                                <select name="new_status" onchange="this.form.submit()" 
+                                                    class="px-3 py-2 text-sm border-2 rounded-lg focus:ring-2 focus:ring-yellow-500 bg-white cursor-pointer
+                                                    <?php 
+                                                        if ($row['status'] == 'Pengerjaan') echo 'border-yellow-500 text-yellow-700';
+                                                        elseif ($row['status'] == 'Pengecekan') echo 'border-indigo-500 text-indigo-700';
+                                                        elseif ($row['status'] == 'Menunggu Sparepart') echo 'border-orange-500 text-orange-700';
+                                                        elseif ($row['status'] == 'Batal') echo 'border-red-500 text-red-700';
+                                                        else echo 'border-gray-300 text-gray-700';
+                                                    ?>">
+                                                    <option value="Barang Masuk" <?php echo $row['status'] == 'Barang Masuk' ? 'selected' : ''; ?>>Barang Masuk</option>
+                                                    <option value="Pengecekan" <?php echo $row['status'] == 'Pengecekan' ? 'selected' : ''; ?>>Pengecekan</option>
+                                                    <option value="Menunggu Sparepart" <?php echo $row['status'] == 'Menunggu Sparepart' ? 'selected' : ''; ?>>Menunggu Sparepart</option>
+                                                    <option value="Pengerjaan" <?php echo $row['status'] == 'Pengerjaan' ? 'selected' : ''; ?>>Pengerjaan</option>
+                                                    <option value="Selesai" <?php echo $row['status'] == 'Selesai' ? 'selected' : ''; ?>>Selesai</option>
+                                                    <option value="Batal" <?php echo $row['status'] == 'Batal' ? 'selected' : ''; ?>>Batal</option>
+                                                </select>
+                                            </form>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm font-medium text-gray-800">
+                                            <?php echo $row['biaya'] ? 'Rp ' . number_format($row['biaya'], 0, ',', '.') : '-'; ?>
+                                        </td>
+                                        <td class="px-6 py-4 text-center">
+                                            <a href="update_servis.php?id=<?php echo $row['id']; ?>" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                                <i class="fas fa-edit mr-1"></i> Detail
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="6" class="px-6 py-12 text-center">
+                                        <div class="flex flex-col items-center text-gray-400">
+                                            <i class="fas fa-check-circle text-4xl mb-3"></i>
+                                            <p>Semua servis sudah selesai!</p>
+                                        </div>
                                     </td>
                                 </tr>
-                            <?php endwhile; ?>
-                        <?php else: ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab 2: Riwayat Servis -->
+            <div id="tab-riwayat" class="hidden">
+                <!-- Search -->
+                <div class="px-6 py-4 border-b border-gray-100">
+                    <form action="" method="GET" class="flex gap-3">
+                        <input type="text" name="search_riwayat" value="<?php echo htmlspecialchars($search_riwayat); ?>" 
+                            placeholder="Cari riwayat..." 
+                            class="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none text-sm flex-1"
+                            onchange="this.form.submit()">
+                    </form>
+                </div>
+
+                <!-- Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-green-50 border-b border-gray-200">
                             <tr>
-                                <td colspan="6" class="px-6 py-12 text-center">
-                                    <div class="flex flex-col items-center text-gray-400">
-                                        <i class="fas fa-inbox text-4xl mb-3"></i>
-                                        <p>Belum ada servis yang ditugaskan kepada Anda.</p>
-                                    </div>
-                                </td>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">No. Resi</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Pelanggan</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Barang</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Tgl Selesai</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Biaya</th>
+                                <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Aksi</th>
                             </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <?php if ($riwayat_list && $riwayat_list->num_rows > 0): ?>
+                                <?php while($row = $riwayat_list->fetch_assoc()): ?>
+                                    <tr class="hover:bg-green-50">
+                                        <td class="px-6 py-4">
+                                            <div class="font-medium text-gray-800"><?php echo $row['no_resi']; ?></div>
+                                            <div class="text-xs text-gray-400"><?php echo date('d M Y', strtotime($row['tgl_masuk'])); ?></div>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($row['nama_pelanggan']); ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($row['nama_barang']); ?></td>
+                                        <td class="px-6 py-4">
+                                            <span class="inline-block px-3 py-2 text-sm font-medium rounded-lg 
+                                            <?php 
+                                                if ($row['status'] == 'Selesai') echo 'bg-green-100 text-green-700';
+                                                elseif ($row['status'] == 'Diambil') echo 'bg-blue-100 text-blue-700';
+                                                else echo 'bg-gray-100 text-gray-700';
+                                            ?>">
+                                                <?php echo $row['status']; ?>
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-700">
+                                            <?php echo $row['tgl_selesai'] ? date('d M Y H:i', strtotime($row['tgl_selesai'])) : '-'; ?>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm font-medium text-gray-800">
+                                            <?php echo $row['biaya'] ? 'Rp ' . number_format($row['biaya'], 0, ',', '.') : '-'; ?>
+                                        </td>
+                                        <td class="px-6 py-4 text-center">
+                                            <a href="update_servis.php?id=<?php echo $row['id']; ?>&from=riwayat" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                                <i class="fas fa-eye mr-1"></i> Detail
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="7" class="px-6 py-12 text-center">
+                                        <div class="flex flex-col items-center text-gray-400">
+                                            <i class="fas fa-inbox text-4xl mb-3"></i>
+                                            <p>Belum ada riwayat servis.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+
+        <script>
+            function showTab(tab) {
+                // Hide all tabs
+                document.getElementById('tab-daftar').classList.add('hidden');
+                document.getElementById('tab-riwayat').classList.add('hidden');
+                
+                // Remove active style from all buttons
+                document.getElementById('btn-daftar').classList.remove('text-yellow-600', 'border-yellow-600');
+                document.getElementById('btn-riwayat').classList.remove('text-green-600', 'border-green-600');
+                
+                document.getElementById('btn-daftar').classList.add('text-gray-500', 'border-transparent');
+                document.getElementById('btn-riwayat').classList.add('text-gray-500', 'border-transparent');
+                
+                // Show selected tab and style button
+                if (tab === 'daftar') {
+                    document.getElementById('tab-daftar').classList.remove('hidden');
+                    document.getElementById('btn-daftar').classList.remove('text-gray-500', 'border-transparent');
+                    document.getElementById('btn-daftar').classList.add('text-yellow-600', 'border-yellow-600');
+                } else {
+                    document.getElementById('tab-riwayat').classList.remove('hidden');
+                    document.getElementById('btn-riwayat').classList.remove('text-gray-500', 'border-transparent');
+                    document.getElementById('btn-riwayat').classList.add('text-green-600', 'border-green-600');
+                }
+            }
+            
+            // Check if need to show riwayat tab on load
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('tab') === 'riwayat') {
+                showTab('riwayat');
+            }
+        </script>
 
     </main>
 

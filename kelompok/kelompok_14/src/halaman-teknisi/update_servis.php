@@ -63,13 +63,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($stmt->execute()) {
         $success_msg = "Data servis berhasil diupdate!";
-        // Refresh data
-        $stmt = $conn->prepare("SELECT * FROM servis WHERE id = ?");
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        $servis = $stmt->get_result()->fetch_assoc();
-        // Refresh biaya items
-        $biaya_items = $conn->query("SELECT * FROM biaya_item WHERE id_servis = $id ORDER BY id ASC");
+        // Check dari halaman mana user datang
+        $from = isset($_GET['from']) ? $_GET['from'] : 'dashboard';
+        // Redirect sesuai asal halaman
+        if ($from === 'riwayat') {
+            header("Location: index.php?updated=1&tab=riwayat");
+        } else {
+            header("Location: index.php?updated=1");
+        }
+        exit();
     } else {
         $error_msg = "Gagal update: " . $conn->error;
     }
@@ -127,9 +129,18 @@ if ($biaya_items) {
         </div>
 
         <?php if ($success_msg): ?>
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-r">
+            <div id="notification" class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-r transition-opacity duration-500">
                 <p class="font-medium"><?php echo $success_msg; ?></p>
             </div>
+            <script>
+                setTimeout(function() {
+                    const notification = document.getElementById('notification');
+                    notification.style.opacity = '0';
+                    setTimeout(function() {
+                        notification.style.display = 'none';
+                    }, 500);
+                }, 3000);
+            </script>
         <?php endif; ?>
 
         <?php if ($error_msg): ?>
@@ -180,7 +191,6 @@ if ($biaya_items) {
                         <div class="font-bold text-slate-800"><?php echo $servis['tgl_selesai'] ? date('d M Y', strtotime($servis['tgl_selesai'])) : '-'; ?></div>
                     </div>
                 </div>
-                <p class="text-xs text-slate-400 mt-2 text-center">* Tanggal otomatis terisi saat status berubah ke Pengerjaan/Selesai</p>
             </div>
         </div>
 
@@ -252,6 +262,11 @@ if ($biaya_items) {
                 <a href="index.php" class="px-6 py-3 rounded-lg font-medium text-slate-600 hover:bg-white transition-colors border border-slate-200">
                     Batal
                 </a>
+                <?php if ($servis['status'] == 'Selesai' || $servis['status'] == 'Diambil'): ?>
+                    <button type="button" onclick="openRincianModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium shadow-lg shadow-blue-200 transition-all">
+                        <i class="fas fa-receipt mr-2"></i> Rincian Biaya
+                    </button>
+                <?php endif; ?>
                 <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold shadow-lg shadow-green-200 transition-all">
                     <i class="fas fa-save mr-2"></i> Simpan
                 </button>
@@ -259,7 +274,46 @@ if ($biaya_items) {
         </form>
     </div>
 
+    <!-- Modal Rincian Biaya -->
+    <div id="rincianModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+            <div class="sticky top-0 bg-white px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                <h2 class="text-lg font-bold text-slate-800">Rincian Biaya</h2>
+                <button type="button" onclick="closeRincianModal()" class="text-slate-500 hover:text-slate-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="space-y-3">
+                    <?php 
+                    $total = 0;
+                    $biaya_items_detail = $conn->query("SELECT * FROM biaya_item WHERE id_servis = $id ORDER BY id ASC");
+                    if ($biaya_items_detail && $biaya_items_detail->num_rows > 0):
+                        while($item = $biaya_items_detail->fetch_assoc()): 
+                            $total += $item['harga'];
+                    ?>
+                        <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                            <span class="font-medium text-slate-700"><?php echo htmlspecialchars($item['nama_item']); ?></span>
+                            <span class="font-semibold text-slate-800">Rp <?php echo number_format($item['harga'], 0, ',', '.'); ?></span>
+                        </div>
+                    <?php endwhile; endif; ?>
+                </div>
+                <div class="mt-6 pt-4 border-t-2 border-slate-200 flex justify-between items-center">
+                    <span class="text-lg font-bold text-slate-800">Total:</span>
+                    <span class="text-2xl font-bold text-green-600">Rp <?php echo number_format($total, 0, ',', '.'); ?></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        function openRincianModal() {
+            document.getElementById('rincianModal').classList.remove('hidden');
+        }
+        
+        function closeRincianModal() {
+            document.getElementById('rincianModal').classList.add('hidden');
+        }
         function addKomponen() {
             const container = document.getElementById('komponen-container');
             const row = document.createElement('div');
