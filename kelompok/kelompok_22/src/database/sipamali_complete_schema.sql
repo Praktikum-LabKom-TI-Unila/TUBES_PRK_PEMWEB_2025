@@ -430,8 +430,8 @@ CREATE INDEX idx_audit_logs_user_action ON audit_logs(user_id, action_type);
 SELECT 'SiPaMaLi Database v3.0 - Schema created successfully!' as Status;
 SELECT 'Next step: Run sample_users_and_data.sql to insert seed data' as Info;
 
-CREATE USER IF NOT EXISTS 'sipamali_user'@'localhost' IDENTIFIED BY 'sipamali123';
-GRANT ALL PRIVILEGES ON pamali2.* TO 'sipamali_user'@'localhost';
+CREATE USER IF NOT EXISTS 'dev'@'localhost' IDENTIFIED BY 'DevPass123!';
+GRANT ALL PRIVILEGES ON pamali2.* TO 'dev'@'localhost';
 FLUSH PRIVILEGES;
 SELECT 'User created successfully!' as Status;
 "
