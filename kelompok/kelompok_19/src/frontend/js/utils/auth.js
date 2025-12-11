@@ -26,10 +26,10 @@ function logout() {
     credentials: "include",
   })
     .then(() => {
-      window.location.href = "../login.html";
+      window.location.href = "../../login.html";
     })
     .catch(() => {
-      window.location.href = "../login.html";
+      window.location.href = "../../login.html";
     });
 }
 

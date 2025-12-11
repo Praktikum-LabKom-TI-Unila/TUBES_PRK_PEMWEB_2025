@@ -71,3 +71,17 @@ function apiPatch(endpoint, data) {
     body: body,
   });
 }
+
+function apiPut(endpoint, data) {
+  const body = new URLSearchParams(data).toString();
+  return apiRequest(endpoint, {
+    method: "PUT",
+    body: body,
+  });
+}
+
+function apiDelete(endpoint) {
+  return apiRequest(endpoint, {
+    method: "DELETE",
+  });
+}
