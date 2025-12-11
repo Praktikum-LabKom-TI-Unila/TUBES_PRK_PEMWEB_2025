@@ -232,7 +232,6 @@ if (!empty($admin['profile_picture']) && file_exists($admin['profile_picture']))
                 </div>
             </div>
 
-            <!-- Transactions Table -->
             <div class="bg-white card overflow-hidden">
                 <div class="px-6 py-4 border-b bg-gray-50">
                     <div class="flex items-center justify-between">
