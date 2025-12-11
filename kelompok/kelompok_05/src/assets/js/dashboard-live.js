@@ -1,122 +1,148 @@
-/**
- * dashboard-live.js
- * Real-time dashboard simulation for LampungSmart public landing page
- * Zero-Auth Public Interface - Progressive Enhancement
- * 
- * WCAG 2.2 AA Compliant | Mobile-First | Reduced Motion Support
- */
-
 class LiveDashboard {
     constructor() {
         this.metrics = {
-            processing: 47,
-            avgResponse: 2.5, // hours
+            processing: 0,
+            totalUmkm: 0,
             lastUpdate: Date.now()
         };
         
         this.config = {
-            updateInterval: 5000, // 5 seconds
-            minProcessing: 35,
-            maxProcessing: 65,
-            minResponse: 1.8,
-            maxResponse: 3.8
+            updateInterval: 5000 // 5 detik
         };
         
         this.elements = {
             counter: document.querySelector('#live-counter'),
-            gauge: document.querySelector('#response-gauge'),
-            responseTime: document.querySelector('#response-time')
+            umkmCounter: document.querySelector('#umkm-counter')
         };
         
-        // Check for reduced motion preference
+        // Cek preferensi reduced motion
         this.prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         
         this.init();
     }
     
     init() {
-        // Validate elements exist
-        if (!this.elements.counter || !this.elements.gauge) {
-            console.warn('LiveDashboard: Required elements not found');
+        // Validasi elemen ada
+        if (!this.elements.counter || !this.elements.umkmCounter) {
+            console.warn('LiveDashboard: Elemen yang diperlukan tidak ditemukan');
             return;
         }
         
-        // Start simulation
-        this.startSimulation();
+        // Muat data awal
+        this.loadAllStats();
         
-        // Pause simulation when page is hidden (performance optimization)
+        // Mulai update real-time
+        this.startRealTimeUpdates();
+        
+        // Jeda update ketika halaman tersembunyi (optimasi performa)
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
-                this.pauseSimulation();
+                this.pauseUpdates();
             } else {
-                this.resumeSimulation();
+                this.resumeUpdates();
             }
         });
     }
     
-    startSimulation() {
-        this.simulationTimer = setInterval(() => {
-            this.updateMetrics();
-            this.renderUI();
-        }, this.config.updateInterval);
+    async loadAllStats() {
+        await Promise.all([
+            this.loadPengaduanStats(),
+            this.loadUmkmStats()
+        ]);
     }
     
-    pauseSimulation() {
-        if (this.simulationTimer) {
-            clearInterval(this.simulationTimer);
+    async loadPengaduanStats() {
+        try {
+            const response = await fetch('api/get_pengaduan_stats.php');
+            const data = await response.json();
+            if (data.success) {
+                const oldProcessing = this.metrics.processing;
+                this.metrics.processing = data.processing;
+                
+                // Selalu render saat pertama kali load, atau ketika nilai berubah
+                if (oldProcessing !== this.metrics.processing || oldProcessing === 0) {
+                    this.renderProcessingCounter();
+                }
+            }
+        } catch (error) {
+            console.error('Gagal memuat statistik pengaduan:', error);
+            this.elements.counter.textContent = '0';
         }
     }
     
-    resumeSimulation() {
-        this.startSimulation();
+    async loadUmkmStats() {
+        try {
+            const response = await fetch('api/get_umkm_stats.php');
+            const data = await response.json();
+            if (data.success) {
+                const oldUmkm = this.metrics.totalUmkm;
+                this.metrics.totalUmkm = data.total_umkm;
+                
+                // Selalu render saat pertama kali load, atau ketika nilai berubah
+                this.renderUmkmCounter();
+            }
+        } catch (error) {
+            console.error('Gagal memuat statistik UMKM:', error);
+            this.elements.umkmCounter.textContent = '0';
+        }
     }
     
-    updateMetrics() {
-        // Realistic complaint processing simulation
-        // Simulates civic patterns: weekday peaks, weekend dips
-        const hour = new Date().getHours();
-        const isWorkingHours = hour >= 8 && hour <= 17;
+    startRealTimeUpdates() {
+        // Muat statistik segera
+        this.loadAllStats();
         
-        // Random walk with bounds
-        const delta = isWorkingHours 
-            ? Math.floor(Math.random() * 5) - 1  // -1 to 3 during work hours
-            : Math.floor(Math.random() * 3) - 2; // -2 to 0 outside work hours
-        
-        this.metrics.processing = Math.max(
-            this.config.minProcessing,
-            Math.min(this.config.maxProcessing, this.metrics.processing + delta)
-        );
-        
-        // Response time fluctuates (lower is better)
-        this.metrics.avgResponse = Number(
-            (this.config.minResponse + Math.random() * (this.config.maxResponse - this.config.minResponse))
-            .toFixed(1)
-        );
-        
-        this.metrics.lastUpdate = Date.now();
+        // Kemudian refresh setiap 5 detik
+        this.updateTimer = setInterval(() => {
+            this.loadAllStats();
+            this.metrics.lastUpdate = Date.now();
+        }, this.config.updateInterval);
     }
     
-    renderUI() {
-        this.updateCounter();
-        this.updateGauge();
+    pauseUpdates() {
+        if (this.updateTimer) {
+            clearInterval(this.updateTimer);
+        }
     }
     
-    updateCounter() {
+    resumeUpdates() {
+        this.startRealTimeUpdates();
+    }
+    
+    renderProcessingCounter() {
         const target = this.metrics.processing;
-        const current = parseInt(this.elements.counter.textContent);
+        const current = parseInt(this.elements.counter.textContent) || 0;
         
-        if (current === target) return;
+        // Lewati jika nilai sama dan bukan first load
+        if (current === target && current !== 0) return;
         
-        // Add pulse animation (respects reduced motion)
-        if (!this.prefersReducedMotion) {
+        // Tambah animasi pulse jika nilai berubah (menghormati reduced motion)
+        if (current !== target && !this.prefersReducedMotion) {
             this.elements.counter.classList.add('pulse-lampung');
             setTimeout(() => {
                 this.elements.counter.classList.remove('pulse-lampung');
             }, 600);
         }
         
-        // Animate counter with easing
+        // Animasi counter dengan easing
         this.animateCounter(this.elements.counter, current, target, 500);
+    }
+    
+    renderUmkmCounter() {
+        if (!this.elements.umkmCounter) return;
+        
+        const target = this.metrics.totalUmkm;
+        const current = parseInt(this.elements.umkmCounter.textContent) || 0;
+        
+        // Tambah animasi pulse jika nilai berubah (menghormati reduced motion)
+        if (current !== target && !this.prefersReducedMotion) {
+            this.elements.umkmCounter.classList.add('pulse-lampung');
+            setTimeout(() => {
+                this.elements.umkmCounter.classList.remove('pulse-lampung');
+            }, 600);
+        }
+        
+        // Selalu animasi ke nilai target
+        this.animateCounter(this.elements.umkmCounter, current, target, 1000);
     }
     
     animateCounter(element, start, end, duration) {
@@ -141,42 +167,12 @@ class LiveDashboard {
         requestAnimationFrame(step);
     }
     
-    updateGauge() {
-        const responseTime = this.metrics.avgResponse;
-        
-        // Calculate percentage (inverted: lower time = higher percentage)
-        // 1.8h = 100%, 3.8h = 0%
-        const percentage = ((this.config.maxResponse - responseTime) / 
-                          (this.config.maxResponse - this.config.minResponse)) * 100;
-        
-        // SVG circle circumference = 2πr = 2 * 3.14159 * 75 = 471
-        const circumference = 471;
-        const offset = circumference - (circumference * percentage / 100);
-        
-        // Update gauge with smooth transition
-        this.elements.gauge.style.strokeDashoffset = offset;
-        
-        // Update text display
-        this.elements.responseTime.textContent = responseTime;
-        
-        // Update color based on performance
-        let color = '#009639'; // Green (good)
-        if (responseTime > 3.0) {
-            color = '#D60000'; // Red (poor)
-        } else if (responseTime > 2.5) {
-            color = '#FFD700'; // Gold (fair)
-        }
-        
-        this.elements.gauge.style.stroke = color;
-        this.elements.responseTime.style.color = color;
-    }
-    
     destroy() {
-        this.pauseSimulation();
+        this.pauseUpdates();
     }
 }
 
-// Initialize on DOM ready
+// Inisialisasi saat DOM siap
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         window.liveDashboard = new LiveDashboard();
@@ -185,7 +181,7 @@ if (document.readyState === 'loading') {
     window.liveDashboard = new LiveDashboard();
 }
 
-// Cleanup on page unload
+// Bersihkan saat halaman ditutup
 window.addEventListener('beforeunload', () => {
     if (window.liveDashboard) {
         window.liveDashboard.destroy();

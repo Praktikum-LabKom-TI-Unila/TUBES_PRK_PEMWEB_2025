@@ -12,9 +12,10 @@ require "../config/config.php";
 require "../layouts/header.php";
 require "../layouts/sidebar.php";
 
-// Ambil SEMUA pengajuan UMKM user
-$sql = "SELECT * FROM umkm WHERE user_id = '$user_id' ORDER BY created_at DESC";
-$result = mysqli_query($conn, $sql);
+$stmt = mysqli_prepare($conn, "SELECT * FROM umkm WHERE user_id = ? ORDER BY created_at DESC");
+mysqli_stmt_bind_param($stmt, "i", $user_id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 ?>
 
 <div class="p-4">
@@ -57,15 +58,15 @@ $result = mysqli_query($conn, $sql);
                     
                     <tr>
                         <td><?= $no++; ?></td>
-                        <td><?= $row['nama_usaha']; ?></td>
-                        <td><?= $row['nama_pemilik']; ?></td>
-                        <td><?= $row['bidang_usaha']; ?></td>
+                        <td><?= htmlspecialchars($row['nama_usaha'], ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td><?= htmlspecialchars($row['nama_pemilik'], ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td><?= htmlspecialchars($row['bidang_usaha'], ENT_QUOTES, 'UTF-8'); ?></td>
 
                         <td>
-                            <span class="badge bg-<?= $badge; ?>"><?= ucfirst($status); ?></span>
+                            <span class="badge bg-<?= htmlspecialchars($badge, ENT_QUOTES, 'UTF-8'); ?>"><?= ucfirst(htmlspecialchars($status, ENT_QUOTES, 'UTF-8')); ?></span>
                         </td>
 
-                        <td><?= $row['created_at']; ?></td>
+                        <td><?= htmlspecialchars($row['created_at'], ENT_QUOTES, 'UTF-8'); ?></td>
 
                         <td>
                             <?php if ($status == "rejected"): ?>

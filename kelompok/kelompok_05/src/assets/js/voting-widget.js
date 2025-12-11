@@ -1,16 +1,8 @@
-/**
- * voting-widget.js
- * Priority voting system for LampungSmart public complaints
- * Zero-Auth | sessionStorage Persistence | Anti-Abuse Safeguards
- * 
- * WCAG 2.2 AA Compliant | Haptic Feedback | Keyboard Navigation
- */
-
 class VotingWidget {
     constructor() {
         this.config = {
             maxVotes: 3,
-            resetIntervalMs: 86400000, // 24 hours
+            resetIntervalMs: 86400000, // 24 jam
             storageKey: 'lampungsmart_votes',
             hapticDuration: 50
         };
@@ -27,16 +19,16 @@ class VotingWidget {
     }
     
     init() {
-        // Check for automatic reset
+        // Cek reset otomatis
         this.checkReset();
         
-        // Initialize vote buttons
+        // Inisialisasi tombol vote
         this.initButtons();
         
-        // Update UI based on stored votes
+        // Update UI berdasarkan vote yang tersimpan
         this.renderInitialState();
         
-        // Update rate limit counter
+        // Update counter rate limit
         this.updateRateLimitCounter();
     }
     
@@ -49,14 +41,14 @@ class VotingWidget {
             
             const data = JSON.parse(stored);
             
-            // Validate structure
+            // Validasi struktur
             if (!data.votes || typeof data.count !== 'number' || !data.timestamp) {
                 return this.createFreshVoteData();
             }
             
             return data;
         } catch (e) {
-            console.error('VotingWidget: Error loading votes', e);
+            console.error('VotingWidget: Error memuat votes', e);
             return this.createFreshVoteData();
         }
     }
@@ -73,7 +65,7 @@ class VotingWidget {
         try {
             sessionStorage.setItem(this.config.storageKey, JSON.stringify(this.votes));
         } catch (e) {
-            console.error('VotingWidget: Error saving votes', e);
+            console.error('VotingWidget: Error menyimpan votes', e);
         }
     }
     
@@ -94,14 +86,14 @@ class VotingWidget {
     
     initButtons() {
         this.elements.buttons.forEach(btn => {
-            // Click handler
+            // Handler klik
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 const complaintId = btn.dataset.complaintId;
                 this.handleVote(complaintId, btn);
             });
             
-            // Keyboard support (Enter/Space)
+            // Dukungan keyboard (Enter/Space)
             btn.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
@@ -113,7 +105,7 @@ class VotingWidget {
     }
     
     renderInitialState() {
-        // Disable buttons for already voted complaints
+        // Nonaktifkan tombol untuk pengaduan yang sudah divote
         this.elements.buttons.forEach(btn => {
             const complaintId = btn.dataset.complaintId;
             
@@ -124,26 +116,26 @@ class VotingWidget {
     }
     
     handleVote(complaintId, btn) {
-        // Check if already voted for this complaint
+        // Cek apakah sudah vote untuk pengaduan ini
         if (this.votes.votes[complaintId]) {
             this.showAlreadyVotedMessage(btn);
             return;
         }
         
-        // Check rate limit
+        // Cek batas rate limit
         if (this.votes.count >= this.config.maxVotes) {
             this.showRateLimitModal();
             return;
         }
         
-        // Haptic feedback (if supported)
+        // Haptic feedback (jika didukung)
         this.triggerHaptic();
         
-        // Record vote
+        // Catat vote
         this.votes.votes[complaintId] = true;
         this.votes.count++;
         
-        // Persist to storage
+        // Simpan ke storage
         this.saveVotes();
         
         // Update UI
@@ -151,7 +143,7 @@ class VotingWidget {
         this.markAsVoted(btn);
         this.updateRateLimitCounter();
         
-        // Announce to screen readers
+        // Umumkan ke screen readers
         this.announceVote(complaintId);
     }
     
@@ -170,18 +162,18 @@ class VotingWidget {
         const currentCount = parseInt(badge.textContent.match(/\d+/)[0]);
         const newCount = currentCount + 1;
         
-        // Check for reduced motion
+        // Cek reduced motion
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         
         if (!prefersReducedMotion) {
-            // Animate increment
+            // Animasi increment
             badge.classList.add('scale-up');
             setTimeout(() => {
                 badge.innerHTML = `<i class="bi bi-people-fill"></i> ${newCount}`;
                 badge.classList.remove('scale-up');
             }, 150);
         } else {
-            // Instant update
+            // Update langsung
             badge.innerHTML = `<i class="bi bi-people-fill"></i> ${newCount}`;
         }
     }
@@ -204,12 +196,12 @@ class VotingWidget {
     }
     
     triggerHaptic() {
-        // Vibration API support check
+        // Cek dukungan Vibration API
         if ('vibrate' in navigator) {
             try {
                 navigator.vibrate(this.config.hapticDuration);
             } catch (e) {
-                // Silent fail
+                // Abaikan jika gagal
             }
         }
     }
@@ -222,7 +214,7 @@ class VotingWidget {
         
         this.elements.announcer.textContent = message;
         
-        // Clear after 3 seconds
+        // Hapus setelah 3 detik
         setTimeout(() => {
             this.elements.announcer.textContent = '';
         }, 3000);
@@ -238,20 +230,20 @@ class VotingWidget {
     }
     
     showRateLimitModal() {
-        // Check if Bootstrap modal exists
+        // Cek apakah Bootstrap modal ada
         const modalEl = document.getElementById('rateLimitModal');
         
         if (modalEl && typeof bootstrap !== 'undefined') {
             const modal = new bootstrap.Modal(modalEl);
             modal.show();
         } else {
-            // Fallback: native alert
+            // Fallback: alert native
             alert('Batas voting tercapai! Anda telah menggunakan 3 vote. Data akan reset dalam 24 jam.');
         }
     }
 }
 
-// Initialize on DOM ready
+// Inisialisasi saat DOM siap
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         window.votingWidget = new VotingWidget();

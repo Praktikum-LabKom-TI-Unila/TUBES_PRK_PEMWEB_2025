@@ -4,13 +4,13 @@
    1. GLOBAL STYLES
    ========================================= */
 :root {
-    --brand-dark-blue: #0d1b3e; /* Warna Biru Gelap LampungSmart */
-    --brand-yellow: #ffc107;    /* Warna Kuning Aksen */
+    --brand-dark-blue: #0d1b3e;
+    --brand-yellow: #ffc107;
     --brand-yellow-hover: #e0a800;
 }
 
 body { 
-    font-family: 'Poppins', sans-serif; /* Menggunakan Font Poppins */
+    font-family: 'Poppins', sans-serif;
     background-color: #f8f9fa;
     min-height: 100vh;
     color: #333;
@@ -57,16 +57,16 @@ body.bg-auth {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px; /* Padding agar tidak mentok di layar HP */
+    padding: 20px;
 }
 
 /* Kartu Login/Register */
 .card-login {
     border: none;
-    border-radius: 20px; /* Sudut lebih membulat */
-    box-shadow: 0 15px 35px rgba(0,0,0,0.2); /* Bayangan lebih lembut */
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
     background-color: white;
-    overflow: hidden; /* Agar sudut tumpul bekerja sempurna */
+    overflow: hidden;
 }
 
 .form-label {
@@ -75,7 +75,7 @@ body.bg-auth {
 }
 
 .form-control {
-    padding: 12px; /* Input lebih tinggi agar lega */
+    padding: 12px;
     border-radius: 10px;
     border: 1px solid #dde2e5;
 }
@@ -93,7 +93,6 @@ body.bg-auth {
 .sidebar { 
     min-height: 100vh; 
     
-    /* GANTI BAGIAN INI */
     background-color: var(--brand-dark-blue); 
     
     color: white; 
@@ -102,7 +101,7 @@ body.bg-auth {
 
 /* Link Menu Sidebar */
 .sidebar a { 
-    color: rgba(255, 255, 255, 0.7); /* Putih agak transparan biar rapi */
+    color: rgba(255, 255, 255, 0.7);
     text-decoration: none; 
     display: block; 
     padding: 12px 20px; 
@@ -114,8 +113,8 @@ body.bg-auth {
 /* Efek Hover Menu */
 .sidebar a:hover, 
 .sidebar a.active { 
-    background-color: rgba(255, 255, 255, 0.1); /* Efek terang saat disorot */
-    color: var(--brand-yellow); /* Teks jadi kuning */
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--brand-yellow);
     border-left: 4px solid var(--brand-yellow); 
 }
 

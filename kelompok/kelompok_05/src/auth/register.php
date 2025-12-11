@@ -5,23 +5,33 @@ $success = "";
 $error = "";
 
 if (isset($_POST['register'])) {
-    $nama = mysqli_real_escape_string($conn, $_POST['nama']);
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $nama = trim($_POST['nama']);
+    $email = trim($_POST['email']);
     $password = $_POST['password'];
-    $role = 'admin'; 
-
-    $cek_email = mysqli_query($conn, "SELECT email FROM users WHERE email = '$email'");
+    $role = 'warga'; 
+    if (strlen($password) < 8) {
+        $error = "Password minimal 8 karakter!";
+    } else {
+    $stmt_cek = mysqli_prepare($conn, "SELECT email FROM users WHERE email = ?");
+    mysqli_stmt_bind_param($stmt_cek, "s", $email);
+    mysqli_stmt_execute($stmt_cek);
+    $cek_email = mysqli_stmt_get_result($stmt_cek);
+    
     if (mysqli_num_rows($cek_email) > 0) {
         $error = "Email sudah terdaftar!";
     } else {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        $query = "INSERT INTO users (nama, email, password, role) VALUES ('$nama', '$email', '$hashed_password', '$role')";
+        
 
-        if (mysqli_query($conn, $query)) {
+        $stmt_insert = mysqli_prepare($conn, "INSERT INTO users (nama, email, password, role) VALUES (?, ?, ?, ?)");
+        mysqli_stmt_bind_param($stmt_insert, "ssss", $nama, $email, $hashed_password, $role);
+
+        if (mysqli_stmt_execute($stmt_insert)) {
             $success = "Registrasi Berhasil! Silakan Login.";
         } else {
-            $error = "Gagal mendaftar: " . mysqli_error($conn);
+            $error = "Gagal mendaftar: " . mysqli_stmt_error($stmt_insert);
         }
+    }
     }
 }
 ?>
@@ -77,8 +87,8 @@ if (isset($_POST['register'])) {
                             
                             <div class="mb-4">
                                 <label class="form-label">Password</label>
-                                <input type="password" name="password" class="form-control fw-medium" placeholder="••••••" minlength="6" required>
-                                <div class="form-text text-muted">Minimal 6 karakter</div>
+                                <input type="password" name="password" class="form-control fw-medium" placeholder="••••••••" minlength="8" required>
+                                <div class="form-text text-muted">Minimal 8 karakter</div>
                             </div>
 
                             <div class="d-grid mb-4">

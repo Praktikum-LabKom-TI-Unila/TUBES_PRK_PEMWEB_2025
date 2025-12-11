@@ -1,10 +1,5 @@
 <?php
 session_start();
-
-if (isset($_SESSION['user_id'])) {
-    header("Location: profile.php");
-    exit();
-}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -647,9 +642,6 @@ if (isset($_SESSION['user_id'])) {
                 this.style.borderColor = 'var(--lampung-gray-200)';
             });
         });
-
-        console.log('%c🎉 Selamat Datang di LampungSmart! ', 'background: #00308F; color: #FFD700; font-size: 20px; padding: 10px;');
-        console.log('%cPlatform Good Governance Digital Provinsi Lampung', 'color: #009639; font-size: 14px;');
 
         document.querySelectorAll('form').forEach(form => {
             form.addEventListener('submit', function(e) {

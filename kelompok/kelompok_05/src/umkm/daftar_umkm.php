@@ -8,7 +8,16 @@ if (!isset($_SESSION['login'])) {
 
 require_once "../config/config.php";
 
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        header("Location: daftar_umkm.php?error=Token tidak valid, silakan coba lagi");
+        exit;
+    }
 
     $nama_usaha    = trim($_POST['nama_usaha']);
     $nama_pemilik  = trim($_POST['nama_pemilik']);
@@ -35,14 +44,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $user_id = $_SESSION['user_id'];
 
-    $query = "INSERT INTO umkm (user_id, nama_usaha, bidang_usaha, alamat_usaha, nama_pemilik, no_telepon)
-              VALUES ('$user_id', '$nama_usaha', '$bidang_usaha', '$alamat_usaha', '$nama_pemilik', '$no_telepon')";
+    $stmt = mysqli_prepare($conn, "INSERT INTO umkm (user_id, nama_usaha, bidang_usaha, alamat_usaha, nama_pemilik, no_telepon)
+              VALUES (?, ?, ?, ?, ?, ?)");
+    mysqli_stmt_bind_param($stmt, "isssss", $user_id, $nama_usaha, $bidang_usaha, $alamat_usaha, $nama_pemilik, $no_telepon);
 
-    if (mysqli_query($conn, $query)) {
+    if (mysqli_stmt_execute($stmt)) {
         header("Location: daftar_umkm.php?success=Pendaftaran UMKM berhasil!");
         exit;
     } else {
-        header("Location: daftar_umkm.php?error=Gagal menyimpan data: " . mysqli_error($conn));
+        header("Location: daftar_umkm.php?error=Gagal menyimpan data");
         exit;
     }
 }
@@ -57,14 +67,15 @@ require '../layouts/sidebar.php';
     <div class="container mb-5 pb-5">
 
         <?php if (isset($_GET['error'])) { ?>
-            <div class="alert alert-danger"><?= $_GET['error']; ?></div>
+            <div class="alert alert-danger"><?= htmlspecialchars($_GET['error'], ENT_QUOTES, 'UTF-8'); ?></div>
         <?php } ?>
 
         <?php if (isset($_GET['success'])) { ?>
-            <div class="alert alert-success"><?= $_GET['success']; ?></div>
+            <div class="alert alert-success"><?= htmlspecialchars($_GET['success'], ENT_QUOTES, 'UTF-8'); ?></div>
         <?php } ?>
 
         <form action="" method="POST" class="mt-4">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 
             <div class="row">
                 <div class="col-md-6">
