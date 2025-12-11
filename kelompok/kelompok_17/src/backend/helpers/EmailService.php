@@ -26,8 +26,8 @@ class EmailService
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
-            $mail->Username = 'dhinivadilas@gmail.com'; 
-            $mail->Password = 'tvxawquovhwhtaej'; // App Password tanpa spasi
+            $mail->Username = ''; 
+            $mail->Password = ''; 
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;
             $mail->CharSet = 'UTF-8';
