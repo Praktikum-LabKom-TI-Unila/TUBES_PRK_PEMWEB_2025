@@ -18,41 +18,43 @@ $page_title = "Mata Kuliah";
 include '../components/header.php';
 include '../components/navbar.php';
 
-// Koneksi database
-try {
-    $pdo = new PDO(
-        'mysql:host=localhost;dbname=eduportal;charset=utf8mb4',
-        'root',
-        '',
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-    );
-} catch (PDOException $e) {
+// Koneksi database menggunakan Database class
+require_once '../config/database.php';
+$database = new Database();
+$pdo = $database->getConnection();
+
+if (!$pdo) {
     die('Error: Koneksi database gagal');
 }
 
 // Ambil semua mata kuliah
 $all_mata_kuliah = [];
-$my_mata_kuliah = [];
+$enrolled_ids = [];
 
 try {
-    // Ambil semester mahasiswa dari session user
-    $stmt = $pdo->prepare("SELECT semester FROM users WHERE id = ?");
-    $stmt->execute([$_SESSION['user_id']]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-    $semester_mahasiswa = $user['semester'] ?? 1;
-    
-    // Ambil semua mata kuliah sesuai semester mahasiswa
-    $stmt = $pdo->prepare("SELECT id, kode, nama, sks, dosen_id, semester FROM mata_kuliah WHERE semester = ? ORDER BY kode");
-    $stmt->execute([$semester_mahasiswa]);
+    // Ambil semua mata kuliah dengan nama dosen
+    $stmt = $pdo->prepare("
+        SELECT mk.id, mk.kode, mk.nama, mk.sks, mk.dosen_id, u.nama as nama_dosen
+        FROM mata_kuliah mk
+        LEFT JOIN users u ON mk.dosen_id = u.id
+        ORDER BY mk.kode ASC
+    ");
+    $stmt->execute();
     $all_mata_kuliah = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Ambil mata kuliah yang sudah diambil mahasiswa
-    $stmt = $pdo->prepare("SELECT mata_kuliah_id FROM enrollment WHERE mahasiswa_id = ?");
-    $stmt->execute([$_SESSION['user_id']]);
-    $enrolled = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    $enrolled_ids = array_column($enrolled, 'mata_kuliah_id');
+    // Cek apakah tabel enrollment ada, jika ada ambil mata kuliah yang sudah diambil
+    try {
+        $stmt = $pdo->prepare("SELECT mata_kuliah_id FROM enrollment WHERE mahasiswa_id = ?");
+        $stmt->execute([$_SESSION['user_id']]);
+        $enrolled = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $enrolled_ids = array_column($enrolled, 'mata_kuliah_id');
+    } catch (PDOException $e) {
+        // Tabel enrollment tidak ada, semua mata kuliah dianggap tersedia
+        $enrolled_ids = [];
+    }
     
 } catch (PDOException $e) {
+    error_log("Error loading mata kuliah: " . $e->getMessage());
     $all_mata_kuliah = [];
 }
 ?>
@@ -65,7 +67,7 @@ try {
                 <h2 class="mb-1">
                     <i class="fas fa-book me-2"></i>Daftar Mata Kuliah
                 </h2>
-                <p class="mb-0 text-light">Semester <?php echo $semester_mahasiswa; ?> - Pilih dan bergabung dengan mata kuliah yang Anda inginkan</p>
+                <p class="mb-0 text-light">Pilih dan lihat semua mata kuliah yang tersedia</p>
             </div>
         </div>
     </div>
@@ -90,19 +92,19 @@ try {
                                     <th>Kode</th>
                                     <th>Nama Mata Kuliah</th>
                                     <th>SKS</th>
-                                    <th>Semester</th>
+                                    <th>Dosen</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php if (count($enrolled_ids) > 0): ?>
+                                <?php if (count($enrolled_ids) > 0 && count($all_mata_kuliah) > 0): ?>
                                     <?php foreach ($all_mata_kuliah as $mk): ?>
                                         <?php if (in_array($mk['id'], $enrolled_ids)): ?>
                                         <tr>
                                             <td><strong><?php echo htmlspecialchars($mk['kode']); ?></strong></td>
                                             <td><?php echo htmlspecialchars($mk['nama']); ?></td>
                                             <td><span class="badge bg-info"><?php echo $mk['sks']; ?> SKS</span></td>
-                                            <td><span class="badge bg-primary">Semester <?php echo $mk['semester']; ?></span></td>
+                                            <td><?php echo htmlspecialchars($mk['nama_dosen'] ?? 'Belum ditentukan'); ?></td>
                                             <td>
                                                 <a href="../mahasiswa/materi.php" class="btn btn-sm btn-primary">
                                                     <i class="fas fa-folder-open me-1"></i>Akses
@@ -113,7 +115,10 @@ try {
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="5" class="text-center text-muted">Anda belum mengambil mata kuliah apapun</td>
+                                        <td colspan="5" class="text-center text-muted py-4">
+                                            <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                                            Anda belum mengambil mata kuliah apapun
+                                        </td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
@@ -135,23 +140,32 @@ try {
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
-                        <?php foreach ($all_mata_kuliah as $mk): ?>
-                            <?php if (!in_array($mk['id'], $enrolled_ids)): ?>
-                            <div class="col-md-6 col-lg-4">
-                                <div class="card h-100 border-info">
-                                    <div class="card-body">
-                                        <h6 class="card-title"><?php echo htmlspecialchars($mk['kode']); ?></h6>
-                                        <p class="card-text small text-muted"><?php echo htmlspecialchars($mk['nama']); ?></p>
-                                        <p class="card-text small"><i class="fas fa-book me-1"></i><?php echo $mk['sks']; ?> SKS</p>
-                                        <p class="card-text small"><i class="fas fa-graduation-cap me-1"></i>Semester <?php echo $mk['semester']; ?></p>
-                                        <button class="btn btn-sm btn-success w-100" onclick="bergabungKelas(<?php echo $mk['id']; ?>, '<?php echo htmlspecialchars($mk['kode']); ?>')">
-                                            <i class="fas fa-plus me-1"></i>Bergabung
-                                        </button>
+                        <?php if (empty($all_mata_kuliah)): ?>
+                            <div class="col-12 text-center py-4">
+                                <i class="fas fa-book fa-2x text-muted mb-2 d-block"></i>
+                                <p class="text-muted mb-0">Tidak ada mata kuliah tersedia</p>
+                            </div>
+                        <?php else: ?>
+                            <?php foreach ($all_mata_kuliah as $mk): ?>
+                                <?php if (!in_array($mk['id'], $enrolled_ids)): ?>
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="card h-100 border-info">
+                                        <div class="card-body">
+                                            <h6 class="card-title"><?php echo htmlspecialchars($mk['kode']); ?></h6>
+                                            <p class="card-text small text-muted"><?php echo htmlspecialchars($mk['nama']); ?></p>
+                                            <p class="card-text small"><i class="fas fa-book me-1"></i><?php echo $mk['sks']; ?> SKS</p>
+                                            <?php if ($mk['nama_dosen']): ?>
+                                                <p class="card-text small"><i class="fas fa-user me-1"></i><?php echo htmlspecialchars($mk['nama_dosen']); ?></p>
+                                            <?php endif; ?>
+                                            <button class="btn btn-sm btn-success w-100" onclick="bergabungKelas(<?php echo $mk['id']; ?>, '<?php echo htmlspecialchars($mk['kode']); ?>')">
+                                                <i class="fas fa-plus me-1"></i>Bergabung
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <?php endif; ?>
-                        <?php endforeach; ?>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

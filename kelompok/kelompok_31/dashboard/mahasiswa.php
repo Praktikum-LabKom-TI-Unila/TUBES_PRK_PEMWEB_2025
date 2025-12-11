@@ -144,7 +144,7 @@ $last_updated = date('d M Y, H:i') . ' WIB';
             </div>
             <div class="col-md-4 text-end">
                 <p class="mb-1 small"><i class="fas fa-clock me-1"></i>Terakhir diperbarui: <?= $last_updated ?></p>
-                <button class="btn btn-light btn-sm"><i class="fas fa-sync-alt me-1"></i>Update Data</button>
+                <button class="btn btn-light btn-sm" onclick="location.reload()"><i class="fas fa-sync-alt me-1"></i>Update Data</button>
             </div>
         </div>
     </div>
@@ -209,10 +209,48 @@ $last_updated = date('d M Y, H:i') . ' WIB';
     <div class="row mb-4">
         <div class="col-12">
             <div class="card shadow-sm">
-                <div class="card-header bg-white"><h5><i class="fas fa-plus-circle me-2 text-success"></i>Bergabung ke Kelas Tersedia</h5></div>
+                <div class="card-header bg-white"><h5><i class="fas fa-book me-2 text-success"></i>Mata Kuliah Tersedia</h5></div>
                 <div class="card-body">
-                    <div id="availableClassesContainer" class="row g-3">
-                        <div class="col-12 text-center"><p class="text-muted">Loading...</p></div>
+                    <?php
+                    // Get mata kuliah tersedia dari database
+                    $mata_kuliah_tersedia = [];
+                    if ($pdo) {
+                        try {
+                            $stmt = $pdo->query("
+                                SELECT mk.*, u.nama as nama_dosen
+                                FROM mata_kuliah mk
+                                LEFT JOIN users u ON mk.dosen_id = u.id
+                                ORDER BY mk.created_at DESC
+                                LIMIT 6
+                            ");
+                            $mata_kuliah_tersedia = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                        } catch (PDOException $e) {
+                            error_log("Error loading mata kuliah: " . $e->getMessage());
+                        }
+                    }
+                    ?>
+                    <div class="row g-3">
+                        <?php if (empty($mata_kuliah_tersedia)): ?>
+                            <div class="col-12 text-center py-4">
+                                <i class="fas fa-book fa-2x text-muted mb-2 d-block"></i>
+                                <p class="text-muted mb-0">Tidak ada mata kuliah tersedia</p>
+                            </div>
+                        <?php else: ?>
+                            <?php foreach ($mata_kuliah_tersedia as $mk): ?>
+                                <div class="col-md-4">
+                                    <div class="card border-info h-100">
+                                        <div class="card-body">
+                                            <h6 class="mb-1"><?php echo htmlspecialchars($mk['kode']); ?></h6>
+                                            <p class="small text-muted mb-2"><?php echo htmlspecialchars($mk['nama']); ?></p>
+                                            <?php if ($mk['nama_dosen']): ?>
+                                                <p class="small mb-2"><i class="fas fa-user me-1"></i><?php echo htmlspecialchars($mk['nama_dosen']); ?></p>
+                                            <?php endif; ?>
+                                            <p class="small mb-0"><i class="fas fa-graduation-cap me-1"></i><?php echo $mk['sks']; ?> SKS</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </div>
                     <a href="../mahasiswa/matakuliah.php" class="btn btn-outline-primary btn-sm mt-3">
                         <i class="fas fa-eye me-1"></i> Lihat Semua Mata Kuliah
@@ -327,12 +365,38 @@ $last_updated = date('d M Y, H:i') . ' WIB';
     <div class="row g-4 mb-4">
         <div class="col-12">
             <div class="card shadow-sm">
-                <div class="card-header bg-white">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
                         <i class="fas fa-hourglass-end me-2 text-warning"></i>Tugas Mendatang
                     </h5>
+                    <a href="../mahasiswa/tugas.php" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-eye me-1"></i>Lihat Semua
+                    </a>
                 </div>
                 <div class="card-body">
+                    <?php
+                    // Get tugas mendatang dari database
+                    $tugas_mendatang = [];
+                    if ($pdo) {
+                        try {
+                            $stmt = $pdo->prepare("
+                                SELECT t.*, mk.nama as nama_mk, u.nama as nama_dosen,
+                                       CASE WHEN s.id IS NOT NULL THEN 'submitted' ELSE 'pending' END as status_kumpul
+                                FROM tugas t 
+                                JOIN mata_kuliah mk ON t.mata_kuliah_id = mk.id 
+                                JOIN users u ON t.created_by = u.id 
+                                LEFT JOIN submission s ON t.id = s.tugas_id AND s.mahasiswa_id = ?
+                                WHERE t.deadline >= NOW()
+                                ORDER BY t.deadline ASC
+                                LIMIT 5
+                            ");
+                            $stmt->execute([$_SESSION['user_id']]);
+                            $tugas_mendatang = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                        } catch (PDOException $e) {
+                            error_log("Error loading tugas mendatang: " . $e->getMessage());
+                        }
+                    }
+                    ?>
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead class="table-light">
@@ -346,42 +410,39 @@ $last_updated = date('d M Y, H:i') . ' WIB';
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td><strong>Pemrograman Web</strong></td>
-                                    <td>Project Akhir Semester</td>
-                                    <td>Dr. Budi Santoso, S.Kom</td>
-                                    <td>15 Jan 2025</td>
-                                    <td><span class="badge bg-warning">Belum Dikumpulkan</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-primary">
-                                            <i class="fas fa-upload me-1"></i>Submit
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Basis Data</strong></td>
-                                    <td>Desain Database UML</td>
-                                    <td>Hendra Wijaya, S.Kom, M.T.</td>
-                                    <td>18 Jan 2025</td>
-                                    <td><span class="badge bg-warning">Belum Dikumpulkan</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-primary">
-                                            <i class="fas fa-upload me-1"></i>Submit
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Algoritma</strong></td>
-                                    <td>Analisis Kompleksitas</td>
-                                    <td>Prof. Ir. Bambang Riyanto</td>
-                                    <td>10 Jan 2025</td>
-                                    <td><span class="badge bg-success">Sudah Dikumpulkan</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-secondary" disabled>
-                                            <i class="fas fa-check me-1"></i>Selesai
-                                        </button>
-                                    </td>
-                                </tr>
+                                <?php if (empty($tugas_mendatang)): ?>
+                                    <tr>
+                                        <td colspan="6" class="text-center py-4 text-muted">
+                                            <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                                            Tidak ada tugas mendatang
+                                        </td>
+                                    </tr>
+                                <?php else: ?>
+                                    <?php foreach ($tugas_mendatang as $tugas): 
+                                        $deadline = date('d M Y, H:i', strtotime($tugas['deadline']));
+                                        $status = $tugas['status_kumpul'] === 'submitted' ? 'Sudah Dikumpulkan' : 'Belum Dikumpulkan';
+                                        $badge_class = $tugas['status_kumpul'] === 'submitted' ? 'bg-success' : 'bg-warning';
+                                    ?>
+                                        <tr>
+                                            <td><strong><?php echo htmlspecialchars($tugas['nama_mk']); ?></strong></td>
+                                            <td><?php echo htmlspecialchars($tugas['judul']); ?></td>
+                                            <td><?php echo htmlspecialchars($tugas['nama_dosen']); ?></td>
+                                            <td><?php echo $deadline; ?></td>
+                                            <td><span class="badge <?php echo $badge_class; ?>"><?php echo $status; ?></span></td>
+                                            <td>
+                                                <?php if ($tugas['status_kumpul'] === 'submitted'): ?>
+                                                    <button class="btn btn-sm btn-secondary" disabled>
+                                                        <i class="fas fa-check me-1"></i>Selesai
+                                                    </button>
+                                                <?php else: ?>
+                                                    <a href="../mahasiswa/tugas.php" class="btn btn-sm btn-primary">
+                                                        <i class="fas fa-upload me-1"></i>Submit
+                                                    </a>
+                                                <?php endif; ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -436,26 +497,84 @@ $last_updated = date('d M Y, H:i') . ' WIB';
 </div>
 
 <script>
-// Kelas load
-function bergabungKelas(id, kode) {
-    alert("Dummy: Bergabung ke kelas " + kode);
-}
+// Chart initialization
+document.addEventListener('DOMContentLoaded', function() {
+    // Nilai Chart
+    const ctxNilai = document.getElementById('nilaiChart');
+    if (ctxNilai) {
+        new Chart(ctxNilai.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['A', 'B', 'C'],
+                datasets: [{
+                    data: [2, 1, 0],
+                    backgroundColor: ['#198754', '#0dcaf0', '#ffc107'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    }
 
-// Load kelas dummy
-$(document).ready(function() {
-    setTimeout(() => {
-        $("#availableClassesContainer").html(`
-            <div class="col-md-4">
-                <div class="card border-info h-100">
-                    <div class="card-body">
-                        <h6>KLS101</h6>
-                        <p class="small text-muted">Pemrograman Web</p>
-                        <button class="btn btn-sm btn-success w-100" onclick="bergabungKelas(1,'KLS101')">Bergabung</button>
-                    </div>
-                </div>
-            </div>
-        `);
-    }, 600);
+    // Kehadiran Chart
+    const ctxKehadiran = document.getElementById('kehadiranChart');
+    if (ctxKehadiran) {
+        new Chart(ctxKehadiran.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Hadir', 'Tidak Hadir'],
+                datasets: [{
+                    data: [<?php echo $kehadiran; ?>, <?php echo 100 - $kehadiran; ?>],
+                    backgroundColor: ['#198754', '#e9ecef'],
+                    borderWidth: 0,
+                    cutout: '75%'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    }
+
+    // Tugas Chart
+    const ctxTugas = document.getElementById('tugasChart');
+    if (ctxTugas) {
+        new Chart(ctxTugas.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Dikumpulkan', 'Belum'],
+                datasets: [{
+                    data: [<?php echo $progress_tugas; ?>, <?php echo 100 - $progress_tugas; ?>],
+                    backgroundColor: ['#0dcaf0', '#e9ecef'],
+                    borderWidth: 0,
+                    cutout: '75%'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    }
 });
 </script>
 

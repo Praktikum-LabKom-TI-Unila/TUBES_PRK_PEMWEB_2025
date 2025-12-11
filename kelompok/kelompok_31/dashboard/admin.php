@@ -70,7 +70,6 @@ if ($pdo) {
     }
 }
 $kehadiran_persen = 89;
-$pelaporan_persen = 88;
 $last_updated = date('d M Y, H:i') . ' WIB';
 ?>
 
@@ -86,7 +85,7 @@ $last_updated = date('d M Y, H:i') . ' WIB';
                 <p class="mb-1 small">
                     <i class="fas fa-clock me-1"></i>Terakhir diperbarui: <?php echo $last_updated; ?>
                 </p>
-                <button class="btn btn-light btn-sm">
+                <button class="btn btn-light btn-sm" onclick="location.reload()">
                     <i class="fas fa-sync-alt me-1"></i>Update Data
                 </button>
             </div>
@@ -139,9 +138,9 @@ $last_updated = date('d M Y, H:i') . ' WIB';
                         </div>
                     </div>
                     <div class="mt-3">
-                        <button class="btn btn-primary btn-sm w-100">
+                        <a href="../admin/users.php?role=mahasiswa" class="btn btn-primary btn-sm w-100">
                             <i class="fas fa-eye me-1"></i>Lihat Detail
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -179,9 +178,9 @@ $last_updated = date('d M Y, H:i') . ' WIB';
                     </div>
                     <h2 class="text-success mb-1"><?php echo $total_dosen; ?></h2>
                     <p class="text-muted mb-3">Dosen</p>
-                    <button class="btn btn-outline-success btn-sm">
+                    <a href="../admin/users.php?role=dosen" class="btn btn-outline-success btn-sm">
                         <i class="fas fa-users me-1"></i>Lihat Semua
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
@@ -190,7 +189,7 @@ $last_updated = date('d M Y, H:i') . ' WIB';
     <!-- Statistik Cards Row 2 -->
     <div class="row g-4 mb-4">
         <!-- Card Kehadiran Mahasiswa -->
-        <div class="col-lg-6">
+        <div class="col-lg-12">
             <div class="card shadow-sm h-100">
                 <div class="card-header bg-white">
                     <h5 class="mb-0">
@@ -219,7 +218,7 @@ $last_updated = date('d M Y, H:i') . ' WIB';
                         </div>
                     </div>
                     <div class="mt-3">
-                        <button class="btn btn-success btn-sm w-100">
+                        <button class="btn btn-success btn-sm w-100" onclick="alert('Fitur kehadiran akan dikembangkan lebih lanjut')">
                             <i class="fas fa-eye me-1"></i>Lihat Detail
                         </button>
                     </div>
@@ -227,32 +226,6 @@ $last_updated = date('d M Y, H:i') . ' WIB';
             </div>
         </div>
 
-        <!-- Card Pelaporan PDDikti -->
-        <div class="col-lg-6">
-            <div class="card shadow-sm h-100 border-warning">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-file-alt me-2 text-warning"></i>Pelaporan PDDikti
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="text-center mb-4">
-                        <canvas id="pelaporanChart" style="max-width: 200px; max-height: 200px; margin: 0 auto;"></canvas>
-                        <h3 class="mt-3 text-warning"><?php echo $pelaporan_persen; ?>%</h3>
-                        <p class="text-muted">Pelaporan</p>
-                    </div>
-                    <div class="alert alert-warning mb-3">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <strong>Penting:</strong> Segera selesaikan pelaporan sebelum 30 April 2025 agar Perguruan Tinggi Anda dapat terakreditasi.
-                    </div>
-                    <div class="mt-3">
-                        <button class="btn btn-warning btn-sm w-100">
-                            <i class="fas fa-eye me-1"></i>Lihat Detail
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Quick Actions -->
@@ -273,19 +246,29 @@ $last_updated = date('d M Y, H:i') . ' WIB';
 
                         </div>
                         <div class="col-md-3">
-                            <a href="admin/pengumuman.php" class="btn btn-outline-info w-100">
+                            <a href="../admin/pengumuman.php" class="btn btn-outline-info w-100">
                                 <i class="fas fa-bullhorn me-2"></i>Buat Pengumuman
                             </a>
                         </div>
                         <div class="col-md-3">
-                            <button class="btn btn-outline-success w-100">
-                                <i class="fas fa-file-export me-2"></i>Export Data
-                            </button>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-success w-100 dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-file-export me-2"></i>Export Data
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="../admin/export_data.php?type=all"><i class="fas fa-download me-2"></i>Export Semua Data</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="../admin/export_data.php?type=mata_kuliah"><i class="fas fa-book me-2"></i>Export Mata Kuliah</a></li>
+                                    <li><a class="dropdown-item" href="../admin/export_data.php?type=users"><i class="fas fa-users me-2"></i>Export Users</a></li>
+                                    <li><a class="dropdown-item" href="../admin/export_data.php?type=pengumuman"><i class="fas fa-bullhorn me-2"></i>Export Pengumuman</a></li>
+                                    <li><a class="dropdown-item" href="../admin/export_data.php?type=nilai"><i class="fas fa-chart-line me-2"></i>Export Nilai</a></li>
+                                </ul>
+                            </div>
                         </div>
                         <div class="col-md-3">
-                            <button class="btn btn-outline-secondary w-100">
+                            <a href="../admin/pengaturan.php" class="btn btn-outline-secondary w-100">
                                 <i class="fas fa-cog me-2"></i>Pengaturan
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -301,7 +284,7 @@ $last_updated = date('d M Y, H:i') . ' WIB';
                     <h5 class="mb-0">
                         <i class="fas fa-bullhorn me-2"></i>Pengumuman Terbaru
                     </h5>
-                    <a href="admin/pengumuman.php" class="btn btn-light btn-sm">
+                    <a href="../admin/pengumuman.php" class="btn btn-light btn-sm">
                         <i class="fas fa-eye me-1"></i>Lihat Semua
                     </a>
                 </div>
@@ -310,7 +293,7 @@ $last_updated = date('d M Y, H:i') . ' WIB';
                         <div class="text-center py-5">
                             <i class="fas fa-bullhorn fa-3x text-muted mb-3"></i>
                             <p class="text-muted mb-0">Belum ada pengumuman</p>
-                            <a href="admin/pengumuman.php" class="btn btn-info btn-sm mt-3">
+                            <a href="../admin/pengumuman.php" class="btn btn-info btn-sm mt-3">
                                 <i class="fas fa-plus me-1"></i>Buat Pengumuman Pertama
                             </a>
                         </div>
@@ -397,29 +380,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Progress Gauge - Pelaporan
-    const ctxPelaporan = document.getElementById('pelaporanChart').getContext('2d');
-    new Chart(ctxPelaporan, {
-        type: 'doughnut',
-        data: {
-            labels: ['Pelaporan', 'Belum'],
-            datasets: [{
-                data: [<?php echo $pelaporan_persen; ?>, <?php echo 100 - $pelaporan_persen; ?>],
-                backgroundColor: ['#ffc107', '#e9ecef'],
-                borderWidth: 0,
-                cutout: '75%'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            }
-        }
-    });
 });
 </script>
 

@@ -10,11 +10,29 @@ include '../components/navbar.php';
 require_once '../config/database.php';
 
 $dosen_id = $_SESSION['user_id'];
+$database = new Database();
+$pdo = $database->getConnection();
+
+if (!$pdo) {
+    die('Error: Koneksi database gagal');
+}
+
 try {
-    $stmt = $pdo->prepare("SELECT * FROM mata_kuliah WHERE dosen_id = ? ORDER BY nama ASC");
+    // Tampilkan hanya mata kuliah yang diampu oleh dosen ini
+    $stmt = $pdo->prepare("
+        SELECT mk.*, u.nama as dosen_name 
+        FROM mata_kuliah mk
+        LEFT JOIN users u ON mk.dosen_id = u.id
+        WHERE mk.dosen_id = ?
+        ORDER BY mk.kode ASC
+    ");
     $stmt->execute([$dosen_id]);
-    $mata_kuliah = $stmt->fetchAll();
+    $mata_kuliah = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Debug: Log untuk troubleshooting
+    error_log("Dosen ID: $dosen_id, Total mata kuliah ditemukan: " . count($mata_kuliah));
 } catch (PDOException $e) {
+    error_log("Error loading mata kuliah: " . $e->getMessage());
     $mata_kuliah = [];
 }
 ?>
@@ -48,7 +66,10 @@ try {
                             <option value="">-- Pilih Mata Kuliah --</option>
                             <?php foreach($mata_kuliah as $mk): ?>
                             <option value="<?= $mk['id'] ?>">
-                            <?= $mk['kode'] . ' - ' . $mk['nama'] ?>
+                            <?= htmlspecialchars($mk['kode'] . ' - ' . $mk['nama']) ?>
+                            <?php if ($mk['dosen_name']): ?>
+                                (<?= htmlspecialchars($mk['dosen_name']) ?>)
+                            <?php endif; ?>
                             </option>
                             <?php endforeach; ?>
                             </select>

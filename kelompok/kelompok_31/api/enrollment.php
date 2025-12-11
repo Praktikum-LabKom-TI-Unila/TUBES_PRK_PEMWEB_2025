@@ -17,15 +17,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'mahasiswa') {
     exit();
 }
 
-// Koneksi database
-try {
-    $pdo = new PDO(
-        'mysql:host=localhost;dbname=eduportal;charset=utf8mb4',
-        'root',
-        '',
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-    );
-} catch (PDOException $e) {
+// Koneksi database menggunakan Database class
+require_once '../config/database.php';
+$database = new Database();
+$pdo = $database->getConnection();
+
+if (!$pdo) {
     echo json_encode([
         'success' => false,
         'message' => 'Koneksi database gagal'
@@ -78,17 +75,22 @@ function joinKelas($pdo) {
             return;
         }
 
-        // Check if already enrolled
-        $stmt = $pdo->prepare("SELECT id FROM enrollment WHERE mata_kuliah_id = ? AND mahasiswa_id = ?");
-        $stmt->execute([$mata_kuliah_id, $mahasiswa_id]);
-        if ($stmt->rowCount() > 0) {
-            echo json_encode(['success' => false, 'message' => 'Anda sudah bergabung ke kelas ini']);
-            return;
-        }
+        // Check if tabel enrollment ada, jika tidak ada skip enrollment check
+        try {
+            $stmt = $pdo->prepare("SELECT id FROM enrollment WHERE mata_kuliah_id = ? AND mahasiswa_id = ?");
+            $stmt->execute([$mata_kuliah_id, $mahasiswa_id]);
+            if ($stmt->rowCount() > 0) {
+                echo json_encode(['success' => false, 'message' => 'Anda sudah bergabung ke kelas ini']);
+                return;
+            }
 
-        // Insert enrollment
-        $stmt = $pdo->prepare("INSERT INTO enrollment (mata_kuliah_id, mahasiswa_id, joined_at) VALUES (?, ?, NOW())");
-        $stmt->execute([$mata_kuliah_id, $mahasiswa_id]);
+            // Insert enrollment
+            $stmt = $pdo->prepare("INSERT INTO enrollment (mata_kuliah_id, mahasiswa_id, joined_at) VALUES (?, ?, NOW())");
+            $stmt->execute([$mata_kuliah_id, $mahasiswa_id]);
+        } catch (PDOException $e) {
+            // Tabel enrollment tidak ada, langsung return success (mahasiswa bisa akses semua mata kuliah)
+            error_log("Enrollment table not found: " . $e->getMessage());
+        }
 
         echo json_encode([
             'success' => true,

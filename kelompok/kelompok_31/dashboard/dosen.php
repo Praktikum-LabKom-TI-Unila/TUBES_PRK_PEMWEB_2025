@@ -54,56 +54,97 @@ $page_title = "Dashboard Dosen";
 include '../components/header.php';
 include '../components/navbar.php';
 
-// Koneksi database
-try {
-    $pdo = new PDO(
-        'mysql:host=localhost;dbname=eduportal;charset=utf8mb4',
-        'root',
-        '',
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-    );
-} catch (PDOException $e) {
-    die('Error: Koneksi database gagal');
-}
-
 // Query statistik dari database
 try {
+    $dosen_id = $_SESSION['user_id'];
+    
     // Total mata kuliah diampu oleh dosen ini
     $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM mata_kuliah WHERE dosen_id = ?");
-    $stmt->execute([$_SESSION['user_id']]);
+    $stmt->execute([$dosen_id]);
     $total_mata_kuliah = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
     
-    // Total mahasiswa (anggap semua mahasiswa di mata kuliah yang diampu)
-    // TODO: Buat tabel enrollment jika diperlukan untuk tracking lebih detail
+    // Total mahasiswa (semua mahasiswa di sistem)
     $stmt = $pdo->query("SELECT COUNT(*) as total FROM users WHERE role = 'mahasiswa'");
     $total_mahasiswa = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
     
     // Total materi yang diupload
     $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM materi WHERE uploaded_by = ?");
-    $stmt->execute([$_SESSION['user_id']]);
+    $stmt->execute([$dosen_id]);
     $total_materi_uploaded = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
     
     // Total tugas yang dibuat
     $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM tugas WHERE created_by = ?");
-    $stmt->execute([$_SESSION['user_id']]);
+    $stmt->execute([$dosen_id]);
     $total_tugas_dibuat = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
     
-    // Rata-rata nilai
-    $stmt = $pdo->query("SELECT AVG(nilai) as rata FROM submission WHERE nilai IS NOT NULL");
+    // Rata-rata nilai untuk tugas yang dibuat dosen ini
+    $stmt = $pdo->prepare("
+        SELECT AVG(s.nilai) as rata 
+        FROM submission s
+        JOIN tugas t ON s.tugas_id = t.id
+        WHERE t.created_by = ? AND s.nilai IS NOT NULL
+    ");
+    $stmt->execute([$dosen_id]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     $rata_nilai = $result['rata'] ? round($result['rata'], 2) : 0;
     
+    // Distribusi nilai (A, B, C)
+    $stmt = $pdo->prepare("
+        SELECT 
+            SUM(CASE WHEN s.nilai >= 80 THEN 1 ELSE 0 END) as nilai_a,
+            SUM(CASE WHEN s.nilai >= 70 AND s.nilai < 80 THEN 1 ELSE 0 END) as nilai_b,
+            SUM(CASE WHEN s.nilai >= 60 AND s.nilai < 70 THEN 1 ELSE 0 END) as nilai_c
+        FROM submission s
+        JOIN tugas t ON s.tugas_id = t.id
+        WHERE t.created_by = ? AND s.nilai IS NOT NULL
+    ");
+    $stmt->execute([$dosen_id]);
+    $distribusi = $stmt->fetch(PDO::FETCH_ASSOC);
+    $nilai_a = intval($distribusi['nilai_a'] ?? 0);
+    $nilai_b = intval($distribusi['nilai_b'] ?? 0);
+    $nilai_c = intval($distribusi['nilai_c'] ?? 0);
+    $total_nilai = $nilai_a + $nilai_b + $nilai_c;
+    
+    // Total submission yang belum dinilai
+    $stmt = $pdo->prepare("
+        SELECT COUNT(*) as total 
+        FROM submission s
+        JOIN tugas t ON s.tugas_id = t.id
+        WHERE t.created_by = ? AND s.nilai IS NULL
+    ");
+    $stmt->execute([$dosen_id]);
+    $submission_belum_dinilai = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+    
+    // Total submission yang sudah dinilai
+    $stmt = $pdo->prepare("
+        SELECT COUNT(*) as total 
+        FROM submission s
+        JOIN tugas t ON s.tugas_id = t.id
+        WHERE t.created_by = ? AND s.nilai IS NOT NULL
+    ");
+    $stmt->execute([$dosen_id]);
+    $submission_sudah_dinilai = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+    
+    // Hitung submission rate
+    $total_submission = $submission_belum_dinilai + $submission_sudah_dinilai;
+    $submission_rate = $total_submission > 0 ? round(($submission_sudah_dinilai / $total_submission) * 100) : 0;
+    
 } catch (PDOException $e) {
+    error_log("Error loading statistik dosen: " . $e->getMessage());
     $total_mata_kuliah = 0;
     $total_mahasiswa = 0;
     $total_materi_uploaded = 0;
     $total_tugas_dibuat = 0;
     $rata_nilai = 0;
+    $nilai_a = 0;
+    $nilai_b = 0;
+    $nilai_c = 0;
+    $total_nilai = 0;
+    $submission_rate = 0;
 }
 
 // Data untuk lainnya
-$kehadiran_rata = 85;
-$submission_rate = 92;
+$kehadiran_rata = 85; // Dummy data, bisa dikembangkan dengan tabel kehadiran
 $last_updated = date('d M Y, H:i') . ' WIB';
 ?>
 
@@ -119,7 +160,7 @@ $last_updated = date('d M Y, H:i') . ' WIB';
                 <p class="mb-1 small">
                     <i class="fas fa-clock me-1"></i>Terakhir diperbarui: <?php echo $last_updated; ?>
                 </p>
-                <button class="btn btn-light btn-sm">
+                <button class="btn btn-light btn-sm" onclick="location.reload()">
                     <i class="fas fa-sync-alt me-1"></i>Update Data
                 </button>
             </div>
@@ -140,9 +181,9 @@ $last_updated = date('d M Y, H:i') . ' WIB';
                     </div>
                     <h2 class="text-primary mb-1"><?php echo $total_mata_kuliah; ?></h2>
                     <p class="text-muted mb-3">Mata Kuliah Diampu</p>
-                    <button class="btn btn-outline-primary btn-sm w-100">
+                    <a href="../admin/mata_kuliah.php?dosen_id=<?php echo $_SESSION['user_id']; ?>" class="btn btn-outline-primary btn-sm w-100">
                         <i class="fas fa-list me-1"></i>Lihat Semua
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
@@ -156,9 +197,9 @@ $last_updated = date('d M Y, H:i') . ' WIB';
                     </div>
                     <h2 class="text-info mb-1"><?php echo $total_mahasiswa; ?></h2>
                     <p class="text-muted mb-3">Total Mahasiswa</p>
-                    <button class="btn btn-outline-info btn-sm w-100">
+                    <a href="../admin/users.php?role=mahasiswa" class="btn btn-outline-info btn-sm w-100">
                         <i class="fas fa-eye me-1"></i>Lihat Detail
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
@@ -223,28 +264,28 @@ $last_updated = date('d M Y, H:i') . ' WIB';
                                     <div class="mb-2">
                                         <div class="d-flex justify-content-between mb-1">
                                             <span><i class="fas fa-circle text-success me-2"></i>A (80-100)</span>
-                                            <span>32 siswa</span>
+                                            <span><?php echo $nilai_a; ?> siswa</span>
                                         </div>
                                         <div class="progress" style="height: 8px;">
-                                            <div class="progress-bar bg-success" role="progressbar" style="width: 38%;"></div>
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $total_nilai > 0 ? round(($nilai_a / $total_nilai) * 100) : 0; ?>%;"></div>
                                         </div>
                                     </div>
                                     <div class="mb-2">
                                         <div class="d-flex justify-content-between mb-1">
                                             <span><i class="fas fa-circle text-info me-2"></i>B (70-79)</span>
-                                            <span>45 siswa</span>
+                                            <span><?php echo $nilai_b; ?> siswa</span>
                                         </div>
                                         <div class="progress" style="height: 8px;">
-                                            <div class="progress-bar bg-info" role="progressbar" style="width: 54%;"></div>
+                                            <div class="progress-bar bg-info" role="progressbar" style="width: <?php echo $total_nilai > 0 ? round(($nilai_b / $total_nilai) * 100) : 0; ?>%;"></div>
                                         </div>
                                     </div>
                                     <div class="mb-2">
                                         <div class="d-flex justify-content-between mb-1">
                                             <span><i class="fas fa-circle text-warning me-2"></i>C (60-69)</span>
-                                            <span>8 siswa</span>
+                                            <span><?php echo $nilai_c; ?> siswa</span>
                                         </div>
                                         <div class="progress" style="height: 8px;">
-                                            <div class="progress-bar bg-warning" role="progressbar" style="width: 8%;"></div>
+                                            <div class="progress-bar bg-warning" role="progressbar" style="width: <?php echo $total_nilai > 0 ? round(($nilai_c / $total_nilai) * 100) : 0; ?>%;"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -305,59 +346,142 @@ $last_updated = date('d M Y, H:i') . ' WIB';
                     </h5>
                 </div>
                 <div class="card-body">
+                    <?php
+                    // Get aktivitas terbaru dari database
+                    $aktivitas_list = [];
+                    if ($pdo) {
+                        try {
+                            $dosen_id = $_SESSION['user_id'];
+                            
+                            // Get materi terbaru
+                            $stmt = $pdo->prepare("
+                                SELECT 'materi' as type, m.judul as title, m.created_at, mk.nama as mata_kuliah
+                                FROM materi m
+                                JOIN mata_kuliah mk ON m.mata_kuliah_id = mk.id
+                                WHERE m.uploaded_by = ?
+                                ORDER BY m.created_at DESC
+                                LIMIT 3
+                            ");
+                            $stmt->execute([$dosen_id]);
+                            $materi_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                            
+                            // Get tugas terbaru
+                            $stmt = $pdo->prepare("
+                                SELECT 'tugas' as type, t.judul as title, t.created_at, mk.nama as mata_kuliah
+                                FROM tugas t
+                                JOIN mata_kuliah mk ON t.mata_kuliah_id = mk.id
+                                WHERE t.created_by = ?
+                                ORDER BY t.created_at DESC
+                                LIMIT 3
+                            ");
+                            $stmt->execute([$dosen_id]);
+                            $tugas_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                            
+                            // Get submission terbaru yang belum dinilai
+                            $stmt = $pdo->prepare("
+                                SELECT 'submission' as type, 
+                                       CONCAT('Submission tugas: ', t.judul) as title,
+                                       s.submitted_at as created_at,
+                                       mk.nama as mata_kuliah,
+                                       COUNT(*) as count
+                                FROM submission s
+                                JOIN tugas t ON s.tugas_id = t.id
+                                JOIN mata_kuliah mk ON t.mata_kuliah_id = mk.id
+                                WHERE t.created_by = ? AND s.nilai IS NULL
+                                GROUP BY s.tugas_id, t.judul, mk.nama, s.submitted_at
+                                ORDER BY s.submitted_at DESC
+                                LIMIT 2
+                            ");
+                            $stmt->execute([$dosen_id]);
+                            $submission_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                            
+                            // Combine all activities
+                            foreach ($materi_list as $m) {
+                                $aktivitas_list[] = $m;
+                            }
+                            foreach ($tugas_list as $t) {
+                                $aktivitas_list[] = $t;
+                            }
+                            foreach ($submission_list as $s) {
+                                $aktivitas_list[] = $s;
+                            }
+                            
+                            // Sort by created_at descending
+                            usort($aktivitas_list, function($a, $b) {
+                                return strtotime($b['created_at']) - strtotime($a['created_at']);
+                            });
+                            
+                            // Limit to 5 most recent
+                            $aktivitas_list = array_slice($aktivitas_list, 0, 5);
+                            
+                        } catch (PDOException $e) {
+                            error_log("Error loading aktivitas: " . $e->getMessage());
+                        }
+                    }
+                    
+                    function timeAgo($datetime) {
+                        $time = time() - strtotime($datetime);
+                        if ($time < 60) return 'Baru saja';
+                        if ($time < 3600) return floor($time/60) . ' menit yang lalu';
+                        if ($time < 86400) return floor($time/3600) . ' jam yang lalu';
+                        if ($time < 2592000) return floor($time/86400) . ' hari yang lalu';
+                        return date('d M Y', strtotime($datetime));
+                    }
+                    ?>
                     <div class="timeline">
-                        <div class="timeline-item mb-4 pb-4 border-bottom">
-                            <div class="d-flex gap-3">
-                                <div>
-                                    <span class="badge bg-success rounded-pill">
-                                        <i class="fas fa-file-upload"></i>
-                                    </span>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">Materi "Bab 5 - Database" diupload</h6>
-                                    <small class="text-muted">2 jam yang lalu</small>
-                                </div>
+                        <?php if (empty($aktivitas_list)): ?>
+                            <div class="text-center py-4">
+                                <i class="fas fa-history fa-2x text-muted mb-2 d-block"></i>
+                                <p class="text-muted mb-0">Belum ada aktivitas</p>
                             </div>
-                        </div>
-                        <div class="timeline-item mb-4 pb-4 border-bottom">
-                            <div class="d-flex gap-3">
-                                <div>
-                                    <span class="badge bg-primary rounded-pill">
-                                        <i class="fas fa-tasks"></i>
-                                    </span>
+                        <?php else: ?>
+                            <?php foreach ($aktivitas_list as $index => $aktivitas): 
+                                $badge_class = '';
+                                $icon = '';
+                                if ($aktivitas['type'] === 'materi') {
+                                    $badge_class = 'bg-success';
+                                    $icon = 'fa-file-upload';
+                                } elseif ($aktivitas['type'] === 'tugas') {
+                                    $badge_class = 'bg-primary';
+                                    $icon = 'fa-tasks';
+                                } else {
+                                    $badge_class = 'bg-info';
+                                    $icon = 'fa-check';
+                                }
+                                $time_ago = timeAgo($aktivitas['created_at']);
+                                $is_last = ($index === count($aktivitas_list) - 1);
+                            ?>
+                                <div class="timeline-item mb-4 pb-4 <?php echo $is_last ? '' : 'border-bottom'; ?>">
+                                    <div class="d-flex gap-3">
+                                        <div>
+                                            <span class="badge <?php echo $badge_class; ?> rounded-pill">
+                                                <i class="fas <?php echo $icon; ?>"></i>
+                                            </span>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">
+                                                <?php 
+                                                if ($aktivitas['type'] === 'materi') {
+                                                    echo 'Materi "' . htmlspecialchars($aktivitas['title']) . '" diupload';
+                                                } elseif ($aktivitas['type'] === 'tugas') {
+                                                    echo 'Tugas "' . htmlspecialchars($aktivitas['title']) . '" dibuat';
+                                                } else {
+                                                    $count = isset($aktivitas['count']) ? $aktivitas['count'] : 0;
+                                                    echo $count . ' submission tugas menunggu penilaian';
+                                                }
+                                                ?>
+                                            </h6>
+                                            <?php if (isset($aktivitas['mata_kuliah'])): ?>
+                                                <small class="text-muted d-block mb-1">
+                                                    <i class="fas fa-book me-1"></i><?php echo htmlspecialchars($aktivitas['mata_kuliah']); ?>
+                                                </small>
+                                            <?php endif; ?>
+                                            <small class="text-muted"><?php echo $time_ago; ?></small>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">Tugas "Project Akhir Semester" dibuat</h6>
-                                    <small class="text-muted">1 hari yang lalu</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="timeline-item mb-4 pb-4 border-bottom">
-                            <div class="d-flex gap-3">
-                                <div>
-                                    <span class="badge bg-info rounded-pill">
-                                        <i class="fas fa-check"></i>
-                                    </span>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">Nilai untuk 45 mahasiswa sudah diinput</h6>
-                                    <small class="text-muted">3 hari yang lalu</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="timeline-item">
-                            <div class="d-flex gap-3">
-                                <div>
-                                    <span class="badge bg-warning rounded-pill">
-                                        <i class="fas fa-exclamation"></i>
-                                    </span>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">5 mahasiswa belum mengumpulkan tugas</h6>
-                                    <small class="text-muted">4 hari yang lalu</small>
-                                </div>
-                            </div>
-                        </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -456,7 +580,7 @@ document.addEventListener('DOMContentLoaded', function() {
             labels: ['A', 'B', 'C', 'D', 'E'],
             datasets: [{
                 label: 'Jumlah Mahasiswa',
-                data: [32, 45, 8, 2, 0],
+                data: [<?php echo $nilai_a; ?>, <?php echo $nilai_b; ?>, <?php echo $nilai_c; ?>, 0, 0],
                 backgroundColor: [
                     '#198754',
                     '#0dcaf0',
