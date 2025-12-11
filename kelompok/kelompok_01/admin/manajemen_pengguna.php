@@ -2,7 +2,6 @@
 session_start();
 include '../config.php';
 
-// Cek session dan role
 if (!isset($_SESSION['id_user'])) {
     header("Location: ../login.php");
     exit();
@@ -10,31 +9,25 @@ if (!isset($_SESSION['id_user'])) {
 
 $user_id = $_SESSION['id_user'];
 
-// Ambil data admin berdasarkan session
 $stmt = $conn->prepare("SELECT * FROM users WHERE id_user = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $admin = $stmt->get_result()->fetch_assoc();
 
-// Cek role, jika bukan admin redirect ke halaman yang sesuai
 if ($admin['role'] != 'admin') {
     header("Location: ../index.php");
     exit();
 }
 
-// Ambil data pengguna
 $users_result = $conn->query("SELECT * FROM users ORDER BY id_user");
 
-// Hitung statistik berdasarkan role
 $total_users = $users_result->num_rows;
 $owner_count = $conn->query("SELECT COUNT(*) as total FROM users WHERE role = 'owner'")->fetch_assoc()['total'];
 $admin_count = $conn->query("SELECT COUNT(*) as total FROM users WHERE role = 'admin'")->fetch_assoc()['total'];
 $kasir_count = $conn->query("SELECT COUNT(*) as total FROM users WHERE role = 'kasir'")->fetch_assoc()['total'];
 
-// Reset pointer untuk loop users
 $users_result->data_seek(0);
 
-// Tambah pengguna baru
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_user'])) {
     $username = $_POST['username'];
     $password = $_POST['password'];
@@ -56,7 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_user'])) {
     exit();
 }
 
-// Hapus pengguna
 if (isset($_GET['hapus'])) {
     $id_user = $_GET['hapus'];
     $check_user = $conn->query("SELECT role FROM users WHERE id_user = $id_user")->fetch_assoc();
@@ -67,7 +59,6 @@ if (isset($_GET['hapus'])) {
     exit();
 }
 
-// Foto display untuk header
 $foto_display = 'https://ui-avatars.com/api/?name=' . urlencode($admin['nama'] ?? 'Admin') . '&background=B7A087&color=fff';
 if (!empty($admin['profile_picture']) && file_exists($admin['profile_picture'])) {
     $foto_display = $admin['profile_picture'];
@@ -140,7 +131,6 @@ if (!empty($admin['profile_picture']) && file_exists($admin['profile_picture']))
 </head>
 <body class="bg-antique-white h-screen flex overflow-hidden">
 
-    <!-- Sidebar -->
     <div class="w-64 sidebar shadow-xl flex flex-col justify-between z-20 flex-shrink-0">
         <div>
             <div class="h-16 flex items-center justify-center bg-pale-taupe">
@@ -193,7 +183,6 @@ if (!empty($admin['profile_picture']) && file_exists($admin['profile_picture']))
     </div>
 
     <div class="flex-1 flex flex-col h-full overflow-hidden">
-        <!-- Header -->
         <header class="bg-white shadow-sm border-b border-[#E5D9C8] flex-shrink-0 px-8 py-4">
             <div class="flex items-center justify-between">
                 <div>
@@ -226,7 +215,6 @@ if (!empty($admin['profile_picture']) && file_exists($admin['profile_picture']))
                 </div>
             <?php endif; ?>
 
-            <!-- Stats -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 <div class="bg-gradient-to-r from-pale-taupe to-amber-800 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-transform">
                     <div class="flex items-center justify-between">
@@ -266,7 +254,6 @@ if (!empty($admin['profile_picture']) && file_exists($admin['profile_picture']))
                 </div>
             </div>
 
-            <!-- Users Table -->
             <div class="bg-white card p-6 mb-8">
                 <div class="flex items-center justify-between mb-6">
                     <div>
@@ -366,7 +353,6 @@ if (!empty($admin['profile_picture']) && file_exists($admin['profile_picture']))
         </main>
     </div>
 
-    <!-- Add User Modal -->
     <div id="addModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
         <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-xl bg-white">
             <div class="flex items-center justify-between mb-6">
