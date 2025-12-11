@@ -3,13 +3,11 @@ session_start();
 require '../config/config.php';
 
 if (isset($_SESSION['login'])) {
-    // Cek apakah ada redirect yang disimpan sebelumnya
     if (isset($_SESSION['redirect_after_login'])) {
         $redirect = $_SESSION['redirect_after_login'];
         unset($_SESSION['redirect_after_login']);
         header("Location: $redirect");
     } else {
-        // Redirect berdasarkan role jika tidak ada redirect tersimpan
         if ($_SESSION['role'] == 'admin') {
             header("Location: ../admin/index.php");
         } else {
@@ -22,28 +20,30 @@ if (isset($_SESSION['login'])) {
 $error = "";
 
 if (isset($_POST['login'])) {
-    $email = $_POST['email'];
+    $email = trim($_POST['email']);
     $password = $_POST['password'];
 
-    $query = "SELECT * FROM users WHERE email = '$email'";
-    $result = mysqli_query($conn, $query);
+    $stmt = mysqli_prepare($conn, "SELECT * FROM users WHERE email = ?");
+    mysqli_stmt_bind_param($stmt, "s", $email);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 
     if (mysqli_num_rows($result) === 1) {
         $row = mysqli_fetch_assoc($result);
         if (password_verify($password, $row['password'])) {
+            session_regenerate_id(true);
+            
             $_SESSION['login'] = true;
             $_SESSION['user_id'] = $row['id'];
             $_SESSION['nama'] = $row['nama'];
             $_SESSION['role'] = $row['role'];
             $_SESSION['profile_photo'] = $row['profile_photo'] ?? 'default.jpg'; 
 
-            // Cek apakah ada redirect yang disimpan sebelumnya
             if (isset($_SESSION['redirect_after_login'])) {
                 $redirect = $_SESSION['redirect_after_login'];
                 unset($_SESSION['redirect_after_login']);
                 header("Location: $redirect");
             } else {
-                // Redirect berdasarkan role jika tidak ada redirect tersimpan
                 if ($row['role'] == 'admin') {
                     header("Location: ../admin/index.php");
                 } else {
