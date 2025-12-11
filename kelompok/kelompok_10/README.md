@@ -52,7 +52,7 @@ Pastikan Anda sudah menginstal aplikasi web server lokal seperti **XAMPP** atau 
 ### 2. Clone Repository
 Buka terminal (Git Bash/CMD), arahkan ke folder `htdocs` (jika pakai XAMPP) atau `www` (jika pakai Laragon). Lalu clone repository ini:
 
-```bash
+bash
 cd C:\xampp\htdocs\
 git clone [Tulis URL Repository GitHub Anda Disini]
 
