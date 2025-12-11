@@ -29,9 +29,14 @@ class AdminController extends Controller {
         ");
         $stats = $stmt->fetch();
         
-        // Get complaints by unit
+        // Get complaints by unit with status breakdown
         $stmt = $this->db->query("
-            SELECT u.name as unit_name, COUNT(c.id) as total
+            SELECT 
+                u.name as unit_name, 
+                COUNT(c.id) as total,
+                SUM(CASE WHEN c.status = 'MENUNGGU' THEN 1 ELSE 0 END) as menunggu,
+                SUM(CASE WHEN c.status = 'DIPROSES' THEN 1 ELSE 0 END) as diproses,
+                SUM(CASE WHEN c.status = 'SELESAI' THEN 1 ELSE 0 END) as selesai
             FROM units u
             LEFT JOIN categories cat ON u.id = cat.unit_id
             LEFT JOIN complaints c ON cat.id = c.category_id

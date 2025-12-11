@@ -36,11 +36,11 @@ function handleLogin(event) {
         setTimeout(() => {
           // Redirect based on role
           if (data.data && data.data.role === "MAHASISWA") {
-            window.location.href = "Mahasiswa/dashboardMahasiswa.html";
+            window.location.href = "pages/Mahasiswa/dashboardMahasiswa.html";
           } else if (data.data && data.data.role === "PETUGAS") {
-            window.location.href = "Petugas/dashboardPetugas.html";
+            window.location.href = "pages/Petugas/dashboardPetugas.html";
           } else if (data.data && data.data.role === "ADMIN") {
-            window.location.href = "Admin/dashboardAdmin.html";
+            window.location.href = "pages/Admin/dashboardAdmin.html";
           } else {
             window.location.href = "index.html";
           }

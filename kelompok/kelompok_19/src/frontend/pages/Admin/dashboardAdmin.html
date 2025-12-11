@@ -152,7 +152,12 @@
               <span class="text-sm text-gray-500 font-medium"
                 >Total Pengaduan</span
               >
-              <div class="text-3xl font-extrabold text-text-dark">156</div>
+              <div
+                id="totalComplaints"
+                class="text-3xl font-extrabold text-text-dark"
+              >
+                -
+              </div>
               <div
                 class="card-icon-block bg-card-slate flex items-center justify-end"
               >
@@ -166,7 +171,12 @@
               <span class="text-sm text-gray-500 font-medium"
                 >Total Mahasiswa</span
               >
-              <div class="text-3xl font-extrabold text-text-dark">2340</div>
+              <div
+                id="totalMahasiswa"
+                class="text-3xl font-extrabold text-text-dark"
+              >
+                -
+              </div>
               <div
                 class="card-icon-block bg-card-yellow flex items-center justify-end"
               >
@@ -180,7 +190,12 @@
               <span class="text-sm text-gray-500 font-medium"
                 >Total Petugas</span
               >
-              <div class="text-3xl font-extrabold text-text-dark">18</div>
+              <div
+                id="totalPetugas"
+                class="text-3xl font-extrabold text-text-dark"
+              >
+                -
+              </div>
               <div
                 class="card-icon-block bg-card-green flex items-center justify-end"
               >
@@ -192,7 +207,12 @@
               class="bg-white p-5 rounded-lg shadow-md w-1/5 h-[100px] relative overflow-hidden flex flex-col justify-between border border-gray-100"
             >
               <span class="text-sm text-gray-500 font-medium">Total Unit</span>
-              <div class="text-3xl font-extrabold text-text-dark">6</div>
+              <div
+                id="totalUnits"
+                class="text-3xl font-extrabold text-text-dark"
+              >
+                -
+              </div>
               <div
                 class="card-icon-block bg-card-blue-dark flex items-center justify-end"
               >
@@ -206,7 +226,12 @@
               <span class="text-sm text-gray-500 font-medium"
                 >Total Kategori</span
               >
-              <div class="text-3xl font-extrabold text-text-dark">12</div>
+              <div
+                id="totalCategories"
+                class="text-3xl font-extrabold text-text-dark"
+              >
+                -
+              </div>
               <div
                 class="card-icon-block bg-card-orange flex items-center justify-end"
               >
@@ -273,36 +298,6 @@
     <script src="../../js/config.js"></script>
     <script src="../../js/utils/api.js"></script>
     <script src="../../js/utils/auth.js"></script>
-    <script>
-      // Placeholder functions - will be implemented during backend integration
-      function logout() {
-        if (confirm("Yakin ingin keluar?")) {
-          // Call logout API
-          console.log("Logout clicked");
-          window.location.href = "../../login.html";
-        }
-      }
-
-      // Load dashboard data
-      function loadDashboardData() {
-        // This will be implemented during backend integration
-        console.log("Loading dashboard data...");
-
-        // Temporary static data for UI testing
-        document.getElementById("totalComplaints").textContent = "0";
-        document.getElementById("totalMahasiswa").textContent = "0";
-        document.getElementById("totalPetugas").textContent = "0";
-        document.getElementById("totalUnits").textContent = "0";
-        document.getElementById("totalCategories").textContent = "0";
-
-        // Clear loading state
-        const tbody = document.querySelector("#unitsTable tbody");
-        tbody.innerHTML =
-          '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">Belum ada data</td></tr>';
-      }
-
-      // Initialize on page load
-      document.addEventListener("DOMContentLoaded", loadDashboardData);
-    </script>
+    <script src="../../js/pages/admin/dashboard.js"></script>
   </body>
 </html>
