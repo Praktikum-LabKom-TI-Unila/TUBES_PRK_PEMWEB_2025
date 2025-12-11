@@ -14,9 +14,10 @@ $data_user = $query_user->fetch_assoc();
 $foto_db = $data_user['profile_picture'];
 $nama_user = $data_user['nama'];
 
+// UPDATE: Warna background avatar disesuaikan (B7A087)
 $foto = !empty($foto_db) && file_exists('../' . $foto_db) 
     ? '../' . $foto_db 
-    : 'https://ui-avatars.com/api/?name=' . urlencode($nama_user);
+    : 'https://ui-avatars.com/api/?name=' . urlencode($nama_user) . '&background=B7A087&color=fff';
 
 if (isset($_GET['ajax_search'])) {
     $search = $conn->real_escape_string($_GET['ajax_search']);
