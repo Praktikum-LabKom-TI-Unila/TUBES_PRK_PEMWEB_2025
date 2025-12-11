@@ -174,7 +174,7 @@ Password: password123
 *Tampilan light mode dengan glassmorphism design*
 
 ### 📱 Mobile Responsive
-![Beranda Mobile](docs/Screenshots/beranda-mobile.png)
+![Beranda Mobile](docs/Screenshots/mobile.png)
 *Tampilan responsif untuk perangkat mobile*
 
 ### 📋 Halaman Barang Hilang & Temuan
