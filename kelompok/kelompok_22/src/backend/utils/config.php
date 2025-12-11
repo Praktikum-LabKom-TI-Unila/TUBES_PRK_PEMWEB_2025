@@ -128,8 +128,7 @@ function getAllReports($statusFilter = null) {
     
     $sql = "SELECT 
                 r.id, r.report_id, r.user_id, r.category, r.location, r.description,
-                r.status, r.priority, r.image_path, r.assigned_to, r.created_at,
-                r.completion_image, r.completion_notes, r.admin_notes, r.resolved_at,
+                r.status, r.priority, r.image_path, r.assigned_to, r.created_at, 
                 u.full_name as reported_by
             FROM reports r
             JOIN users u ON r.user_id = u.id";

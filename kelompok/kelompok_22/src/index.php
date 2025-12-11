@@ -42,16 +42,13 @@ if (empty($request_uri) || $request_uri === '/') {
 
 // Define routes mapping
 $routes = [
-    '/home.php' => '/frontend/pages/home.php',
     '/login.php' => '/frontend/pages/login.php',
     '/registrasi.php' => '/frontend/pages/registrasi.php',
-    '/lupa_password.php' => '/frontend/pages/lupa_password.php',
     '/pelapor.php' => '/frontend/pages/pelapor.php',
     '/riwayat.php' => '/frontend/pages/riwayat.php',
     '/profile.php' => '/frontend/pages/profile.php',
     '/admin.php' => '/backend/controllers/admin.php',
     '/petugas.php' => '/backend/controllers/petugas.php',
-    '/detail_tugas.php' => '/backend/controllers/detail_tugas.php',
     '/super_admin.php' => '/backend/controllers/super_admin.php',
     '/logout.php' => '/backend/controllers/logout.php',
     '/api.php' => '/backend/controllers/api.php',
@@ -68,15 +65,10 @@ if (isset($routes[$request_uri])) {
     }
 }
 
-// Serve static files from /frontend/assets or /src/frontend/assets
-if (strpos($request_uri, '/frontend/assets/') === 0 || strpos($request_uri, '/src/frontend/assets/') === 0) {
-    // Handle both /frontend/assets and /src/frontend/assets
-    if (strpos($request_uri, '/src/frontend/assets/') === 0) {
-        $relative_path = substr($request_uri, 4); // Remove '/src'
-    } else {
-        $relative_path = $request_uri;
-    }
-    
+// Serve static files from /src/frontend/assets
+if (strpos($request_uri, '/src/frontend/assets/') === 0) {
+    // Remove /src prefix since we're already in src/
+    $relative_path = substr($request_uri, 4); // Remove '/src'
     $file = __DIR__ . $relative_path;
     if (file_exists($file)) {
         $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
