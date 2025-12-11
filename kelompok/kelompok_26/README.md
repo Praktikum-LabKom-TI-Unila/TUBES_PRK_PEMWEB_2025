@@ -1,10 +1,13 @@
 # Daftar anggota
-- Rayhan Danar Abiyyuendra
-- Tri Septiani
-- Raed Al Basheer
-- Aqsaa\
+1. Rayhan Danar Abiyyuendra	(2315061098)
+2. Tri Septiani	(2315061036)
+3. Muhammad Aqsha Fadilah Jailani	(2315061127)
+4. Raed Basheer Abbas Hasan Al-Zuraiqi (2315061133)
   
 # Judul & summary project
+## Astral Psychologist - Website Konsultasi Mental Health dengan Fitur Chat Real-Time Konselor
+
+
 
 # Cara menjalankan aplikasi
 
