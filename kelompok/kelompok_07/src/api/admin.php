@@ -385,7 +385,47 @@ elseif ($action === 'add_update') {
     $campaign_id = $_POST['campaign_id'] ?? 0;
     $title = $_POST['title'] ?? '';
     $content = $_POST['content'] ?? '';
-    $image_url = $_POST['image_url'] ?? '';
+    
+    // Handle file upload
+    $image_url = '';
+    if (isset($_FILES['update_image']) && $_FILES['update_image']['error'] === 0) {
+        $uploadDir = '../uploads/updates/';
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+        
+        // Validasi file type
+        $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        $fileType = $_FILES['update_image']['type'];
+        
+        if (!in_array($fileType, $allowedTypes)) {
+            echo json_encode(['success' => false, 'message' => 'Format file tidak didukung. Gunakan JPG, PNG, GIF, atau WEBP']);
+            $conn->close();
+            exit;
+        }
+        
+        // Validasi file size (max 5MB)
+        $maxSize = 5 * 1024 * 1024; // 5MB
+        if ($_FILES['update_image']['size'] > $maxSize) {
+            echo json_encode(['success' => false, 'message' => 'Ukuran file terlalu besar. Maksimal 5MB']);
+            $conn->close();
+            exit;
+        }
+        
+        // Generate unique filename
+        $fileExtension = pathinfo($_FILES['update_image']['name'], PATHINFO_EXTENSION);
+        $fileName = 'update_' . time() . '_' . uniqid() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '', basename($_FILES['update_image']['name'], '.' . $fileExtension)) . '.' . $fileExtension;
+        $targetPath = $uploadDir . $fileName;
+        
+        if (move_uploaded_file($_FILES['update_image']['tmp_name'], $targetPath)) {
+            // Simpan path relatif dari root (tanpa ../)
+            $image_url = 'uploads/updates/' . $fileName;
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Gagal mengupload gambar. Pastikan folder uploads/updates/ memiliki permission write']);
+            $conn->close();
+            exit;
+        }
+    }
     
     $stmt = $conn->prepare("INSERT INTO campaign_updates (campaign_id, title, content, image_url) VALUES (?, ?, ?, ?)");
     $stmt->bind_param("isss", $campaign_id, $title, $content, $image_url);
@@ -403,8 +443,86 @@ elseif ($action === 'add_report') {
     $title = $_POST['title'] ?? '';
     $description = $_POST['description'] ?? '';
     $expense_amount = $_POST['expense_amount'] ?? 0;
-    $receipt_image = $_POST['receipt_image'] ?? '';
-    $distribution_image = $_POST['distribution_image'] ?? '';
+    
+    // Handle receipt image upload
+    $receipt_image = '';
+    if (isset($_FILES['receipt_image']) && $_FILES['receipt_image']['error'] === 0) {
+        $uploadDir = '../uploads/reports/';
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+        
+        // Validasi file type
+        $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        $fileType = $_FILES['receipt_image']['type'];
+        
+        if (!in_array($fileType, $allowedTypes)) {
+            echo json_encode(['success' => false, 'message' => 'Format file nota tidak didukung. Gunakan JPG, PNG, GIF, atau WEBP']);
+            $conn->close();
+            exit;
+        }
+        
+        // Validasi file size (max 5MB)
+        $maxSize = 5 * 1024 * 1024; // 5MB
+        if ($_FILES['receipt_image']['size'] > $maxSize) {
+            echo json_encode(['success' => false, 'message' => 'Ukuran file nota terlalu besar. Maksimal 5MB']);
+            $conn->close();
+            exit;
+        }
+        
+        // Generate unique filename
+        $fileExtension = pathinfo($_FILES['receipt_image']['name'], PATHINFO_EXTENSION);
+        $fileName = 'receipt_' . time() . '_' . uniqid() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '', basename($_FILES['receipt_image']['name'], '.' . $fileExtension)) . '.' . $fileExtension;
+        $targetPath = $uploadDir . $fileName;
+        
+        if (move_uploaded_file($_FILES['receipt_image']['tmp_name'], $targetPath)) {
+            $receipt_image = 'uploads/reports/' . $fileName;
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Gagal mengupload nota. Pastikan folder uploads/reports/ memiliki permission write']);
+            $conn->close();
+            exit;
+        }
+    }
+    
+    // Handle distribution image upload
+    $distribution_image = '';
+    if (isset($_FILES['distribution_image']) && $_FILES['distribution_image']['error'] === 0) {
+        $uploadDir = '../uploads/reports/';
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+        
+        // Validasi file type
+        $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        $fileType = $_FILES['distribution_image']['type'];
+        
+        if (!in_array($fileType, $allowedTypes)) {
+            echo json_encode(['success' => false, 'message' => 'Format file foto penyaluran tidak didukung. Gunakan JPG, PNG, GIF, atau WEBP']);
+            $conn->close();
+            exit;
+        }
+        
+        // Validasi file size (max 5MB)
+        $maxSize = 5 * 1024 * 1024; // 5MB
+        if ($_FILES['distribution_image']['size'] > $maxSize) {
+            echo json_encode(['success' => false, 'message' => 'Ukuran file foto penyaluran terlalu besar. Maksimal 5MB']);
+            $conn->close();
+            exit;
+        }
+        
+        // Generate unique filename
+        $fileExtension = pathinfo($_FILES['distribution_image']['name'], PATHINFO_EXTENSION);
+        $fileName = 'distribution_' . time() . '_' . uniqid() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '', basename($_FILES['distribution_image']['name'], '.' . $fileExtension)) . '.' . $fileExtension;
+        $targetPath = $uploadDir . $fileName;
+        
+        if (move_uploaded_file($_FILES['distribution_image']['tmp_name'], $targetPath)) {
+            $distribution_image = 'uploads/reports/' . $fileName;
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Gagal mengupload foto penyaluran. Pastikan folder uploads/reports/ memiliki permission write']);
+            $conn->close();
+            exit;
+        }
+    }
     
     $stmt = $conn->prepare("INSERT INTO fund_reports (campaign_id, title, description, expense_amount, receipt_image, distribution_image) 
                            VALUES (?, ?, ?, ?, ?, ?)");

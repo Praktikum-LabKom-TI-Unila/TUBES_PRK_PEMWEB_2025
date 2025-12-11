@@ -212,6 +212,95 @@ requireAdmin();
         </div>
     </div>
 
+    <!-- Update Campaign Modal -->
+    <div id="updateModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto py-8">
+        <div class="bg-white rounded-lg p-8 max-w-2xl w-full mx-4 my-auto max-h-[90vh] overflow-y-auto">
+            <h2 class="text-2xl font-bold mb-4">Tambah Update Campaign</h2>
+            <form id="updateForm" class="space-y-4">
+                <input type="hidden" id="updateCampaignId" name="campaign_id">
+                
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Judul Update</label>
+                    <input type="text" name="title" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Isi Update</label>
+                    <textarea name="content" rows="5" required
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Gambar Update (opsional)</label>
+                    <input type="file" name="update_image" id="updateImageFile" accept="image/*"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    <p class="text-xs text-gray-500 mt-1">Format: JPG, PNG, GIF, WEBP (Maksimal 5MB)</p>
+                </div>
+                
+                <div class="flex space-x-4">
+                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700">
+                        Simpan
+                    </button>
+                    <button type="button" onclick="closeUpdateModal()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400">
+                        Batal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div id="reportModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto py-8">
+        <div class="bg-white rounded-lg p-8 max-w-2xl w-full mx-4 my-auto max-h-[90vh] overflow-y-auto">
+            <h2 class="text-2xl font-bold mb-4">Tambah Laporan Penggunaan Dana</h2>
+            <form id="reportForm" class="space-y-4">
+                <input type="hidden" id="reportCampaignId" name="campaign_id">
+                
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Judul Laporan</label>
+                    <input type="text" name="title" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Deskripsi</label>
+                    <textarea name="description" rows="3"
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Jumlah Pengeluaran (Rp)</label>
+                    <input type="number" name="expense_amount" min="0" step="1000" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Foto Nota/Struk (opsional)</label>
+                    <input type="file" name="receipt_image" id="receiptImageFile" accept="image/*"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    <p class="text-xs text-gray-500 mt-1">Format: JPG, PNG, GIF, WEBP (Maksimal 5MB)</p>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Foto Penyaluran Bantuan (opsional)</label>
+                    <input type="file" name="distribution_image" id="distributionImageFile" accept="image/*"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    <p class="text-xs text-gray-500 mt-1">Format: JPG, PNG, GIF, WEBP (Maksimal 5MB)</p>
+                </div>
+                
+                <div class="flex space-x-4">
+                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700">
+                        Simpan
+                    </button>
+                    <button type="button" onclick="closeReportModal()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400">
+                        Batal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="../js/admin.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
