@@ -61,3 +61,12 @@ CREATE TABLE detail_transaksi (
 INSERT INTO users (username, password, role) VALUES 
 ('admin', '$2y$10$Xw..ContohHash..', 'admin'),
 ('kasir', '$2y$10$Xw..ContohHash..', 'staff');
+
+--update kolom transaski dan detail transaksi
+-- 1. Menambahkan kolom 'qty'
+ALTER TABLE detail_transaksi 
+ADD COLUMN qty INT NOT NULL AFTER harga_saat_transaksi;
+
+-- 2. Menambahkan kolom 'id_staff'
+ALTER TABLE transaksi 
+ADD COLUMN id_staff INT DEFAULT NULL AFTER id_user;
