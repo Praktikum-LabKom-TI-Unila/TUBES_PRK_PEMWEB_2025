@@ -96,7 +96,7 @@ $avg_transaction = $summary['total_transaksi'] > 0 ? $summary['total_final'] / $
             <div class="h-16 flex items-center justify-center bg-pale-taupe">
                 <div class="text-white text-center">
                     <h1 class="text-xl font-bold">EasyResto</h1>
-                    <p class="text-xs text-white opacity-90">Role Kasir</p>
+                    <p class="text-xs text-white opacity-90">Kasir Panel</p>
                 </div>
             </div>
             
