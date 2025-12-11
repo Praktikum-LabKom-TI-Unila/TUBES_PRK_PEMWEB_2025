@@ -1,100 +1,77 @@
-# Sistem Manajemen Kasir Restoran Digital (EasyResto)
+# EasyResto - Sistem Manajemen Kasir Restoran
+**EasyResto** adalah aplikasi kasir digital berbasis web yang dirancang untuk modernisasi operasional restoran. Aplikasi ini menggantikan sistem pencatatan manual dengan sistem terintegrasi yang menghubungkan kasir, admin, dan pemilik usaha (owner) dalam satu platform. Aplikasi ini diharapkan dapat meningkatkan efisiensi operasional restoran, mengurangi kesalahan manusia dalam transaksi, serta memberikan kemudahan bagi pengelola restoran dalam menganalisis data penjualan.
 
-## Daftar Anggota
-1. Alya Nayra Syafiqa
-2. Saskiya Dwi Septiani   
-3. Dewi Resmiyanti
-4. Yosi Arjunita Putri
+Proyek ini dikembangkan sebagai **Tugas Besar Pemrograman Web** untuk menciptakan efisiensi manajemen pesanan, dan transparansi laporan keuangan
 
-## Judul Proyek
-**Sistem Manajemen Kasir Restoran Digital (EasyResto)**
+-----
 
-## Summary Proyek
-EasyResto adalah sebuah aplikasi kasir digital yang dirancang untuk memudahkan pengelolaan transaksi di restoran. Aplikasi ini bertujuan untuk menggantikan sistem kasir tradisional yang menggunakan mesin kasir fisik dengan sistem digital berbasis web. Fitur-fitur utama dari EasyResto termasuk manajemen menu, manajemen pesanan pelanggan, dan laporan transaksi yang dapat diakses secara real-time. 
-Aplikasi ini diharapkan dapat meningkatkan efisiensi operasional restoran, mengurangi kesalahan manusia dalam transaksi, serta memberikan kemudahan bagi pengelola restoran dalam menganalisis data penjualan.
+## Anggota Kelompok 01
 
-## Cara Instalasi Proyek EasyResto
+| NIM | Nama Anggota | Role & Tanggung Jawab |
+| :--- | :--- | :--- |
+| **2315061001** | **Alya Nayra Syafiqa** | **Project Manager, Database & *Semua halaman role Kasir dan Fixing Admin (Manajemen Menu, Dashboard dan Laporan)*** |
+| **2315061033** | **Saskiya Dwi Septiani** | **ERD dan Semua Halaman role Owner, Serta Fixing Admin (Manajemen User, Manajemen Transaksi dan Profile)**  |
+| **2315061045** | **Dewi Resmiyanti** | **Halaman Role Admin** |
+| **2215061095** | **Yosi Arjunita Putri** | - |
 
-### 1️⃣ Clone Repository
-Buka terminal dan jalankan:
 
-```bash
-cd C:\laragon\www
-git clone https://github.com/AlyaNayraSyafiqa/TUBES_PRK_PEMWEB_2025.git
-cd EasyResto
+-----
 
----
-## Setup Database
-### 2️⃣ Konfigurasi Database (config/database.php)
+## Cara Penggunaan / Installasi
 
-Sesuaikan pengaturan database pada file berikut:
+Aplikasi memiliki 3 role yang berbeda. Berikut adalah kredensial untuk pengujian fitur di `localhost`:
 
-```
-config/database.php
-```
+### Akun Testing (Dummy)
 
-## Workflow Pengembangan (Setup Ngoding)
+Silakan gunakan kredensial berikut untuk mencoba berbagai *role*:
 
-### 1. Pindah ke Master & Tarik Data Terbaru
-```bash
-git checkout master
-git pull origin master
-```
+| Role | Username | Password | Deskripsi Akses |
+| :--- | :--- | :--- | :--- |
+| **Admin** | `admin` | `admin123` | Dashboard, Kelola menu, Kelola User, Laporan, Transaksi, Profil. |
+| **Kasir** | `kasir` | `alya123` | Dashboard, Transaksi, Laporan, Riwayat, Profil |
+| **Owner** | `owner` | `owner123` | Dashboard, Laporan, Manjemen Menu, Manajemen Pengguna, Profil |
 
-### 2. Buat Branch Baru
-```bash
-git checkout -b nama-branch
-```
+> **Catatan:** Setiap transaksi yang dilakukan oleh Kasir akan langsung masuk ke rekap laporan di dashboard Admin dan Owner.
 
-### 3. Mulai Mengerjakan Fitur
-```bash
-git add .
-git commit -m "Menambahkan fitur X atau memperbaiki bug Y"
-git push origin nama-branch
-```
+-----
 
-### 4. Syncing Branch Supaya Tetap Update
+## Teknologi yang Digunakan
 
-**A. Simpan pekerjaan sementara**
-```bash
-git add .
-git commit -m "Save progress"
-```
+Dibangun menggunakan teknologi web standar untuk memastikan performa yang ringan:
 
-**B. Pindah ke master & update**
-```bash
-git checkout master
-git pull origin master
-```
+* **Bahasa:** Native PHP 8.3 (Backend Logic)
+* **Database:** MySQL (HeidiSQL) 
+* **Frontend:** HTML, CSS (Tailwind), JavaScript, AJAX (tanpa reload) dan pakai https://ui-avatars.com/api/?name= (agar kalo belum masukin foto, muncul inisial nama)
+* **ERD:** draw.io 
+-----
 
-**C. Kembali ke branch**
-```bash
-git checkout nama-branch
-```
+## Alur Sistem (Workflow)
 
-**D. Merge master ke branch**
-```bash
-git merge master
-```
+1.  **Setup (Admin):** Admin login dan menginput daftar Menu Makanan/Minuman beserta fotonya.
+2.  **Transaksi (Kasir):**
+    * Kasir login saat shift dimulai.
+    * Memilih menu yang dipesan pelanggan lalu otomatis Masuk Keranjang.
+    * Klik Bayar Sekarang
+    * Sistem mencetak struk dan menyimpan data penjualan.
+3.  **Monitoring (Owner):** Pemilik restoran login dari mana saja untuk melihat total pendapatan hari ini dan menu apa yang paling laku dan bisa melakukan manajemen .
 
----
+-----
 
-## 🔀 Pull Request (Untuk Merge ke Master)
+## Instalasi Lokal
 
-Jika fitur sudah selesai:
+Jika ingin menjalankan di `localhost` (XAMPP/Laragon):
 
-1. Push branch  
-   ```bash
-   git push origin nama-branch
-   ```
-2. Buka GitHub repository  
-3. Klik **Compare & Pull Request**  
-4. Isi deskripsi perubahan  
-5. Submit PR untuk direview oleh tim  
-
----
-
-## 📌 Catatan Tambahan
-- Lakukan **pull master** sebelum mulai coding.   
-
----
+1.  Clone repository ini:
+    ```bash
+    git clone https://github.com/AlyaNayraSyafiqa/TUBES_PRK_PEMWEB_2025.git
+    ```
+2.  Import file database (`easyresto.sql`) ke phpMyAdmin ataupun HeidiSQL.
+3.  Sesuaikan konfigurasi database di `config.php`:
+    ```php
+    $host = "localhost";
+    $user = "root";
+    $pass = "";
+    $db   = "easyresto"; // Sesuaikan nama database
+    ```
+4.  Buka browser dan akses path proyek:
+    `http://localhost/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_01/`
