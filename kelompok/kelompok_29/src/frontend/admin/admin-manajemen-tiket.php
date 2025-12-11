@@ -60,11 +60,6 @@
                             <option value="50">50 data / halaman</option>
                         </select>
                     </div>
-                    <div class="flex md:items-end">
-                        <button type="submit" class="w-full bg-blue-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                            Terapkan Filter
-                        </button>
-                    </div>
                 </form>
                 <p id="filterSummary" class="text-sm text-gray-500">Gunakan filter di atas untuk menyesuaikan data tiket.</p>
             </section>
@@ -266,7 +261,7 @@
                 const totalData = data?.total_data ?? 0;
                 const limit = data?.limit ?? state.filters.limit;
                 const page = data?.page ?? state.filters.page;
-                elements.summary.textContent = `Menampilkan ${data?.records?.length || 0} tiket dari total ${totalData}. Parameter: ${paramsText} (halaman ${page}, limit ${limit}).`;
+                elements.summary.textContent = `Menampilkan ${data?.records?.length || 0} tiket dari total ${totalData}.`;
             }
 
             function setTableLoading() {
