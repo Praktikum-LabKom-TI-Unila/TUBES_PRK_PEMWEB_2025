@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 🔥 FINAL PROJECT
 
 ## Praktikum Pemrograman Web
@@ -174,6 +173,3 @@ Silakan hubungi Asisten Praktikum jika ada kendala teknis terkait CI atau mekani
 Gunakan Git dengan baik, commit secara bertahap, dan kerjakan proyek dengan rapi.
 
 > Laboratorium Teknik Komputer — Universitas Lampung
-=======
-# Awal Baru Proyek
->>>>>>> 9d0a49264cf9d6419446fb30905ef1a679e2a8e5
