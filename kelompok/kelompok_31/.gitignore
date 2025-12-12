@@ -1,0 +1,26 @@
+# Uploads folder - jangan commit file upload user
+uploads/*
+!uploads/.gitkeep
+!uploads/materi/.gitkeep
+!uploads/tugas/.gitkeep
+
+# Config sensitive
+config/database.php
+
+# Log files
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*~
+*.tmp
+*.tmp
