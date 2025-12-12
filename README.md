@@ -172,4 +172,7 @@ Silakan hubungi Asisten Praktikum jika ada kendala teknis terkait CI atau mekani
 
 Gunakan Git dengan baik, commit secara bertahap, dan kerjakan proyek dengan rapi.
 
+      
 > Laboratorium Teknik Komputer — Universitas Lampung
+
+
