@@ -1,0 +1,251 @@
+<?php
+/**
+ * Mahasiswa Controller
+ * Handle fitur pengaduan mahasiswa
+ */
+
+class MahasiswaController extends Controller {
+    
+    public function __construct() {
+        parent::__construct();
+        $this->requireAuth('MAHASISWA');
+    }
+    
+    /**
+     * Dashboard mahasiswa
+     */
+    public function dashboard() {
+        // Get user info
+        $user = [
+            'id' => $_SESSION['user_id'],
+            'name' => $_SESSION['name'],
+            'email' => $_SESSION['email'],
+            'nim' => $_SESSION['nim'],
+            'role' => $_SESSION['role']
+        ];
+        
+        // Get statistics
+        $stmt = $this->db->prepare("
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN status = 'MENUNGGU' THEN 1 ELSE 0 END) as menunggu,
+                SUM(CASE WHEN status = 'DIPROSES' THEN 1 ELSE 0 END) as diproses,
+                SUM(CASE WHEN status = 'SELESAI' THEN 1 ELSE 0 END) as selesai
+            FROM complaints 
+            WHERE mahasiswa_id = ?
+        ");
+        $stmt->execute([$_SESSION['user_id']]);
+        $stats = $stmt->fetch();
+        
+        // Get recent complaints
+        $stmt = $this->db->prepare("
+            SELECT c.*, cat.name as category_name, u.name as unit_name
+            FROM complaints c
+            JOIN categories cat ON c.category_id = cat.id
+            JOIN units u ON cat.unit_id = u.id
+            WHERE c.mahasiswa_id = ?
+            ORDER BY c.created_at DESC
+            LIMIT 5
+        ");
+        $stmt->execute([$_SESSION['user_id']]);
+        $recentComplaints = $stmt->fetchAll();
+        
+        return $this->json([
+            'success' => true,
+            'data' => [
+                'user' => $user,
+                'stats' => $stats,
+                'recent_complaints' => $recentComplaints
+            ]
+        ]);
+    }
+    
+    /**
+     * List all complaints
+     */
+    public function listComplaints() {
+        $page = $this->get('page', 1);
+        $offset = ($page - 1) * ITEMS_PER_PAGE;
+        $status = $this->get('status', '');
+        
+        // Build query
+        $whereClauses = ["c.mahasiswa_id = ?"];
+        $params = [$_SESSION['user_id']];
+        
+        if (!empty($status)) {
+            $whereClauses[] = "c.status = ?";
+            $params[] = $status;
+        }
+        
+        $whereSQL = implode(' AND ', $whereClauses);
+        
+        // Get total count
+        $stmt = $this->db->prepare("
+            SELECT COUNT(*) as total 
+            FROM complaints c 
+            WHERE $whereSQL
+        ");
+        $stmt->execute($params);
+        $totalComplaints = $stmt->fetch()['total'];
+        $totalPages = ceil($totalComplaints / ITEMS_PER_PAGE);
+        
+        // Get complaints
+        $stmt = $this->db->prepare("
+            SELECT c.*, cat.name as category_name, u.name as unit_name
+            FROM complaints c
+            JOIN categories cat ON c.category_id = cat.id
+            JOIN units u ON cat.unit_id = u.id
+            WHERE $whereSQL
+            ORDER BY c.created_at DESC
+            LIMIT ? OFFSET ?
+        ");
+        $params[] = ITEMS_PER_PAGE;
+        $params[] = $offset;
+        $stmt->execute($params);
+        $complaints = $stmt->fetchAll();
+        
+        return $this->json([
+            'success' => true,
+            'data' => [
+                'complaints' => $complaints,
+                'pagination' => [
+                    'current_page' => $page,
+                    'total_pages' => $totalPages,
+                    'total_items' => $totalComplaints,
+                    'per_page' => ITEMS_PER_PAGE
+                ],
+                'filter' => [
+                    'status' => $status
+                ]
+            ]
+        ]);
+    }
+    
+    /**
+     * Show complaint detail
+     */
+    public function detailComplaint($id) {
+        $stmt = $this->db->prepare("
+            SELECT c.*, cat.name as category_name, un.name as unit_name,
+                   u.name as mahasiswa_name, m.nim as mahasiswa_nim
+            FROM complaints c
+            JOIN categories cat ON c.category_id = cat.id
+            JOIN units un ON cat.unit_id = un.id
+            JOIN mahasiswa m ON c.mahasiswa_id = m.id
+            JOIN users u ON m.id = u.id
+            WHERE c.id = ? AND c.mahasiswa_id = ?
+        ");
+        $stmt->execute([$id, $_SESSION['user_id']]);
+        $complaint = $stmt->fetch();
+        
+        if (!$complaint) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Pengaduan tidak ditemukan'
+            ], 404);
+        }
+        
+        // Get notes
+        $stmt = $this->db->prepare("
+            SELECT cn.*, u.name as petugas_name, p.jabatan
+            FROM complaint_notes cn
+            JOIN petugas p ON cn.petugas_id = p.id
+            JOIN users u ON p.id = u.id
+            WHERE cn.complaint_id = ?
+            ORDER BY cn.created_at DESC
+        ");
+        $stmt->execute([$id]);
+        $notes = $stmt->fetchAll();
+        
+        return $this->json([
+            'success' => true,
+            'data' => [
+                'complaint' => $complaint,
+                'notes' => $notes
+            ]
+        ]);
+    }
+    
+    /**
+     * Get active categories for complaint form
+     */
+    public function getCategories() {
+        // Get active categories
+        $stmt = $this->db->query("
+            SELECT c.*, u.name as unit_name 
+            FROM categories c 
+            JOIN units u ON c.unit_id = u.id 
+            WHERE c.is_active = 1
+            ORDER BY c.name
+        ");
+        $categories = $stmt->fetchAll();
+        
+        return $this->json([
+            'success' => true,
+            'data' => $categories
+        ]);
+    }
+    
+    /**
+     * Store new complaint
+     */
+    public function storeComplaint() {
+        $title = sanitize($this->post('title'));
+        $description = sanitize($this->post('description'));
+        $categoryId = $this->post('category_id');
+        
+        // Validation
+        $errors = [];
+        if (empty($title)) $errors[] = 'Judul harus diisi';
+        if (empty($description)) $errors[] = 'Deskripsi harus diisi';
+        if (empty($categoryId)) $errors[] = 'Kategori harus dipilih';
+        
+        if (!empty($errors)) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $errors
+            ], 400);
+        }
+        
+        try {
+            // Handle file upload
+            $evidencePath = null;
+            if (isset($_FILES['evidence']) && $_FILES['evidence']['error'] !== UPLOAD_ERR_NO_FILE) {
+                $evidencePath = uploadFile($_FILES['evidence']);
+            }
+            
+            // Insert complaint
+            $stmt = $this->db->prepare("
+                INSERT INTO complaints (mahasiswa_id, category_id, title, description, evidence_path, status)
+                VALUES (?, ?, ?, ?, ?, 'MENUNGGU')
+            ");
+            $stmt->execute([
+                $_SESSION['user_id'],
+                $categoryId,
+                $title,
+                $description,
+                $evidencePath
+            ]);
+            
+            $complaintId = $this->db->lastInsertId();
+            
+            return $this->json([
+                'success' => true,
+                'message' => 'Pengaduan berhasil dikirim',
+                'data' => [
+                    'complaint_id' => $complaintId
+                ]
+            ], 201);
+            
+        } catch (Exception $e) {
+            if (isset($evidencePath)) {
+                deleteFile($evidencePath);
+            }
+            return $this->json([
+                'success' => false,
+                'message' => 'Gagal mengirim pengaduan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+}
