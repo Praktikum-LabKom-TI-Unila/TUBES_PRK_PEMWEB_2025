@@ -4,6 +4,9 @@ on:
   pull_request:
     types: [closed]
     branches: [master]
+    
+permissions:
+  contents: write
 
 jobs:
   create_tag_and_release:
