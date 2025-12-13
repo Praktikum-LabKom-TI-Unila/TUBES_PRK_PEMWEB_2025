@@ -4,7 +4,7 @@ on:
   pull_request_target:
     types: [closed]
     branches: [master]
-    
+
 permissions:
   contents: write
 
@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repo
+      - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -22,30 +22,36 @@ jobs:
       - name: Take kelompok label
         id: label
         run: |
-          # Get kelompok label with kelompok-XX pattern
-          LABEL=$(echo '${{ toJson(github.event.pull_request.labels) }}' | grep -o 'kelompok-[0-9][0-9]' | head -n 1)
+          LABEL=$(echo '${{ toJson(github.event.pull_request.labels) }}' | grep -oi 'kelompok-[0-9][0-9]' | head -n 1)
 
           if [ -z "$LABEL" ]; then
-            echo "Label kelompok tidak ditemukan. Pastikan workflow polisi-folder memberi label otomatis."
+            echo "Label kelompok tidak ditemukan. Pastikan PR memiliki label kelompok-XX."
             exit 1
           fi
 
           echo "label=$LABEL" >> $GITHUB_OUTPUT
-          echo "Ditemukan label: $LABEL"
+          echo "Label ditemukan: $LABEL"
 
-      - name: find README at kelompok_XX folder
+      - name: Find README in kelompok folder (case-insensitive)
         id: folder
         run: |
           NUMBER=$(echo "${{ steps.label.outputs.label }}" | grep -o '[0-9][0-9]')
-          README_PATH="kelompok/kelompok_${NUMBER}/README.md"
+          DIR="kelompok/kelompok_${NUMBER}"
 
-          if [ ! -f "$README_PATH" ]; then
-            echo "README.md is not found at: $README_PATH"
+          if [ ! -d "$DIR" ]; then
+            echo "Folder tidak ditemukan: $DIR"
+            exit 1
+          fi
+
+          README_PATH=$(find "$DIR" -maxdepth 1 -type f -iname "readme.md" | head -n 1)
+
+          if [ -z "$README_PATH" ]; then
+            echo "README tidak ditemukan di $DIR (README.md / readme.md / Readme.md)"
             exit 1
           fi
 
           echo "readme=$README_PATH" >> $GITHUB_OUTPUT
-          echo "README finded at: $README_PATH"
+          echo "README ditemukan: $README_PATH"
 
       - name: Read README Content (release notes)
         id: notes
@@ -56,7 +62,7 @@ jobs:
           echo "$CONTENT" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Make a tag name
+      - name: Make tag name
         id: tag
         run: |
           LABEL="${{ steps.label.outputs.label }}"
@@ -64,7 +70,7 @@ jobs:
           TAG="${LABEL}-submission-${DATE}"
 
           echo "tag=$TAG" >> $GITHUB_OUTPUT
-          echo "Tag final: $TAG"
+          echo "Tag dibuat: $TAG"
 
       - name: Create Git Tag
         run: |
@@ -86,4 +92,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Success
-        run: echo "Release for tag ${{ steps.tag.outputs.tag }} has Successfully created"
+        run: |
+          echo "Release ${{ steps.tag.outputs.tag }} berhasil dibuat."
