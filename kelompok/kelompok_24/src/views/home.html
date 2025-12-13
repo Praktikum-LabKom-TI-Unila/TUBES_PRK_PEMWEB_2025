@@ -1,0 +1,97 @@
+<div class="space-y-6">
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        <div class="bg-warkops-panel border border-white/5 p-5 relative overflow-hidden group">
+            <div class="absolute -right-6 -top-6 bg-warkops-primary/10 w-24 h-24 rounded-full group-hover:bg-warkops-primary/20 transition-colors"></div>
+            
+            <div class="relative z-10">
+                <div class="text-[10px] font-mono text-warkops-muted uppercase tracking-widest mb-1">Total Revenue</div>
+                
+                <div id="d-total-sales" class="text-3xl font-display font-black text-white animate-pulse">
+                    ...
+                </div>
+                
+                <div class="text-xs mt-2 flex items-center gap-1 font-mono">
+                    <span id="d-sales-growth" class="text-warkops-muted">--%</span> 
+                    <span class="text-warkops-muted opacity-60">vs yesterday</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-warkops-panel border border-white/5 p-5 relative overflow-hidden group">
+            <div class="absolute -right-6 -top-6 bg-warkops-secondary/10 w-24 h-24 rounded-full group-hover:bg-warkops-secondary/20 transition-colors"></div>
+            
+            <div class="relative z-10">
+                <div class="text-[10px] font-mono text-warkops-muted uppercase tracking-widest mb-1">Total Orders</div>
+                
+                <div id="d-total-orders" class="text-3xl font-display font-black text-white animate-pulse">
+                    ...
+                </div>
+                
+                <div class="text-xs text-warkops-secondary mt-2 flex items-center gap-1 font-mono">
+                    <span>● Active</span> <span class="text-warkops-muted opacity-60">today</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-warkops-panel border border-white/5 p-5 relative overflow-hidden group opacity-80">
+            <div class="relative z-10">
+                <div class="text-[10px] font-mono text-warkops-muted uppercase tracking-widest mb-1">Avg. Order Value</div>
+                <div class="text-3xl font-display font-black text-white">Rp --</div>
+                <div class="text-xs text-warkops-muted mt-2 font-mono">Based on today</div>
+            </div>
+        </div>
+
+        <div class="bg-warkops-panel border border-white/5 p-5 relative overflow-hidden group opacity-80">
+            <div class="relative z-10">
+                <div class="text-[10px] font-mono text-warkops-muted uppercase tracking-widest mb-1">System Status</div>
+                <div class="text-3xl font-display font-black text-warkops-success">ONLINE</div>
+                <div class="text-xs text-warkops-muted mt-2 font-mono">All services running</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <div class="lg:col-span-2 bg-warkops-panel border border-white/5 p-6 min-h-[350px] flex flex-col">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-display font-bold text-white tracking-tight">REVENUE ANALYTICS (7 DAYS)</h3>
+                <div class="text-[10px] font-mono text-warkops-muted">UPDATED LIVE</div>
+            </div>
+            
+            <div class="flex-1 px-4 pb-4 border-b border-l border-white/10 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDIwIDIwIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiIHN0cm9rZS13aWR0aD0iMSI+PHBhdGggZD0iTTAgMjBoMjBWMEgwIi8+PC9zdmc+')]">
+                
+                <div id="d-chart-container" class="w-full h-full flex items-end gap-3 justify-between">
+                    <div class="w-full h-full flex items-center justify-center">
+                        <div class="text-xs font-mono text-warkops-primary animate-pulse">LOADING CHART DATA...</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="bg-warkops-panel border border-white/5 p-6 flex flex-col">
+            <h3 class="font-display font-bold text-white tracking-tight mb-4">POPULAR ITEMS (TODAY)</h3>
+            
+            <div id="d-popular-list" class="flex-1 space-y-4 overflow-y-auto pr-2 custom-scrollbar">
+                
+                <div class="space-y-4 animate-pulse">
+                    <div class="h-12 bg-white/5 w-full rounded"></div>
+                    <div class="h-12 bg-white/5 w-full rounded"></div>
+                    <div class="h-12 bg-white/5 w-full rounded"></div>
+                </div>
+
+            </div>
+            
+            <div class="mt-4 pt-4 border-t border-white/10 text-center">
+                <button onclick="window.location.hash='#reports'" class="text-[10px] text-warkops-secondary hover:text-white font-mono uppercase tracking-wider transition-colors">
+                    View Full Reports >
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+</div>

@@ -1,0 +1,235 @@
+<!-- src/views/inventory.html -->
+
+<div class="space-y-8">
+
+	<!-- Hero Stats -->
+	<section class="relative bg-gradient-to-r from-warkops-panel via-black to-warkops-panel border border-white/5 overflow-hidden">
+		<div class="absolute inset-0 bg-seigaiha opacity-10"></div>
+		<div class="relative px-6 py-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+			<div>
+				<p class="text-[10px] font-mono uppercase tracking-[0.4em] text-warkops-muted">Inventory Module</p>
+				<h2 class="text-3xl font-display font-black tracking-tight text-white">MENU • BAHAN • RESEP</h2>
+				<p class="text-sm text-warkops-muted max-w-2xl mt-2">Panel persediaan ala papan pengumuman stasiun Higashi: pantau menu siap jual, stok bahan mentah, dan resep signature.</p>
+			</div>
+			<div class="grid grid-cols-2 gap-4 text-center">
+				<div class="bg-white/5 border border-white/10 px-4 py-3">
+					<div class="text-[10px] font-mono text-warkops-muted">Bahan Aktif</div>
+					<div id="stat-active-stock" class="text-2xl font-display font-bold text-warkops-secondary">--</div>
+				</div>
+				<div class="bg-white/5 border border-white/10 px-4 py-3">
+					<div class="text-[10px] font-mono text-warkops-muted">Menu Ready</div>
+					<div id="stat-ready-menu" class="text-2xl font-display font-bold text-warkops-primary">--</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Filter Bar -->
+	<section class="bg-warkops-panel border border-white/5 p-4 flex flex-wrap items-center gap-4">
+		<div class="flex items-center gap-3">
+			<span class="text-[10px] font-mono text-warkops-muted uppercase">Filter</span>
+            <!-- Class filter-btn ditambahkan -->
+			<button class="filter-btn px-3 py-1 border border-warkops-primary text-xs text-warkops-primary bg-white/10 transition">All</button>
+			<button class="filter-btn px-3 py-1 border border-white/10 text-xs text-white/70 hover:border-warkops-secondary/60 hover:text-warkops-secondary transition">Makanan</button>
+			<button class="filter-btn px-3 py-1 border border-white/10 text-xs text-white/70 hover:border-warkops-secondary/60 hover:text-warkops-secondary transition">Minuman</button>
+		</div>
+	</section>
+
+	<section class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+		<!-- TABEL MENU -->
+		<article class="bg-warkops-panel border border-white/5 p-4 flex flex-col h-[500px]">
+			<div class="flex items-center justify-between mb-4 flex-shrink-0">
+				<div>
+					<p class="text-[10px] font-mono text-warkops-muted uppercase tracking-[0.3em]">Menu Line</p>
+					<h3 class="text-xl font-display font-bold text-white">Daftar Menu</h3>
+				</div>
+				<button id="btn-add-menu" class="px-3 py-1 bg-warkops-primary text-white text-xs font-mono border border-warkops-primary hover:bg-warkops-primary/80 transition">
+					+ ADD MENU
+				</button>
+			</div>
+			<div class="overflow-y-auto pr-2 scrollbar-thin">
+				<table class="min-w-full text-sm font-mono w-full">
+					<thead class="text-[10px] uppercase text-warkops-muted border-b border-white/5 sticky top-0 bg-warkops-panel z-10">
+						<tr>
+							<th class="py-2 text-left">Menu / Info</th>
+							<th class="py-2 text-left">Kat</th>
+							<th class="py-2 text-right">Harga</th>
+							<th class="py-2 text-right">Sts</th>
+							<th class="py-2 text-right">Act</th>
+						</tr>
+					</thead>
+					<tbody id="menu-table-body" class="divide-y divide-white/5 text-white/90">
+						<tr><td colspan="4" class="py-10 text-center text-warkops-muted">Loading Data...</td></tr>
+					</tbody>
+				</table>
+			</div>
+		</article>
+
+		<!-- TABEL STOCK -->
+		<article class="bg-warkops-panel border border-white/5 p-4 flex flex-col h-[500px]">
+			<div class="flex items-center justify-between mb-4 flex-shrink-0">
+				<div>
+					<p class="text-[10px] font-mono text-warkops-muted uppercase tracking-[0.3em]">Stockyard</p>
+					<h3 class="text-xl font-display font-bold text-white">Bahan Mentah</h3>
+				</div>
+				<button id="btn-add-stock" class="px-3 py-1 bg-warkops-secondary text-white text-xs font-mono border border-warkops-secondary hover:bg-warkops-secondary/80 transition">
+					+ ADD BAHAN
+				</button>
+			</div>
+			<div class="overflow-y-auto pr-2 scrollbar-thin">
+				<table class="min-w-full text-sm font-mono w-full">
+					<thead class="text-[10px] uppercase text-warkops-muted border-b border-white/5 sticky top-0 bg-warkops-panel z-10">
+						<tr>
+							<th class="py-2 text-left">Item</th>
+							<th class="py-2 text-right">Qty</th>
+							<th class="py-2 text-right">Sts</th>
+							<th class="py-2 text-right">Act</th>
+						</tr>
+					</thead>
+					<tbody id="stock-table-body" class="divide-y divide-white/5 text-white/90">
+						<tr><td colspan="3" class="py-10 text-center text-warkops-muted">Loading Data...</td></tr>
+					</tbody>
+				</table>
+			</div>
+		</article>
+
+		<!-- TABEL RESEP (SUDAH AKTIF) -->
+        <!-- Hapus class opacity-70 dan pointer-events-none -->
+		<article class="bg-warkops-panel border border-white/5 p-4 flex flex-col h-[500px]">
+			<div class="flex items-center justify-between mb-4 flex-shrink-0">
+				<div>
+					<p class="text-[10px] font-mono text-warkops-muted uppercase tracking-[0.3em]">Lab Notes</p>
+					<h3 class="text-xl font-display font-bold text-white">Blueprint Resep</h3>
+				</div>
+				<button id="btn-add-recipe" class="px-3 py-1 bg-warkops-accent text-black text-xs font-mono border border-warkops-accent hover:bg-warkops-accent/80 transition">
+					+ ADD RESEP
+				</button>
+			</div>
+			<div class="overflow-y-auto pr-2 scrollbar-thin">
+				<table class="min-w-full text-sm font-mono w-full">
+					<thead class="text-[10px] uppercase text-warkops-muted border-b border-white/5 sticky top-0 bg-warkops-panel z-10">
+						<tr>
+							<th class="py-2 text-left">Resep</th>
+							<th class="py-2 text-left">Komponen (BOM)</th>
+							<th class="py-2 text-right">Qty</th>
+							<th class="py-2 text-right">Act</th>
+						</tr>
+					</thead>
+                    <!-- ID Ditambahkan -->
+					<tbody id="recipe-table-body" class="divide-y divide-white/5 text-white/90">
+						<tr><td colspan="3" class="py-10 text-center text-warkops-muted">Loading Data...</td></tr>
+					</tbody>
+				</table>
+			</div>
+		</article>
+
+	</section>
+
+</div>
+
+<!-- MODAL: Menu CRUD -->
+<div id="modal-menu" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center backdrop-blur-sm">
+	<div class="bg-warkops-panel border border-warkops-primary/50 p-6 w-full max-w-md relative shadow-2xl">
+		<button id="close-modal-menu" class="absolute top-4 right-4 text-white/50 hover:text-warkops-primary text-2xl">&times;</button>
+		<h3 class="text-xl font-display font-bold text-white mb-4" id="modal-menu-title">Tambah Menu</h3>
+		<form id="form-menu" class="space-y-3">
+			<input type="hidden" id="menu-id" name="menu_id">
+			<div>
+				<label class="text-xs font-mono text-warkops-muted">Nama Menu</label>
+				<input type="text" id="menu-name" name="name" required class="w-full bg-black/50 border border-white/10 text-white px-3 py-2 text-sm focus:border-warkops-primary focus:outline-none">
+			</div>
+			<div>
+				<label class="text-xs font-mono text-warkops-muted">Deskripsi</label>
+				<textarea id="menu-desc" name="description" rows="2" class="w-full bg-black/50 border border-white/10 text-white px-3 py-2 text-sm focus:border-warkops-primary focus:outline-none"></textarea>
+			</div>
+			<div>
+				<label class="text-xs font-mono text-warkops-muted">Harga</label>
+				<input type="number" id="menu-price" name="price" required class="w-full bg-black/50 border border-white/10 text-white px-3 py-2 text-sm focus:border-warkops-primary focus:outline-none">
+			</div>
+			<div>
+				<label class="text-xs font-mono text-warkops-muted">Kategori</label>
+				<select id="menu-category" name="category_id" class="w-full bg-black/50 border border-white/10 text-white px-3 py-2 text-sm focus:border-warkops-primary focus:outline-none">
+					<option value="">-- Pilih Kategori --</option>
+				</select>
+			</div>
+			<div>
+				<label class="text-xs font-mono text-warkops-muted">Status</label>
+				<select id="menu-available" name="is_available" class="w-full bg-black/50 border border-white/10 text-white px-3 py-2 text-sm focus:border-warkops-primary focus:outline-none">
+					<option value="1">Ready</option>
+					<option value="0">Sold Out</option>
+				</select>
+			</div>
+			<div class="flex gap-2 pt-2">
+				<button type="submit" class="flex-1 bg-warkops-primary text-white py-2 text-sm font-mono hover:bg-warkops-primary/80 transition">SIMPAN</button>
+				<button type="button" id="cancel-modal-menu" class="flex-1 bg-white/10 text-white py-2 text-sm font-mono hover:bg-white/20 transition">BATAL</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+<!-- MODAL: Stock/Ingredient CRUD -->
+<div id="modal-stock" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center backdrop-blur-sm">
+	<div class="bg-warkops-panel border border-warkops-secondary/50 p-6 w-full max-w-md relative shadow-2xl">
+		<button id="close-modal-stock" class="absolute top-4 right-4 text-white/50 hover:text-warkops-secondary text-2xl">&times;</button>
+		<h3 class="text-xl font-display font-bold text-white mb-4" id="modal-stock-title">Tambah Bahan</h3>
+		<form id="form-stock" class="space-y-3">
+			<input type="hidden" id="stock-id" name="ingredient_id">
+			<div>
+				<label class="text-xs font-mono text-warkops-muted">Nama Bahan</label>
+				<input type="text" id="stock-name" name="name" required class="w-full bg-black/50 border border-white/10 text-white px-3 py-2 text-sm focus:border-warkops-secondary focus:outline-none">
+			</div>
+			<div>
+				<label class="text-xs font-mono text-warkops-muted">Stok Quantity</label>
+				<input type="number" id="stock-qty" name="stock_qty" step="0.01" required class="w-full bg-black/50 border border-white/10 text-white px-3 py-2 text-sm focus:border-warkops-secondary focus:outline-none">
+			</div>
+			<div>
+				<label class="text-xs font-mono text-warkops-muted">Unit (kg/liter/pcs)</label>
+				<input type="text" id="stock-unit" name="unit" required class="w-full bg-black/50 border border-white/10 text-white px-3 py-2 text-sm focus:border-warkops-secondary focus:outline-none">
+			</div>
+			<div>
+				<label class="text-xs font-mono text-warkops-muted">Low Stock Threshold</label>
+				<input type="number" id="stock-threshold" name="low_stock_threshold" step="0.01" class="w-full bg-black/50 border border-white/10 text-white px-3 py-2 text-sm focus:border-warkops-secondary focus:outline-none">
+			</div>
+			<div class="flex gap-2 pt-2">
+				<button type="submit" class="flex-1 bg-warkops-secondary text-white py-2 text-sm font-mono hover:bg-warkops-secondary/80 transition">SIMPAN</button>
+				<button type="button" id="cancel-modal-stock" class="flex-1 bg-white/10 text-white py-2 text-sm font-mono hover:bg-white/20 transition">BATAL</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+<!-- MODAL: Recipe CRUD -->
+<div id="modal-recipe" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center backdrop-blur-sm">
+	<div class="bg-warkops-panel border border-warkops-accent/50 p-6 w-full max-w-md relative shadow-2xl">
+		<button id="close-modal-recipe" class="absolute top-4 right-4 text-white/50 hover:text-warkops-accent text-2xl">&times;</button>
+		<h3 class="text-xl font-display font-bold text-white mb-4" id="modal-recipe-title">Tambah Resep</h3>
+		<form id="form-recipe" class="space-y-3">
+			<input type="hidden" id="recipe-id" name="recipe_id">
+			<div>
+				<label class="text-xs font-mono text-warkops-muted">Menu</label>
+				<select id="recipe-menu" name="menu_id" required class="w-full bg-black/50 border border-white/10 text-white px-3 py-2 text-sm focus:border-warkops-accent focus:outline-none">
+					<option value="">-- Pilih Menu --</option>
+				</select>
+			</div>
+			<div>
+				<label class="text-xs font-mono text-warkops-muted">Bahan</label>
+				<select id="recipe-ingredient" name="ingredient_id" required class="w-full bg-black/50 border border-white/10 text-white px-3 py-2 text-sm focus:border-warkops-accent focus:outline-none">
+					<option value="">-- Pilih Bahan --</option>
+				</select>
+			</div>
+			<div>
+				<label class="text-xs font-mono text-warkops-muted">Qty Used</label>
+				<input type="number" id="recipe-qty" name="qty_used" step="0.01" required class="w-full bg-black/50 border border-white/10 text-white px-3 py-2 text-sm focus:border-warkops-accent focus:outline-none">
+			</div>
+			<div>
+				<label class="text-xs font-mono text-warkops-muted">Unit (optional)</label>
+				<input type="text" id="recipe-unit" name="unit" class="w-full bg-black/50 border border-white/10 text-white px-3 py-2 text-sm focus:border-warkops-accent focus:outline-none">
+			</div>
+			<div class="flex gap-2 pt-2">
+				<button type="submit" class="flex-1 bg-warkops-accent text-black py-2 text-sm font-mono hover:bg-warkops-accent/80 transition">SIMPAN</button>
+				<button type="button" id="cancel-modal-recipe" class="flex-1 bg-white/10 text-white py-2 text-sm font-mono hover:bg-white/20 transition">BATAL</button>
+			</div>
+		</form>
+	</div>
+</div>
