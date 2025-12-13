@@ -94,3 +94,4 @@ jobs:
       - name: Success
         run: |
           echo "Release ${{ steps.tag.outputs.tag }} berhasil dibuat."
+
