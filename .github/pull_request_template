@@ -1,0 +1,22 @@
+### Deskripsi Perubahan
+### Jenis Perubahan
+- [ ] Perbaikan Bug 
+- [ ] Fitur Baru 
+- [ ] Refactoring 
+- [ ] Konfigurasi
+
+### Detail Teknis
+1. Frontend:
+   -
+
+2. Backend:
+   -
+
+3. Database:
+   -
+
+### Checklist Pra-Merge
+- [ ] Kode telah dijalankan di lokal dan bebas error.
+- [ ] Struktur folder sesuai dengan standar repositori.
+- [ ] Tidak ada konflik (merge conflict) dengan branch tujuan.
+- [ ] Format kode bersih dan komentar yang tidak perlu telah dihapus.

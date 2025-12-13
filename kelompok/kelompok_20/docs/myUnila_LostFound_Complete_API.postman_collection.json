@@ -1,0 +1,1087 @@
+{
+	"info": {
+		"_postman_id": "myunila-lostfound-complete-api",
+		"name": "myUnila Lost & Found - Complete API Collection",
+		"description": "Complete API Collection untuk sistem myUnila Lost & Found.\n\n## Features Included:\n1. **Authentication** - Login & Register\n2. **Items Management** - CRUD operations untuk barang hilang/ditemukan\n3. **Advanced Search** - Search dengan filter, date range, sorting, pagination\n4. **Smart Match** - Find potential matching items (lost ↔ found)\n5. **User Actions** - Comments, Claims, Notifications\n6. **Admin Management** - Dashboard, User & Item management\n\n## Setup:\n1. Import collection ini ke Postman\n2. Set variable `base_url` sesuai environment\n3. Login terlebih dahulu untuk mendapatkan session\n\n## Authentication:\n- Public endpoints: Register, Login, View Items\n- Protected endpoints: Create Item, Comments, Claims, Notifications\n- Admin endpoints: Dashboard, User Management, Item Management\n\n## Project Info:\n- Course: Praktikum Pemrograman Web 2025\n- Team: Kelompok 20\n- Repository: TUBES_PRK_PEMWEB_2025",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "myunila-lostfound-2025"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost/TUBES_PRK_PEMWEB_2025/kelompok/kelompok_20/src",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Authentication",
+			"description": "Endpoint untuk autentikasi user (Register, Login, Logout)",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "John Doe",
+									"type": "text"
+								},
+								{
+									"key": "npm",
+									"value": "2215061001",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "john@student.unila.ac.id",
+									"type": "text"
+								},
+								{
+									"key": "phone",
+									"value": "081234567890",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "password123",
+									"type": "text"
+								},
+								{
+									"key": "password_confirmation",
+									"value": "password123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/index.php?page=auth&action=register",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "auth"
+								},
+								{
+									"key": "action",
+									"value": "register"
+								}
+							]
+						},
+						"description": "Mendaftarkan user baru.\n\n**Validation:**\n- Email harus unique dan format @student.unila.ac.id atau @unila.ac.id\n- NPM harus unique\n- Password minimal 8 karakter\n- Password confirmation harus sama"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "john@student.unila.ac.id",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "password123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/index.php?page=auth&action=login",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "auth"
+								},
+								{
+									"key": "action",
+									"value": "login"
+								}
+							]
+						},
+						"description": "Login user dan membuat session."
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/index.php?page=auth&action=logout",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "auth"
+								},
+								{
+									"key": "action",
+									"value": "logout"
+								}
+							]
+						},
+						"description": "Logout user dan menghapus session."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Items - Basic CRUD",
+			"description": "CRUD operations untuk barang hilang dan ditemukan",
+			"item": [
+				{
+					"name": "Get All Items",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/index.php?page=items",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "items"
+								}
+							]
+						},
+						"description": "Mendapatkan daftar semua items (public)."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Item by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/index.php?page=items&action=show&id=1",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "items"
+								},
+								{
+									"key": "action",
+									"value": "show"
+								},
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Mendapatkan detail item berdasarkan ID."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Item",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "multipart/form-data"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "Dompet Coklat",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Dompet warna coklat dengan inisial AB",
+									"type": "text"
+								},
+								{
+									"key": "category_id",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "location_id",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "lost",
+									"type": "text"
+								},
+								{
+									"key": "incident_date",
+									"value": "2025-12-05",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/index.php?page=items&action=store",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "items"
+								},
+								{
+									"key": "action",
+									"value": "store"
+								}
+							]
+						},
+						"description": "Membuat item baru. **Requires authentication.**"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Advanced Search & Smart Match",
+			"description": "Advanced search dengan filter dan smart matching untuk menemukan barang yang cocok",
+			"item": [
+				{
+					"name": "Search - Basic",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/index.php?page=items&q=dompet",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "items"
+								},
+								{
+									"key": "q",
+									"value": "dompet",
+									"description": "Search keyword"
+								}
+							]
+						},
+						"description": "Pencarian dasar berdasarkan keyword."
+					},
+					"response": []
+				},
+				{
+					"name": "Search - With Filters",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/index.php?page=items&q=dompet&type=lost&category=1&location=2",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "items"
+								},
+								{
+									"key": "q",
+									"value": "dompet"
+								},
+								{
+									"key": "type",
+									"value": "lost",
+									"description": "lost or found"
+								},
+								{
+									"key": "category",
+									"value": "1"
+								},
+								{
+									"key": "location",
+									"value": "2"
+								}
+							]
+						},
+						"description": "Pencarian dengan filter type, category, dan location."
+					},
+					"response": []
+				},
+				{
+					"name": "Search - Date Range",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/index.php?page=items&date_from=2025-12-01&date_to=2025-12-31",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "items"
+								},
+								{
+									"key": "date_from",
+									"value": "2025-12-01",
+									"description": "Start date (YYYY-MM-DD)"
+								},
+								{
+									"key": "date_to",
+									"value": "2025-12-31",
+									"description": "End date (YYYY-MM-DD)"
+								}
+							]
+						},
+						"description": "Pencarian berdasarkan range tanggal kejadian."
+					},
+					"response": []
+				},
+				{
+					"name": "Search - With Pagination",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/index.php?page=items&q=dompet&limit=10&offset=0",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "items"
+								},
+								{
+									"key": "q",
+									"value": "dompet"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Items per page"
+								},
+								{
+									"key": "offset",
+									"value": "0",
+									"description": "Skip first N items"
+								}
+							]
+						},
+						"description": "Pencarian dengan pagination (limit & offset)."
+					},
+					"response": []
+				},
+				{
+					"name": "Search - With Sorting",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/index.php?page=items&sort=oldest",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "items"
+								},
+								{
+									"key": "sort",
+									"value": "oldest",
+									"description": "newest (default) or oldest"
+								}
+							]
+						},
+						"description": "Pencarian dengan sorting (newest/oldest)."
+					},
+					"response": []
+				},
+				{
+					"name": "Search - Complete Advanced",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/index.php?page=items&q=dompet&type=lost&category=1&location=2&date_from=2025-12-01&date_to=2025-12-31&sort=newest&limit=20&offset=0",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "items"
+								},
+								{
+									"key": "q",
+									"value": "dompet"
+								},
+								{
+									"key": "type",
+									"value": "lost"
+								},
+								{
+									"key": "category",
+									"value": "1"
+								},
+								{
+									"key": "location",
+									"value": "2"
+								},
+								{
+									"key": "date_from",
+									"value": "2025-12-01"
+								},
+								{
+									"key": "date_to",
+									"value": "2025-12-31"
+								},
+								{
+									"key": "sort",
+									"value": "newest"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
+						},
+						"description": "Advanced search dengan semua filter tersedia."
+					},
+					"response": []
+				},
+				{
+					"name": "Smart Match - Find Matches",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/index.php?page=items&action=matches&id=1",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "items"
+								},
+								{
+									"key": "action",
+									"value": "matches"
+								},
+								{
+									"key": "id",
+									"value": "1",
+									"description": "Item ID to find matches for"
+								}
+							]
+						},
+						"description": "Smart Match: Menemukan item yang berpotensi cocok.\n\n**Logic:**\n- Lost item → mencari Found items\n- Found item → mencari Lost items\n- Same category (weighted 50%)\n- Same/nearby location (weighted 50%)\n- Sorted by relevance score"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Comments",
+			"description": "API untuk mengelola komentar pada item",
+			"item": [
+				{
+					"name": "Add Comment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "item_id",
+									"value": "1"
+								},
+								{
+									"key": "body",
+									"value": "Saya melihat barang ini di Perpustakaan kemarin!"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/index.php?page=comments&action=store",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "comments"
+								},
+								{
+									"key": "action",
+									"value": "store"
+								}
+							]
+						},
+						"description": "Menambahkan komentar pada item. **Requires authentication.**\n\n**Triggers:**\n- Notifikasi ke pemilik item"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Comment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "5"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/index.php?page=comments&action=delete",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "comments"
+								},
+								{
+									"key": "action",
+									"value": "delete"
+								}
+							]
+						},
+						"description": "Menghapus komentar (soft delete).\n\n**Authorization:**\n- Pemilik komentar\n- Pemilik item\n- Admin"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "5. Claims",
+			"description": "API untuk mengelola klaim barang dengan Safe Claim feature",
+			"item": [
+				{
+					"name": "Submit Claim",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "item_id",
+									"value": "1"
+								},
+								{
+									"key": "message",
+									"value": "Saya kehilangan dompet ini kemarin di Fakultas Teknik."
+								},
+								{
+									"key": "answer",
+									"value": "3 kartu ATM dan KTM",
+									"description": "Required if Safe Claim is enabled"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/index.php?page=claims&action=store",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "claims"
+								},
+								{
+									"key": "action",
+									"value": "store"
+								}
+							]
+						},
+						"description": "Mengajukan klaim barang. **Requires authentication.**\n\n**Safe Claim:**\n- Jika item memiliki security question, jawaban harus diberikan\n- Jawaban divalidasi dengan database\n\n**Triggers:**\n- Notifikasi ke pemilik item"
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Claim",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "claim_id",
+									"value": "10"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/index.php?page=claims&action=verify",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "claims"
+								},
+								{
+									"key": "action",
+									"value": "verify"
+								}
+							]
+						},
+						"description": "Memverifikasi klaim (khusus pemilik item).\n\n**Process (Transaction):**\n1. Update claim → verified\n2. Reject other claims\n3. Close item\n4. Send notifications"
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel Claim",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "10"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/index.php?page=claims&action=cancel",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "claims"
+								},
+								{
+									"key": "action",
+									"value": "cancel"
+								}
+							]
+						},
+						"description": "Membatalkan klaim yang pending (khusus pengklaim)."
+					},
+					"response": []
+				},
+				{
+					"name": "My Claims",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/index.php?page=claims&action=my",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "claims"
+								},
+								{
+									"key": "action",
+									"value": "my"
+								}
+							]
+						},
+						"description": "Melihat daftar klaim yang diajukan user."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "6. Notifications",
+			"description": "API untuk mengelola notifikasi pengguna",
+			"item": [
+				{
+					"name": "Get All Notifications",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/index.php?page=notifications",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "notifications"
+								}
+							]
+						},
+						"description": "Mendapatkan semua notifikasi user."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Unread Notifications",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/index.php?page=notifications&action=unread&limit=5",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "notifications"
+								},
+								{
+									"key": "action",
+									"value": "unread"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						},
+						"description": "Mendapatkan notifikasi yang belum dibaca (untuk dropdown)."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Unread Count",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/index.php?page=notifications&action=count",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "notifications"
+								},
+								{
+									"key": "action",
+									"value": "count"
+								}
+							]
+						},
+						"description": "Mendapatkan jumlah notifikasi belum dibaca (untuk badge)."
+					},
+					"response": []
+				},
+				{
+					"name": "Mark as Read",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "15"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/index.php?page=notifications&action=mark-read",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "notifications"
+								},
+								{
+									"key": "action",
+									"value": "mark-read"
+								}
+							]
+						},
+						"description": "Menandai satu notifikasi sebagai sudah dibaca."
+					},
+					"response": []
+				},
+				{
+					"name": "Mark All as Read",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/index.php?page=notifications&action=mark-all-read",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "notifications"
+								},
+								{
+									"key": "action",
+									"value": "mark-all-read"
+								}
+							]
+						},
+						"description": "Menandai semua notifikasi sebagai sudah dibaca."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "7. Admin - Dashboard",
+			"description": "Admin dashboard dengan statistik sistem (Admin only)",
+			"item": [
+				{
+					"name": "View Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/index.php?page=admin",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "admin"
+								}
+							]
+						},
+						"description": "Dashboard admin dengan statistik:\n- Total Users\n- Total Lost/Found Items\n- Total Verified Claims\n- Open/Closed Items\n\n**Authorization:** Admin only"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "8. Admin - User Management",
+			"description": "Kelola pengguna sistem (Admin only)",
+			"item": [
+				{
+					"name": "List All Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/index.php?page=admin&action=users&p=1",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "admin"
+								},
+								{
+									"key": "action",
+									"value": "users"
+								},
+								{
+									"key": "p",
+									"value": "1",
+									"description": "Page number"
+								}
+							]
+						},
+						"description": "Daftar semua pengguna (20/page).\n\n**Authorization:** Admin only"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "5"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/index.php?page=admin&action=delete_user",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "admin"
+								},
+								{
+									"key": "action",
+									"value": "delete_user"
+								}
+							]
+						},
+						"description": "Soft delete user (set inactive).\n\n**Restrictions:**\n- Admin cannot delete own account\n\n**Authorization:** Admin only"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "9. Admin - Item Management",
+			"description": "Kelola barang lost & found (Admin only)",
+			"item": [
+				{
+					"name": "List All Items",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/index.php?page=admin&action=items&p=1",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "admin"
+								},
+								{
+									"key": "action",
+									"value": "items"
+								},
+								{
+									"key": "p",
+									"value": "1",
+									"description": "Page number"
+								}
+							]
+						},
+						"description": "Daftar semua barang (20/page, newest first).\n\n**Authorization:** Admin only"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Item",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "10"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/index.php?page=admin&action=delete_item",
+							"host": ["{{base_url}}"],
+							"path": ["index.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "admin"
+								},
+								{
+									"key": "action",
+									"value": "delete_item"
+								}
+							]
+						},
+						"description": "Soft delete item (remove from public listing).\n\n**Use Cases:**\n- Spam/fake items\n- Policy violations\n\n**Authorization:** Admin only"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
