@@ -1,0 +1,1013 @@
+/* Custom CSS - EduPortal
+ * Semua anggota bisa tambahkan style di sini
+ */
+
+body {
+    background-color: #f8f9fa;
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Cards */
+.card {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: none;
+    border-radius: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.card-header {
+    border-bottom: 2px solid #f0f0f0;
+    border-radius: 8px 8px 0 0 !important;
+    font-weight: 600;
+}
+
+/* ============================================
+   LOGIN PAGE STYLING
+   ============================================ */
+
+/* Login Container - Split Screen Layout */
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    overflow: hidden;
+    background: #f8f9fa;
+}
+
+/* Left Panel - Branding */
+.login-left-panel {
+    flex: 1;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.branding-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: white !important;
+    padding: 2rem;
+}
+
+.branding-icon {
+    font-size: 5rem;
+    margin-bottom: 1.5rem;
+    color: white !important;
+    animation: float 3s ease-in-out infinite;
+}
+
+.branding-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: white !important;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+.branding-welcome {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: white !important;
+    opacity: 0.95;
+}
+
+.branding-tagline {
+    font-size: 1rem;
+    color: white !important;
+    opacity: 0.85;
+}
+
+/* Decorative Shapes */
+.decorative-shapes {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.shape {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.shape-1 {
+    width: 300px;
+    height: 300px;
+    top: -100px;
+    right: -100px;
+    animation: float 6s ease-in-out infinite;
+}
+
+.shape-2 {
+    width: 200px;
+    height: 200px;
+    bottom: -50px;
+    left: -50px;
+    animation: float 8s ease-in-out infinite;
+}
+
+.shape-3 {
+    width: 150px;
+    height: 150px;
+    top: 50%;
+    left: 10%;
+    animation: float 5s ease-in-out infinite;
+}
+
+/* Right Panel - Login Form */
+.login-right-panel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: #f8f9fa;
+}
+
+.login-card-wrapper {
+    width: 100%;
+    max-width: 450px;
+}
+
+/* Glassmorphism Login Card */
+.login-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.login-subtitle {
+    color: #666;
+    font-size: 0.95rem;
+}
+
+/* Form Styling */
+.login-form {
+    margin-top: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group .form-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+    display: block;
+    font-size: 0.9rem;
+}
+
+/* Input Wrapper with Icons */
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 15px;
+    color: #667eea;
+    z-index: 2;
+}
+
+.input-wrapper .form-control {
+    padding-left: 45px;
+    padding-right: 45px;
+    height: 50px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.input-wrapper .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+    outline: none;
+}
+
+/* Password Toggle Button */
+.password-toggle {
+    position: absolute;
+    right: 15px;
+    background: none;
+    border: none;
+    color: #667eea;
+    cursor: pointer;
+    padding: 5px;
+    z-index: 2;
+    transition: color 0.3s ease;
+}
+
+.password-toggle:hover {
+    color: #764ba2;
+}
+
+.password-toggle:focus {
+    outline: none;
+}
+
+/* Login Button */
+.btn-login {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    height: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+.btn-login:active {
+    transform: translateY(0);
+}
+
+.btn-login:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Error Message */
+#errorMessage {
+    border-radius: 10px;
+    border-left: 4px solid #dc3545;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+/* Animations */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+/* Responsive Login Page */
+@media (max-width: 991px) {
+    .login-container {
+        flex-direction: column;
+    }
+    
+    .login-left-panel {
+        min-height: 200px;
+        padding: 2rem 1rem;
+    }
+    
+    .branding-icon {
+        font-size: 3rem;
+    }
+    
+    .branding-title {
+        font-size: 2rem;
+    }
+    
+    .branding-welcome {
+        font-size: 1.2rem;
+    }
+    
+    .login-right-panel {
+        padding: 1.5rem;
+    }
+    
+    .login-card {
+        padding: 2rem;
+    }
+}
+
+/* Navbar */
+.navbar {
+    position: relative;
+    z-index: 1030; /* Bootstrap navbar default z-index */
+}
+
+/* Navbar Dropdown - Pastikan dapat diklik */
+.navbar .dropdown-menu {
+    z-index: 1050; /* Lebih tinggi dari navbar */
+}
+
+.navbar .dropdown-toggle {
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+/* Pastikan navbar tidak terhalang oleh elemen lain */
+.navbar-nav .nav-item {
+    position: relative;
+    z-index: 1031;
+}
+
+.navbar-nav .dropdown {
+    position: static; /* Untuk dropdown-menu-end bekerja */
+}
+
+/* Pastikan modal backdrop tidak menghalangi navbar */
+.modal-backdrop {
+    z-index: 1040; /* Di bawah navbar (1030) tapi di atas konten */
+}
+
+/* Navbar box shadow */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Buttons */
+.btn {
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Charts Container */
+canvas {
+    max-width: 100%;
+    height: auto !important;
+}
+
+/* Alert Messages */
+.alert {
+    border-radius: 6px;
+    border: none;
+}
+
+/* Loading Spinner */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .dashboard-header {
+        padding: 1rem 0 !important;
+    }
+    
+    .dashboard-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* ============================================
+   LANDING PAGE STYLING
+   ============================================ */
+
+.landing-page-body {
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow-x: hidden;
+}
+
+/* Hero Section */
+.landing-hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
+    overflow: hidden;
+    padding: 80px 0;
+}
+
+.hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    opacity: 0.3;
+    z-index: 1;
+}
+
+.landing-hero .container {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-content {
+    color: white;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    color: white;
+    letter-spacing: -1px;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    opacity: 0.95;
+    color: white;
+    font-weight: 400;
+}
+
+.btn-hero {
+    padding: 15px 40px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    background: white;
+    color: #4f46e5;
+    border: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-hero:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    color: #4f46e5;
+    background: white;
+}
+
+.hero-image {
+    text-align: center;
+}
+
+.hero-img {
+    width: 100%;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    object-fit: cover;
+    max-height: 600px;
+    animation: float 6s ease-in-out infinite;
+    position: relative;
+    z-index: 2;
+    display: block;
+}
+
+.hero-image {
+    position: relative;
+    z-index: 1;
+}
+
+.hero-image::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    z-index: 1;
+    animation: float 8s ease-in-out infinite reverse;
+}
+
+/* Section Titles */
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #1f2937;
+    letter-spacing: -0.5px;
+}
+
+.section-subtitle {
+    font-size: 1.1rem;
+    color: #6b7280;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* How It Works Section */
+.how-it-works {
+    background: white;
+    padding: 100px 0;
+}
+
+.step-card {
+    text-align: center;
+    padding: 2.5rem 2rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    position: relative;
+    height: 100%;
+}
+
+.step-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.step-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+}
+
+.step-number {
+    position: absolute;
+    top: -15px;
+    right: 20px;
+    font-size: 4rem;
+    font-weight: 700;
+    color: rgba(79, 70, 229, 0.1);
+    line-height: 1;
+}
+
+.step-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #1f2937;
+    letter-spacing: -0.3px;
+}
+
+.step-description {
+    color: #6b7280;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Features Section */
+.features {
+    padding: 100px 0;
+}
+
+.features-img {
+    width: 100%;
+    max-width: 800px;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    object-fit: cover;
+    margin: 0 auto;
+    display: block;
+}
+
+.feature-card {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 15px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    height: 100%;
+    border: 1px solid #f0f0f0;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(79, 70, 229, 0.15);
+    border-color: #4f46e5;
+}
+
+.feature-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+    margin-bottom: 1.5rem;
+}
+
+.feature-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #1f2937;
+    letter-spacing: -0.2px;
+}
+
+.feature-description {
+    color: #6b7280;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Role Overview Section */
+.roles {
+    background: white;
+    padding: 100px 0;
+}
+
+.role-card {
+    background: white;
+    padding: 3rem 2rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    text-align: center;
+    height: 100%;
+    border: 2px solid transparent;
+}
+
+.role-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    border-color: #4f46e5;
+}
+
+.role-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: white;
+}
+
+.role-icon.admin {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+}
+
+.role-icon.dosen {
+    background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+}
+
+.role-icon.mahasiswa {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.role-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #1f2937;
+    letter-spacing: -0.3px;
+}
+
+.role-description {
+    color: #6b7280;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.role-features {
+    list-style: none;
+    padding: 0;
+    text-align: left;
+}
+
+.role-features li {
+    padding: 0.5rem 0;
+    color: #4b5563;
+}
+
+.role-features li i {
+    color: #10b981;
+    margin-right: 0.5rem;
+}
+
+/* CTA Section */
+.cta-section {
+    padding: 100px 0;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+}
+
+.cta-title {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: white;
+    letter-spacing: -0.5px;
+}
+
+.cta-description {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    opacity: 0.95;
+    color: white;
+}
+
+.cta-img {
+    width: 100%;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    object-fit: cover;
+    max-height: 500px;
+    display: block;
+    position: relative;
+    z-index: 2;
+}
+
+.cta-illustration {
+    position: relative;
+}
+
+.cta-illustration::before {
+    content: '';
+    position: absolute;
+    top: -15px;
+    left: -15px;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    z-index: -1;
+}
+
+/* FAQ Section */
+.faq {
+    padding: 100px 0;
+}
+
+.accordion-item {
+    border: none;
+    margin-bottom: 1rem;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.accordion-button {
+    background: white;
+    font-weight: 600;
+    color: #1f2937;
+    padding: 1.25rem 1.5rem;
+    border: none;
+    box-shadow: none;
+}
+
+.accordion-button:not(.collapsed) {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    color: white;
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+    border: none;
+}
+
+.accordion-body {
+    padding: 1.5rem;
+    color: #6b7280;
+    line-height: 1.6;
+}
+
+.accordion-body a {
+    color: #4f46e5;
+    text-decoration: none;
+}
+
+.accordion-body a:hover {
+    text-decoration: underline;
+}
+
+/* Footer */
+.footer {
+    background: #111827;
+    color: white;
+}
+
+.footer-logo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.footer-tagline {
+    font-size: 1rem;
+    color: #9ca3af;
+    margin-bottom: 1rem;
+}
+
+.footer-description {
+    color: #6b7280;
+    line-height: 1.6;
+}
+
+.footer-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-links li {
+    margin-bottom: 0.5rem;
+}
+
+.footer-links a {
+    color: #9ca3af;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: white;
+}
+
+.footer-divider {
+    border-color: #374151;
+    margin: 2rem 0;
+}
+
+.footer-copyright {
+    color: #6b7280;
+    margin: 0;
+}
+
+.footer-credits {
+    color: #9ca3af;
+    margin: 0.5rem 0 0;
+    font-size: 0.9rem;
+}
+
+/* Animations */
+.fade-in-up {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-in-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.fade-in-left {
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-in-left.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.fade-in-right {
+    opacity: 0;
+    transform: translateX(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-in-right.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Responsive Design */
+@media (max-width: 991px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .hero-illustration {
+        font-size: 8rem;
+        margin-top: 2rem;
+    }
+    
+    .section-title {
+        font-size: 2rem;
+    }
+    
+    .cta-title {
+        font-size: 2rem;
+    }
+    
+    .cta-illustration {
+        font-size: 8rem;
+        margin-top: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .landing-hero {
+        padding: 60px 0;
+    }
+    
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+    
+    .how-it-works,
+    .features,
+    .roles,
+    .cta-section,
+    .faq {
+        padding: 60px 0;
+    }
+    
+    .step-card,
+    .feature-card,
+    .role-card {
+        margin-bottom: 2rem;
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+    }
+    
+    .cta-title {
+        font-size: 1.8rem;
+    }
+}
