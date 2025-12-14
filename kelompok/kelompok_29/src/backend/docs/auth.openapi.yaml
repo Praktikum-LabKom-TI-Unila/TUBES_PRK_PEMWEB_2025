@@ -1,0 +1,333 @@
+openapi: 3.0.3
+info:
+  title: SIPINDA Auth API
+  version: '1.0.0'
+  description: >-
+    Blueprint autentikasi untuk REST API Vanilla PHP SIPINDA.
+servers:
+  - url: /api
+paths:
+  /auth/login:
+    post:
+      operationId: authLogin
+      summary: AUTH-01 Login multi-role
+      description: >-
+        Menerima identifier (email/phone/nik) dan password. Role ditentukan server.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [identifier, password]
+              properties:
+                identifier:
+                  type: string
+                  example: warga@example.com
+                password:
+                  type: string
+                  format: password
+                  example: sangat-rahasia
+      responses:
+        '200':
+          description: Login berhasil
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponseLogin'
+              examples:
+                success:
+                  value:
+                    status: success
+                    code: 200
+                    message: Login berhasil.
+                    data:
+                      token: 2f5ae4...
+                      user:
+                        id: 7f075a04-50af-4da3-b2a1-44a9d4c66988
+                        full_name: Nama Warga
+                        email: warga@example.com
+                        role: warga
+                    errors: []
+        '401':
+          description: Kredensial atau token tidak valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidCredentials:
+                  value:
+                    status: error
+                    code: 401
+                    message: Kredensial tidak valid.
+                    data: []
+                    errors:
+                      - reason: invalid_credentials
+        '403':
+          description: Akses ditolak (misal akun diblokir)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validasi gagal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validation:
+                  value:
+                    status: error
+                    code: 422
+                    message: Validasi gagal.
+                    data: []
+                    errors:
+                      - field: identifier
+                        message: Field wajib diisi.
+  /auth/register:
+    post:
+      operationId: authRegister
+      summary: AUTH-03 Registrasi pelapor
+      description: >-
+        Membuat akun pelapor (role warga) baru dengan data identitas dasar.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [full_name, email, password, confirm_password, phone, address, nik]
+              properties:
+                full_name:
+                  type: string
+                  example: Warga Baru
+                email:
+                  type: string
+                  format: email
+                  example: warga@example.com
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  example: passwordku
+                confirm_password:
+                  type: string
+                  format: password
+                  example: passwordku
+                  description: Harus sama dengan field password.
+                phone:
+                  type: string
+                  example: '081200011122'
+                address:
+                  type: string
+                  example: Jl. Merdeka No. 1
+                nik:
+                  type: string
+                  description: 16 digit angka sesuai Dukcapil
+                  minLength: 16
+                  maxLength: 16
+                  example: '3271010101010001'
+      responses:
+        '201':
+          description: Registrasi berhasil
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponseRegister'
+              examples:
+                success:
+                  value:
+                    status: success
+                    code: 201
+                    message: Pelapor berhasil terdaftar.
+                    data:
+                      user_id: 7f075a04-50af-4da3-b2a1-44a9d4c66988
+                      role: warga
+                      nik: '3271010101010001'
+                    errors: []
+        '409':
+          description: Email sudah terdaftar
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                duplicateEmail:
+                  value:
+                    status: error
+                    code: 409
+                    message: Email sudah terdaftar.
+                    data: []
+                    errors:
+                      - field: email
+                        message: Gunakan email lain atau lakukan login.
+                duplicateNik:
+                  value:
+                    status: error
+                    code: 409
+                    message: NIK sudah terdaftar.
+                    data: []
+                    errors:
+                      - field: nik
+                        message: Gunakan NIK lain atau hubungi admin.
+        '422':
+          description: Validasi gagal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                confirmPasswordMismatch:
+                  value:
+                    status: error
+                    code: 422
+                    message: Validasi gagal.
+                    data: []
+                    errors:
+                      - field: confirm_password
+                        message: Konfirmasi password harus sama.
+        '500':
+          description: Gangguan server/database
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/logout:
+    post:
+      operationId: authLogout
+      summary: AUTH-02 Logout universal
+      description: Menonaktifkan token akses aktif.
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            example: Bearer 2f5ae4...
+      responses:
+        '200':
+          description: Logout berhasil
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponseLogout'
+              examples:
+                success:
+                  value:
+                    status: success
+                    code: 200
+                    message: Logout berhasil.
+                    data:
+                      revoked_token: 2f5ae4...
+                    errors: []
+        '401':
+          description: Token tidak ditemukan/invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missingToken:
+                  value:
+                    status: error
+                    code: 401
+                    message: Token tidak ditemukan.
+                    data: []
+                    errors:
+                      - reason: missing_token
+        '403':
+          description: Token ditolak
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    SuccessResponseLogin:
+      type: object
+      properties:
+        status:
+          type: string
+        code:
+          type: integer
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            token:
+              type: string
+            user:
+              type: object
+              properties:
+                id:
+                  type: string
+                full_name:
+                  type: string
+                email:
+                  type: string
+                role:
+                  type: string
+        errors:
+          type: array
+          items:
+            type: object
+    SuccessResponseLogout:
+      type: object
+      properties:
+        status:
+          type: string
+        code:
+          type: integer
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            revoked_token:
+              type: string
+        errors:
+          type: array
+          items:
+            type: object
+    SuccessResponseRegister:
+      type: object
+      properties:
+        status:
+          type: string
+        code:
+          type: integer
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            user_id:
+              type: string
+            role:
+              type: string
+            nik:
+              type: string
+        errors:
+          type: array
+          items:
+            type: object
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        code:
+          type: integer
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            type: object
+        errors:
+          type: array
+          items:
+            type: object
